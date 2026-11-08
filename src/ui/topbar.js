@@ -35,6 +35,7 @@ export function renderTopbar() {
         ${item('/', 'nav.home', '🏠', path === '/')}
         ${item('/map', 'nav.map', '🗺️', /^\/(map|level|boss)/.test(path))}
         ${item('/profile', 'nav.profile', '👤', path.startsWith('/profile'))}
+        ${item('/premium', 'nav.premium', '⭐', path.startsWith('/premium'))}
       </nav>
       <div class="top-stats">
         <span class="stat-chip streak ${streak ? 'is-on' : ''}" title="${t('top.streak')}">🔥 <b>${streak}</b></span>

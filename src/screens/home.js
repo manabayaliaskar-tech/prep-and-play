@@ -103,6 +103,12 @@ export function homeScreen(app) {
           <a class="btn btn-primary" href="#/exam">📝 ${t('home.takeExam')}</a>
         </div>
 
+        <a class="premium-card" href="#/premium">
+          <span class="premium-star">⭐</span>
+          <span><b>${t('home.premiumTitle')}</b><small>${t('home.premiumText')}</small></span>
+          <span class="daily-go">→</span>
+        </a>
+
         <div class="about-card">
           <h2>${t('home.aboutTitle')}</h2>
           <p>${t('home.about', { rw: BANK_STATS.rw, math: BANK_STATS.mathSkills })}</p>

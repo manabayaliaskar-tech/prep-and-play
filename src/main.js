@@ -12,6 +12,7 @@ import { homeScreen } from './screens/home.js';
 import { bossRoute, levelRoute, mapScreen } from './screens/map.js';
 import { blitzRoute, dailyRoute, duelAcceptRoute, duelRoute, survivalRoute, weakRoute } from './screens/modes.js';
 import { profileScreen } from './screens/profile.js';
+import { premiumScreen } from './screens/premium.js';
 import { toast } from './ui/overlay.js';
 import { bindLangSwitches, renderTopbar } from './ui/topbar.js';
 
@@ -30,6 +31,7 @@ route('/duel', () => duelRoute(app));
 route('/duel/:code', (params) => duelAcceptRoute(app, params));
 route('/detective', () => detectiveRoute(app));
 route('/profile', () => profileScreen(app));
+route('/premium', () => premiumScreen(app));
 
 on('profile', renderTopbar);
 document.addEventListener('routechange', renderTopbar);
