@@ -8,12 +8,12 @@
 
 ## Шаг 1. Включить сайт на GitHub Pages (один раз, 2 минуты)
 
-1. Открыть https://github.com/manabayaliaskar-tech/School/settings/pages
+1. Открыть https://github.com/manabayaliaskar-tech/prep-and-play/settings/pages
 2. В блоке **Build and deployment → Source** выбрать **GitHub Actions**.
 3. Открыть вкладку **Actions** в репозитории, выбрать последний запуск
    «CI и публикация» и нажать **Re-run all jobs** (или дождаться следующего коммита).
 4. Через 1–2 минуты сайт будет доступен по адресу:
-   **https://manabayaliaskar-tech.github.io/School/**
+   **https://manabayaliaskar-tech.github.io/prep-and-play/**
 
 Если репозиторий приватный, GitHub Pages на бесплатном аккаунте может не работать.
 Тогда его нужно сделать публичным: Settings → General → Danger Zone → Change visibility.
@@ -49,9 +49,9 @@
 Проект: AlgoVision — интерактивный тренажёр алгоритмов
 
 Живая версия (работает в браузере, без регистрации):
-https://manabayaliaskar-tech.github.io/School/
+https://manabayaliaskar-tech.github.io/prep-and-play/
 
-Исходный код: https://github.com/manabayaliaskar-tech/School
+Исходный код: https://github.com/manabayaliaskar-tech/prep-and-play
 Демо-видео: <ссылка>
 Презентация: <ссылка>
 

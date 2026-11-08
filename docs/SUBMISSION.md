@@ -8,10 +8,10 @@
 
 ## Шаг 1. Включить сайт на GitHub Pages (2 минуты, один раз)
 
-1. Открыть https://github.com/manabayaliaskar-tech/School/settings/pages
+1. Открыть https://github.com/manabayaliaskar-tech/prep-and-play/settings/pages
 2. В разделе **Build and deployment → Source** выбрать **GitHub Actions**.
 3. Открыть вкладку **Actions** → верхний запуск «CI и публикация» → **Re-run jobs → Re-run all jobs**.
-4. Через 1–2 минуты сайт будет здесь: **https://manabayaliaskar-tech.github.io/School/**
+4. Через 1–2 минуты сайт будет здесь: **https://manabayaliaskar-tech.github.io/prep-and-play/**
 
 ## Шаг 2. Демо-видео (1–2 минуты)
 
@@ -40,8 +40,8 @@
 Номинация: Indie Game / Interactive Media
 Проект: Prep&Play — подготовка к цифровому SAT в виде игры
 
-Живая версия (браузер, без регистрации): https://manabayaliaskar-tech.github.io/School/
-Исходный код: https://github.com/manabayaliaskar-tech/School
+Живая версия (браузер, без регистрации): https://manabayaliaskar-tech.github.io/prep-and-play/
+Исходный код: https://github.com/manabayaliaskar-tech/prep-and-play
 Демо-видео: <ссылка>
 Презентация: <ссылка>
 

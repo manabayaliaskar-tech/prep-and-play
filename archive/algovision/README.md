@@ -6,7 +6,7 @@
 Алгоритмы показаны пошаговой анимацией, и каждый шаг объясняется на русском языке.
 Работает прямо в браузере, на компьютере и телефоне, без регистрации и установки.
 
-🔗 **Живая версия:** https://manabayaliaskar-tech.github.io/School/
+🔗 **Живая версия:** https://manabayaliaskar-tech.github.io/prep-and-play/
 📦 **Номинация:** Indie Game / Interactive Media — конкурс «Software & AI Showcase» 2026
 
 ---
@@ -71,12 +71,12 @@ docs/                    — материалы для конкурса
 
 ## Как запустить
 
-**Вариант 1 — просто открыть ссылку:** https://manabayaliaskar-tech.github.io/School/
+**Вариант 1 — просто открыть ссылку:** https://manabayaliaskar-tech.github.io/prep-and-play/
 
 **Вариант 2 — локально** (нужен [Node.js](https://nodejs.org) 20+):
 
 ```bash
-git clone https://github.com/manabayaliaskar-tech/School.git
+git clone https://github.com/manabayaliaskar-tech/prep-and-play.git
 cd School
 npm start        # сайт откроется на http://localhost:3000
 npm test         # запустить тесты

@@ -4,7 +4,7 @@
 карта с островами и боссами, дуэли с друзьями, блиц, выживание и пробный экзамен с прогнозом балла.
 Каждое задание разобрано на **английском, русском и казахском**.
 
-🔗 **Живая версия:** https://manabayaliaskar-tech.github.io/School/
+🔗 **Живая версия:** https://manabayaliaskar-tech.github.io/prep-and-play/
 📦 **Номинация:** Indie Game / Interactive Media — конкурс «Software & AI Showcase» 2026
 
 ---
@@ -98,12 +98,12 @@ archive/algovision/       — запасной проект (тренажёр а
 
 ## Запуск
 
-**Просто открыть:** https://manabayaliaskar-tech.github.io/School/
+**Просто открыть:** https://manabayaliaskar-tech.github.io/prep-and-play/
 
 **Локально** (нужен [Node.js](https://nodejs.org) 22+):
 
 ```bash
-git clone https://github.com/manabayaliaskar-tech/School.git
+git clone https://github.com/manabayaliaskar-tech/prep-and-play.git
 cd School
 npm start      # сайт на http://localhost:3000
 npm test       # тесты
