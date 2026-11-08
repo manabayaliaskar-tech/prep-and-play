@@ -98,4 +98,4 @@ npm test         # запустить тесты
 
 ## Лицензия
 
-MIT.
+Все права защищены (All rights reserved). Подробности — в файле [LICENSE](../../LICENSE).
