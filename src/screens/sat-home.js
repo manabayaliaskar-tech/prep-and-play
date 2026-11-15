@@ -1,4 +1,4 @@
-// Главная: приветствие, цель дня, серия, «продолжить путь», ежедневный челлендж, все режимы.
+// Главная страница SAT: «продолжить путь», задание дня, все игровые режимы, прогноз балла.
 
 import { dayKey } from '../core/dates.js';
 import { t, tx } from '../core/i18n.js';
@@ -40,7 +40,7 @@ const MODES = [
   { href: '/daily', icon: '☀️', key: 'daily', color: '#fb923c' },
 ];
 
-export function homeScreen(app) {
+export function satHomeScreen(app) {
   const render = () => {
     const p = getProfile();
     const lvl = levelInfo(p.xp);
@@ -49,13 +49,13 @@ export function homeScreen(app) {
     const dailyDone = Boolean(p.daily[dayKey()]);
     const lastExam = p.exams.at(-1);
     const records = { survival: p.records.survival, blitz: p.records.blitz, det: p.records.detective };
-    const name = p.name ? esc(p.name) : '';
     app.innerHTML = `
       <section class="page home">
+        <a class="crumb" href="#/exams">← ${t('nav.exams')}</a>
         <div class="hero-card">
           <div class="hero-mascot">${mascot(xpToday >= DAILY_GOAL ? 'win' : 'happy', 'mascot-xl float')}</div>
           <div class="hero-text">
-            <p class="hero-kicker">${name ? t('home.helloName', { name }) : t('home.hello')}</p>
+            <p class="hero-kicker">SAT</p>
             <h1>${t('home.title')}</h1>
             <p class="muted">${t('home.subtitle')}</p>
             <div class="hero-badges">

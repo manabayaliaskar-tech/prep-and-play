@@ -8,17 +8,27 @@ import { sfx } from './core/sound.js';
 import { ACHIEVEMENTS } from './content/achievements.js';
 import { detectiveRoute } from './screens/detective.js';
 import { examRoute } from './screens/exam.js';
-import { homeScreen } from './screens/home.js';
+import { courseScreen, examsScreen, practiceHubScreen } from './screens/catalog.js';
+import { hubScreen } from './screens/hub.js';
 import { bossRoute, levelRoute, mapScreen } from './screens/map.js';
 import { blitzRoute, dailyRoute, duelAcceptRoute, duelRoute, survivalRoute, weakRoute } from './screens/modes.js';
+import { trackRoute } from './screens/practice.js';
 import { profileScreen } from './screens/profile.js';
 import { premiumScreen } from './screens/premium.js';
+import { satHomeScreen } from './screens/sat-home.js';
 import { toast } from './ui/overlay.js';
 import { bindLangSwitches, renderTopbar } from './ui/topbar.js';
 
 const app = document.getElementById('app');
 
-route('/', () => homeScreen(app));
+// Общие разделы
+route('/', () => hubScreen(app));
+route('/exams', () => examsScreen(app));
+route('/practice', () => practiceHubScreen(app));
+route('/c/:course', (params) => courseScreen(app, params));
+route('/c/:course/:track', (params) => trackRoute(app, params));
+// SAT
+route('/sat', () => satHomeScreen(app));
 route('/map', () => mapScreen(app));
 route('/level/:zone/:n', (params) => levelRoute(app, params));
 route('/boss/:zone', (params) => bossRoute(app, params));

@@ -180,7 +180,7 @@ export function detectiveRoute(app) {
       ],
       actions: [
         { label: `↻ ${t('res.again')}`, onClick: () => navigate('/detective'), primary: true },
-        { label: `🏠 ${t('res.home')}`, href: '/' },
+        { label: `🏠 ${t('res.home')}`, href: '/sat' },
       ],
     });
     renderResults(app, st.build);

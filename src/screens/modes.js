@@ -106,7 +106,7 @@ export function survivalRoute(app) {
             log: run.log,
             actions: [
               { label: `↻ ${t('res.again')}`, onClick: () => navigate('/survival'), primary: true },
-              { label: `🏠 ${t('res.home')}`, href: '/' },
+              { label: `🏠 ${t('res.home')}`, href: '/sat' },
             ],
           });
         },
@@ -150,7 +150,7 @@ export function blitzRoute(app) {
             log: run.log,
             actions: [
               { label: `↻ ${t('res.again')}`, onClick: () => navigate('/blitz'), primary: true },
-              { label: `🏠 ${t('res.home')}`, href: '/' },
+              { label: `🏠 ${t('res.home')}`, href: '/sat' },
             ],
           });
         },
@@ -249,7 +249,7 @@ export function dailyRoute(app) {
           ${
             done
               ? `<div class="daily-done">${mascot('win', 'mascot-sm')}<div><b>${t('daily.doneToday', { c: done.c, n: DAILY_COUNT })}</b><p class="muted">${t('daily.next')} <span class="countdown"></span></p></div></div>
-                 <a class="btn btn-soft btn-xl" href="#/">🏠 ${t('res.home')}</a>`
+                 <a class="btn btn-soft btn-xl" href="#/sat">🏠 ${t('res.home')}</a>`
               : `<button type="button" class="btn btn-primary btn-xl start-btn">▶ ${t('daily.start')}</button>`
           }
         </div>
@@ -268,7 +268,7 @@ export function dailyRoute(app) {
       session = runSession(app, {
         title: () => `☀️ ${t('daily.title')}`,
         questions: dailyQuestions(today),
-        exitTo: '/',
+        exitTo: '/sat',
         onFinish: (run) => {
           const p = getProfile();
           if (!p.daily[today]) {
@@ -285,7 +285,7 @@ export function dailyRoute(app) {
             xp: run.xp + DAILY_BONUS,
             stats: baseStats(run),
             log: run.log,
-            actions: [{ label: `🏠 ${t('res.home')}`, href: '/', primary: true }],
+            actions: [{ label: `🏠 ${t('res.home')}`, href: '/sat', primary: true }],
           });
         },
       });
@@ -388,7 +388,7 @@ function playDuel(app, { seed, section, opponent = null }) {
         log: run.log,
         actions: [
           { label: `🤺 ${t('duel.newDuel')}`, onClick: () => navigate('/duel'), primary: Boolean(opponent) },
-          { label: `🏠 ${t('res.home')}`, href: '/' },
+          { label: `🏠 ${t('res.home')}`, href: '/sat' },
         ],
         afterRender: (root) => bindShare(root, code, shareText),
       });

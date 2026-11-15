@@ -2,7 +2,7 @@
 
 import { t, tx } from '../core/i18n.js';
 import { NOTES_INTRO } from '../content/rw/prompts.js';
-import { SKILLS } from '../content/skills.js';
+import { skillName } from '../content/labels.js';
 import { esc, isFinePointer } from './dom.js';
 
 export const LETTERS = ['A', 'B', 'C', 'D'];
@@ -25,7 +25,7 @@ export function difficultyDots(d) {
 
 export function questionHtml(q) {
   const parts = [
-    `<div class="q-meta"><span class="q-tag q-tag-${q.section}">${q.section === 'rw' ? '📖' : '📐'} ${esc(tx(SKILLS[q.skill].name))}</span>${difficultyDots(q.d)}</div>`,
+    `<div class="q-meta"><span class="q-tag q-tag-${q.section}">${q.section === 'rw' ? '📖' : '📐'} ${esc(tx(skillName(q.skill)))}</span>${difficultyDots(q.d)}</div>`,
   ];
   if (q.section === 'rw') {
     if (q.passages) {
@@ -36,19 +36,19 @@ export function questionHtml(q) {
     if (q.notes) {
       parts.push(`<div class="passage notes"><p>${esc(NOTES_INTRO)}</p><ul>${q.notes.map((n) => `<li>${esc(n)}</li>`).join('')}</ul></div>`);
     }
-    if (q.passage) parts.push(`<div class="passage"><p>${passageText(q.passage)}</p></div>`);
+    if (q.passage) parts.push(`<div class="passage">${q.passageLabel ? `<div class="passage-label">${esc(tx(q.passageLabel))}</div>` : ''}<p>${passageText(tx(q.passage))}</p></div>`);
     if (q.table) parts.push(tableHtml(q.table));
-    parts.push(`<p class="q-prompt">${esc(q.prompt)}</p>`);
+    parts.push(`<p class="q-prompt">${esc(tx(q.prompt))}</p>`);
   } else {
     if (q.figure) parts.push(`<div class="figure">${q.figure}</div>`);
     if (q.table) parts.push(tableHtml(q.table));
-    parts.push(`<p class="q-prompt q-math">${q.prompt}</p>`);
+    parts.push(`<p class="q-prompt q-math">${tx(q.prompt)}</p>`);
   }
   if (q.type === 'spr') {
     parts.push(`
       <div class="spr">
         <label class="spr-label" for="spr-input">${t('q.sprLabel')}</label>
-        <input id="spr-input" class="spr-input" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="8" placeholder="${t('q.sprPlaceholder')}"/>
+        <input id="spr-input" class="spr-input" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="12" placeholder="${t('q.sprPlaceholder')}"/>
         <p class="spr-hint">${t('q.sprHint')}</p>
         <p class="spr-correct" hidden></p>
       </div>`);
@@ -58,7 +58,7 @@ export function questionHtml(q) {
       `<div class="choices" role="radiogroup">${q.choices
         .map(
           (c, i) =>
-            `<button type="button" class="choice" role="radio" aria-checked="false" data-choice="${i}"><span class="choice-letter">${LETTERS[i]}</span><span class="choice-text">${isMath ? c : esc(c)}</span></button>`,
+            `<button type="button" class="choice" role="radio" aria-checked="false" data-choice="${i}"><span class="choice-letter">${LETTERS[i]}</span><span class="choice-text">${isMath ? tx(c) : esc(tx(c))}</span></button>`,
         )
         .join('')}</div>`,
     );
@@ -125,7 +125,7 @@ export function bindQuestion(root, q, { onChange = () => {}, onSubmit = () => {}
         if (!correct && showAnswer) {
           const el = root.querySelector('.spr-correct');
           el.hidden = false;
-          el.innerHTML = `${t('fb.correctAnswer')}: <b>${esc(q.display)}</b>`;
+          el.innerHTML = `${t('fb.correctAnswer')}: <b>${esc(tx(q.display))}</b>`;
         }
         return;
       }
@@ -140,7 +140,7 @@ export function bindQuestion(root, q, { onChange = () => {}, onSubmit = () => {}
 }
 
 export function correctAnswerHtml(q) {
-  if (q.type === 'spr') return `<b>${esc(q.display)}</b>`;
-  const text = q.section === 'math' ? q.choices[q.answer] : esc(q.choices[q.answer]);
+  if (q.type === 'spr') return `<b>${esc(tx(q.display))}</b>`;
+  const text = q.section === 'math' ? tx(q.choices[q.answer]) : esc(tx(q.choices[q.answer]));
   return `<b>${LETTERS[q.answer]}</b> — ${text}`;
 }

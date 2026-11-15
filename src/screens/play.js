@@ -8,7 +8,7 @@ import { navigate, setLeaveGuard } from '../core/router.js';
 import { sfx, vibrate } from '../core/sound.js';
 import { checkAnswer } from '../engine/answer.js';
 import { applyAnswer, createRun } from '../engine/session.js';
-import { esc } from '../ui/dom.js';
+import { esc, formatTime } from '../ui/dom.js';
 import { mascot } from '../ui/mascot.js';
 import { bindQuestion, correctAnswerHtml, questionHtml } from '../ui/question.js';
 import { openReference } from '../ui/reference.js';
@@ -22,6 +22,8 @@ const PRAISE_KEYS = ['fb.praise1', 'fb.praise2', 'fb.praise3', 'fb.praise4', 'fb
  * config:
  *  title, questions (массив) или stream + difficultyAt(i),
  *  lives, boss { icon, name }, timeLimit (сек), quick (быстрый режим без паузы на разбор),
+ *  silent (тест: без подсказки «верно/неверно», разбор только в конце),
+ *  catalog (сессия из каталога сама запоминает, что продолжать),
  *  exitTo, onFinish(run, { reason }) → функция build для экрана результатов.
  */
 export function runSession(app, config) {
@@ -34,6 +36,8 @@ export function runSession(app, config) {
     boss = null,
     timeLimit = null,
     quick = false,
+    silent = false,
+    catalog = false,
     exitTo = '/',
     onFinish,
   } = config;
@@ -59,10 +63,11 @@ export function runSession(app, config) {
   document.body.classList.add('in-session');
 
   const el = {};
+  const checkLabel = () => (silent ? t('session.answer') : t('session.check'));
 
   function shell() {
     app.innerHTML = `
-      <div class="session ${quick ? 'is-quick' : ''}">
+      <div class="session ${quick ? 'is-quick' : ''} ${silent ? 'is-silent' : ''}">
         <header class="hud">
           <button type="button" class="icon-btn hud-close" aria-label="${t('session.close')}">✕</button>
           <div class="hud-progress" aria-hidden="true"><i></i></div>
@@ -83,7 +88,7 @@ export function runSession(app, config) {
         }
         <div class="session-title"><span>${esc(titleText())}</span><span class="q-counter"></span><button type="button" class="link-btn ref-btn" hidden>📏 ${t('ref.short')}</button>${langSwitchHtml('mini')}</div>
         <main class="q-area"></main>
-        <footer class="answer-bar"><div class="answer-bar-inner"><button type="button" class="btn btn-primary btn-lg btn-check" disabled>${t('session.check')}</button></div></footer>
+        <footer class="answer-bar"><div class="answer-bar-inner"><button type="button" class="btn btn-primary btn-lg btn-check" disabled>${checkLabel()}</button></div></footer>
         <div class="sheet" hidden></div>
       </div>`;
     el.session = app.querySelector('.session');
@@ -117,7 +122,8 @@ export function runSession(app, config) {
       el.hearts.innerHTML = Array.from({ length: run.maxLives }, (_, i) => `<span class="heart ${i < run.lives ? '' : 'lost'}">❤</span>`).join('');
     }
     if (el.timer) {
-      el.timer.textContent = `⏱ ${state.timeLeft}`;
+      // Короткие режимы показывают секунды, длинные тесты — минуты и секунды.
+      el.timer.textContent = `⏱ ${timeLimit > 120 ? formatTime(state.timeLeft * 1000) : state.timeLeft}`;
       el.timer.classList.toggle('is-low', state.timeLeft <= 10);
     }
     el.combo.hidden = run.combo < 2;
@@ -136,7 +142,7 @@ export function runSession(app, config) {
     const q = state.q;
     el.area.innerHTML = questionHtml(q);
     el.area.firstElementChild.classList.add('slide-in');
-    el.ref.hidden = q.section !== 'math';
+    el.ref.hidden = q.section !== 'math' || Boolean(q.local);
     state.binder = bindQuestion(el.area, q, {
       onChange: (r) => {
         if (state.phase === 'answer') {
@@ -148,7 +154,7 @@ export function runSession(app, config) {
     });
     el.sheet.hidden = true;
     el.check.disabled = true;
-    el.check.textContent = t('session.check');
+    el.check.textContent = checkLabel();
     el.check.className = 'btn btn-primary btn-lg btn-check';
     if (state.phase === 'feedback' && state.last) {
       state.binder.setResponse(state.last.response);
@@ -186,12 +192,19 @@ export function runSession(app, config) {
     addXp(result.xp);
     const p = getProfile();
     p.counters.bestCombo = Math.max(p.counters.bestCombo, run.bestCombo);
-    state.binder.lock(correct);
     state.last = { correct, response, result };
     state.phase = 'feedback';
     state.index += 1;
     state.end =
       (total !== null && state.index >= total) || result.outOfLives || result.bossDefeated || (timeLimit !== null && state.timeLeft <= 0);
+    if (silent) {
+      // Тест: не показываем, верен ли ответ, и сразу идём дальше.
+      sfx.select();
+      updateHud();
+      proceed();
+      return;
+    }
+    state.binder.lock(correct);
 
     const card = el.area.firstElementChild;
     card.classList.remove('slide-in');
@@ -272,6 +285,7 @@ export function runSession(app, config) {
     state.phase = 'done';
     clearInterval(state.timer);
     document.body.classList.remove('in-session');
+    if (!catalog) getProfile().last = { course: 'sat' };
     state.build = onFinish(run, { reason });
     checkAchievements();
     saveProfile();

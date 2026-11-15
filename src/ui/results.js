@@ -1,7 +1,7 @@
 // Экран результатов после любой игры: итог, звёзды, статистика, кнопки и разбор ошибок.
 
 import { t, tx } from '../core/i18n.js';
-import { SKILLS } from '../content/skills.js';
+import { skillName } from '../content/labels.js';
 import { esc } from './dom.js';
 import { mascot } from './mascot.js';
 import { bindQuestion, questionHtml } from './question.js';
@@ -22,7 +22,7 @@ export function reviewHtml(log, { onlyWrong = true } = {}) {
         .map(
           (e) => `
         <details class="review-item ${e.correct ? 'ok' : 'bad'}" data-n="${e.n - 1}">
-          <summary><span class="review-mark">${e.correct ? '✓' : '✗'}</span><span>#${e.n} · ${esc(tx(SKILLS[e.question.skill].name))}</span><span class="review-open">${t('res.open')}</span></summary>
+          <summary><span class="review-mark">${e.correct ? '✓' : '✗'}</span><span>#${e.n} · ${esc(tx(skillName(e.question.skill)))}</span><span class="review-open">${t('res.open')}</span></summary>
           <div class="review-body"></div>
         </details>`,
         )

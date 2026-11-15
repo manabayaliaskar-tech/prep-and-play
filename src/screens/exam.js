@@ -371,7 +371,7 @@ export function examRoute(app) {
         actions: [
           { label: `🎯 ${t('exam.trainWeak')}`, href: '/weak', primary: true },
           { label: `↻ ${t('exam.again')}`, onClick: () => navigate('/exam') },
-          { label: `🏠 ${t('res.home')}`, href: '/' },
+          { label: `🏠 ${t('res.home')}`, href: '/sat' },
         ],
       };
     };

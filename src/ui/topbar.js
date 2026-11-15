@@ -1,8 +1,9 @@
-// Верхняя панель: логотип, навигация, серия дней, уровень, язык, звук.
+// Верхняя панель: логотип, разделы сайта, серия дней, уровень, язык, звук.
 
 import { LANGS, getLang, setLang, t } from '../core/i18n.js';
 import { currentStreak, getProfile, levelInfo, saveProfile } from '../core/profile.js';
 import { currentPath } from '../core/router.js';
+import { groupOfPath } from '../catalog/index.js';
 import { LOGO } from './mascot.js';
 
 /** Переключатель языка. Нажатия обрабатываются один раз на весь документ (см. main.js). */
@@ -26,6 +27,7 @@ export function renderTopbar() {
   const lvl = levelInfo(p.xp);
   const streak = currentStreak();
   const path = currentPath();
+  const group = groupOfPath(path);
   const item = (href, key, icon, active) =>
     `<a class="nav-item ${active ? 'is-active' : ''}" href="#${href}" ${active ? 'aria-current="page"' : ''}><span class="nav-icon" aria-hidden="true">${icon}</span><span class="nav-label">${t(key)}</span></a>`;
   el.innerHTML = `
@@ -33,9 +35,10 @@ export function renderTopbar() {
       <a class="logo" href="#/" aria-label="Prep&amp;Play">${LOGO}<span class="logo-text">Prep<span class="logo-amp">&amp;</span>Play</span></a>
       <nav class="nav" aria-label="${t('nav.label')}">
         ${item('/', 'nav.home', '🏠', path === '/')}
-        ${item('/map', 'nav.map', '🗺️', /^\/(map|level|boss)/.test(path))}
+        ${item('/practice', 'nav.practice', '📅', group === 'daily')}
+        ${item('/exams', 'nav.exams', '📝', group === 'exams')}
+        ${item('/c/olymp', 'nav.olymp', '🏆', group === 'olymp')}
         ${item('/profile', 'nav.profile', '👤', path.startsWith('/profile'))}
-        ${item('/premium', 'nav.premium', '⭐', path.startsWith('/premium'))}
       </nav>
       <div class="top-stats">
         <span class="stat-chip streak ${streak ? 'is-on' : ''}" title="${t('top.streak')}">🔥 <b>${streak}</b></span>
@@ -45,6 +48,7 @@ export function renderTopbar() {
         </span>
       </div>
       ${langSwitchHtml()}
+      <a class="icon-btn premium-link ${path.startsWith('/premium') ? 'is-active' : ''}" href="#/premium" aria-label="${t('nav.premium')}" title="${t('nav.premium')}">💎</a>
       <button type="button" class="icon-btn sound-toggle" aria-label="${t('top.sound')}" title="${t('top.sound')}">${p.sound ? '🔊' : '🔇'}</button>
     </div>`;
   el.querySelector('.sound-toggle').addEventListener('click', () => {

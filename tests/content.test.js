@@ -158,7 +158,7 @@ test('переводы: каждый ключ интерфейса есть на
     for (const m of readFileSync(file, 'utf8').matchAll(/\bt\(\s*'([a-zA-Z0-9_.]+)'/g)) used.add(m[1]);
   }
   const dynamic = [
-    'nav.home', 'nav.map', 'nav.premium', 'premium.limitWeek', 'premium.unlimited',
+    'nav.home', 'nav.practice', 'nav.exams', 'nav.olymp', 'nav.profile', 'nav.premium', 'premium.limitWeek', 'premium.unlimited',
     'premium.rowMap', 'premium.rowModes', 'premium.rowSolutions', 'premium.rowMini', 'premium.rowFull', 'duel.win', 'duel.lose', 'duel.draw', 'exam.routeHard', 'exam.routeEasy',
     ...[1, 2, 3, 4, 5, 6].map((i) => `fb.praise${i}`),
     ...['map', 'exam', 'duel', 'survival', 'blitz', 'det', 'weak', 'daily'].flatMap((k) => [`mode.${k}.title`, `mode.${k}.desc`]),

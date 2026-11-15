@@ -1,4 +1,5 @@
-// Профиль игрока: опыт, уровень, серия дней, статистика навыков, карта, рекорды, достижения.
+// Профиль игрока: опыт, уровень, серия дней, статистика навыков, карта SAT, результаты по уровням
+// и экзаменам, рекорды, достижения.
 // Хранится в localStorage этого браузера.
 
 import { evaluateAchievements } from '../content/achievements.js';
@@ -22,6 +23,10 @@ function defaults() {
     map: { stars: {}, bosses: {} },
     records: { survival: 0, blitz: 0, detective: 0 },
     exams: [],
+    // Результаты тренировок по дорожкам каталога: { 'math:l3': { best, runs, pct, last } }.
+    practice: {},
+    // Последнее занятие — для кнопки «Продолжить» на главной.
+    last: null,
     achievements: {},
     counters: { answered: 0, correct: 0, bestCombo: 0, detectiveFound: 0, duelsSent: 0, langSwitch: 0, dailyDone: 0 },
   };
@@ -37,6 +42,7 @@ function load() {
   }
   merged.map.stars = { ...(saved.map?.stars ?? {}) };
   merged.map.bosses = { ...(saved.map?.bosses ?? {}) };
+  merged.practice = { ...(saved.practice ?? {}) };
   return merged;
 }
 

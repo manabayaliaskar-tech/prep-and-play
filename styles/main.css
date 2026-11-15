@@ -2875,6 +2875,537 @@ button {
 }
 
 
+/* ---------- Каталог: разделы, курсы, уровни ---------- */
+
+.crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--card);
+  border: 2px solid var(--line);
+  font-weight: 800;
+  font-size: 0.9rem;
+  text-decoration: none;
+  color: var(--muted);
+}
+
+.crumb:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.setup:has(> .crumb) {
+  flex-direction: column;
+  align-items: center;
+}
+
+.setup > .crumb {
+  align-self: flex-start;
+}
+
+.block {
+  margin-top: 30px;
+}
+
+.block-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.block-head p {
+  margin: 2px 0 0;
+}
+
+.block-icon {
+  width: 52px;
+  height: 52px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  font-size: 1.6rem;
+  background: color-mix(in srgb, var(--c) 16%, white);
+}
+
+.block-link {
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.code-badge {
+  width: 46px;
+  height: 46px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  font-size: 1.4rem;
+  background: color-mix(in srgb, var(--c) 16%, white);
+}
+
+.code-badge.is-text {
+  font-size: 0.95rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: var(--c);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--c) 70%, black);
+}
+
+.code-badge.is-text.is-long {
+  font-size: 0.66rem;
+}
+
+.code-badge.big {
+  width: 76px;
+  height: 76px;
+  border-radius: 22px;
+  font-size: 2.3rem;
+}
+
+.code-badge.big.is-text {
+  font-size: 1.5rem;
+}
+
+.code-badge.big.is-text.is-long {
+  font-size: 1.05rem;
+}
+
+.course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
+}
+
+.course-card,
+.track-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--card);
+  border: 2px solid var(--line);
+  box-shadow: 0 5px 0 var(--line);
+  color: var(--ink);
+  text-decoration: none;
+  transition:
+    transform 0.12s ease,
+    border-color 0.12s;
+}
+
+.course-card:hover,
+.track-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--c);
+}
+
+.course-card:active,
+.track-card:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 var(--line);
+}
+
+.course-text,
+.track-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.course-text b,
+.track-text b {
+  font-size: 1.05rem;
+}
+
+.course-text small,
+.track-text small {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.86rem;
+}
+
+.cc-meta {
+  margin-left: auto;
+  flex: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.cc-meta.has {
+  background: #fff8db;
+  color: #8a6500;
+}
+
+.continue-row.single {
+  grid-template-columns: 1fr;
+}
+
+.daily-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.daily-grid.one {
+  grid-template-columns: 1fr;
+}
+
+.daily-course,
+.practice-course {
+  padding: 16px;
+  border-radius: var(--radius);
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.practice-course {
+  margin-top: 18px;
+}
+
+.daily-course-head,
+.practice-course-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.level-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.level-chip {
+  min-width: 58px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 8px 10px 6px;
+  border-radius: 14px;
+  border: 2px solid var(--line);
+  border-bottom-width: 4px;
+  background: #fff;
+  color: var(--ink);
+  text-decoration: none;
+  transition:
+    transform 0.1s,
+    border-color 0.12s;
+}
+
+.level-chip b {
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+.level-chip span {
+  font-size: 0.68rem;
+  letter-spacing: 1px;
+  color: var(--line-strong);
+}
+
+.level-chip.done {
+  border-color: color-mix(in srgb, var(--c) 45%, white);
+  background: color-mix(in srgb, var(--c) 8%, white);
+}
+
+.level-chip.done span {
+  color: var(--yellow-d);
+}
+
+.level-chip:hover {
+  transform: translateY(-2px);
+  border-color: var(--c);
+}
+
+.course-hero {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 24px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, #fff 0%, color-mix(in srgb, var(--c) 10%, white) 100%);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.course-hero p {
+  margin: 6px 0 0;
+  max-width: 720px;
+}
+
+.course-full {
+  font-weight: 800;
+  color: var(--c);
+}
+
+.track-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 12px;
+}
+
+.track-icon {
+  width: 46px;
+  height: 46px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--c);
+  background: color-mix(in srgb, var(--c) 14%, white);
+}
+
+.track-kicker {
+  margin: 0;
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c, var(--primary));
+}
+
+.track-side {
+  margin-left: auto;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+
+.track-side small {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.track-stars {
+  letter-spacing: 2px;
+  color: var(--line-strong);
+}
+
+.track-stars.has {
+  color: var(--yellow-d);
+}
+
+.soon-chips,
+.topic-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.topic-chips.center {
+  justify-content: center;
+}
+
+.soon-chip,
+.topic-chip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.86rem;
+}
+
+.soon-chip {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px dashed var(--line-strong);
+  color: var(--muted);
+}
+
+.topic-chip {
+  background: var(--primary-l);
+  color: var(--primary-d);
+}
+
+.topics-box {
+  margin-top: 22px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px dashed var(--line-strong);
+}
+
+.topics-box summary {
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.topics-box .topic-chips {
+  margin-top: 12px;
+}
+
+.catalog-note {
+  margin-top: 22px;
+}
+
+.start-options {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.start-options .option-card {
+  align-items: center;
+  text-align: center;
+  padding: 16px;
+  cursor: pointer;
+  transition:
+    transform 0.08s,
+    border-color 0.12s;
+}
+
+.start-options .option-card b {
+  font-size: 1.1rem;
+}
+
+.start-options .start-train {
+  background: var(--primary);
+  border-color: var(--primary-d);
+  color: #fff;
+}
+
+.start-options .start-train span {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.start-options .option-card:hover {
+  transform: translateY(-2px);
+}
+
+.start-options .option-card:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+}
+
+.premium-link {
+  text-decoration: none;
+}
+
+.premium-link.is-active {
+  border-color: var(--primary);
+  background: var(--primary-l);
+}
+
+/* Пять разделов в меню: делаем панель компактнее, чтобы она не вылезала за экран. */
+.topbar-inner {
+  gap: 10px;
+}
+
+.nav {
+  gap: 2px;
+  margin-left: 2px;
+}
+
+.nav-item {
+  gap: 5px;
+  padding: 8px 9px;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+@media (min-width: 721px) and (max-width: 1180px) {
+  .lvl-bar {
+    display: none;
+  }
+
+  .nav-item:not(.is-active) .nav-label {
+    display: none;
+  }
+
+  .nav-item:not(.is-active) {
+    padding: 8px 10px;
+    font-size: 1.1rem;
+  }
+}
+
+@media (min-width: 721px) and (max-width: 900px) {
+  .logo-text,
+  .nav-item .nav-label {
+    display: none !important;
+  }
+
+  .nav-item.is-active {
+    padding: 8px 10px;
+    font-size: 1.1rem;
+  }
+}
+
+/* Тест на время: не показываем комбо и опыт, чтобы не подсказывать, верен ли ответ. */
+.is-silent .combo-chip,
+.is-silent .xp-chip {
+  display: none !important;
+}
+
+@media (max-width: 720px) {
+  .daily-grid,
+  .course-grid,
+  .track-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .block-head {
+    flex-wrap: wrap;
+  }
+
+  .block-head > div {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .block-link {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .course-hero {
+    flex-direction: column;
+    padding: 18px;
+    gap: 12px;
+  }
+
+  .track-card,
+  .course-card {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .track-side small {
+    display: none;
+  }
+
+  .level-chip {
+    min-width: 50px;
+    padding: 6px 6px 4px;
+  }
+
+  .premium-link {
+    width: 36px;
+    height: 36px;
+  }
+}
+
 /* ---------- Premium ---------- */
 
 .premium-card {
