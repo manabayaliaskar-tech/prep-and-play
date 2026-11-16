@@ -106,3 +106,63 @@ test('испанский, французский — 6 уровней, кита�
     }
   }
 });
+
+// ---------- Естественные науки и география ----------
+
+const SCIENCE = ['g.world', 'g.records', 'g.kz', 'c.elem', 'c.salts', 'b.animals', 'b.body', 'b.cell', 'b.gen', 'p.facts', 'i.facts'];
+
+test('генераторы наук: корректные задания на каждой сложности', () => {
+  for (const id of SCIENCE) {
+    for (let d = 1; d <= 3; d++) {
+      for (let s = 0; s < 120; s++) {
+        const q = TOPICS[id].make({ rng: createRng(s * 11 + d), used: new Set(), mcOnly: s % 2 === 0 }, d);
+        const blob = JSON.stringify([q.prompt, q.choices ?? '', q.ex, q.display ?? '']);
+        assert.ok(!/\bNaN\b|undefined/.test(blob), `${id} d${d}: ${blob.slice(0, 200)}`);
+        assert.equal(q.d, d, id);
+        for (const l of LANGS) {
+          assert.ok(text(q.prompt, l).length > 5, `${id}: условие ${l}`);
+          if (q.type === 'mc') assert.equal(new Set(q.choices.map((c) => text(c, l))).size, q.choices.length, `${id}: повтор вариантов ${l} ${q.choices.map((c) => text(c, l))}`);
+        }
+      }
+    }
+  }
+});
+
+test('химия: формулы солей сходятся по зарядам, молярные массы верны', async () => {
+  const { COMPOUNDS, ELEMENTS } = await import('../src/pools/science/chem-gen.js');
+  const mass = Object.fromEntries(ELEMENTS.map((e) => [e.sym, e.mass]));
+  for (const c of COMPOUNDS) {
+    assert.equal(c.x * c.cat[1], c.y * c.an[2], c.formula);
+    assert.equal(c.mass, c.atoms.reduce((s, [el, k]) => s + mass[el] * k, 0), c.formula);
+  }
+  const f = (formula) => COMPOUNDS.find((c) => c.formula === formula);
+  assert.ok(f('Al₂(SO₄)₃') && f('Ca₃(PO₄)₂') && f('Fe₂O₃') && f('NaCl'));
+  assert.equal(f('Al₂(SO₄)₃').mass, 342);
+  assert.ok(!COMPOUNDS.some((c) => c.formula.startsWith('Al') && c.an[0] === 'CO₃'), 'карбоната алюминия не существует');
+});
+
+test('генетика и география: ответы проверяются независимо', async () => {
+  for (let s = 0; s < 200; s++) {
+    const q = TOPICS['b.gen'].make({ rng: createRng(s), used: new Set() }, 3);
+    const [, kind, a, b] = q.id.split(':');
+    if (kind === 'dna') {
+      const map = a === 'r' ? { A: 'U', T: 'A', G: 'C', C: 'G' } : { A: 'T', T: 'A', G: 'C', C: 'G' };
+      assert.equal(q.choices[q.answer], b.split('-').map((x) => map[x]).join('-'));
+    }
+  }
+  const { COUNTRIES } = await import('../src/pools/science/geo.js');
+  assert.ok(COUNTRIES.length >= 110, `стран ${COUNTRIES.length}`);
+  assert.equal(new Set(COUNTRIES.map((c) => c.name.en)).size, COUNTRIES.length);
+  assert.equal(new Set(COUNTRIES.map((c) => c.capital.ru)).size, COUNTRIES.length);
+});
+
+test('науки: 6 уровней в каждом курсе, информатика — отдельный курс', () => {
+  for (const id of ['physics', 'chemistry', 'biology', 'geography', 'informatics']) {
+    const course = COURSES.find((c) => c.id === id);
+    assert.equal(course.tracks.length, 6, id);
+    for (const track of course.tracks) {
+      const set = buildTopicSet({ rng: createRng(5), spec: track.spec, count: 20 });
+      assert.equal(new Set(set.map((q) => q.id)).size, 20, `${id}/${track.id}: повтор`);
+    }
+  }
+});

@@ -19,13 +19,13 @@ export function quizSubjects(level) {
   const math = COURSES.find((c) => c.id === 'math').tracks[Math.min(10, level)];
   return [
     { pool: 'math', spec: math.spec },
-    { pool: 'physics', spec: [['p.kin', [d]], ['p.dyn', [d]], ['p.energy', [d]], ['p.elec', [d]], ['p.theory', [d]]] },
-    { pool: 'chemistry', spec: [['c.molar', [d]], ['c.mole', [d]], ['c.theory', [d]]] },
-    { pool: 'biology', spec: [['b.bank', [d]]] },
-    { pool: 'geography', spec: [['g.bank', [d]]] },
+    { pool: 'physics', spec: [['p.kin', [d]], ['p.dyn', [d]], ['p.energy', [d]], ['p.elec', [d]], ['p.theory', [d]], ['p.facts', [d]]] },
+    { pool: 'chemistry', spec: [['c.molar', [d]], ['c.mole', [d]], ['c.theory', [d]], ['c.elem', [d]], ['c.salts', [d]]] },
+    { pool: 'biology', spec: [['b.bank', [d]], ['b.animals', [d]], ['b.body', [d]], ['b.cell', [d]], ['b.gen', [d]]] },
+    { pool: 'geography', spec: [['g.bank', [d]], ['g.world', [d]], ['g.records', [d]], ['g.kz', [d]]] },
     { pool: 'history', spec: [['h.world', [d]], ['h.kz', [d]]] },
     { pool: 'english', spec: [['e.vocab', [englishLevel(level)]], ['e.tenses', [Math.min(5, englishLevel(level))]], ['e.words', [englishLevel(level)]], ['e.gram', [englishLevel(level)]]] },
-    { pool: 'informatics', spec: [['i.num', [d]], ['i.logic', [d]], ['i.units', [d]], ['i.theory', [d]]] },
+    { pool: 'informatics', spec: [['i.num', [d]], ['i.logic', [d]], ['i.units', [d]], ['i.theory', [d]], ['i.facts', [d]]] },
   ];
 }
 

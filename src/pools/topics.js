@@ -21,6 +21,10 @@ import { wordsMaker } from './languages/vocab.js';
 import { verbsMaker } from './languages/verbs.js';
 import { hanziMaker } from './languages/zh.js';
 import { comparisonMaker, grammarMaker, irregularMaker } from './english/gen.js';
+import { kazakhstanMaker, recordsMaker, worldMaker } from './science/geo.js';
+import { compoundsMaker, elementsMaker } from './science/chem-gen.js';
+import { biologyMaker, geneticsMaker } from './science/bio-gen.js';
+import { informaticsFactsMaker, physicsFactsMaker } from './science/facts-gen.js';
 import { bankMaker } from './bank.js';
 import { PHYSICS_THEORY, dynamics, electricity, energy, heat, kinematics, waves } from './science/physics.js';
 import { CHEMISTRY_THEORY, molarMass, moles } from './science/chemistry.js';
@@ -97,11 +101,14 @@ export const TOPICS = {
   'p.heat': topic('physics', L('Heat', 'Тепловые явления', 'Жылу құбылыстары'), heat),
   'p.wave': topic('physics', L('Oscillations, waves, optics', 'Колебания, волны, оптика', 'Тербелістер, толқындар, оптика'), waves),
   'p.theory': topic('physics', L('Laws and units', 'Законы и единицы', 'Заңдар мен бірліктер'), bankMaker('p.theory', PHYSICS_THEORY)),
+  'p.facts': topic('physics', L('Units, formulas, scientists', 'Единицы, формулы, учёные', 'Бірліктер, формулалар, ғалымдар'), physicsFactsMaker('p.facts')),
 
   // ----- Химия -----
   'c.molar': topic('chemistry', L('Molar mass and mass fraction', 'Молярная масса и массовая доля', 'Молярлық масса және массалық үлес'), molarMass),
   'c.mole': topic('chemistry', L('Amount of substance and reactions', 'Количество вещества и расчёты по уравнениям', 'Зат мөлшері және теңдеу бойынша есептеулер'), moles),
   'c.theory': topic('chemistry', L('Substances and reactions', 'Вещества и реакции', 'Заттар мен реакциялар'), bankMaker('c.theory', CHEMISTRY_THEORY)),
+  'c.elem': topic('chemistry', L('The periodic table', 'Таблица Менделеева', 'Менделеев кестесі'), elementsMaker('c.elem')),
+  'c.salts': topic('chemistry', L('Formulas and names of compounds', 'Формулы и названия веществ', 'Заттардың формулалары мен атаулары'), compoundsMaker('c.salts')),
 
   // ----- Информатика -----
   'i.num': topic('informatics', L('Number systems', 'Системы счисления', 'Санау жүйелері'), numberSystems),
@@ -109,10 +116,18 @@ export const TOPICS = {
   'i.logic': topic('informatics', L('Logic', 'Логика', 'Логика'), boolLogic),
   'i.algo': topic('informatics', L('Algorithms', 'Алгоритмы', 'Алгоритмдер'), algorithms),
   'i.theory': topic('informatics', L('Computers and networks', 'Компьютер и сети', 'Компьютер және желілер'), bankMaker('i.theory', INFORMATICS_THEORY)),
+  'i.facts': topic('informatics', L('Devices, files, terms', 'Устройства, файлы, термины', 'Құрылғылар, файлдар, терминдер'), informaticsFactsMaker('i.facts')),
 
   // ----- Биология и география -----
   'b.bank': topic('biology', L('Biology', 'Биология', 'Биология'), bankMaker('b.bank', BIOLOGY)),
+  'b.animals': topic('biology', L('Classes of animals', 'Классы животных', 'Жануарлар кластары'), biologyMaker('b.animals', 'animals')),
+  'b.body': topic('biology', L('The human body', 'Организм человека', 'Адам ағзасы'), biologyMaker('b.body', 'body')),
+  'b.gen': topic('biology', L('Genetics problems', 'Задачи по генетике', 'Генетика есептері'), geneticsMaker('b.gen')),
+  'b.cell': topic('biology', L('The cell and great biologists', 'Клетка и великие биологи', 'Жасуша және ұлы биологтар'), biologyMaker('b.cell', 'cell')),
   'g.bank': topic('geography', L('Geography', 'География', 'География'), bankMaker('g.bank', GEOGRAPHY)),
+  'g.world': topic('geography', L('Countries and capitals', 'Страны и столицы', 'Елдер мен астаналар'), worldMaker('g.world')),
+  'g.records': topic('geography', L('Mountains, rivers, lakes, countries', 'Горы, реки, озёра, страны', 'Таулар, өзендер, көлдер, елдер'), recordsMaker('g.records')),
+  'g.kz': topic('geography', L('Geography of Kazakhstan', 'География Казахстана', 'Қазақстан географиясы'), kazakhstanMaker('g.kz')),
 
   // ----- История и обществознание -----
   'h.kz': topic('history', L('History of Kazakhstan', 'История Казахстана', 'Қазақстан тарихы'), bankMaker('h.kz', HISTORY_KZ)),
