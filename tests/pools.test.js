@@ -346,3 +346,30 @@ test('физика и химия: ответы расчётных задач с�
     }
   }
 });
+
+// ---------- Испанский, французский, китайский ----------
+
+import { FRENCH, SPANISH } from '../src/pools/languages/romance.js';
+import { CHINESE } from '../src/pools/languages/chinese.js';
+
+test('иностранные языки: по 10 заданий на уровень, разбор на трёх языках', () => {
+  for (const [name, rows] of Object.entries({ SPANISH, FRENCH, CHINESE })) {
+    for (let level = 1; level <= 4; level++) {
+      const items = rows.filter((row) => row[0] === level);
+      assert.ok(items.length >= 10, `${name} уровень ${level}: ${items.length}`);
+    }
+    const seen = new Set();
+    for (const [level, question, correct, wrong, ex] of rows) {
+      const label = `${name}: ${text(question, 'ru')}`;
+      assert.ok(level >= 1 && level <= 4, label);
+      const key = `${text(question, 'ru')}|${text(correct, 'ru')}`;
+      assert.ok(!seen.has(key), `повтор — ${label}`);
+      seen.add(key);
+      if (typeof question === 'string') assert.equal(question.match(/_{3,}/g)?.length, 1, `нужен ровно один пропуск — ${label}`);
+      for (const l of LANGS) {
+        assert.equal(new Set([correct, ...wrong].map((c) => text(c, l))).size, 4, `повтор вариантов (${l}) — ${label}`);
+        assert.ok(text(ex, l).length > 20, `разбор (${l}) — ${label}`);
+      }
+    }
+  }
+});

@@ -12,6 +12,9 @@ import { early } from './math/early.js';
 import { complexNumbers, integrals, limits, matrices, vectors } from './math/higher.js';
 import { englishMaker } from './english/index.js';
 import { readingMaker } from './reading.js';
+import { languageMaker } from './languages/index.js';
+import { FRENCH, SPANISH } from './languages/romance.js';
+import { CHINESE } from './languages/chinese.js';
 import { bankMaker } from './bank.js';
 import { PHYSICS_THEORY, dynamics, electricity, energy, heat, kinematics, waves } from './science/physics.js';
 import { CHEMISTRY_THEORY, molarMass, moles } from './science/chemistry.js';
@@ -124,6 +127,11 @@ export const TOPICS = {
   'r.ielts': topic('reading', L('IELTS Reading', 'IELTS: чтение', 'IELTS: оқылым'), readingMaker('r.ielts', 'ielts')),
   'r.toefl': topic('reading', L('TOEFL Reading', 'TOEFL: чтение', 'TOEFL: оқылым'), readingMaker('r.toefl', 'toefl')),
 
+  // ----- Другие иностранные языки -----
+  'es.bank': topic('spanish', L('Spanish grammar and vocabulary', 'Испанский: грамматика и лексика', 'Испан тілі: грамматика және лексика'), languageMaker('es.bank', SPANISH)),
+  'fr.bank': topic('french', L('French grammar and vocabulary', 'Французский: грамматика и лексика', 'Француз тілі: грамматика және лексика'), languageMaker('fr.bank', FRENCH)),
+  'zh.bank': topic('chinese', L('Chinese words and grammar', 'Китайский: слова и грамматика', 'Қытай тілі: сөздер мен грамматика'), languageMaker('zh.bank', CHINESE)),
+
   // ----- Олимпиадная математика -----
   'o.count': topic('olymp', L('Counting and inclusion–exclusion', 'Подсчёт и формула включений-исключений', 'Санау және қосу-алу формуласы'), counting),
   'o.digit': topic('olymp', L('Last digit', 'Последняя цифра', 'Соңғы цифр'), lastDigit),
@@ -153,6 +161,9 @@ export const POOLS = {
   history: { icon: '📜', color: '#b45309' },
   social: { icon: '⚖️', color: '#7c3aed' },
   russian: { icon: 'Аа', color: '#db2777' },
+  spanish: { icon: 'ES', color: '#dc2626' },
+  french: { icon: 'FR', color: '#2563eb' },
+  chinese: { icon: '中', color: '#b91c1c' },
 };
 
 export const topicIds = (pool) => Object.keys(TOPICS).filter((id) => !pool || TOPICS[id].pool === pool);

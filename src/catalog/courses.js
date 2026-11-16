@@ -174,6 +174,41 @@ const OLYMP_LEVELS = [
   [L('Grades 9–11', '9–11 классы', '9–11 сыныптар'), L('Number theory, counting routes, clever sums', 'Теория чисел, подсчёт маршрутов, хитрые суммы', 'Сандар теориясы, маршруттарды санау, қызықты қосындылар')],
 ];
 
+
+// ---------- Испанский, французский, китайский ----------
+const LEVEL_NAMES = [
+  L('Beginner', 'Начальный', 'Бастапқы'),
+  L('Elementary', 'Элементарный', 'Қарапайым'),
+  L('Intermediate', 'Средний', 'Орта'),
+  L('Upper-Intermediate', 'Выше среднего', 'Ортадан жоғары'),
+];
+const LANG_DESC = {
+  es: [
+    L('Ser, regular verbs, articles, gustar', 'Ser, правильные глаголы, артикли, gustar', 'Ser, дұрыс етістіктер, артикльдер, gustar'),
+    L('Past and near future, comparison, reflexive verbs', 'Прошедшее и ближайшее будущее, сравнение, возвратные глаголы', 'Өткен және жақын келер шақ, салыстыру, өздік етістіктер'),
+    L('Subjunctive, conditionals, passive', 'Сослагательное наклонение, условные, пассив', 'Шартты рай, шартты сөйлемдер, ырықсыз етіс'),
+    L('Past subjunctive, complex conditionals', 'Сослагательное в прошлом, сложные условные', 'Өткен шақтағы шартты рай, күрделі шартты сөйлемдер'),
+  ],
+  fr: [
+    L('Être, avoir, aller, articles, prepositions', 'Être, avoir, aller, артикли, предлоги', 'Être, avoir, aller, артикльдер, предлогтар'),
+    L('Passé composé, imparfait, comparison', 'Passé composé, imparfait, сравнение', 'Passé composé, imparfait, салыстыру'),
+    L('Subjonctif, conditionnel, passive', 'Subjonctif, conditionnel, пассив', 'Subjonctif, conditionnel, ырықсыз етіс'),
+    L('Past conditional, agreement, relative pronouns', 'Прошедшее условное, согласование, относительные местоимения', 'Өткен шақтағы шартты рай, қиысу, қатыстық есімдіктер'),
+  ],
+};
+const HSK_NAMES = [
+  L('HSK 1: first words', 'HSK 1: первые слова', 'HSK 1: алғашқы сөздер'),
+  L('HSK 2: everyday phrases', 'HSK 2: бытовые фразы', 'HSK 2: тұрмыстық сөз тіркестері'),
+  L('HSK 3: grammar patterns', 'HSK 3: грамматические конструкции', 'HSK 3: грамматикалық құрылымдар'),
+  L('HSK 4: connected speech', 'HSK 4: связная речь', 'HSK 4: байланыстырып сөйлеу'),
+];
+const HSK_DESC = [
+  L('Greetings, numbers, people, basic verbs', 'Приветствия, числа, люди, основные глаголы', 'Амандасу, сандар, адамдар, негізгі етістіктер'),
+  L('了, 比, measure words, everyday words', '了, 比, счётные слова, бытовая лексика', '了, 比, мөлшер сөздер, тұрмыстық лексика'),
+  L('把 and 被, 虽然…但是, 越来越', '把 и 被, 虽然…但是, 越来越', '把 және 被, 虽然…但是, 越来越'),
+  L('尽管, 即使, 无论…都 and other connectors', '尽管, 即使, 无论…都 и другие связки', '尽管, 即使, 无论…都 және басқа жалғаулықтар'),
+];
+
 // ---------- Курсы ----------
 
 export const COURSES = [
@@ -233,6 +268,23 @@ export const COURSES = [
       track('grammar', 'B2', L('Grammar and vocabulary, B2–C1', 'Грамматика и лексика, B2–C1', 'Грамматика және лексика, B2–C1'), L('Structures and words of academic English', 'Конструкции и слова академического английского', 'Академиялық ағылшын тілінің құрылымдары мен сөздері'), englishSpec([4, 5]), { count: 20, minutes: 15 }),
     ],
     soon: [N.listening, N.speaking, N.writing],
+  },
+  {
+    id: 'hsk',
+    group: 'exams',
+    region: 'intl',
+    code: 'HSK',
+    color: '#b91c1c',
+    name: L('HSK', 'HSK', 'HSK'),
+    full: L('Chinese Proficiency Test', 'Экзамен по китайскому языку', 'Қытай тілінен емтихан'),
+    about: L(
+      'The international exam in Chinese. It has six levels; here are levels 1–4: vocabulary, measure words and grammar, as in the reading part of the exam.',
+      'Международный экзамен по китайскому языку. В нём шесть уровней; здесь — уровни 1–4: слова, счётные слова и грамматика, как в части «чтение».',
+      'Қытай тілінен халықаралық емтихан. Онда алты деңгей бар; мұнда 1–4 деңгейлер: сөздер, мөлшер сөздер және грамматика, «оқылым» бөліміндегідей.',
+    ),
+    official: { label: 'chinesetest.cn', url: 'https://www.chinesetest.cn/' },
+    tracks: [1, 2, 3, 4].map((k) => track(`hsk${k}`, `${k}`, HSK_NAMES[k - 1], HSK_DESC[k - 1], [['zh.bank', [k]]], { count: 10, minutes: 10 })),
+    soon: [L('Listening', 'Аудирование', 'Тыңдалым'), L('Writing characters', 'Письмо иероглифов', 'Иероглиф жазу'), L('HSK 5–6', 'HSK 5–6', 'HSK 5–6')],
   },
   // ===== Экзамены: страны СНГ =====
   {
@@ -537,6 +589,54 @@ export const COURSES = [
       'Еуропалық шкаланың алты деңгейіндегі грамматика мен лексика: бастауыштан (A1) еркін меңгеруге (C2) дейін. Әр жауапқа — өз тіліңдегі ереже.',
     ),
     tracks: ENGLISH_LEVELS.map(([code, name, desc], i) => track(code.toLowerCase(), code, name, desc, englishSpec([i + 1]))),
+  },
+  {
+    id: 'spanish',
+    group: 'daily',
+    code: 'ES',
+    color: '#dc2626',
+    leveled: true,
+    cefr: true,
+    name: L('Spanish', 'Испанский язык', 'Испан тілі'),
+    full: L('Levels A1–B2', 'Уровни A1–B2', 'A1–B2 деңгейлері'),
+    about: L(
+      'Grammar and vocabulary from the first words to the subjunctive. Every answer comes with a rule in your language.',
+      'Грамматика и лексика: от первых слов до сослагательного наклонения. К каждому ответу — правило на твоём языке.',
+      'Грамматика мен лексика: алғашқы сөздерден шартты райға дейін. Әр жауапқа — өз тіліңдегі ереже.',
+    ),
+    tracks: ['A1', 'A2', 'B1', 'B2'].map((code, i) => track(code.toLowerCase(), code, LEVEL_NAMES[i], LANG_DESC.es[i], [['es.bank', [i + 1]]])),
+  },
+  {
+    id: 'french',
+    group: 'daily',
+    code: 'FR',
+    color: '#2563eb',
+    leveled: true,
+    cefr: true,
+    name: L('French', 'Французский язык', 'Француз тілі'),
+    full: L('Levels A1–B2', 'Уровни A1–B2', 'A1–B2 деңгейлері'),
+    about: L(
+      'Grammar and vocabulary from être and avoir to the subjunctive. Every answer comes with a rule in your language.',
+      'Грамматика и лексика: от être и avoir до subjonctif. К каждому ответу — правило на твоём языке.',
+      'Грамматика мен лексика: être мен avoir-дан subjonctif-ке дейін. Әр жауапқа — өз тіліңдегі ереже.',
+    ),
+    tracks: ['A1', 'A2', 'B1', 'B2'].map((code, i) => track(code.toLowerCase(), code, LEVEL_NAMES[i], LANG_DESC.fr[i], [['fr.bank', [i + 1]]])),
+  },
+  {
+    id: 'chinese',
+    group: 'daily',
+    code: '中',
+    color: '#b91c1c',
+    leveled: true,
+    cefr: true,
+    name: L('Chinese', 'Китайский язык', 'Қытай тілі'),
+    full: L('HSK levels 1–4', 'Уровни HSK 1–4', 'HSK 1–4 деңгейлері'),
+    about: L(
+      'Characters with pinyin, measure words and the main grammar patterns, level by level as in the HSK exam.',
+      'Иероглифы с пиньинем, счётные слова и главные грамматические конструкции — по уровням, как в экзамене HSK.',
+      'Пиньинь жазылған иероглифтер, мөлшер сөздер және негізгі грамматикалық құрылымдар — HSK емтиханындағыдай деңгейлер бойынша.',
+    ),
+    tracks: [1, 2, 3, 4].map((k) => track(`hsk${k}`, `HSK${k}`, HSK_NAMES[k - 1], HSK_DESC[k - 1], [['zh.bank', [k]]])),
   },
   // ===== Ежедневная практика: естественные науки =====
   {
