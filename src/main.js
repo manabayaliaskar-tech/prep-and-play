@@ -25,6 +25,7 @@ import { toast } from './ui/overlay.js';
 import { startMotion } from './ui/motion.js';
 import { bindThemePicker } from './ui/theme-picker.js';
 import { bindPins } from './core/pins.js';
+import { takeNewItems } from './core/wardrobe.js';
 import { mistakesRoute, weakCourseRoute } from './screens/review.js';
 import { planRoute } from './screens/plan.js';
 import { reportRoute } from './screens/report.js';
@@ -75,6 +76,10 @@ on('profile', () => {
   }
   if (fresh.length) saveProfile();
   else renderTopbar();
+  // Новые вещи для Препи: за достижения, уровни и сундуки.
+  for (const it of takeNewItems()) {
+    toast(`<span class="toast-icon">${it.icon}</span><span><small>${t('wear.new')}</small><b>${t(`wear.${it.id}`)}</b></span>`, { kind: 'achievement', duration: 5000 });
+  }
 });
 document.addEventListener('routechange', renderTopbar);
 

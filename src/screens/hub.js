@@ -12,6 +12,7 @@ import { homeCourses, isPinned, pinButton } from '../core/pins.js';
 import { reviewCardHtml } from './review.js';
 import { planCardHtml } from './plan.js';
 import { nextChestBadge, openChestModal, rewardCardsHtml } from './report.js';
+import { openWardrobe } from '../ui/wardrobe-ui.js';
 
 export function ring(value, max) {
   const r = 34;
@@ -156,7 +157,7 @@ export function hubScreen(app) {
     app.innerHTML = `
       <section class="page home hub">
         <div class="hero-card">
-          <div class="hero-mascot">${mascot(xpToday >= DAILY_GOAL ? 'win' : 'happy', 'mascot-xl float')}</div>
+          <button type="button" class="hero-mascot prepi-dress" aria-label="${t('wear.title')}">${mascot(xpToday >= DAILY_GOAL ? 'win' : 'happy', 'mascot-xl float')}<span class="prepi-dress-btn">👗</span></button>
           <div class="hero-text">
             <p class="hero-kicker">${name ? t('home.helloName', { name }) : t('home.hello')}</p>
             <h1>${t('hub.title')}</h1>
@@ -224,6 +225,7 @@ export function hubScreen(app) {
           <p class="muted tiny">${t('cat.disclaimer')}</p>
         </div>
       </section>`;
+    app.querySelector('.hero-mascot.prepi-dress')?.addEventListener('click', () => openWardrobe(render));
     app.querySelectorAll('[data-open-chest]').forEach((b) => b.addEventListener('click', () => openChestModal(Number(b.dataset.openChest), render)));
   };
   render();

@@ -13,7 +13,7 @@ import { getPlan, readiness, trackScores } from '../core/plan.js';
 import { weekStart, weekSummary } from '../core/rewards.js';
 import { dayKey } from '../core/dates.js';
 import { courseWeakTopics } from './review.js';
-import { CHESTS, WEAR, currentWear, setWear, unlockedWear } from '../core/rewards.js';
+import { openWardrobe } from '../ui/wardrobe-ui.js';
 import { getVolume, setVolume, sfx } from '../core/sound.js';
 import { mascot } from '../ui/mascot.js';
 import { esc } from '../ui/dom.js';
@@ -357,7 +357,7 @@ export function profileScreen(app) {
     app.innerHTML = `
       <section class="page profile">
         <div class="profile-card">
-          ${mascot('happy', 'mascot-lg')}
+          <button type="button" class="prepi-dress" aria-label="${t('wear.title')}">${mascot('happy', 'mascot-lg')}<span class="prepi-dress-btn">👗 ${t('wear.open')}</span></button>
           <div class="profile-main">
             <label class="name-field inline"><span>${t('profile.name')}</span><input class="name-input" type="text" maxlength="24" value="${esc(p.name)}" placeholder="${t('duel.namePlaceholder')}"/></label>
             <div class="level-line"><span class="lvl-badge big">${lvl.level}</span><div class="bar xp"><i style="width:${Math.round((lvl.into / lvl.need) * 100)}%"></i></div><span class="muted small">${lvl.into}/${lvl.need} XP</span></div>
@@ -400,25 +400,6 @@ export function profileScreen(app) {
           ${themePickerHtml('wide')}
         </div>
 
-        <div class="panel wardrobe">
-          <h2>👗 ${t('wear.title')}</h2>
-          <p class="muted small">${t('wear.hint')}</p>
-          <div class="wardrobe-row">
-            <div class="wardrobe-prepi">${mascot('happy', 'mascot-lg')}</div>
-            <div class="wardrobe-items">
-              ${WEAR.map((w) => {
-                const open = unlockedWear().includes(w.id);
-                const chest = CHESTS.find((c) => c.wear === w.id);
-                return `<button type="button" class="wear-item ${open ? '' : 'is-locked'}" data-wear="${w.id}" aria-pressed="${currentWear() === w.id}" ${open ? '' : 'disabled'}>
-                  <span class="wear-icon">${open ? w.icon : '🔒'}</span>
-                  <span class="wear-name">${t(`wear.${w.id}`)}</span>
-                  ${open ? '' : `<small>${t('wear.locked', { n: chest?.days ?? 0 })}</small>`}
-                </button>`;
-              }).join('')}
-            </div>
-          </div>
-        </div>
-
         <div class="panel settings">
           <h2>${t('profile.settings')}</h2>
           <label class="toggle"><input type="checkbox" class="sound-input" ${p.sound ? 'checked' : ''}/><span>${t('profile.sound')}</span></label>
@@ -437,17 +418,11 @@ export function profileScreen(app) {
       saveProfile();
       app.querySelector('.volume-input').disabled = !p.sound;
     });
+    app.querySelector('.prepi-dress').addEventListener('click', () => openWardrobe(render));
     app.querySelector('.volume-input').addEventListener('change', (e) => {
       setVolume(Number(e.target.value) / 100);
       sfx.correct(1);
     });
-    app.querySelectorAll('[data-wear]').forEach((b) =>
-      b.addEventListener('click', () => {
-        setWear(b.dataset.wear);
-        sfx.select();
-        render();
-      }),
-    );
     app.querySelector('.reset-btn').addEventListener('click', () =>
       openModal({
         title: t('profile.resetTitle'),

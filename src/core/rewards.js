@@ -1,22 +1,11 @@
-// Награды: сундуки за серию дней и наряды Препи, а также данные недельного отчёта.
+// Награды: сундуки за серию дней (в них — опыт и вещи для Препи, см. wardrobe.js) и данные недельного отчёта.
 
 import { addDays } from './review.js';
 import { dayKey } from './dates.js';
 import { dayRecord, getProfile } from './profile.js';
 import { storage } from './storage.js';
 
-// ---------- Наряды Препи ----------
-
-/** Наряды: id, значок для меню, за что открывается. */
-export const WEAR = [
-  { id: 'cap', icon: '🎓', free: true },
-  { id: 'scarf', icon: '🧣' },
-  { id: 'glasses', icon: '🤓' },
-  { id: 'headphones', icon: '🎧' },
-  { id: 'crown', icon: '👑' },
-  { id: 'bow', icon: '🎀' },
-  { id: 'astro', icon: '🚀' },
-];
+// ---------- Сундуки за серию ----------
 
 /** Сундуки за серию: сколько дней подряд, опыт и наряд в награду. */
 export const CHESTS = [
@@ -55,20 +44,6 @@ export function openChest(days) {
   if (!chest || openedChests().includes(days)) return null;
   storage.set('chests', [...openedChests(), days]);
   return chest;
-}
-
-export function unlockedWear() {
-  const opened = openedChests();
-  return WEAR.filter((w) => w.free || CHESTS.some((c) => c.wear === w.id && opened.includes(c.days))).map((w) => w.id);
-}
-
-export function currentWear() {
-  const id = storage.get('prepiWear', 'cap');
-  return unlockedWear().includes(id) ? id : 'cap';
-}
-
-export function setWear(id) {
-  if (unlockedWear().includes(id)) storage.set('prepiWear', id);
 }
 
 // ---------- Недельный отчёт ----------

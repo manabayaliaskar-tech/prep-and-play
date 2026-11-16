@@ -3,12 +3,14 @@
 import { confetti } from '../core/confetti.js';
 import { getLang, t, tx } from '../core/i18n.js';
 import { addXp, getProfile, saveProfile } from '../core/profile.js';
-import { WEAR, availableChests, lastWeekReport, markReportSeen, nextChest, openChest, reportPending } from '../core/rewards.js';
+import { availableChests, lastWeekReport, markReportSeen, nextChest, openChest, reportPending } from '../core/rewards.js';
 import { sfx } from '../core/sound.js';
 import { skillName } from '../content/labels.js';
 import { esc } from '../ui/dom.js';
 import { mascot } from '../ui/mascot.js';
 import { openModal } from '../ui/overlay.js';
+import { COLORS, getOutfit, itemById } from '../core/wardrobe.js';
+import { openWardrobe } from '../ui/wardrobe-ui.js';
 
 const WEEKDAYS = {
   en: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
@@ -60,7 +62,6 @@ export function nextChestBadge() {
 
 /** Окно открытия сундука. */
 export function openChestModal(days, onDone) {
-  const wear = (id) => WEAR.find((w) => w.id === id);
   const close = openModal({
     title: t('chest.title', { n: days }),
     body: `<div class="chest-stage"><button type="button" class="chest-box" aria-label="${t('chest.open')}">🎁</button><p class="muted">${t('chest.tap')}</p></div>`,
@@ -73,7 +74,7 @@ export function openChestModal(days, onDone) {
     saveProfile();
     sfx.win();
     confetti({ count: 160 });
-    const w = wear(chest.wear);
+    const w = itemById(chest.wear);
     document.querySelector('.chest-stage').innerHTML = `
       <div class="chest-open">✨</div>
       <div class="chest-rewards">
@@ -81,16 +82,37 @@ export function openChestModal(days, onDone) {
         ${w ? `<div class="chest-reward is-wear"><b>${w.icon}</b><small>${t('chest.wear', { name: t(`wear.${w.id}`) })}</small></div>` : ''}
       </div>
       <div class="chest-prepi">${mascot('win', 'mascot-md')}</div>
-      <a class="btn btn-primary" href="#/profile" data-close>${t('chest.toWardrobe')}</a>`;
-    document.querySelector('.chest-stage [data-close]')?.addEventListener('click', () => close());
+      <button type="button" class="btn btn-primary chest-wardrobe">${t('chest.toWardrobe')}</button>`;
+    document.querySelector('.chest-wardrobe')?.addEventListener('click', () => {
+      close();
+      openWardrobe(onDone);
+    });
     onDone?.();
   });
 }
 
 // ---------- Страница отчёта ----------
 
-/** Картинка 1080×1350 для сторис: итоги недели. */
-function shareImage(report) {
+/** Препи в текущем наряде как картинка (переменные темы подставляются явно — в картинке CSS не работает). */
+function prepiImage() {
+  const css = getComputedStyle(document.documentElement);
+  const palette = COLORS[getOutfit().color] ?? ['--mascot-hi', '--mascot-1', '--mascot-2'].map((v) => css.getPropertyValue(v).trim() || '#a78bfa');
+  const svg = mascot('win')
+    .replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="280" height="300" ')
+    .replace(/ style="--mascot[^"]*"/, '')
+    .replace(/var\(--mascot-hi\)/g, palette[0])
+    .replace(/var\(--mascot-1\)/g, palette[1])
+    .replace(/var\(--mascot-2\)/g, palette[2]);
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  });
+}
+
+/** Картинка 1080×1350 для сторис: итоги недели и Препи в своём наряде. */
+async function shareImage(report) {
   const canvas = document.createElement('canvas');
   canvas.width = 1080;
   canvas.height = 1350;
@@ -150,11 +172,13 @@ function shareImage(report) {
   });
   g.font = '700 36px Nunito, system-ui, sans-serif';
   g.fillText(t('report.shareText'), 80, 1280);
+  const prepi = await prepiImage();
+  if (prepi) g.drawImage(prepi, 760, 20, 280, 300);
   return canvas;
 }
 
 async function share(report) {
-  const canvas = shareImage(report);
+  const canvas = await shareImage(report);
   const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
   if (!blob) return;
   const file = new File([blob], 'prep-and-play-week.png', { type: 'image/png' });

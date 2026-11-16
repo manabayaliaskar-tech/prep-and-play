@@ -7379,3 +7379,189 @@ body {
     display: none;
   }
 }
+
+/* ---------- Гардероб 2.0 ---------- */
+.prepi-dress {
+  position: relative;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  transition: transform 0.25s var(--ease-spring, ease);
+}
+.prepi-dress:hover {
+  transform: scale(1.05) rotate(-2deg);
+}
+.prepi-dress-btn {
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent, #7c3aed), #ec4899);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+}
+.hero-mascot .prepi-dress-btn {
+  bottom: 10px;
+  left: auto;
+  right: 4px;
+  transform: none;
+  padding: 6px 8px;
+  font-size: 1rem;
+}
+.modal:has(.wardrobe-modal) {
+  max-width: 760px;
+  width: min(760px, calc(100vw - 24px));
+}
+.wardrobe-modal {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+.wm-preview {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px;
+  border-radius: 20px;
+  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--accent, #7c3aed) 16%, var(--card)), var(--card));
+  border: 1px solid var(--line);
+}
+.wm-preview .mascot {
+  width: 160px;
+  height: auto;
+}
+.wm-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.wm-tab {
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.wm-tab[aria-selected='true'] {
+  color: #fff;
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--accent, #7c3aed), #ec4899);
+}
+.wm-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 8px;
+  max-height: 52vh;
+  overflow-y: auto;
+  padding: 2px;
+}
+.wear-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 6px;
+  border-radius: 16px;
+  border: 2px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  transition: transform 0.2s var(--ease-spring, ease), border-color 0.2s;
+}
+.wear-item:hover:not(:disabled) {
+  transform: translateY(-3px);
+}
+.wear-item[aria-pressed='true'] {
+  border-color: var(--accent, #7c3aed);
+  background: color-mix(in srgb, var(--accent, #7c3aed) 12%, var(--card));
+}
+.wear-item.is-locked {
+  opacity: 0.55;
+  cursor: default;
+}
+.wear-icon {
+  font-size: 1.6rem;
+}
+.wear-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: center;
+}
+.wear-item small {
+  font-size: 0.68rem;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.2;
+}
+.wear-wings .wing-l,
+.wear-wings .wing-r {
+  transform-box: fill-box;
+  animation: wing-flap 1.6s ease-in-out infinite;
+}
+.wear-wings .wing-l {
+  transform-origin: right center;
+}
+.wear-wings .wing-r {
+  transform-origin: left center;
+  animation-delay: 0.05s;
+}
+@keyframes wing-flap {
+  0%, 100% { transform: rotate(0); }
+  50% { transform: rotate(-10deg); }
+}
+.wear-wings .wing-r {
+  animation-name: wing-flap-r;
+}
+@keyframes wing-flap-r {
+  0%, 100% { transform: rotate(0); }
+  50% { transform: rotate(10deg); }
+}
+.wear-halo {
+  animation: halo-bob 2.4s ease-in-out infinite;
+}
+@keyframes halo-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+@media (max-width: 720px) {
+  .wardrobe-modal {
+    grid-template-columns: 1fr;
+  }
+  .wm-preview {
+    position: static;
+    flex-direction: row;
+    justify-content: center;
+    gap: 12px;
+    padding: 8px;
+  }
+  .wm-preview .mascot {
+    width: 110px;
+  }
+  .wm-items {
+    max-height: 40vh;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wear-wings .wing-l,
+  .wear-wings .wing-r,
+  .wear-halo {
+    animation: none;
+  }
+}

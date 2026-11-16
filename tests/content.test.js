@@ -10,6 +10,7 @@ import { ACHIEVEMENTS, evaluateAchievements } from '../src/content/achievements.
 import { DOMAINS, SKILLS, ZONES } from '../src/content/skills.js';
 import { STRINGS } from '../src/i18n/strings.js';
 import { PERIODS, PLANS } from '../src/core/pricing.js';
+import { ITEMS, SLOTS } from '../src/core/wardrobe.js';
 import { QUESTS } from '../src/core/quests.js';
 import { createRng } from '../src/core/random.js';
 import { buildModule, domainCounts } from '../src/screens/exam.js';
@@ -169,7 +170,9 @@ test('переводы: каждый ключ интерфейса есть на
     ...QUESTS.map((q) => `quest.${q.id}`),
     'pin.add',
     ...['math', 'english', 'langs', 'physics', 'chemistry', 'biology', 'geography', 'history', 'informatics', 'code', 'olymp'].map((k) => `subj.${k}`),
-    ...['cap', 'scarf', 'glasses', 'headphones', 'crown', 'bow', 'astro'].map((w) => `wear.${w}`),
+    ...ITEMS.map((w) => `wear.${w.id}`),
+    ...SLOTS.map((sl) => `wear.slot.${sl}`),
+    'wear.byChest', 'wear.byLevel', 'wear.byAch',
     'rv.stage0', 'rv.stage1', 'rv.stage2', 'rv.stage3',
     'quiz.level', 'quiz.startLevel', 'quiz.dailyInfo', 'quiz.dailyAgain',
     ...['classic', 'blitz', 'survival', 'custom', 'daily'].flatMap((m) => [`quiz.mode.${m}`, `quiz.mode.${m}Desc`, `quiz.go.${m}`]),

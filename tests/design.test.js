@@ -233,12 +233,13 @@ test('сундуки и отчёт: сундук по лучшей серии, �
   const mem = new Map();
   globalThis.localStorage ??= { getItem: (k) => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, String(v)), removeItem: (k) => mem.delete(k), clear: () => mem.clear() };
   globalThis.localStorage.removeItem('prepplay:chests');
-  const { availableChests, openChest, unlockedWear, nextChest, weekStart, weekSummary } = await import('../src/core/rewards.js');
+  const { availableChests, openChest, nextChest, weekStart, weekSummary } = await import('../src/core/rewards.js');
+  const { isUnlocked, itemById } = await import('../src/core/wardrobe.js');
   const p = { streak: { count: 2, best: 8 } };
   assert.deepEqual(availableChests(p).map((c) => c.days), [3, 7]);
   assert.equal(openChest(3).xp, 30);
   assert.equal(openChest(3), null, 'второй раз не открывается');
-  assert.ok(unlockedWear().includes('scarf') && !unlockedWear().includes('glasses'));
+  assert.ok(isUnlocked(itemById('scarf'), { achievements: {}, xp: 0 }) && !isUnlocked(itemById('glasses'), { achievements: {}, xp: 0 }));
   assert.equal(nextChest(p).days, 14);
   assert.equal(nextChest(p).left, 6);
   assert.equal(weekStart('2026-11-16'), '2026-11-16');
@@ -247,4 +248,29 @@ test('сундуки и отчёт: сундук по лучшей серии, �
   const week = weekSummary('2026-11-09');
   assert.equal(week.rows.length, 7);
   assert.equal(week.rows[6].day, '2026-11-15');
+});
+
+test('гардероб: вещи по слотам открываются за сундуки, достижения и уровни; надеть и снять', async () => {
+  const mem = new Map();
+  globalThis.localStorage ??= { getItem: (k) => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, String(v)), removeItem: (k) => mem.delete(k), clear: () => mem.clear() };
+  for (const k of ['outfit', 'prepiWear', 'wearKnown', 'chests']) globalThis.localStorage.removeItem(`prepplay:${k}`);
+  const { ITEMS, SLOTS, isUnlocked, itemById, unlockHint, getOutfit } = await import('../src/core/wardrobe.js');
+  const { ACHIEVEMENTS } = await import('../src/content/achievements.js');
+  assert.ok(ITEMS.length >= 25);
+  assert.equal(new Set(ITEMS.map((x) => x.id)).size, ITEMS.length);
+  for (const it of ITEMS) {
+    assert.ok(SLOTS.includes(it.slot), it.id);
+    if (it.unlock?.type === 'ach') assert.ok(ACHIEVEMENTS.some((a) => a.id === it.unlock.value), `${it.id}: нет достижения ${it.unlock.value}`);
+  }
+  const fresh = { achievements: {}, xp: 0 };
+  assert.ok(isUnlocked(itemById('cap'), fresh) && !isUnlocked(itemById('wings'), fresh));
+  assert.ok(isUnlocked(itemById('cape'), { achievements: {}, xp: 5000 }));
+  assert.ok(isUnlocked(itemById('wizard'), { achievements: { quizmaster: 1 }, xp: 0 }));
+  assert.equal(unlockHint(itemById('crown')).key, 'wear.byChest');
+  // Старое сохранение одной вещью переносится в её слот, а закрытая вещь не надевается.
+  globalThis.localStorage.setItem('prepplay:prepiWear', JSON.stringify('glasses'));
+  assert.equal(getOutfit(fresh).face, null);
+  globalThis.localStorage.setItem('prepplay:chests', JSON.stringify([7]));
+  assert.equal(getOutfit(fresh).face, 'glasses');
+  assert.equal(getOutfit(fresh).head, 'cap');
 });
