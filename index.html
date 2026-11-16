@@ -22,9 +22,17 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles/main.css" />
+    <script>
+      // Тема применяется до отрисовки, чтобы страница не мигала другим цветом.
+      try {
+        var theme = JSON.parse(localStorage.getItem('prepplay:theme'));
+        if (theme) document.documentElement.dataset.theme = theme;
+      } catch (e) {}
+    </script>
     <script type="module" src="src/main.js"></script>
   </head>
   <body>
+    <div class="scene" aria-hidden="true"><i></i><i></i><i></i></div>
     <header class="topbar" id="topbar"></header>
     <main id="app" class="app"></main>
     <div id="toasts" class="toasts" aria-live="polite"></div>

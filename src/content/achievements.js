@@ -83,12 +83,17 @@ export const ACHIEVEMENTS = [
   a('quizmaster', '🧠', 'Quiz master', 'Мастер квиза', 'Квиз шебері',
     'Answer 10 of 10 in a quiz of difficulty 7 or higher', 'Ответь на 10 из 10 в квизе сложности 7 или выше', '7 немесе одан жоғары күрделіліктегі квизде 10 сұрақтың 10-ына жауап бер',
     (p) => Object.entries(p.records?.quiz ?? {}).some(([level, best]) => Number(level) >= 7 && best >= 10)),
+  a('champion', '🗡️', 'Champion', 'Чемпион', 'Чемпион',
+    'Defeat 5 level bosses in any courses', 'Победи 5 боссов уровней в любых курсах', 'Кез келген курста 5 деңгей боссын жең',
+    (p) => bossesBeaten(p) >= 5),
 ];
 
 /** Записи о тренировках из каталога: [[ключ, { best, runs, pct }], …]. */
 function practiced(profile) {
-  return Object.entries(profile.practice ?? {});
+  return Object.entries(profile.practice ?? {}).filter(([, rec]) => rec.runs > 0);
 }
+
+const bossesBeaten = (profile) => Object.values(profile.practice ?? {}).filter((rec) => rec.boss).length;
 
 export function evaluateAchievements(profile) {
   return ACHIEVEMENTS.filter((ach) => ach.test(profile)).map((ach) => ach.id);

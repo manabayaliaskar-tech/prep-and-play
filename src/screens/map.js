@@ -1,7 +1,7 @@
 // Карта «Путь к 1600»: два маршрута (R&W и Math), по 4 острова, на каждом 4 уровня и босс.
 
 import { t, tx } from '../core/i18n.js';
-import { getProfile, saveProfile } from '../core/profile.js';
+import { getProfile, saveProfile, todayStats } from '../core/profile.js';
 import { createRng, newSeed } from '../core/random.js';
 import { navigate } from '../core/router.js';
 import { QuestionStream, buildSet } from '../content/bank.js';
@@ -174,7 +174,10 @@ export function bossRoute(app, { zone: zoneId }) {
       const won = run.bossHp === 0;
       const p = getProfile();
       const first = won && !p.map.bosses[zone.id];
-      if (won) p.map.bosses[zone.id] = true;
+      if (won) {
+        p.map.bosses[zone.id] = true;
+        todayStats().bosses += 1;
+      }
       saveProfile();
       celebrate(won);
       const track = ZONES.filter((z) => z.track === zone.track);

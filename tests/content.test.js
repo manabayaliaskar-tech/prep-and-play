@@ -10,6 +10,7 @@ import { ACHIEVEMENTS, evaluateAchievements } from '../src/content/achievements.
 import { DOMAINS, SKILLS, ZONES } from '../src/content/skills.js';
 import { STRINGS } from '../src/i18n/strings.js';
 import { PERIODS, PLANS } from '../src/core/pricing.js';
+import { QUESTS } from '../src/core/quests.js';
 import { createRng } from '../src/core/random.js';
 import { buildModule, domainCounts } from '../src/screens/exam.js';
 import { errorIndex } from '../src/screens/detective.js';
@@ -165,6 +166,7 @@ test('переводы: каждый ключ интерфейса есть на
     'premium.rowAll', 'premium.rowSolutions', 'premium.rowTests', 'premium.rowStats', 'premium.rowPlan', 'premium.rowTutor', 'premium.rowClass', 'premium.rowAudio',
     ...PLANS.flatMap((p) => [`premium.${p.id}`, `premium.${p.id}Desc`]),
     ...PERIODS.map((p) => `premium.period${p.months}`),
+    ...QUESTS.map((q) => `quest.${q.id}`),
     'duel.win', 'duel.lose', 'duel.draw', 'exam.routeHard', 'exam.routeEasy',
     ...[1, 2, 3, 4, 5, 6].map((i) => `fb.praise${i}`),
     ...['map', 'exam', 'duel', 'survival', 'blitz', 'det', 'weak', 'daily'].flatMap((k) => [`mode.${k}.title`, `mode.${k}.desc`]),

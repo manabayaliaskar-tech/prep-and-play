@@ -5,6 +5,7 @@ import { currentStreak, getProfile, levelInfo, saveProfile } from '../core/profi
 import { currentPath } from '../core/router.js';
 import { groupOfPath } from '../catalog/index.js';
 import { LOGO } from './mascot.js';
+import { themePickerHtml } from './theme-picker.js';
 
 /** Переключатель языка. Нажатия обрабатываются один раз на весь документ (см. main.js). */
 export function langSwitchHtml(extra = '') {
@@ -50,6 +51,10 @@ export function renderTopbar() {
       </div>
       ${langSwitchHtml()}
       <a class="icon-btn premium-link ${path.startsWith('/premium') ? 'is-active' : ''}" href="#/premium" aria-label="${t('nav.premium')}" title="${t('nav.premium')}">💎</a>
+      <div class="theme-menu">
+        <button type="button" class="icon-btn theme-btn" aria-label="${t('theme.title')}" title="${t('theme.title')}" aria-haspopup="true" aria-expanded="false">🎨</button>
+        <div class="theme-pop" hidden><p class="theme-pop-title">${t('theme.pick')}</p>${themePickerHtml()}</div>
+      </div>
       <button type="button" class="icon-btn sound-toggle" aria-label="${t('top.sound')}" title="${t('top.sound')}">${p.sound ? '🔊' : '🔇'}</button>
     </div>`;
   el.querySelector('.sound-toggle').addEventListener('click', () => {

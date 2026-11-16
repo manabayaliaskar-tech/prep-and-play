@@ -2,7 +2,11 @@
 
 import { confetti } from './core/confetti.js';
 import { on } from './core/events.js';
+import { dayKey } from './core/dates.js';
 import { getLang, onLangChange, t, tx } from './core/i18n.js';
+import { addXp, getProfile, saveProfile } from './core/profile.js';
+import { claimQuests } from './core/quests.js';
+import { applyTheme } from './core/theme.js';
 import { refreshRoute, route, startRouter } from './core/router.js';
 import { sfx } from './core/sound.js';
 import { ACHIEVEMENTS } from './content/achievements.js';
@@ -18,6 +22,8 @@ import { profileScreen } from './screens/profile.js';
 import { premiumScreen } from './screens/premium.js';
 import { satHomeScreen } from './screens/sat-home.js';
 import { toast } from './ui/overlay.js';
+import { startMotion } from './ui/motion.js';
+import { bindThemePicker } from './ui/theme-picker.js';
 import { bindLangSwitches, renderTopbar } from './ui/topbar.js';
 
 const app = document.getElementById('app');
@@ -46,7 +52,19 @@ route('/detective', () => detectiveRoute(app));
 route('/profile', () => profileScreen(app));
 route('/premium', () => premiumScreen(app));
 
-on('profile', renderTopbar);
+on('profile', () => {
+  // Ежедневные задания: за каждое выполненное — опыт и уведомление (один раз).
+  const fresh = claimQuests(getProfile(), dayKey());
+  for (const quest of fresh) {
+    addXp(quest.reward);
+    toast(`<span class="toast-icon">${quest.icon}</span><span><small>${t('toast.quest')}</small><b>+${quest.reward} XP</b></span>`, {
+      kind: 'achievement',
+      duration: 4200,
+    });
+  }
+  if (fresh.length) saveProfile();
+  else renderTopbar();
+});
 document.addEventListener('routechange', renderTopbar);
 
 on('achievement', (id) => {
@@ -72,7 +90,10 @@ onLangChange(() => {
   refreshRoute();
 });
 
+applyTheme();
 document.documentElement.lang = getLang();
 bindLangSwitches();
+bindThemePicker();
+startMotion(app);
 startRouter();
 renderTopbar();

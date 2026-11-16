@@ -2,7 +2,9 @@
 // экзамены, олимпиадная математика, ежедневная практика.
 
 import { COURSES, GROUPS, courseById, courseHref, courseStars, coursesIn, trackById, trackHref, trackRecord } from '../catalog/index.js';
+import { dayKey } from '../core/dates.js';
 import { t, tx } from '../core/i18n.js';
+import { questState } from '../core/quests.js';
 import { DAILY_GOAL, currentStreak, getProfile, levelInfo, todayXp } from '../core/profile.js';
 import { esc } from '../ui/dom.js';
 import { mascot } from '../ui/mascot.js';
@@ -42,10 +44,38 @@ export function courseCard(course) {
 export function levelChips(course) {
   return `<div class="level-chips">${course.tracks
     .map((track) => {
-      const best = trackRecord(course, track)?.best ?? 0;
-      return `<a class="level-chip ${best ? 'done' : ''}" href="#${trackHref(course, track)}" title="${esc(tx(track.name))}"><b>${esc(track.icon)}</b><span>${'★'.repeat(best)}${'☆'.repeat(3 - best)}</span></a>`;
+      const rec = trackRecord(course, track);
+      const best = rec?.best ?? 0;
+      return `<a class="level-chip ${best ? 'done' : ''} ${rec?.boss ? 'has-crown' : ''}" href="#${trackHref(course, track)}" title="${esc(tx(track.name))}"><b>${esc(track.icon)}</b><span>${'★'.repeat(best)}${'☆'.repeat(3 - best)}</span></a>`;
     })
     .join('')}</div>`;
+}
+
+/** Карточка «Задания дня»: три задания с полосками прогресса и наградой. */
+export function questsCard(profile = getProfile(), day = dayKey()) {
+  const quests = questState(profile, day);
+  const done = quests.filter((q) => q.done).length;
+  return `
+    <section class="quests" aria-label="${t('quest.title')}">
+      <div class="quests-head">
+        <span class="quests-chest ${done === quests.length ? 'is-open' : ''}" aria-hidden="true">${done === quests.length ? '🎉' : '🎁'}</span>
+        <div><h2>${t('quest.title')}</h2><p class="muted small">${done === quests.length ? t('quest.allDone') : t('quest.left', { c: done, n: quests.length })}</p></div>
+      </div>
+      <div class="quest-list">
+        ${quests
+          .map(
+            ({ quest, value, done: ok }) => `
+          <div class="quest-card ${ok ? 'is-done' : ''}">
+            <span class="quest-icon" aria-hidden="true">${ok ? '✔' : quest.icon}</span>
+            <span class="quest-text"><b>${t(`quest.${quest.id}`, { n: quest.goal })}</b>
+              <span class="quest-bar" aria-hidden="true"><i style="width:${Math.round((value / quest.goal) * 100)}%"></i></span>
+              <small>${value}/${quest.goal}</small></span>
+            <span class="quest-reward">+${quest.reward}<small>XP</small></span>
+          </div>`,
+          )
+          .join('')}
+      </div>
+    </section>`;
 }
 
 function continueCard() {
@@ -100,6 +130,8 @@ export function hubScreen(app) {
         </div>
 
         ${continueCard() ? `<div class="continue-row single">${continueCard()}</div>` : ''}
+
+        ${questsCard(p)}
 
         <a class="quiz-card" href="#/quiz">
           <span class="quiz-card-dice" aria-hidden="true">🎲</span>

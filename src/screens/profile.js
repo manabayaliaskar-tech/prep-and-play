@@ -10,6 +10,7 @@ import { POOLS, TOPICS } from '../pools/topics.js';
 import { esc } from '../ui/dom.js';
 import { mascot } from '../ui/mascot.js';
 import { openModal, toast } from '../ui/overlay.js';
+import { themePickerHtml } from '../ui/theme-picker.js';
 import { courseBadge } from './hub.js';
 
 /** Сколько тем показывать сразу; остальные открываются по нажатию. */
@@ -229,6 +230,12 @@ export function profileScreen(app) {
                 : `<p class="muted">${t('profile.noExams')}</p>`
             }
           </div>
+        </div>
+
+        <div class="panel appearance">
+          <h2>🎨 ${t('theme.title')}</h2>
+          <p class="muted small">${t('theme.pick')}</p>
+          ${themePickerHtml('wide')}
         </div>
 
         <div class="panel settings">

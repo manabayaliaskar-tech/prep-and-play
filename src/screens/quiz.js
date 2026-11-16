@@ -1,7 +1,7 @@
 // Квиз «Всё обо всём»: выбор сложности от 1 до 10, затем 10 вопросов из разных предметов.
 
 import { t } from '../core/i18n.js';
-import { getProfile, saveProfile } from '../core/profile.js';
+import { getProfile, saveProfile, todayStats } from '../core/profile.js';
 import { createRng, newSeed } from '../core/random.js';
 import { navigate } from '../core/router.js';
 import { storage } from '../core/storage.js';
@@ -18,6 +18,7 @@ export function saveQuizResult(level, correct) {
   const isRecord = correct > (best[level] ?? -1);
   if (isRecord) best[level] = correct;
   p.counters.quizzes = (p.counters.quizzes ?? 0) + 1;
+  todayStats().quizzes += 1;
   return isRecord;
 }
 

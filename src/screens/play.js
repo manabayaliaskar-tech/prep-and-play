@@ -3,7 +3,7 @@
 
 import { confetti } from '../core/confetti.js';
 import { t, tx } from '../core/i18n.js';
-import { addXp, checkAchievements, getProfile, recordAnswer, saveProfile } from '../core/profile.js';
+import { addXp, checkAchievements, getProfile, recordAnswer, saveProfile, todayStats } from '../core/profile.js';
 import { navigate, setLeaveGuard } from '../core/router.js';
 import { sfx, vibrate } from '../core/sound.js';
 import { checkAnswer } from '../engine/answer.js';
@@ -192,6 +192,8 @@ export function runSession(app, config) {
     addXp(result.xp);
     const p = getProfile();
     p.counters.bestCombo = Math.max(p.counters.bestCombo, run.bestCombo);
+    const day = todayStats();
+    day.combo = Math.max(day.combo, run.combo);
     state.last = { correct, response, result };
     state.phase = 'feedback';
     state.index += 1;

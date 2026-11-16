@@ -2,10 +2,11 @@
 // уровень олимпиадных задач. Два режима: тренировка с разбором после каждого задания
 // и тест на время с разбором в конце.
 
+import { bossFor } from '../catalog/bosses.js';
 import { courseById, courseHref, levelLabel, practiceKey, trackById, trackHref, trackRecord } from '../catalog/index.js';
 import { dayKey } from '../core/dates.js';
 import { t, tx } from '../core/i18n.js';
-import { getProfile, saveProfile } from '../core/profile.js';
+import { getProfile, saveProfile, todayStats } from '../core/profile.js';
 import { createRng, newSeed } from '../core/random.js';
 import { navigate } from '../core/router.js';
 import { skillName } from '../content/labels.js';
@@ -30,8 +31,25 @@ export function saveTrackResult(course, track, { correct, total }, today = dayKe
   rec.pct = Math.max(rec.pct, total ? Math.round((correct / total) * 100) : 0);
   rec.last = today;
   p.last = { course: course.id, track: track.id };
+  if (starsFor(correct, total) >= 2) todayStats(today).stars2 += 1;
   return rec;
 }
+
+/** Сохраняет итог боя с боссом уровня. */
+export function saveBossResult(course, track, won, today = dayKey()) {
+  const p = getProfile();
+  const rec = (p.practice[practiceKey(course, track)] ??= { best: 0, runs: 0, pct: 0, last: null });
+  const first = won && !rec.boss;
+  if (won) {
+    rec.boss = true;
+    todayStats(today).bosses += 1;
+  }
+  rec.last = today;
+  p.last = { course: course.id, track: track.id };
+  return first;
+}
+
+export const BOSS_QUESTIONS = 10;
 
 export function trackRoute(app, { course: courseId, track: trackId }) {
   const course = courseById(courseId);
@@ -80,6 +98,39 @@ export function trackRoute(app, { course: courseId, track: trackId }) {
     });
   }
 
+  const boss = bossFor(course, track);
+
+  function fight() {
+    session = runSession(app, {
+      title: () => `⚔️ ${t('pr.boss')} · ${title()}`,
+      questions: buildTopicSet({ rng: createRng(newSeed()), spec: track.spec, count: BOSS_QUESTIONS }),
+      lives: 3,
+      boss,
+      catalog: true,
+      exitTo: trackHref(course, track),
+      onFinish: (run) => {
+        const won = run.bossHp === 0;
+        const first = saveBossResult(course, track, won);
+        saveProfile();
+        celebrate(won);
+        return () => ({
+          mood: won ? 'win' : 'lose',
+          title: won ? t('res.bossWin', { name: tx(boss.name) }) : t('res.bossLose', { name: tx(boss.name) }),
+          subtitle: won ? t('pr.bossBeaten') : t('res.bossTip'),
+          xp: run.xp,
+          stats: baseStats(run),
+          log: run.log,
+          extraHtml: first ? `<div class="banner-win">👑 ${t('pr.bossBeaten')}</div>` : '',
+          actions: [
+            ...(won && next ? [{ label: `${t('pr.next')} →`, href: trackHref(course, next), primary: true }] : []),
+            ...(won ? [] : [{ label: `↻ ${t('res.retry')}`, onClick: () => navigate(trackHref(course, track)), primary: true }]),
+            { label: `← ${esc(tx(course.name))}`, href: GROUP_HOME[course.group] ?? courseHref(course) },
+          ],
+        });
+      },
+    });
+  }
+
   const render = () => {
     const rec = trackRecord(course, track);
     const topics = trackTopics(track);
@@ -91,16 +142,18 @@ export function trackRoute(app, { course: courseId, track: trackId }) {
           <p class="track-kicker">${course.leveled ? `${esc(tx(course.name))} · ${levelLabel(course, track)}` : esc(tx(course.name))}</p>
           <h1>${esc(tx(track.name))}</h1>
           <p class="muted">${esc(tx(track.desc))}</p>
-          ${rec ? `<div class="record">★ ${rec.best}/3 · ${t('cat.bestPct', { n: rec.pct })} · ${t('cat.runs', { n: rec.runs })}</div>` : ''}
+          ${rec?.runs ? `<div class="record">${rec.boss ? '👑 ' : ''}★ ${rec.best}/3 · ${t('cat.bestPct', { n: rec.pct })} · ${t('cat.runs', { n: rec.runs })}</div>` : ''}
           <div class="topic-chips center">${topics.map((id) => `<span class="topic-chip">${esc(tx(skillName(id)))}</span>`).join('')}</div>
           <div class="start-options">
             <button type="button" class="option-card start-train"><b>▶ ${t('pr.train')}</b><span>${t('pr.trainDesc', { n: TRAIN_COUNT })}</span></button>
+            <button type="button" class="option-card start-boss ${rec?.boss ? 'is-beaten' : ''}"><span class="option-boss" aria-hidden="true">${boss.icon}</span><b>⚔️ ${t('pr.boss')}${rec?.boss ? ' 👑' : ''}</b><span>${esc(t('pr.bossDesc', { name: tx(boss.name) }))}</span></button>
             ${track.test ? `<button type="button" class="option-card start-test"><b>⏱ ${t('pr.test')}</b><span>${t('pr.testDesc', { n: track.test.count, m: track.test.minutes })}</span></button>` : ''}
           </div>
         </div>
       </section>`;
     app.querySelector('.start-train').addEventListener('click', () => start('train'));
     app.querySelector('.start-test')?.addEventListener('click', () => start('test'));
+    app.querySelector('.start-boss').addEventListener('click', fight);
   };
   render();
   return { cleanup: () => session?.cleanup(), relabel: () => (session ? session.relabel() : render()) };

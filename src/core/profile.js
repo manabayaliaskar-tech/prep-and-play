@@ -17,7 +17,8 @@ function defaults() {
     sound: true,
     xp: 0,
     streak: { count: 0, last: null, best: 0 },
-    today: { date: null, xp: 0 },
+    // Счётчики сегодняшнего дня: цель по опыту и ежедневные задания (quests — уже выданные награды).
+    today: { date: null, xp: 0, answered: 0, correct: 0, combo: 0, stars2: 0, bosses: 0, quizzes: 0, quests: {} },
     daily: {},
     skills: {},
     map: { stars: {}, bosses: {} },
@@ -89,13 +90,18 @@ export function todayXp(today = dayKey()) {
   return profile.today.date === today ? profile.today.xp : 0;
 }
 
+/** Счётчики сегодняшнего дня; в новый день начинаются с нуля. */
+export function todayStats(today = dayKey()) {
+  if (profile.today.date !== today) profile.today = { ...defaults().today, date: today };
+  return profile.today;
+}
+
 export function addXp(amount) {
   if (!(amount > 0)) return;
   const before = levelInfo(profile.xp).level;
   profile.xp += amount;
   const today = dayKey();
-  if (profile.today.date !== today) profile.today = { date: today, xp: 0 };
-  profile.today.xp += amount;
+  todayStats(today).xp += amount;
   touchStreak(today);
   const after = levelInfo(profile.xp).level;
   if (after > before) emit('levelup', after);
@@ -107,6 +113,9 @@ export function recordAnswer(skill, correct) {
   if (correct) stat.c += 1;
   profile.counters.answered += 1;
   if (correct) profile.counters.correct += 1;
+  const day = todayStats();
+  day.answered += 1;
+  if (correct) day.correct += 1;
 }
 
 /** Освоение навыка 0…1 (сглаженная доля правильных) или null, если ещё не решал. */

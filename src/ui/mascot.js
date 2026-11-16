@@ -1,44 +1,96 @@
-// Маскот Prep&Play — Препи: фиолетовый колобок в выпускной шапочке. Настроение меняется.
+// Маскот Prep&Play — Препи: объёмный светящийся шар с орбитальным кольцом и выпускной шапочкой.
+// Цвета берутся из темы (--mascot-hi, --mascot-1, --mascot-2), поэтому Препи меняется вместе с оформлением.
+// Глаза моргают и следят за курсором (переменные --lx/--ly задаёт ui/motion.js).
+// Настроения: happy, wow, sad, win, think.
 
-const INK = '#2b1b5e';
+const INK = '#22164f';
+let uid = 0;
 
-const EYES_OPEN = `
-  <circle cx="44" cy="54" r="10" fill="#fff"/><circle cx="76" cy="54" r="10" fill="#fff"/>
-  <circle class="pupil" cx="46" cy="56" r="5" fill="${INK}"/><circle class="pupil" cx="78" cy="56" r="5" fill="${INK}"/>
-  <circle cx="48" cy="53" r="1.8" fill="#fff"/><circle cx="80" cy="53" r="1.8" fill="#fff"/>`;
+const eye = (cx, cy, ry = 13) => `
+  <g class="eye">
+    <ellipse cx="${cx}" cy="${cy}" rx="11" ry="${ry}" fill="#fff"/>
+    <g class="pupils">
+      <ellipse cx="${cx + 1}" cy="${cy + 2}" rx="6.4" ry="${ry * 0.6}" fill="${INK}"/>
+      <circle cx="${cx + 3.6}" cy="${cy - 2.4}" r="2.6" fill="#fff"/>
+      <circle cx="${cx - 2}" cy="${cy + 5}" r="1.2" fill="#fff" opacity=".8"/>
+    </g>
+  </g>`;
 
-const EYES_HAPPY = `
-  <path d="M36 56 q8 -10 16 0" stroke="${INK}" stroke-width="4" fill="none" stroke-linecap="round"/>
-  <path d="M68 56 q8 -10 16 0" stroke="${INK}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
-
-const MOUTHS = {
-  happy: `<path d="M48 72 Q60 84 72 72" stroke="${INK}" stroke-width="4" fill="none" stroke-linecap="round"/>`,
-  wow: `<ellipse cx="60" cy="76" rx="6" ry="8" fill="${INK}"/>`,
-  sad: `<path d="M48 80 Q60 70 72 80" stroke="${INK}" stroke-width="4" fill="none" stroke-linecap="round"/>`,
-  win: `<path d="M44 70 Q60 92 76 70 Z" fill="${INK}"/><path d="M52 79 Q60 86 68 79" fill="#ff7aa8"/>`,
+const EYES = {
+  open: eye(53, 76) + eye(87, 76),
+  big: eye(53, 75, 15) + eye(87, 75, 15),
+  happy: `
+    <path d="M43 79 Q53 66 63 79" stroke="${INK}" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M77 79 Q87 66 97 79" stroke="${INK}" stroke-width="5" fill="none" stroke-linecap="round"/>`,
+  up: `
+    <g class="eye"><ellipse cx="53" cy="76" rx="11" ry="13" fill="#fff"/><ellipse cx="55" cy="70" rx="6" ry="7.5" fill="${INK}"/><circle cx="57.5" cy="67" r="2.4" fill="#fff"/></g>
+    <g class="eye"><ellipse cx="87" cy="76" rx="11" ry="13" fill="#fff"/><ellipse cx="89" cy="70" rx="6" ry="7.5" fill="${INK}"/><circle cx="91.5" cy="67" r="2.4" fill="#fff"/></g>`,
 };
 
+const BROWS = {
+  wow: `<path d="M43 56 Q52 50 61 55" stroke="${INK}" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M79 55 Q88 50 97 56" stroke="${INK}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`,
+  sad: `<path d="M44 62 L61 57" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/><path d="M79 57 L96 62" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>`,
+  think: `<path d="M44 58 Q52 55 61 58" stroke="${INK}" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M79 54 Q88 49 97 55" stroke="${INK}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`,
+};
+
+const MOUTHS = {
+  happy: `<path d="M58 97 Q70 108 82 97" stroke="${INK}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`,
+  wow: `<ellipse cx="70" cy="101" rx="6" ry="7.5" fill="${INK}"/><ellipse cx="70" cy="104" rx="3.4" ry="2.6" fill="#ff7aa8"/>`,
+  sad: `<path d="M59 105 Q70 96 81 105" stroke="${INK}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`,
+  win: `<path d="M54 94 Q70 118 86 94 Z" fill="${INK}" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/><path d="M61 104 Q70 112 79 104 Q70 99 61 104 Z" fill="#ff7aa8"/>`,
+  think: `<path d="M61 101 Q68 98 79 100" stroke="${INK}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`,
+};
+
+const sparkle = (x, y, s, delay) =>
+  `<path class="spark" style="animation-delay:${delay}s" d="M${x} ${y - s} Q${x} ${y} ${x + s} ${y} Q${x} ${y} ${x} ${y + s} Q${x} ${y} ${x - s} ${y} Q${x} ${y} ${x} ${y - s} Z" fill="#facc15"/>`;
+
 export function mascot(mood = 'happy', cls = '') {
-  const eyes = mood === 'win' ? EYES_HAPPY : EYES_OPEN;
+  const id = `pp${++uid}`;
+  const eyes = mood === 'win' ? EYES.happy : mood === 'wow' ? EYES.big : mood === 'think' ? EYES.up : EYES.open;
   const mouth = MOUTHS[mood] ?? MOUTHS.happy;
-  return `<svg class="mascot mascot-${mood} ${cls}" viewBox="0 0 120 124" aria-hidden="true">
-    <defs><linearGradient id="mascot-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a48dff"/><stop offset="1" stop-color="#6c4cf5"/></linearGradient></defs>
-    <ellipse cx="60" cy="118" rx="32" ry="5" fill="#000" opacity=".08"/>
+  return `<svg class="mascot mascot-${mood} ${cls}" viewBox="0 0 140 150" aria-hidden="true">
+    <defs>
+      <radialGradient id="${id}b" cx=".36" cy=".3" r=".78">
+        <stop offset="0" style="stop-color:var(--mascot-hi)"/>
+        <stop offset=".5" style="stop-color:var(--mascot-1)"/>
+        <stop offset="1" style="stop-color:var(--mascot-2)"/>
+      </radialGradient>
+      <radialGradient id="${id}s" cx=".5" cy=".5" r=".5">
+        <stop offset="0" stop-color="#fff" stop-opacity=".95"/>
+        <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="${id}r" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#fde68a"/><stop offset=".5" stop-color="#facc15"/><stop offset="1" stop-color="#f59e0b"/>
+      </linearGradient>
+    </defs>
+    <ellipse class="mascot-shadow" cx="70" cy="143" rx="34" ry="5" fill="#000" opacity=".14"/>
     <g class="mascot-body">
-      <circle cx="60" cy="66" r="44" fill="url(#mascot-g)"/>
-      <ellipse cx="44" cy="40" rx="12" ry="7" fill="#fff" opacity=".18"/>
-      <circle cx="33" cy="72" r="6" fill="#ff8fb8" opacity=".55"/><circle cx="87" cy="72" r="6" fill="#ff8fb8" opacity=".55"/>
-      ${eyes}${mouth}
-      <path d="M60 6 L106 22 L60 38 L14 22 Z" fill="${INK}"/>
-      <path d="M38 28 L38 38 Q60 48 82 38 L82 28 L60 36 Z" fill="${INK}"/>
-      <path d="M102 23 L102 44" stroke="#facc15" stroke-width="3" stroke-linecap="round"/>
-      <circle cx="102" cy="47" r="4.5" fill="#facc15"/>
+      <g transform="rotate(-9 70 112)"><path class="ring-back" d="M6 112 A64 13 0 0 1 134 112" fill="none" stroke="url(#${id}r)" stroke-width="5" opacity=".55"/></g>
+      <circle cx="70" cy="80" r="48" fill="url(#${id}b)"/>
+      <circle cx="70" cy="80" r="46.5" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="2"/>
+      <ellipse cx="50" cy="54" rx="17" ry="10" transform="rotate(-28 50 54)" fill="url(#${id}s)"/>
+      <circle cx="38" cy="72" r="2.6" fill="#fff" opacity=".7"/>
+      <ellipse cx="40" cy="93" rx="7" ry="4.5" fill="#ff8fb8" opacity=".5"/>
+      <ellipse cx="100" cy="93" rx="7" ry="4.5" fill="#ff8fb8" opacity=".5"/>
+      ${BROWS[mood] ?? ''}
+      <g class="face">${eyes}</g>
+      ${mouth}
+      ${mood === 'sad' ? '<path class="tear" d="M98 84 Q102 92 98 95 Q94 92 98 84 Z" fill="#7dd3fc"/>' : ''}
+      <g transform="rotate(-9 70 112)"><path class="ring-front" d="M6 112 A64 13 0 0 0 134 112" fill="none" stroke="url(#${id}r)" stroke-width="5"/></g>
+      <g class="cap" transform="rotate(-10 70 30)">
+        <path d="M50 30 L50 40 Q70 49 90 40 L90 30 L70 37 Z" fill="${INK}"/>
+        <path d="M70 13 L108 26 L70 39 L32 26 Z" fill="${INK}"/>
+        <path d="M70 15 L102 26 L70 22 L38 26 Z" fill="#fff" opacity=".14"/>
+        <g class="tassel"><path d="M70 26 L101 28 L102 44" stroke="#facc15" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="102" cy="47" r="4.4" fill="#facc15"/></g>
+      </g>
     </g>
+    ${mood === 'win' ? sparkle(14, 40, 7, 0) + sparkle(126, 52, 6, 0.5) + sparkle(120, 118, 5, 1) + sparkle(20, 112, 5, 1.4) : ''}
   </svg>`;
 }
 
 export const LOGO = `<svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true">
-  <rect width="32" height="32" rx="9" fill="#6c4cf5"/>
+  <defs><radialGradient id="logo-g" cx=".35" cy=".3" r=".8"><stop offset="0" style="stop-color:var(--mascot-hi)"/><stop offset=".55" style="stop-color:var(--mascot-1)"/><stop offset="1" style="stop-color:var(--mascot-2)"/></radialGradient></defs>
+  <rect width="32" height="32" rx="10" fill="url(#logo-g)"/>
   <path d="M12.5 9.5v13l10.5-6.5z" fill="#fff"/>
   <circle cx="25.5" cy="7.5" r="3.5" fill="#facc15"/>
 </svg>`;
