@@ -150,6 +150,8 @@ const englishTrack = (levels, test) =>
 // Ключ 0 у банков знаний — задания любой сложности.
 
 const ALL = [1, 2, 3];
+/** Генераторы по хронологии к банкам истории. */
+const HISTORY_GEN = { 'h.kz': 'h.kzt', 'h.world': 'h.wt', 'h.ru': 'h.rut' };
 const SUBJECT = {
   physics: () =>
     track('physics', '⚛️', N.physics, L('Mechanics, electricity, heat, optics', 'Механика, электричество, тепло, оптика', 'Механика, электр, жылу, оптика'),
@@ -168,14 +170,14 @@ const SUBJECT = {
       [['i.num', ALL], ['i.units', ALL], ['i.logic', ALL], ['i.algo', ALL], ['i.theory', [0]], ['i.facts', ALL]], { count: 15, minutes: 30 }),
   russian: () =>
     track('russian', 'Аа', N.russian, L('Spelling, punctuation, language norms', 'Орфография, пунктуация, нормы языка', 'Орфография, пунктуация, тіл нормалары'),
-      [['l.ru', ALL]], { count: 15, minutes: 20 }),
+      [['l.ru', ALL], ['l.rugen', ALL]], { count: 15, minutes: 20 }),
   social: () =>
     track('social', '⚖️', N.social, L('State, law, economics, society', 'Государство, право, экономика, общество', 'Мемлекет, құқық, экономика, қоғам'),
-      [['s.bank', ALL]], { count: 10, minutes: 12 }),
+      [['s.bank', ALL], ['s.terms', ALL]], { count: 12, minutes: 15 }),
   /** История страны: свой банк вместе со всемирной историей. */
   history: (topic, name, id = 'history') =>
     track(id, '📜', name, L('Key events and people', 'Главные события и личности', 'Басты оқиғалар мен тұлғалар'),
-      topic === 'h.world' ? [[topic, [0]]] : [[topic, [0]], ['h.world', [0]]], { count: topic === 'h.world' ? 10 : 12, minutes: 15 }),
+      [...(HISTORY_GEN[topic] ? [[topic, [0]], [HISTORY_GEN[topic], ALL]] : [[topic, [0]]]), ...(topic === 'h.world' ? [] : [['h.world', [0]], ['h.wt', [1, 2]]])], { count: topic === 'h.world' ? 12 : 15, minutes: 20 }),
 };
 
 // Олимпиадная математика: три уровня. Ключ в наборе тем — номер уровня.
@@ -332,7 +334,7 @@ export const COURSES = [
     tracks: [
       track('mathlit', '🧩', N.mathLit, D.mathLit, MATH_LITERACY, { count: 10, minutes: 20 }),
       track('math', '📐', N.mathProfile, D.mathSenior, MATH_SENIOR, { count: 15, minutes: 30 }),
-      track('history', '📜', L('History of Kazakhstan', 'История Казахстана', 'Қазақстан тарихы'), L('From the Saka to independence', 'От саков до независимости', 'Сақтардан тәуелсіздікке дейін'), [['h.kz', ALL]], { count: 15, minutes: 20 }),
+      track('history', '📜', L('History of Kazakhstan', 'История Казахстана', 'Қазақстан тарихы'), L('From the Saka to independence', 'От саков до независимости', 'Сақтардан тәуелсіздікке дейін'), [['h.kz', ALL], ['h.kzt', ALL]], { count: 15, minutes: 20 }),
       track('reading', '📖', L('Reading literacy', 'Грамотность чтения', 'Оқу сауаттылығы'), L('Texts and questions about them', 'Тексты и вопросы к ним', 'Мәтіндер және оларға сұрақтар'), [['r.literacy', [1]]], { count: 12, minutes: 20 }),
       englishTrack([3, 4], { count: 20, minutes: 20 }),
       SUBJECT.physics(),
@@ -464,7 +466,7 @@ export const COURSES = [
       track('math', '📐', L('Mathematics (main test)', 'Математика (основной тест)', 'Математика (негізгі тест)'), D.mathLit, [...MATH_LITERACY, ['m.lineq', [1, 2]], ['m.ineq', [1, 2]], ['m.pyth', [1, 2]], ['m.angle', [1, 2]], ['m.pow', [1, 2]]], { count: 15, minutes: 30 }),
       track('analogies', '🔗', L('Analogies and sentence completion', 'Аналогии и дополнение предложений', 'Аналогиялар мен сөйлемдерді толықтыру'), L('Relations between words, meaning in context', 'Связи между словами, смысл в контексте', 'Сөздер арасындағы байланыс, контекстегі мағына'), [['l.analogy', [0]], ['l.complete', [0]]], { count: 15, minutes: 15 }),
       track('reading', '📖', L('Reading comprehension', 'Чтение и понимание', 'Оқу және түсіну'), L('Texts and questions about them', 'Тексты и вопросы к ним', 'Мәтіндер және оларға сұрақтар'), [['r.literacy', [1]]], { count: 12, minutes: 20 }),
-      track('grammar', 'Аа', L('Practical grammar (Russian)', 'Практическая грамматика (русский язык)', 'Практикалық грамматика (орыс тілі)'), L('Spelling, punctuation, language norms', 'Орфография, пунктуация, нормы языка', 'Орфография, пунктуация, тіл нормалары'), [['l.ru', ALL]], { count: 15, minutes: 20 }),
+      track('grammar', 'Аа', L('Practical grammar (Russian)', 'Практическая грамматика (русский язык)', 'Практикалық грамматика (орыс тілі)'), L('Spelling, punctuation, language norms', 'Орфография, пунктуация, нормы языка', 'Орфография, пунктуация, тіл нормалары'), [['l.ru', ALL], ['l.rugen', ALL]], { count: 15, minutes: 20 }),
       englishTrack([3, 4], { count: 20, minutes: 20 }),
       SUBJECT.history('h.kg', L('History of Kyrgyzstan', 'История Кыргызстана', 'Қырғызстан тарихы')),
       SUBJECT.physics(),
@@ -775,6 +777,28 @@ export const COURSES = [
       track('i4', '4', L('Logic', 'Логика', 'Логика'), L('AND, OR, NOT, truth tables', 'И, ИЛИ, НЕ, таблицы истинности', 'ЖӘНЕ, НЕМЕСЕ, ЕМЕС, ақиқат кестелері'), [['i.logic', [1, 2]], ['i.num', [3]], ['i.theory', [1, 2]]]),
       track('i5', '5', L('Algorithms', 'Алгоритмы', 'Алгоритмдер'), L('Loops, executors, counting steps', 'Циклы, исполнители, подсчёт шагов', 'Циклдер, орындаушылар, қадамдарды санау'), [['i.algo', [1, 2, 3]], ['i.logic', [3]], ['i.facts', [3]]]),
       track('i6', '🎓', L('Exam prep', 'Подготовка к экзамену', 'Емтиханға дайындық'), L('The hardest tasks of the exam', 'Самые трудные задания экзамена', 'Емтиханның ең қиын тапсырмалары'), [['i.num', [3]], ['i.units', [3]], ['i.logic', [3]], ['i.algo', [3]], ['i.theory', [3]], ['i.facts', [3]]], { count: 15, minutes: 25 }),
+    ],
+  },
+  {
+    id: 'history',
+    group: 'daily',
+    code: '📜',
+    color: '#b45309',
+    leveled: true,
+    name: N.history,
+    full: L('Kazakhstan, Russia and the world', 'Казахстан, Россия и мир', 'Қазақстан, Ресей және әлем'),
+    about: L(
+      'Key dates, events and people: from the Saka and the Kazakh Khanate to independence, and world history from Ancient Greece to the present day.',
+      'Главные даты, события и личности: от саков и Казахского ханства до независимости и всемирная история — от Древней Греции до наших дней.',
+      'Басты даталар, оқиғалар мен тұлғалар: сақтар мен Қазақ хандығынан тәуелсіздікке дейін және Ежелгі Грекиядан бүгінге дейінгі дүниежүзі тарихы.',
+    ),
+    tracks: [
+      track('h1', '1', L('Kazakhstan: the basics', 'Казахстан: основы', 'Қазақстан: негіздер'), L('The most important dates and people', 'Самые важные даты и личности', 'Ең маңызды даталар мен тұлғалар'), [['h.kzt', [1]], ['h.kz', [1]]]),
+      track('h2', '2', L('World history: the basics', 'Всемирная история: основы', 'Дүниежүзі тарихы: негіздер'), L('Great empires, discoveries and wars', 'Великие империи, открытия и войны', 'Ұлы империялар, ашылулар мен соғыстар'), [['h.wt', [1]], ['h.world', [1]]]),
+      track('h3', '3', L('Kazakhstan in depth', 'Казахстан подробно', 'Қазақстан тереңірек'), L('Khans, uprisings, the Soviet era, independence', 'Ханы, восстания, советская эпоха, независимость', 'Хандар, көтерілістер, кеңестік дәуір, тәуелсіздік'), [['h.kzt', [2]], ['h.kz', [2]]]),
+      track('h4', '4', L('World history in depth', 'Всемирная история подробно', 'Дүниежүзі тарихы тереңірек'), L('Centuries, the order of events, great people', 'Века, порядок событий, великие люди', 'Ғасырлар, оқиғалар реті, ұлы адамдар'), [['h.wt', [2]], ['h.world', [2]], ['h.rut', [1]]]),
+      track('h5', '5', L('History of Russia', 'История России', 'Ресей тарихы'), L('From Rurik to the present day', 'От Рюрика до наших дней', 'Рюриктен бүгінге дейін'), [['h.rut', [2, 3]], ['h.ru', [0]]]),
+      track('h6', '🎓', L('Exam prep', 'Подготовка к экзамену', 'Емтиханға дайындық'), L('Close dates and the hardest questions', 'Близкие даты и самые трудные вопросы', 'Жақын даталар мен ең қиын сұрақтар'), [['h.kzt', [3]], ['h.wt', [3]], ['h.kz', [3]], ['h.world', [3]]], { count: 15, minutes: 20 }),
     ],
   },
   // ===== Программирование =====

@@ -180,6 +180,87 @@ export const READING = {
         )),
       ],
     },
+    {
+      id: 'silkroad',
+      title: 'Roads of Silk and Ideas',
+      text:
+        'The Silk Road was not a single road but a network of routes that linked China with the Mediterranean for more than a thousand years. Caravans of camels carried silk, porcelain and spices westward, while glass, silver and horses travelled east. Cities such as Otrar, Taraz and Samarkand grew rich by offering travellers water, food and safe places to rest. Historians stress, however, that goods were only part of the story. Along the same routes moved religions, languages, technologies such as paper-making, and even diseases. From the fifteenth century, as Europeans learned to reach Asia by sea, the overland trade gradually declined. Today the name has been revived for modern transport projects, but these depend on railways and highways rather than caravans.',
+      qs: [
+        tf('The Silk Road consisted of several connected routes.', 0, L(
+          'True: it "was not a single road but a network of routes".',
+          'True: это «не одна дорога, а сеть путей».',
+          'True: бұл «бір жол емес, жолдар желісі» болған.',
+        )),
+        tf('Horses were transported from the east to the west.', 1, L(
+          'False: the text says horses "travelled east", not west.',
+          'False: в тексте сказано, что лошади шли «на восток», а не на запад.',
+          'False: мәтінде жылқылар батысқа емес, «шығысқа» жеткізілгені айтылған.',
+        )),
+        tf('Otrar was the largest city on the Silk Road.', 2, L(
+          'Not Given: Otrar is named among rich cities, but nothing is said about which was the largest.',
+          'Not Given: Отрар назван среди богатых городов, но о том, какой город был самым большим, ничего не сказано.',
+          'Not Given: Отырар бай қалалардың бірі ретінде аталған, бірақ ең үлкен қала туралы ештеңе айтылмаған.',
+        )),
+        mc('Why did overland trade decline from the fifteenth century?', [
+          'Europeans found sea routes to Asia.',
+          'The caravan cities ran out of water.',
+          'Silk stopped being fashionable.',
+          'Railways replaced the caravans.',
+        ], L(
+          'The text links the decline to Europeans learning "to reach Asia by sea". Railways belong to modern projects.',
+          'Упадок связан с тем, что европейцы научились «добираться до Азии морем». Железные дороги — это уже современные проекты.',
+          'Құлдырау еуропалықтардың «Азияға теңіз арқылы жетуді» үйренуімен байланысты. Темір жолдар — қазіргі жобалар.',
+        )),
+        mc('According to historians, what else moved along the Silk Road besides goods?', [
+          'Religions, languages and technologies',
+          'Only soldiers and their horses',
+          'Railway engineers',
+          'European warships',
+        ], L(
+          '"Along the same routes moved religions, languages, technologies such as paper-making, and even diseases."',
+          '«По тем же путям распространялись религии, языки, технологии, например изготовление бумаги, и даже болезни».',
+          '«Сол жолдармен діндер, тілдер, қағаз жасау сияқты технологиялар, тіпті аурулар да тарады».',
+        )),
+      ],
+    },
+    {
+      id: 'nap',
+      title: 'Why We Sleep on It',
+      text:
+        'People have long been told to "sleep on" a difficult decision, and modern research suggests the advice is sound. During deep sleep the brain replays the events of the day, strengthening some memories and weakening others. In one well-known experiment, volunteers learned a list of word pairs in the evening. Those who then slept recalled noticeably more pairs the next morning than those who stayed awake for the same number of hours. Sleep also seems to help people notice hidden patterns: in another study, participants who slept were more likely to discover a shortcut in a number puzzle. Researchers caution that a short nap is not a substitute for a full night, and that students who stay up late before an exam may remember less, not more.',
+      qs: [
+        tf('According to research, sleeping before a decision can be helpful.', 0, L(
+          'True: research "suggests the advice is sound".',
+          'True: исследования «подтверждают, что совет разумен».',
+          'True: зерттеулер «кеңестің дұрыс екенін» көрсетеді.',
+        )),
+        tf('In the word-pair experiment, the volunteers who stayed awake remembered more.', 1, L(
+          'False: those who slept "recalled noticeably more pairs".',
+          'False: больше пар вспомнили те, кто спал.',
+          'False: көбірек жұпты ұйықтағандар есіне түсірді.',
+        )),
+        tf('The number-puzzle study was carried out with university students only.', 2, L(
+          'Not Given: the text calls them "participants" and does not say who they were.',
+          'Not Given: в тексте сказано «участники», но не сказано, кто они.',
+          'Not Given: мәтінде тек «қатысушылар» делінген, олардың кім екені айтылмаған.',
+        )),
+        mc('What warning do researchers give?', [
+          'A short nap cannot replace a full night of sleep.',
+          'Sleeping too long damages memory.',
+          'Puzzles should not be solved at night.',
+          'Word lists are the best way to study.',
+        ], L(
+          'Researchers "caution that a short nap is not a substitute for a full night".',
+          'Учёные предупреждают, что «короткий дневной сон не заменит полноценную ночь».',
+          'Ғалымдар «қысқа ұйқы толық түнгі ұйқыны алмастырмайды» деп ескертеді.',
+        )),
+        mc('The word "sound" in the first sentence is closest in meaning to', ['sensible', 'loud', 'healthy', 'quick'], L(
+          'Here "sound" advice means sensible, reliable advice.',
+          'Здесь sound означает «разумный, здравый» совет.',
+          'Мұнда sound «ақылға қонымды, дұрыс» кеңес дегенді білдіреді.',
+        )),
+      ],
+    },
   ],
   toefl: [
     {
@@ -231,7 +312,7 @@ export const READING = {
       ],
     },
     {
-      id: 'press',
+      id: 'gutenberg',
       title: 'The Printing Revolution',
       text:
         'Before the fifteenth century, every book in Europe was copied by hand. A scribe could spend months on a single volume, so books were rare and expensive, and most people never owned one. Around 1450 the German craftsman Johannes Gutenberg developed a printing press that used movable metal type: small reusable letters that could be arranged to form a page, inked, and pressed onto paper again and again. A printer could now produce in a few weeks what a scribe produced in years. The consequences went far beyond the price of books. Ideas travelled faster, because the same text could reach readers in many cities at once. Scholars could compare identical copies and correct mistakes. As books became affordable, more people had a reason to learn to read. Historians often describe the printing press as one of the inventions that shaped the modern world.',
@@ -396,6 +477,102 @@ export const READING = {
           '"Even more important than the goods were the things that travelled with them: religions, languages, technologies and scientific knowledge."',
           '«Ещё важнее товаров было то, что путешествовало вместе с ними: религии, языки, технологии и научные знания».',
           '«Тауарлардан да маңыздысы — олармен бірге тараған нәрселер: діндер, тілдер, технологиялар және ғылыми білім».',
+        )),
+      ],
+    },
+    {
+      id: 'coral',
+      title: 'Partners in the Reef',
+      text:
+        'Coral reefs cover less than one percent of the ocean floor, yet scientists estimate that they shelter about a quarter of all known marine species. A reef is built by tiny animals called polyps, which take calcium from seawater and form hard skeletons. Inside the tissues of most reef-building corals live microscopic algae. The algae use sunlight to produce food, much of which they share with the coral, while the coral gives them shelter and nutrients. This partnership explains why reefs grow mainly in shallow, clear water. When the water becomes too warm, the stressed coral expels its algae and turns white, a process known as bleaching. If temperatures return to normal quickly, the coral can recover; if not, it may starve.',
+      qs: [
+        mc('According to the passage, why do most reefs grow in shallow, clear water?', [
+          'The algae inside the coral need sunlight',
+          'Polyps cannot survive at high pressure',
+          'Fish are easier to find near the shore',
+          'Calcium is found only near the surface',
+        ], L(
+          'The algae "use sunlight to produce food" — this partnership "explains why reefs grow mainly in shallow, clear water".',
+          'Водоросли «используют солнечный свет для производства пищи» — поэтому рифы растут в мелкой прозрачной воде.',
+          'Балдырлар «қорек өндіру үшін күн сәулесін пайдаланады» — сондықтан рифтер таяз, мөлдір суда өседі.',
+        )),
+        mc('The word "expels" is closest in meaning to', ['pushes out', 'feeds', 'protects', 'divides'], L(
+          '"Expels" means forces out: the coral gets rid of its algae.',
+          'Expels — «выталкивает, изгоняет»: коралл избавляется от водорослей.',
+          'Expels — «сыртқа итеріп шығарады»: маржан балдырлардан арылады.',
+        )),
+        mc('What can be inferred about bleached coral?', [
+          'It is not necessarily dead',
+          'It can no longer build a skeleton',
+          'It is more colourful than healthy coral',
+          'It always dies within a day',
+        ], L(
+          'The passage says the coral "can recover" if temperatures return to normal quickly, so bleached coral is not necessarily dead.',
+          'В тексте сказано, что коралл «может восстановиться», если температура быстро нормализуется, — значит, он не обязательно погиб.',
+          'Мәтінде температура тез қалпына келсе, маржан «қалпына келе алады» делінген — демек, ол міндетті түрде өлмеген.',
+        )),
+        mc('What does the coral provide to the algae?', [
+          'Shelter and nutrients',
+          'Sunlight and calcium',
+          'Food produced by photosynthesis',
+          'Protection from bleaching',
+        ], L(
+          '"The coral gives them shelter and nutrients."',
+          '«Коралл даёт им укрытие и питательные вещества».',
+          '«Маржан оларға баспана мен қоректік заттар береді».',
+        )),
+        mc('About how much of the ocean floor do coral reefs cover?', ['Less than one percent', 'About a quarter', 'About half', 'More than ten percent'], L(
+          '"Coral reefs cover less than one percent of the ocean floor" — a quarter is the share of species they shelter.',
+          '«Рифы покрывают меньше одного процента дна океана», а четверть — это доля видов, которые там живут.',
+          '«Рифтер мұхит түбінің бір пайызынан азын алып жатыр», ал төрттен бірі — ондағы түрлердің үлесі.',
+        )),
+      ],
+    },
+    {
+      id: 'gutenberg',
+      title: 'The Printing Revolution',
+      text:
+        'Before the middle of the fifteenth century, books in Europe were copied by hand, a process so slow that a single Bible could take a scribe more than a year. Around 1450, Johannes Gutenberg combined several existing technologies — movable metal type, oil-based ink and a press adapted from those used for making wine — into a practical printing system. Within fifty years, printing shops had spread to more than two hundred European cities, and millions of books were in circulation. Because printed copies were identical, scholars in different countries could refer to exactly the same text. Printing also made pamphlets cheap enough for ordinary people, and new ideas could now spread faster than authorities were able to control them.',
+      qs: [
+        mc('According to the passage, Gutenberg\'s main achievement was', [
+          'combining existing technologies into a working system',
+          'inventing ink and paper',
+          'being the first person to copy the Bible',
+          'building the first wine press',
+        ], L(
+          'He "combined several existing technologies … into a practical printing system".',
+          'Он «объединил несколько уже существовавших технологий в практичную систему печати».',
+          'Ол «бұрыннан бар бірнеше технологияны практикалық баспа жүйесіне біріктірді».',
+        )),
+        mc('Why was it important that printed copies were identical?', [
+          'Scholars in different places could use exactly the same text',
+          'Books became heavier and more durable',
+          'Scribes could work faster',
+          'Authorities could check every book',
+        ], L(
+          '"Because printed copies were identical, scholars in different countries could refer to exactly the same text."',
+          '«Поскольку копии были одинаковыми, учёные разных стран могли ссылаться на один и тот же текст».',
+          '«Көшірмелер бірдей болғандықтан, әр елдің ғалымдары дәл бір мәтінге сілтеме жасай алды».',
+        )),
+        mc('The word "circulation" is closest in meaning to', ['use among people', 'storage', 'translation', 'production'], L(
+          '"In circulation" means passing from person to person, being used.',
+          'In circulation — «в обращении», то есть переходят из рук в руки.',
+          'In circulation — «айналымда», яғни қолдан қолға өтеді.',
+        )),
+        mc('What can be inferred about authorities after the invention of printing?', [
+          'They found it harder to control the spread of ideas',
+          'They printed all the pamphlets themselves',
+          'They banned printing in two hundred cities',
+          'They lost interest in books',
+        ], L(
+          'New ideas "could now spread faster than authorities were able to control them".',
+          'Новые идеи «распространялись быстрее, чем власти успевали их контролировать».',
+          'Жаңа идеялар «билік бақылап үлгергеннен тезірек тарады».',
+        )),
+        mc('How long could it take a scribe to copy one Bible by hand?', ['More than a year', 'About a week', 'Fifty years', 'One day'], L(
+          '"A single Bible could take a scribe more than a year."',
+          '«Переписка одной Библии могла занять у писца больше года».',
+          '«Бір Библияны көшіру хатшыға бір жылдан астам уақыт алуы мүмкін еді».',
         )),
       ],
     },

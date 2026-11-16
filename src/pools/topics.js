@@ -32,6 +32,8 @@ import { BIOLOGY, GEOGRAPHY } from './science/bio-geo.js';
 import { HISTORY_KZ, HISTORY_REGION, HISTORY_RU, HISTORY_WORLD } from './humanities/history.js';
 import { ANALOGIES, RUSSIAN, SENTENCES, SOCIAL } from './humanities/language.js';
 import { LITERACY } from './humanities/literacy.js';
+import { timelineMaker } from './humanities/history-gen.js';
+import { russianMaker, socialMaker } from './humanities/ru-gen.js';
 import { INFORMATICS_THEORY, algorithms, infoUnits, logic as boolLogic, numberSystems } from './science/informatics.js';
 import { counting, diophantine, divisors, factorials, lastDigit, logic, paths, pigeonhole, remainders, shapes, sums, tournaments } from './olymp.js';
 
@@ -141,9 +143,14 @@ export const TOPICS = {
   'h.by': topic('history', L('History of Belarus', 'История Беларуси', 'Беларусь тарихы'), bankMaker('h.by', HISTORY_REGION.by)),
   'h.md': topic('history', L('History of Moldova', 'История Молдовы', 'Молдова тарихы'), bankMaker('h.md', HISTORY_REGION.md)),
   's.bank': topic('social', L('Social studies', 'Обществознание', 'Қоғамтану'), bankMaker('s.bank', SOCIAL)),
+  's.terms': topic('social', L('Terms of social studies', 'Термины обществознания', 'Қоғамтану терминдері'), socialMaker('s.terms')),
+  'h.kzt': topic('history', L('Kazakhstan: dates and people', 'Казахстан: даты и личности', 'Қазақстан: даталар мен тұлғалар'), timelineMaker('h.kzt', 'kz')),
+  'h.wt': topic('history', L('World history: dates and people', 'Всемирная история: даты и личности', 'Дүниежүзі тарихы: даталар мен тұлғалар'), timelineMaker('h.wt', 'world')),
+  'h.rut': topic('history', L('Russia: dates', 'Россия: даты', 'Ресей: даталар'), timelineMaker('h.rut', 'ru')),
 
   // ----- Русский язык, логика и чтение на языке интерфейса -----
   'l.ru': topic('russian', L('Russian language', 'Русский язык', 'Орыс тілі'), bankMaker('l.ru', RUSSIAN)),
+  'l.rugen': topic('russian', L('Stress and spelling', 'Ударения и словарные слова', 'Екпін және сөздік сөздер'), russianMaker('l.rugen')),
   'l.analogy': topic('russian', L('Analogies', 'Аналогии', 'Аналогиялар'), bankMaker('l.analogy', ANALOGIES)),
   'l.complete': topic('russian', L('Sentence completion', 'Дополнение предложений', 'Сөйлемді толықтыру'), bankMaker('l.complete', SENTENCES)),
   'r.literacy': topic('reading', L('Reading literacy', 'Грамотность чтения', 'Оқу сауаттылығы'), readingMaker('r.literacy', LITERACY)),

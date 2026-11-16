@@ -166,3 +166,39 @@ test('науки: 6 уровней в каждом курсе, информат�
     }
   }
 });
+
+// ---------- История, русский язык, обществознание ----------
+
+test('гуманитарные генераторы: корректные задания, ответы по хронологии верны', async () => {
+  for (const id of ['h.kzt', 'h.wt', 'h.rut', 'l.rugen', 's.terms']) {
+    for (let d = 1; d <= 3; d++) {
+      for (let s = 0; s < 150; s++) {
+        const q = TOPICS[id].make({ rng: createRng(s * 13 + d), used: new Set() }, d);
+        const blob = JSON.stringify([q.prompt, q.choices, q.ex]);
+        assert.ok(!/\bNaN\b|undefined|null/.test(blob), `${id}: ${blob.slice(0, 200)}`);
+        assert.equal(q.choices.length, 4, id);
+        for (const l of LANGS) assert.equal(new Set(q.choices.map((c) => text(c, l))).size, 4, `${id}: повтор ${l}`);
+      }
+    }
+  }
+  const { KZ_EVENTS, WORLD_EVENTS, RU_EVENTS } = await import('../src/pools/humanities/timeline.js');
+  for (const table of [KZ_EVENTS, WORLD_EVENTS, RU_EVENTS]) {
+    for (const line of table.trim().split('\n')) {
+      const [year, en, ru, kk] = line.split('|');
+      assert.ok(Number.isInteger(Number(year)) && Number(year) <= 2025 && en && ru && kk, line);
+    }
+  }
+});
+
+test('ударения: верный и неверный вариант — одно и то же слово, ударная буква одна', async () => {
+  const src = (await import('node:fs')).readFileSync('src/pools/humanities/ru-gen.js', 'utf8');
+  const block = src.slice(src.indexOf('const STRESS'), src.indexOf('`).map', src.indexOf('const STRESS')));
+  const pairs = block.split('\n').filter((l) => /^\d\|/.test(l)).map((l) => l.split('|'));
+  assert.ok(pairs.length >= 40);
+  for (const [, ok, bad] of pairs) {
+    const norm = (w) => w.toLowerCase().replace(/ё/g, 'е');
+    assert.equal(norm(ok), norm(bad), ok);
+    assert.notEqual(ok, bad);
+    for (const w of [ok, bad]) assert.equal((w.match(/[АЕЁИОУЫЭЮЯ]/g) ?? []).length, 1, w);
+  }
+});
