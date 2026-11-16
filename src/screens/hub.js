@@ -79,6 +79,36 @@ export function questsCard(profile = getProfile(), day = dayKey()) {
     </section>`;
 }
 
+/** Большая карточка квиза: кубик, рекорды и кнопки режимов. */
+export function quizHero(p = getProfile(), day = dayKey()) {
+  const r = p.records ?? {};
+  const classic = Object.values(r.quiz ?? {});
+  const dailyDone = r.quizDaily?.[day] !== undefined;
+  const chip = (icon, label, value) => `<span class="qh-chip"><span aria-hidden="true">${icon}</span>${label}: <b>${value}</b></span>`;
+  return `
+    <section class="quiz-hero" aria-label="${t('quiz.title')}">
+      <div class="qh-dice" aria-hidden="true">
+        <div class="qh-cube"><span>🎲</span></div>
+        ${['📐', '🌍', '⚛️', '🧬', '📜', '🔤', '💻', '🏆'].map((icon, i) => `<i style="--i:${i}">${icon}</i>`).join('')}
+      </div>
+      <div class="qh-body">
+        <h2>${t('quiz.title')}</h2>
+        <p>${t('hub.quizHero')}</p>
+        <div class="qh-chips">
+          ${chip('🎯', t('quiz.mode.classic'), classic.length ? `${Math.max(...classic)}/10` : '—')}
+          ${chip('⚡', t('quiz.mode.blitz'), r.quizBlitz || '—')}
+          ${chip('❤️', t('quiz.mode.survival'), r.quizSurvival || '—')}
+        </div>
+        <div class="qh-actions">
+          <a class="btn btn-xl qh-play" href="#/quiz/classic">▶ ${t('hub.quizPlay')}</a>
+          <a class="btn btn-soft qh-mode" href="#/quiz/blitz">⚡ ${t('quiz.mode.blitz')}</a>
+          <a class="btn btn-soft qh-mode" href="#/quiz/survival">❤️ ${t('quiz.mode.survival')}</a>
+          <a class="btn btn-soft qh-mode ${dailyDone ? '' : 'is-new'}" href="#/quiz/daily">📅 ${t('quiz.mode.daily')}${dailyDone ? ' ✔' : `<span class="qh-new">${t('quiz.dailyNew')}</span>`}</a>
+        </div>
+      </div>
+    </section>`;
+}
+
 function continueCard() {
   const last = getProfile().last;
   if (!last) return '';
@@ -140,16 +170,11 @@ export function hubScreen(app) {
           </div>
         </div>
 
+        ${quizHero(p)}
+
         ${continueCard() ? `<div class="continue-row single">${continueCard()}</div>` : ''}
 
         ${questsCard(p)}
-
-        <a class="quiz-card" href="#/quiz">
-          <span class="quiz-card-dice" aria-hidden="true">🎲</span>
-          <span class="quiz-card-text"><b>${t('quiz.title')}</b><small>${t('hub.quizCta')}</small></span>
-          <span class="quiz-card-icons" aria-hidden="true">📐 🌍 ⚛️ 🧬 📜 🔤</span>
-          <span class="daily-go">▶</span>
-        </a>
 
         <section class="block">
           ${head(group('daily'), t('hub.open'), dailyBlock.hidden)}

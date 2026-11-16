@@ -35,6 +35,7 @@ route('/exams', () => examsScreen(app));
 route('/practice', () => practiceHubScreen(app));
 route('/code', () => practiceHubScreen(app, 'code'));
 route('/quiz', () => quizRoute(app));
+route('/quiz/:mode', (params) => quizRoute(app, params));
 route('/c/:course', (params) => courseScreen(app, params));
 route('/c/:course/:track', (params) => trackRoute(app, params));
 // SAT

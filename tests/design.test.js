@@ -108,3 +108,42 @@ test('главная: 4 курса в блоке — сначала закреп
   // Закреплённый курс из другого раздела в этот блок не попадает.
   assert.ok(!homeCourses(daily, 'daily', { pins: ['python'], profile: {} }).shown.some((c) => c.id === 'python'));
 });
+
+test('квиз: без повторов внутри игры и между играми, квиз дня одинаков весь день', async () => {
+  const { QuizStream, QUIZ_POOLS, buildQuiz, dailyQuiz, survivalLevel, bySubject } = await import('../src/pools/quiz.js');
+  const { createRng } = await import('../src/core/random.js');
+  const { TOPICS } = await import('../src/pools/topics.js');
+  // Пять игр подряд на одной сложности: вопросы прошлых игр не повторяются.
+  const seen = new Set();
+  let repeats = 0;
+  for (let game = 0; game < 5; game++) {
+    const qs = buildQuiz({ rng: createRng(100 + game), level: 5, seen });
+    assert.equal(new Set(qs.map((q) => q.id)).size, qs.length, 'повтор внутри игры');
+    for (const q of qs) {
+      if (seen.has(q.id)) repeats += 1;
+      seen.add(q.id);
+    }
+  }
+  assert.equal(repeats, 0, 'вопросы прошлых игр вернулись');
+  // Соседние вопросы — из разных предметов.
+  const qs = buildQuiz({ rng: createRng(7), level: 4 });
+  for (let i = 1; i < qs.length; i++) assert.notEqual(TOPICS[qs[i].skill].pool, TOPICS[qs[i - 1].skill].pool);
+  // Свой квиз: только выбранные предметы.
+  const own = buildQuiz({ rng: createRng(8), level: 6, pools: ['geography', 'history'] });
+  assert.ok(own.every((q) => ['geography', 'history'].includes(TOPICS[q.skill].pool)));
+  assert.ok(QUIZ_POOLS.length >= 11);
+  // Квиз дня одинаковый весь день и разный в разные дни.
+  const ids = (day) => dailyQuiz(day).map((q) => q.id).join();
+  assert.equal(ids('2026-11-16'), ids('2026-11-16'));
+  assert.notEqual(ids('2026-11-16'), ids('2026-11-17'));
+  // Выживание: сложность растёт и не выходит за 10.
+  assert.equal(survivalLevel(0, 1), 1);
+  assert.equal(survivalLevel(6, 1), 3);
+  assert.equal(survivalLevel(100, 4), 10);
+  // Блиц: длинный поток без повторов.
+  const stream = new QuizStream({ rng: createRng(3) });
+  const blitz = Array.from({ length: 60 }, () => stream.next(5));
+  assert.equal(new Set(blitz.map((q) => q.id)).size, 60);
+  const rows = bySubject(blitz.map((question, i) => ({ question, correct: i % 2 === 0 })));
+  assert.equal(rows.reduce((s, r) => s + r.total, 0), 60);
+});

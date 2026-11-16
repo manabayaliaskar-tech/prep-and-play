@@ -168,6 +168,8 @@ test('переводы: каждый ключ интерфейса есть на
     ...PERIODS.map((p) => `premium.period${p.months}`),
     ...QUESTS.map((q) => `quest.${q.id}`),
     'pin.add',
+    'quiz.level', 'quiz.startLevel', 'quiz.dailyInfo', 'quiz.dailyAgain',
+    ...['classic', 'blitz', 'survival', 'custom', 'daily'].flatMap((m) => [`quiz.mode.${m}`, `quiz.mode.${m}Desc`, `quiz.go.${m}`]),
     'pin.remove',
     'duel.win', 'duel.lose', 'duel.draw', 'exam.routeHard', 'exam.routeEasy',
     ...[1, 2, 3, 4, 5, 6].map((i) => `fb.praise${i}`),
