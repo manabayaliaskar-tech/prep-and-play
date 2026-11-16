@@ -24,6 +24,7 @@ import { satHomeScreen } from './screens/sat-home.js';
 import { toast } from './ui/overlay.js';
 import { startMotion } from './ui/motion.js';
 import { bindThemePicker } from './ui/theme-picker.js';
+import { bindPins } from './core/pins.js';
 import { bindLangSwitches, renderTopbar } from './ui/topbar.js';
 
 const app = document.getElementById('app');
@@ -94,6 +95,7 @@ applyTheme();
 document.documentElement.lang = getLang();
 bindLangSwitches();
 bindThemePicker();
+bindPins(refreshRoute);
 startMotion(app);
 startRouter();
 renderTopbar();

@@ -167,6 +167,8 @@ test('переводы: каждый ключ интерфейса есть на
     ...PLANS.flatMap((p) => [`premium.${p.id}`, `premium.${p.id}Desc`]),
     ...PERIODS.map((p) => `premium.period${p.months}`),
     ...QUESTS.map((q) => `quest.${q.id}`),
+    'pin.add',
+    'pin.remove',
     'duel.win', 'duel.lose', 'duel.draw', 'exam.routeHard', 'exam.routeEasy',
     ...[1, 2, 3, 4, 5, 6].map((i) => `fb.praise${i}`),
     ...['map', 'exam', 'duel', 'survival', 'blitz', 'det', 'weak', 'daily'].flatMap((k) => [`mode.${k}.title`, `mode.${k}.desc`]),

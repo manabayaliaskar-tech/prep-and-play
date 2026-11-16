@@ -5972,3 +5972,68 @@ body {
     transform: none !important;
   }
 }
+
+/* ---------- Закреплённые курсы и «+N» ---------- */
+.daily-course,
+.practice-course {
+  position: relative;
+}
+.pin-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--muted);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.2s var(--ease-spring, ease), color 0.2s, background 0.2s;
+}
+.pin-btn:hover {
+  transform: scale(1.12) rotate(-8deg);
+  color: #f59e0b;
+}
+.pin-btn.is-on {
+  color: #f59e0b;
+  background: color-mix(in srgb, #facc15 22%, var(--card));
+  border-color: color-mix(in srgb, #f59e0b 45%, var(--line));
+}
+.daily-course-head,
+.practice-course-head {
+  padding-right: 40px;
+}
+.block-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.more-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 30px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent, #7c3aed), #ec4899);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent, #7c3aed) 40%, transparent);
+  animation: badge-pop 2.4s ease-in-out infinite;
+}
+@keyframes badge-pop {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+.pin-hint {
+  margin: 10px 2px 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .more-badge { animation: none; }
+}

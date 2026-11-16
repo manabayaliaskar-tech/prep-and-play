@@ -95,3 +95,16 @@ test('Препи: каждое настроение рисуется, id гра�
     assert.ok(svg.includes(`mascot-${mood}`) && !svg.includes('undefined'), mood);
   }
 });
+
+test('главная: 4 курса в блоке — сначала закреплённые, потом недавние, потом по умолчанию', async () => {
+  const { homeCourses } = await import('../src/core/pins.js');
+  const daily = COURSES.filter((c) => c.group === 'daily');
+  const fresh = homeCourses(daily, 'daily', { pins: [], profile: {} });
+  assert.equal(fresh.shown.length, 4);
+  assert.deepEqual(fresh.shown.slice(0, 2).map((c) => c.id), ['math', 'english']);
+  assert.equal(fresh.hidden, daily.length - 4);
+  const recent = homeCourses(daily, 'daily', { pins: ['geography'], profile: { practice: { 'chemistry:c1': { last: '2026-11-10' }, 'history:h1': { last: '2026-11-15' } } } });
+  assert.deepEqual(recent.shown.map((c) => c.id), ['geography', 'history', 'chemistry', 'math']);
+  // Закреплённый курс из другого раздела в этот блок не попадает.
+  assert.ok(!homeCourses(daily, 'daily', { pins: ['python'], profile: {} }).shown.some((c) => c.id === 'python'));
+});

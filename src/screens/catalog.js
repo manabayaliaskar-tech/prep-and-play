@@ -7,6 +7,7 @@ import { skillName } from '../content/labels.js';
 import { esc } from '../ui/dom.js';
 import { mascot } from '../ui/mascot.js';
 import { courseBadge, courseCard } from './hub.js';
+import { isPinned, pinButton } from '../core/pins.js';
 
 const stars = (n) => `<span class="track-stars ${n ? 'has' : ''}" aria-label="${n}/3">${'★'.repeat(n)}${'☆'.repeat(3 - n)}</span>`;
 
@@ -153,11 +154,13 @@ export function practiceHubScreen(app, groupId = 'daily') {
         <div class="page-head">
           <h1>${group.icon} ${esc(tx(group.name))}</h1>
           <p class="muted">${groupId === 'code' ? t('pr.codeDesc') : t('pr.hubDesc')}</p>
+          <p class="muted small pin-hint">★ ${t('pin.hint')}</p>
         </div>
         ${coursesIn(groupId)
           .map(
             (course) => `
           <div class="practice-course" style="--c:${course.color}">
+            ${pinButton(course.id, t(isPinned(course.id) ? 'pin.remove' : 'pin.add'))}
             <a class="practice-course-head" href="#${courseHref(course)}">${courseBadge(course)}<span class="course-text"><b>${esc(tx(course.name))}</b><small>${esc(tx(course.full))}</small></span></a>
             ${tracksHtml(course)}
           </div>`,

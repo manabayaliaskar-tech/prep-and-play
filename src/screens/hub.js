@@ -8,6 +8,7 @@ import { questState } from '../core/quests.js';
 import { DAILY_GOAL, currentStreak, getProfile, levelInfo, todayXp } from '../core/profile.js';
 import { esc } from '../ui/dom.js';
 import { mascot } from '../ui/mascot.js';
+import { homeCourses, isPinned, pinButton } from '../core/pins.js';
 
 export function ring(value, max) {
   const r = 34;
@@ -92,6 +93,8 @@ function continueCard() {
 
 const HOME_EXAMS = ['sat', 'ent', 'ege', 'ielts', 'toefl', 'oge'];
 
+const isPinnedLabel = (id) => t(isPinned(id) ? 'pin.remove' : 'pin.add');
+
 export function hubScreen(app) {
   const render = () => {
     const p = getProfile();
@@ -100,15 +103,23 @@ export function hubScreen(app) {
     const xpToday = todayXp();
     const name = p.name ? esc(p.name) : '';
     const group = (id) => GROUPS.find((g) => g.id === id);
-    const head = (g, link) => `
+    const head = (g, link, hidden = 0) => `
       <div class="block-head">
         <span class="block-icon" style="--c:${g.color}">${g.icon}</span>
         <div><h2>${esc(tx(g.name))}</h2><p class="muted">${esc(tx(g.desc))}</p></div>
-        ${link ? `<a class="btn btn-soft btn-sm block-link" href="#${g.href}">${link} →</a>` : ''}
+        ${link ? `<a class="btn btn-soft btn-sm block-link" href="#${g.href}">${link} →${hidden ? `<span class="more-badge" title="${t('pin.more', { n: hidden })}">+${hidden}</span>` : ''}</a>` : ''}
       </div>`;
+    /** Карточка курса с уровнями и звёздочкой «закрепить». */
+    const levelCard = (course) => `
+              <div class="daily-course" style="--c:${course.color}">
+                ${pinButton(course.id, isPinnedLabel(course.id))}
+                <a class="daily-course-head" href="#${courseHref(course)}">${courseBadge(course)}<span class="course-text"><b>${esc(tx(course.name))}</b><small>${esc(tx(course.full))}</small></span></a>
+                ${course.tracks.length ? levelChips(course) : `<p class="muted small">${t('cat.soonShort')}</p>`}
+              </div>`;
+    const dailyBlock = homeCourses(coursesIn('daily'), 'daily');
+    const codeBlock = homeCourses(coursesIn('code'), 'code');
     const exams = coursesIn('exams');
     const olymp = courseById('olymp');
-    const daily = coursesIn('daily');
     app.innerHTML = `
       <section class="page home hub">
         <div class="hero-card">
@@ -141,18 +152,9 @@ export function hubScreen(app) {
         </a>
 
         <section class="block">
-          ${head(group('daily'), t('hub.open'))}
-          <div class="daily-grid">
-            ${daily
-              .map(
-                (course) => `
-              <div class="daily-course" style="--c:${course.color}">
-                <a class="daily-course-head" href="#${courseHref(course)}">${courseBadge(course)}<span class="course-text"><b>${esc(tx(course.name))}</b><small>${esc(tx(course.full))}</small></span></a>
-                ${course.tracks.length ? levelChips(course) : `<p class="muted small">${t('cat.soonShort')}</p>`}
-              </div>`,
-              )
-              .join('')}
-          </div>
+          ${head(group('daily'), t('hub.open'), dailyBlock.hidden)}
+          <div class="daily-grid">${dailyBlock.shown.map(levelCard).join('')}</div>
+          ${dailyBlock.hidden ? `<p class="muted tiny pin-hint">☆ ${t('pin.hint')}</p>` : ''}
         </section>
 
         <section class="block">
@@ -171,18 +173,8 @@ export function hubScreen(app) {
         </section>
 
         <section class="block">
-          ${head(group('code'), t('hub.open'))}
-          <div class="daily-grid">
-            ${coursesIn('code')
-              .map(
-                (course) => `
-              <div class="daily-course" style="--c:${course.color}">
-                <a class="daily-course-head" href="#${courseHref(course)}">${courseBadge(course)}<span class="course-text"><b>${esc(tx(course.name))}</b><small>${esc(tx(course.full))}</small></span></a>
-                ${levelChips(course)}
-              </div>`,
-              )
-              .join('')}
-          </div>
+          ${head(group('code'), t('hub.open'), codeBlock.hidden)}
+          <div class="daily-grid">${codeBlock.shown.map(levelCard).join('')}</div>
         </section>
 
         <a class="premium-card" href="#/premium">
