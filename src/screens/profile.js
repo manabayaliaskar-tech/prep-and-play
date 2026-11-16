@@ -1,5 +1,5 @@
 // Профиль: уровень, общая статистика, прогресс по разделам, точность по темам,
-// «паутина» навыков SAT, достижения, рекорды, настройки.
+// карта навыков по всем предметам, активность за неделю, рекорды, экзамены (каждый свёрнут), настройки.
 
 import { COURSES, courseHref, practiceKey } from '../catalog/index.js';
 import { t, tx } from '../core/i18n.js';
@@ -8,6 +8,11 @@ import { ACHIEVEMENTS } from '../content/achievements.js';
 import { DOMAINS, LEVELS_PER_ZONE, SKILLS, ZONES } from '../content/skills.js';
 import { POOLS, TOPICS } from '../pools/topics.js';
 import { masteredCount } from '../core/review.js';
+import { DECK_LANGS, deckStats } from '../core/cards.js';
+import { getPlan, readiness, trackScores } from '../core/plan.js';
+import { weekStart, weekSummary } from '../core/rewards.js';
+import { dayKey } from '../core/dates.js';
+import { courseWeakTopics } from './review.js';
 import { CHESTS, WEAR, currentWear, setWear, unlockedWear } from '../core/rewards.js';
 import { getVolume, setVolume, sfx } from '../core/sound.js';
 import { mascot } from '../ui/mascot.js';
@@ -70,8 +75,9 @@ export function topicAccuracy(profile, minAnswers = 3) {
     .sort((x, y) => x.pct - y.pct || y.a - x.a);
 }
 
-function radar(values) {
-  const keys = Object.keys(DOMAINS);
+/** «Паутина»: values — { ключ: 0…1 | null }, icons — { ключ: значок }. */
+function radar(values, icons = Object.fromEntries(Object.entries(DOMAINS).map(([k, d]) => [k, d.icon])), label = t('profile.radar')) {
+  const keys = Object.keys(icons);
   const cx = 150;
   const cy = 150;
   const R = 110;
@@ -87,10 +93,10 @@ function radar(values) {
   const labels = keys
     .map((k, i) => {
       const [x, y] = point(i, R + 22);
-      return `<text x="${x}" y="${y + 6}" text-anchor="middle" class="radar-icon">${DOMAINS[k].icon}</text>`;
+      return `<text x="${x}" y="${y + 6}" text-anchor="middle" class="radar-icon">${esc(icons[k])}</text>`;
     })
     .join('');
-  return `<svg class="radar" viewBox="0 0 300 300" role="img" aria-label="${t('profile.radar')}">${rings}${axes}<polygon class="radar-shape" points="${shape}"/>${labels}</svg>`;
+  return `<svg class="radar" viewBox="0 0 300 300" role="img" aria-label="${label}">${rings}${axes}<polygon class="radar-shape" points="${shape}"/>${labels}</svg>`;
 }
 
 function progressRow(href, badge, name, sub, stars, max, color) {
@@ -146,6 +152,201 @@ function topicsPanel(p) {
     </div>`;
 }
 
+// ---------- Общая статистика по всем предметам ----------
+
+/** Предметы для общей карты навыков: ключ → пулы тем, которые в него входят. */
+const SUBJECTS = {
+  math: ['math'],
+  english: ['english', 'reading'],
+  langs: ['spanish', 'french', 'chinese'],
+  physics: ['physics'],
+  chemistry: ['chemistry'],
+  biology: ['biology'],
+  geography: ['geography'],
+  history: ['history', 'social', 'russian'],
+  informatics: ['informatics'],
+  code: ['code'],
+  olymp: ['olymp'],
+};
+const SUBJECT_ICONS = { math: '📐', english: '🔤', langs: '🌐', physics: '⚛️', chemistry: '⚗️', biology: '🧬', geography: '🌍', history: '📜', informatics: '💻', code: '⌨️', olymp: '🏆' };
+const SUBJECT_COLORS = { math: '#22c55e', english: '#3b82f6', langs: '#dc2626', physics: '#6366f1', chemistry: '#14b8a6', biology: '#16a34a', geography: '#0891b2', history: '#b45309', informatics: '#0ea5e9', code: '#64748b', olymp: '#f59e0b' };
+
+/** Точность и число ответов по каждому предмету (по всем темам общих банков). */
+export function subjectStats(profile) {
+  const out = {};
+  for (const [key, pools] of Object.entries(SUBJECTS)) {
+    let a = 0;
+    let c = 0;
+    for (const [id, topic] of Object.entries(TOPICS)) {
+      if (!pools.includes(topic.pool)) continue;
+      a += profile.skills[id]?.a ?? 0;
+      c += profile.skills[id]?.c ?? 0;
+    }
+    out[key] = { a, c, value: a ? c / a : null };
+  }
+  return out;
+}
+
+function subjectsPanel(p) {
+  const stats = subjectStats(p);
+  const values = Object.fromEntries(Object.entries(stats).map(([k, v]) => [k, v.value]));
+  const rows = Object.keys(SUBJECTS)
+    .map((k) => ({ k, ...stats[k] }))
+    .sort((x, y) => y.a - x.a);
+  return `
+    <div class="two-col">
+      <div class="panel">
+        <h2>${t('profile.subjectMap')}</h2>
+        <p class="muted small panel-hint">${t('profile.subjectMapHint')}</p>
+        ${radar(values, SUBJECT_ICONS, t('profile.subjectMap'))}
+      </div>
+      <div class="panel">
+        <h2>${t('profile.subjects')}</h2>
+        <div class="skill-list">
+          ${rows
+            .map((r) => {
+              const pct = r.value === null ? null : Math.round(r.value * 100);
+              return `<div class="skill-row ${r.a ? '' : 'untried'}"><span>${SUBJECT_ICONS[r.k]} ${t(`subj.${r.k}`)}${r.a ? ` <small class="muted">· ${t('profile.solvedN', { n: r.a })}</small>` : ''}</span><div class="bar" style="--c:${SUBJECT_COLORS[r.k]}"><i style="width:${pct ?? 0}%"></i></div><b title="${r.c}/${r.a}">${pct === null ? '—' : `${pct}%`}</b></div>`;
+            })
+            .join('')}
+        </div>
+        <a class="btn btn-primary" href="#/mistakes">🔁 ${t('rv.title')}</a>
+      </div>
+    </div>`;
+}
+
+function activityPanel() {
+  const week = weekSummary(weekStart());
+  const max = Math.max(1, ...week.rows.map((r) => r.xp));
+  const days = t('profile.weekdays').split(',');
+  return `
+    <div class="panel">
+      <h2>${t('profile.activity')}</h2>
+      <p class="muted small">${t('profile.activityHint', { xp: week.total.xp, n: week.total.a, d: week.active })}</p>
+      <div class="week-bars">
+        ${week.rows
+          .map((r, i) => `<div class="week-bar ${r.day === dayKey() ? 'is-best' : ''}"><span class="wb-value">${r.xp || ''}</span><span class="wb-col"><i style="--h:${Math.round((r.xp / max) * 100)}%"></i></span><span class="wb-day">${days[i] ?? ''}</span></div>`)
+          .join('')}
+      </div>
+    </div>`;
+}
+
+function recordsPanel(p) {
+  const classic = Object.values(p.records.quiz ?? {});
+  const courseBosses = Object.values(p.practice ?? {}).filter((r) => r?.boss).length;
+  const words = DECK_LANGS.reduce((sum, l) => sum + deckStats(l).learned, 0);
+  const plan = getPlan();
+  const planCourse = plan ? COURSES.find((c) => c.id === plan.course) : null;
+  const row = (icon, label, value) => `<div><span>${icon} ${label}</span><b>${value}</b></div>`;
+  return `
+    <div class="panel">
+      <h2>${t('profile.recordsAll')}</h2>
+      <div class="records">
+        ${row('🔥', t('profile.bestStreak'), p.streak.best)}
+        ${row('⚔️', t('profile.courseBosses'), courseBosses)}
+        ${row('🎯', `${t('quiz.short')} · ${t('quiz.mode.classic')}`, classic.length ? `${Math.max(...classic)}/10` : '—')}
+        ${row('⚡', `${t('quiz.short')} · ${t('quiz.mode.blitz')}`, p.records.quizBlitz ?? 0)}
+        ${row('❤️', `${t('quiz.short')} · ${t('quiz.mode.survival')}`, p.records.quizSurvival ?? 0)}
+        ${row('📅', t('quiz.mode.daily'), Object.keys(p.records.quizDaily ?? {}).length)}
+        ${row('🃏', t('profile.wordsLearned'), words)}
+        ${row('🔁', t('rv.mastered'), masteredCount())}
+        ${planCourse ? row('🗓️', `${t('plan.readyLabel')} · ${esc(tx(planCourse.name))}`, `${readiness(planCourse)}%`) : ''}
+      </div>
+    </div>`;
+}
+
+// ---------- Экзамены: каждый свёрнут, пока его не откроешь ----------
+
+function satFoldBody(p, values) {
+  return `
+    <div class="two-col">
+      <div class="panel">
+        <h2>${t('profile.radar')}</h2>
+        ${radar(values)}
+        <div class="domain-legend">${Object.entries(DOMAINS)
+          .map(([k, d]) => `<div class="dl-row"><span>${d.icon} ${esc(tx(d.name))}</span><b>${values[k] === null ? '—' : `${Math.round(values[k] * 100)}%`}</b></div>`)
+          .join('')}</div>
+      </div>
+      <div class="panel">
+        <h2>${t('profile.skills')}</h2>
+        <div class="skill-list">
+          ${Object.entries(SKILLS)
+            .map(([k, sk]) => {
+              const st = p.skills[k];
+              const pct = st ? Math.round((st.c / st.a) * 100) : null;
+              return `<div class="skill-row ${st ? '' : 'untried'}"><span>${esc(tx(sk.name))}</span><div class="bar" style="--c:${DOMAINS[sk.domain].color}"><i style="width:${pct ?? 0}%"></i></div><b>${pct === null ? '—' : `${pct}%`}</b></div>`;
+            })
+            .join('')}
+        </div>
+        <a class="btn btn-primary" href="#/weak">🎯 ${t('profile.trainWeak')}</a>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="panel">
+        <h2>${t('profile.records')}</h2>
+        <div class="records">
+          <div><span>🛡️ ${t('mode.survival.title')}</span><b>${p.records.survival}</b></div>
+          <div><span>⚡ ${t('mode.blitz.title')}</span><b>${p.records.blitz}</b></div>
+          <div><span>🕵️ ${t('mode.det.title')}</span><b>${p.records.detective}</b></div>
+          <div><span>⚔️ ${t('profile.bosses')}</span><b>${Object.keys(p.map.bosses).length}/${ZONES.length}</b></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>${t('profile.exams')}</h2>
+        ${
+          p.exams.length
+            ? `<div class="exam-history">${p.exams
+                .slice(-6)
+                .reverse()
+                .map((e) => `<div><span>${e.date} · ${t(e.length === 'full' ? 'exam.full' : 'exam.mini')}</span><b>${e.total ?? e.rw ?? e.math}</b></div>`)
+                .join('')}</div>`
+            : `<p class="muted">${t('profile.noExams')}</p>`
+        }
+      </div>
+    </div>`;
+}
+
+function examFoldBody(p, course) {
+  const scores = trackScores(course, p);
+  return `
+    <div class="skill-list">
+      ${scores
+        .map(({ track, score }) => {
+          const rec = p.practice?.[practiceKey(course, track)];
+          return `<a class="skill-row exam-subject" href="#/c/${course.id}/${track.id}"><span>${esc(track.icon)} ${esc(tx(track.name))}</span><div class="bar" style="--c:${course.color}"><i style="width:${Math.round(score * 100)}%"></i></div><b>${rec ? '★'.repeat(rec.best) + '☆'.repeat(3 - rec.best) : '—'}</b></a>`;
+        })
+        .join('')}
+    </div>
+    <div class="exam-fold-actions">
+      <a class="btn btn-primary btn-sm" href="#${courseHref(course)}">📚 ${t('plan.openExam')}</a>
+      ${courseWeakTopics(course).length ? `<a class="btn btn-soft btn-sm" href="#/weak/${course.id}">🎯 ${t('wk.start')}</a>` : ''}
+    </div>`;
+}
+
+function examsSection(p, satValues) {
+  const exams = COURSES.filter((c) => c.group === 'exams' && (c.tracks.length || c.id === 'sat'));
+  const rows = exams.map((course) => ({ course, ready: readiness(course, p) }));
+  rows.sort((a, b) => b.ready - a.ready);
+  return `
+    <h2 class="section-title">${t('profile.examsTitle')}</h2>
+    <p class="muted small">${t('profile.examsHint')}</p>
+    <div class="exam-folds">
+      ${rows
+        .map(
+          ({ course, ready }) => `
+        <details class="exam-fold" style="--c:${course.color}">
+          <summary>
+            ${courseBadge(course)}
+            <span class="course-text"><b>${esc(tx(course.name))}</b><small>${esc(tx(course.full))}</small></span>
+            <span class="exam-ready"><span class="bar"><i style="width:${ready}%"></i></span><b>${ready ? `${ready}%` : t('profile.notStarted')}</b></span>
+          </summary>
+          <div class="exam-fold-body">${course.id === 'sat' ? satFoldBody(p, satValues) : examFoldBody(p, course)}</div>
+        </details>`,
+        )
+        .join('')}
+    </div>`;
+}
+
 export function profileScreen(app) {
   const render = () => {
     const p = getProfile();
@@ -170,6 +371,13 @@ export function profileScreen(app) {
           <div class="stat-tile"><b>${earned}/${ACHIEVEMENTS.length}</b><span>${t('profile.achievements')}</span></div>
         </div>
 
+        ${subjectsPanel(p)}
+
+        <div class="two-col">
+          ${activityPanel()}
+          ${recordsPanel(p)}
+        </div>
+
         <div class="two-col">
           ${sectionsPanel(p)}
           ${topicsPanel(p)}
@@ -184,61 +392,7 @@ export function profileScreen(app) {
           </div>
         </div>
 
-        <h2 class="section-title">SAT</h2>
-        <div class="two-col">
-          <div class="panel">
-            <h2>${t('profile.radar')}</h2>
-            ${radar(values)}
-            <div class="domain-legend">${Object.entries(DOMAINS)
-              .map(
-                ([k, d]) =>
-                  `<div class="dl-row"><span>${d.icon} ${esc(tx(d.name))}</span><b>${values[k] === null ? '—' : `${Math.round(values[k] * 100)}%`}</b></div>`,
-              )
-              .join('')}</div>
-          </div>
-          <div class="panel">
-            <h2>${t('profile.skills')}</h2>
-            <div class="skill-list">
-              ${Object.entries(SKILLS)
-                .map(([k, s]) => {
-                  const st = p.skills[k];
-                  const pct = st ? Math.round((st.c / st.a) * 100) : null;
-                  return `<div class="skill-row ${st ? '' : 'untried'}"><span>${esc(tx(s.name))}</span><div class="bar" style="--c:${DOMAINS[s.domain].color}"><i style="width:${pct ?? 0}%"></i></div><b>${pct === null ? '—' : `${pct}%`}</b></div>`;
-                })
-                .join('')}
-            </div>
-            <a class="btn btn-primary" href="#/weak">🎯 ${t('profile.trainWeak')}</a>
-          </div>
-        </div>
-
-        <div class="two-col">
-          <div class="panel">
-            <h2>${t('profile.records')}</h2>
-            <div class="records">
-              <div><span>🛡️ ${t('mode.survival.title')}</span><b>${p.records.survival}</b></div>
-              <div><span>⚡ ${t('mode.blitz.title')}</span><b>${p.records.blitz}</b></div>
-              <div><span>🕵️ ${t('mode.det.title')}</span><b>${p.records.detective}</b></div>
-              <div><span>⚔️ ${t('profile.bosses')}</span><b>${Object.keys(p.map.bosses).length}/${ZONES.length}</b></div>
-              <div><span>🎯 ${t('quiz.short')} · ${t('quiz.mode.classic')}</span><b>${Object.values(p.records.quiz ?? {}).length ? `${Math.max(...Object.values(p.records.quiz))}/10` : '—'}</b></div>
-              <div><span>⚡ ${t('quiz.short')} · ${t('quiz.mode.blitz')}</span><b>${p.records.quizBlitz ?? 0}</b></div>
-              <div><span>❤️ ${t('quiz.short')} · ${t('quiz.mode.survival')}</span><b>${p.records.quizSurvival ?? 0}</b></div>
-              <div><span>📅 ${t('quiz.mode.daily')}</span><b>${Object.keys(p.records.quizDaily ?? {}).length}</b></div>
-              <div><span>🔁 ${t('rv.mastered')}</span><b>${masteredCount()}</b></div>
-            </div>
-          </div>
-          <div class="panel">
-            <h2>${t('profile.exams')}</h2>
-            ${
-              p.exams.length
-                ? `<div class="exam-history">${p.exams
-                    .slice(-6)
-                    .reverse()
-                    .map((e) => `<div><span>${e.date} · ${t(e.length === 'full' ? 'exam.full' : 'exam.mini')}</span><b>${e.total ?? e.rw ?? e.math}</b></div>`)
-                    .join('')}</div>`
-                : `<p class="muted">${t('profile.noExams')}</p>`
-            }
-          </div>
-        </div>
+        ${examsSection(p, values)}
 
         <div class="panel appearance">
           <h2>🎨 ${t('theme.title')}</h2>

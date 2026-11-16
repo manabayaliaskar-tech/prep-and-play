@@ -7290,3 +7290,92 @@ body {
   max-width: 260px;
   accent-color: var(--accent, #7c3aed);
 }
+
+/* ---------- Профиль: экзамены свёрнуты ---------- */
+.exam-folds {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+.exam-fold {
+  border-radius: var(--radius);
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.exam-fold[open] {
+  border-color: color-mix(in srgb, var(--c) 45%, var(--line));
+}
+.exam-fold summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+.exam-fold summary::-webkit-details-marker {
+  display: none;
+}
+.exam-fold summary::after {
+  content: '▾';
+  margin-left: 4px;
+  color: var(--muted);
+  transition: transform 0.25s;
+}
+.exam-fold[open] summary::after {
+  transform: rotate(180deg);
+}
+.exam-fold summary .course-text {
+  flex: 1;
+  min-width: 0;
+}
+.exam-ready {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 190px;
+  flex: none;
+}
+.exam-ready .bar {
+  flex: 1;
+  --c: var(--c);
+}
+.exam-ready b {
+  min-width: 70px;
+  text-align: right;
+  font-size: 0.85rem;
+}
+.exam-fold-body {
+  padding: 4px 16px 16px;
+  animation: rise 0.3s var(--ease-out, ease) backwards;
+}
+.exam-fold-body .two-col {
+  margin-top: 10px;
+}
+.exam-subject {
+  color: var(--ink);
+  text-decoration: none;
+}
+.exam-fold-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.subj-count {
+  min-width: 52px;
+  text-align: right;
+}
+@media (max-width: 720px) {
+  .exam-ready {
+    width: 92px;
+  }
+  .exam-ready .bar {
+    display: none;
+  }
+  .exam-fold summary .course-text small {
+    display: none;
+  }
+}
