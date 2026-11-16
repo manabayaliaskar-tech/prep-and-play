@@ -3,7 +3,7 @@
 import { courseById, courseHref } from '../catalog/index.js';
 import { dayKey } from '../core/dates.js';
 import { t, tx } from '../core/i18n.js';
-import { saveProfile } from '../core/profile.js';
+import { saveProfile, syncAchievements } from '../core/profile.js';
 import { PLAN_SESSION, addPlanProgress, clearPlan, dailyTarget, daysLeft, getPlan, planExams, planSpec, planToday, readiness, setPlan, trackScores } from '../core/plan.js';
 import { addDays } from '../core/review.js';
 import { createRng, newSeed } from '../core/random.js';
@@ -117,6 +117,7 @@ export function planRoute(app) {
         return;
       }
       setPlan(exam, value);
+      syncAchievements();
       editing = false;
       render();
     });

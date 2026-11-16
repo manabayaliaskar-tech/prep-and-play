@@ -76,6 +76,8 @@ export function levelInfo(xp) {
 function touchStreak(today) {
   const s = profile.streak;
   if (s.last === today) return;
+  // Вернулся после перерыва в неделю и больше — достижение «Возвращение».
+  if (s.last && daysBetween(s.last, today) >= 8) profile.counters.comeback = (profile.counters.comeback ?? 0) + 1;
   s.count = s.last && daysBetween(s.last, today) === 1 ? s.count + 1 : 1;
   s.last = today;
   s.best = Math.max(s.best, s.count);
@@ -138,6 +140,10 @@ export function recordAnswer(skill, correct) {
   const day = todayStats();
   day.answered += 1;
   if (correct) day.correct += 1;
+  // Время занятий — для достижений «Сова» и «Жаворонок».
+  const hour = new Date().getHours();
+  if (hour >= 23 || hour < 4) profile.counters.night = (profile.counters.night ?? 0) + 1;
+  else if (hour >= 4 && hour < 8) profile.counters.lark = (profile.counters.lark ?? 0) + 1;
 }
 
 /** Освоение навыка 0…1 (сглаженная доля правильных) или null, если ещё не решал. */
@@ -153,6 +159,11 @@ export function checkAchievements() {
     emit('achievement', id);
   }
   return fresh;
+}
+
+/** Проверить достижения после действий вне заданий (гардероб, план, карточки, сундук) и сохранить. */
+export function syncAchievements() {
+  if (checkAchievements().length) saveProfile();
 }
 
 export function resetProgress() {

@@ -4,7 +4,7 @@ import { DECK_COURSE, DECK_LANGS, deckStats, rateCard, sessionCards } from '../c
 import { courseById, courseHref } from '../catalog/index.js';
 import { confetti } from '../core/confetti.js';
 import { t, tx } from '../core/i18n.js';
-import { addXp, saveProfile } from '../core/profile.js';
+import { addXp, saveProfile, syncAchievements } from '../core/profile.js';
 import { navigate } from '../core/router.js';
 import { sfx } from '../core/sound.js';
 import { storage } from '../core/storage.js';
@@ -121,7 +121,10 @@ export function cardsRoute(app, { lang }) {
     const card = queue[index];
     if (!rated.has(card.id)) {
       rated.add(card.id);
-      if (rateCard(card.id, knew)) result.learned += 1;
+      if (rateCard(card.id, knew)) {
+        result.learned += 1;
+        syncAchievements();
+      }
       if (knew) result.knew += 1;
       else {
         result.didnt += 1;

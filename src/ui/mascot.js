@@ -65,6 +65,7 @@ const HEAD = {
     .map(([x, y], i) => `<ellipse cx="${x}" cy="${y}" rx="7" ry="4" transform="rotate(${i < 5 ? -50 + i * 12 : 50 - (i - 5) * 12} ${x} ${y})"/>`)
     .join('')}<circle cx="70" cy="30" r="4" fill="#facc15"/></g>`,
   wizard: `<g class="wear-wizard" transform="rotate(-8 70 30)"><path d="M46 40 L74 -4 L96 40 Z" fill="#1e3a8a"/><ellipse cx="71" cy="40" rx="32" ry="7" fill="#1e40af"/><path d="M70 14 l2 5 l5 0 l-4 3 l2 5 l-5 -3 l-5 3 l2 -5 l-4 -3 l5 0 Z" fill="#facc15"/><circle cx="82" cy="28" r="2" fill="#fde68a"/></g>`,
+  nightcap: `<g class="wear-nightcap" transform="rotate(-6 70 34)"><path d="M38 40 Q46 6 84 10 Q112 14 118 46 Q104 30 94 40 Z" fill="#2563eb"/><path d="M38 40 Q70 30 96 40" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none"/><circle cx="118" cy="48" r="7" fill="#fff"/><path d="M60 22 l1.5 3.5 l3.5 0.3 l-2.7 2.3 l0.9 3.6 l-3.2 -2 l-3.2 2 l0.9 -3.6 l-2.7 -2.3 l3.5 -0.3 Z" fill="#facc15"/></g>`,
   halo: `<g class="wear-halo"><ellipse cx="70" cy="20" rx="26" ry="7" fill="none" stroke="#facc15" stroke-width="5"/><ellipse cx="70" cy="20" rx="26" ry="7" fill="none" stroke="#fff" stroke-width="1.5" opacity=".7"/></g>`,
 };
 const FACE = {
@@ -73,18 +74,23 @@ const FACE = {
   starglasses: `<g class="wear-starglasses" fill="#f472b6" fill-opacity=".85" stroke="#be185d" stroke-width="2">${[53, 87]
     .map((x) => `<path d="M${x} 60 L${x + 4.5} 71 L${x + 16} 71 L${x + 7} 78 L${x + 10.5} 90 L${x} 83 L${x - 10.5} 90 L${x - 7} 78 L${x - 16} 71 L${x - 4.5} 71 Z"/>`)
     .join('')}</g>`,
+  monocle: `<g class="wear-monocle"><circle cx="87" cy="76" r="13" fill="#fff" fill-opacity=".15" stroke="#b45309" stroke-width="3.2"/><path d="M98 84 Q104 104 96 122" stroke="#b45309" stroke-width="1.8" fill="none"/></g>`,
   mustache: `<path class="wear-mustache" d="M54 93 Q62 85 70 91 Q78 85 86 93 Q80 99 70 95 Q60 99 54 93 Z" fill="#22164f"/>`,
 };
 const NECK = {
   scarf: `<g class="wear-scarf"><path d="M32 106 Q70 128 108 106 L106 118 Q70 140 34 118 Z" fill="#ef4444"/><path d="M88 120 L96 142 L85 144 L80 123 Z" fill="#dc2626"/><path d="M40 112 Q70 130 100 112" stroke="#fff" stroke-width="2" stroke-dasharray="4 5" fill="none" opacity=".6"/></g>`,
   bowtie: `<g class="wear-bowtie"><path d="M70 122 L54 113 L54 131 Z" fill="#ef4444"/><path d="M70 122 L86 113 L86 131 Z" fill="#ef4444"/><circle cx="70" cy="122" r="4.5" fill="#b91c1c"/></g>`,
   medal: `<g class="wear-medal"><path d="M58 100 L70 122 L82 100" stroke="#3b82f6" stroke-width="5" fill="none"/><circle cx="70" cy="128" r="9" fill="#facc15" stroke="#f59e0b" stroke-width="2"/><text x="70" y="132" text-anchor="middle" font-size="10" font-weight="900" fill="#92400e">1</text></g>`,
+  lei: `<g class="wear-lei">${[[36, 110], [46, 118], [58, 123], [70, 125], [82, 123], [94, 118], [104, 110]]
+    .map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="6" fill="${['#f472b6', '#facc15', '#fb7185', '#a78bfa'][i % 4]}"/><circle cx="${x}" cy="${y}" r="2" fill="#fff" opacity=".8"/>`)
+    .join('')}</g>`,
   chain: `<g class="wear-chain"><path d="M38 108 Q70 134 102 108" stroke="#facc15" stroke-width="3.5" stroke-dasharray="2 4" stroke-linecap="round" fill="none"/><path d="M70 120 L76 128 L70 136 L64 128 Z" fill="#38bdf8" stroke="#0ea5e9" stroke-width="1.5"/></g>`,
 };
 const BACK = {
   cape: `<path class="wear-cape" d="M34 92 Q16 140 36 146 L104 146 Q124 140 106 92 Z" fill="#dc2626"/>`,
   wings: `<g class="wear-wings" fill="#fff" stroke="#cbd5e1" stroke-width="2"><path class="wing-l" d="M30 80 Q-4 46 4 98 Q18 92 30 100 Z"/><path class="wing-r" d="M110 80 Q144 46 136 98 Q122 92 110 100 Z"/></g>`,
   sword: `<g class="wear-sword" transform="rotate(24 118 90)"><rect x="115" y="34" width="8" height="64" rx="3" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5"/><rect x="107" y="96" width="24" height="6" rx="3" fill="#b45309"/><rect x="116" y="102" width="6" height="14" rx="2" fill="#78350f"/></g>`,
+  jetpack: `<g class="wear-jetpack"><rect x="4" y="66" width="16" height="40" rx="7" fill="#94a3b8"/><rect x="120" y="66" width="16" height="40" rx="7" fill="#94a3b8"/><path class="jet-flame" d="M6 106 Q12 128 18 106 Z M122 106 Q128 128 134 106 Z" fill="#f97316"/><path d="M9 106 Q12 118 15 106 Z M125 106 Q128 118 131 106 Z" fill="#facc15"/></g>`,
   backpack: `<g class="wear-backpack"><rect x="6" y="64" width="34" height="48" rx="11" fill="#f97316"/><rect x="11" y="86" width="22" height="16" rx="5" fill="#fb923c"/></g>`,
 };
 

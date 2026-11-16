@@ -287,3 +287,45 @@ test('приложение (PWA): манифест, иконки и сервис
   const ci = readFileSync('.github/workflows/ci.yml', 'utf8');
   for (const f of ['icons', 'manifest.webmanifest', 'sw.js']) assert.ok(ci.includes(f), `CI не копирует ${f}`);
 });
+
+test('достижения: 50 разных, у каждого раздел, три языка и честный прогресс', async () => {
+  const mem = new Map();
+  globalThis.localStorage ??= { getItem: (k) => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, String(v)), removeItem: (k) => mem.delete(k), clear: () => mem.clear() };
+  for (const k of ['cards', 'chests', 'outfit', 'plan', 'mistakesMastered']) globalThis.localStorage.removeItem(`prepplay:${k}`);
+  const { ACHIEVEMENTS, ACH_CATS, achProgress, evaluateAchievements } = await import('../src/content/achievements.js');
+  assert.equal(ACHIEVEMENTS.length, 50);
+  assert.equal(new Set(ACHIEVEMENTS.map((a) => a.id)).size, 50);
+  assert.equal(new Set(ACHIEVEMENTS.map((a) => a.name.ru)).size, 50, 'названия не повторяются');
+  for (const a of ACHIEVEMENTS) {
+    assert.ok(ACH_CATS.includes(a.cat), a.id);
+    for (const l of ['en', 'ru', 'kk']) assert.ok(a.name[l] && a.desc[l], `${a.id} ${l}`);
+  }
+  const base = {
+    xp: 0, achievements: {}, practice: {}, history: {}, today: { date: null, answered: 0 },
+    counters: { answered: 0, correct: 0, bestCombo: 0, detectiveFound: 0 },
+    map: { stars: {}, bosses: {} }, records: {}, streak: { best: 0 }, exams: [],
+  };
+  assert.deepEqual(evaluateAchievements(base), [], 'у нового игрока достижений нет');
+  // Выходные: суббота 14.11.2026 и воскресенье 15.11.2026.
+  const weekend = { ...base, history: { '2026-11-14': { a: 5 }, '2026-11-15': { a: 3 } } };
+  assert.ok(evaluateAchievements(weekend).includes('weekend'));
+  assert.ok(!evaluateAchievements({ ...base, history: { '2026-11-15': { a: 3 }, '2026-11-16': { a: 3 } } }).includes('weekend'));
+  // Марафон, сова, предметы.
+  const busy = {
+    ...base,
+    history: { '2026-11-10': { a: 104 } },
+    counters: { ...base.counters, night: 1, answered: 250, correct: 220 },
+    practice: Object.fromEntries(['physics:p1', 'chemistry:c1', 'biology:b1', 'spanish:a1', 'french:a1', 'english:l1', 'python:l1', 'math:g1'].map((k) => [k, { runs: 1, best: 3 }])),
+  };
+  const got = new Set(evaluateAchievements(busy));
+  for (const id of ['marathon', 'night', 'scientist', 'linguist', 'polymath', 'accuracy']) assert.ok(got.has(id), id);
+  assert.ok(!got.has('lark') && !got.has('coder') && !got.has('starfall'));
+  assert.deepEqual(achProgress(ACHIEVEMENTS.find((a) => a.id === 'answer500'), busy), { now: 250, goal: 500 });
+  // Данные из других разделов: сундук и полный наряд.
+  globalThis.localStorage.setItem('prepplay:chests', JSON.stringify([3]));
+  globalThis.localStorage.setItem('prepplay:outfit', JSON.stringify({ head: 'cap', face: 'glasses', neck: 'scarf', back: 'cape', color: 'classic' }));
+  const got2 = new Set(evaluateAchievements(base));
+  assert.ok(got2.has('chest') && got2.has('stylist'));
+  globalThis.localStorage.removeItem('prepplay:chests');
+  globalThis.localStorage.removeItem('prepplay:outfit');
+});

@@ -2,6 +2,7 @@
 
 import { t, tx } from '../core/i18n.js';
 import { sfx } from '../core/sound.js';
+import { syncAchievements } from '../core/profile.js';
 import { ITEMS, SLOTS, getOutfit, isUnlocked, toggleItem, unlockHint } from '../core/wardrobe.js';
 import { mascot } from './mascot.js';
 import { openModal } from './overlay.js';
@@ -65,6 +66,7 @@ export function openWardrobe(onChange) {
     root.querySelectorAll('[data-item]').forEach((b) =>
       b.addEventListener('click', () => {
         toggleItem(b.dataset.item);
+        syncAchievements();
         sfx.select();
         rerender();
         onChange?.();

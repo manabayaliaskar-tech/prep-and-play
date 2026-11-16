@@ -6,7 +6,7 @@ import { RW_QUESTIONS } from '../src/content/rw/index.js';
 import { MATH_GENERATORS } from '../src/content/math/index.js';
 import { QuestionStream, buildSet } from '../src/content/bank.js';
 import { DETECTIVE } from '../src/content/detective.js';
-import { ACHIEVEMENTS, evaluateAchievements } from '../src/content/achievements.js';
+import { ACH_CATS, ACHIEVEMENTS, evaluateAchievements } from '../src/content/achievements.js';
 import { DOMAINS, SKILLS, ZONES } from '../src/content/skills.js';
 import { STRINGS } from '../src/i18n/strings.js';
 import { PERIODS, PLANS } from '../src/core/pricing.js';
@@ -173,6 +173,8 @@ test('переводы: каждый ключ интерфейса есть на
     ...ITEMS.map((w) => `wear.${w.id}`),
     ...SLOTS.map((sl) => `wear.slot.${sl}`),
     'wear.byChest', 'wear.byLevel', 'wear.byAch',
+    ...ACH_CATS.map((c) => `ach.cat.${c}`),
+    'ach.fAll', 'ach.fEarned', 'ach.fLocked',
     'rv.stage0', 'rv.stage1', 'rv.stage2', 'rv.stage3',
     'quiz.level', 'quiz.startLevel', 'quiz.dailyInfo', 'quiz.dailyAgain',
     ...['classic', 'blitz', 'survival', 'custom', 'daily'].flatMap((m) => [`quiz.mode.${m}`, `quiz.mode.${m}Desc`, `quiz.go.${m}`]),

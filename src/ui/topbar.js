@@ -40,7 +40,7 @@ export function renderTopbar() {
         ${item('/exams', 'nav.exams', '📝', group === 'exams')}
         ${item('/c/olymp', 'nav.olymp', '🏆', group === 'olymp')}
         ${item('/code', 'nav.code', '💻', group === 'code')}
-        ${item('/profile', 'nav.profile', '👤', path.startsWith('/profile'))}
+        ${item('/profile', 'nav.profile', '👤', path.startsWith('/profile') || path.startsWith('/achievements'))}
       </nav>
       <div class="top-stats">
         <span class="stat-chip streak ${streak ? 'is-on' : ''}" title="${t('top.streak')}">🔥 <b>${streak}</b></span>

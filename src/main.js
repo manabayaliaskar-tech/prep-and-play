@@ -4,7 +4,7 @@ import { confetti } from './core/confetti.js';
 import { on } from './core/events.js';
 import { dayKey } from './core/dates.js';
 import { getLang, onLangChange, t, tx } from './core/i18n.js';
-import { addXp, getProfile, saveProfile } from './core/profile.js';
+import { addXp, getProfile, saveProfile, syncAchievements } from './core/profile.js';
 import { claimQuests } from './core/quests.js';
 import { applyTheme } from './core/theme.js';
 import { refreshRoute, route, startRouter } from './core/router.js';
@@ -26,11 +26,12 @@ import { startMotion } from './ui/motion.js';
 import { bindThemePicker } from './ui/theme-picker.js';
 import { bindPins } from './core/pins.js';
 import { takeNewItems } from './core/wardrobe.js';
-import { initPwa } from './core/pwa.js';
+import { initPwa, isStandalone } from './core/pwa.js';
 import { mistakesRoute, weakCourseRoute } from './screens/review.js';
 import { planRoute } from './screens/plan.js';
 import { reportRoute } from './screens/report.js';
 import { cardsRoute } from './screens/cards.js';
+import { achievementsRoute } from './screens/achievements.js';
 import { bindLangSwitches, renderTopbar } from './ui/topbar.js';
 
 const app = document.getElementById('app');
@@ -63,6 +64,7 @@ route('/duel', () => duelRoute(app));
 route('/duel/:code', (params) => duelAcceptRoute(app, params));
 route('/detective', () => detectiveRoute(app));
 route('/profile', () => profileScreen(app));
+route('/achievements', () => achievementsRoute(app));
 route('/premium', () => premiumScreen(app));
 
 on('profile', () => {
@@ -77,6 +79,8 @@ on('profile', () => {
   }
   if (fresh.length) saveProfile();
   else renderTopbar();
+  // Достижения за сундуки, карточки, гардероб и т. п. проверяем при любом сохранении профиля.
+  syncAchievements();
   // Новые вещи для Препи: за достижения, уровни и сундуки.
   for (const it of takeNewItems()) {
     toast(`<span class="toast-icon">${it.icon}</span><span><small>${t('wear.new')}</small><b>${t(`wear.${it.id}`)}</b></span>`, { kind: 'achievement', duration: 5000 });
@@ -84,12 +88,26 @@ on('profile', () => {
 });
 document.addEventListener('routechange', renderTopbar);
 
+// Достижения, полученные одновременно, показываем вместе: до двух — по отдельности, больше — одним уведомлением.
+let freshAch = [];
 on('achievement', (id) => {
   const a = ACHIEVEMENTS.find((x) => x.id === id);
   if (!a) return;
-  toast(`<span class="toast-icon">${a.icon}</span><span><small>${t('toast.achievement')}</small><b>${tx(a.name)}</b></span>`, {
-    kind: 'achievement',
-    duration: 4200,
+  freshAch.push(a);
+  if (freshAch.length > 1) return;
+  queueMicrotask(() => {
+    const list = freshAch;
+    freshAch = [];
+    if (list.length <= 2) {
+      for (const it of list) {
+        toast(`<span class="toast-icon">${it.icon}</span><span><small>${t('toast.achievement')}</small><b>${tx(it.name)}</b></span>`, { kind: 'achievement', duration: 4200 });
+      }
+      return;
+    }
+    toast(`<span class="toast-icon">🏆</span><span><small>${t('toast.achievementsMany', { n: list.length })}</small><b>${list.map((it) => it.icon).join(' ')}</b></span>`, {
+      kind: 'achievement',
+      duration: 5200,
+    });
   });
 });
 
@@ -113,6 +131,9 @@ bindLangSwitches();
 bindThemePicker();
 bindPins(refreshRoute);
 initPwa();
+// Открыли как приложение с экрана «Домой» — для достижения «Всегда под рукой».
+if (isStandalone() && !getProfile().counters.app) getProfile().counters.app = 1;
+syncAchievements();
 startMotion(app);
 startRouter();
 renderTopbar();

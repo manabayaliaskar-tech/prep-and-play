@@ -2,7 +2,7 @@
 
 import { confetti } from '../core/confetti.js';
 import { getLang, t, tx } from '../core/i18n.js';
-import { addXp, getProfile, saveProfile } from '../core/profile.js';
+import { addXp, getProfile, saveProfile, syncAchievements } from '../core/profile.js';
 import { availableChests, lastWeekReport, markReportSeen, nextChest, openChest, reportPending } from '../core/rewards.js';
 import { sfx } from '../core/sound.js';
 import { skillName } from '../content/labels.js';
@@ -72,6 +72,7 @@ export function openChestModal(days, onDone) {
     if (!chest) return close();
     addXp(chest.xp);
     saveProfile();
+    syncAchievements();
     sfx.win();
     confetti({ count: 160 });
     const w = itemById(chest.wear);
@@ -178,6 +179,9 @@ async function shareImage(report) {
 }
 
 async function share(report) {
+  const p = getProfile();
+  p.counters.shared = (p.counters.shared ?? 0) + 1;
+  saveProfile();
   const canvas = await shareImage(report);
   const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
   if (!blob) return;

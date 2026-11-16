@@ -5,6 +5,7 @@ import { COURSES, courseHref, practiceKey } from '../catalog/index.js';
 import { t, tx } from '../core/i18n.js';
 import { currentStreak, getProfile, levelInfo, resetProgress, saveProfile } from '../core/profile.js';
 import { ACHIEVEMENTS } from '../content/achievements.js';
+import { achievementsPanel } from './achievements.js';
 import { DOMAINS, LEVELS_PER_ZONE, SKILLS, ZONES } from '../content/skills.js';
 import { POOLS, TOPICS } from '../pools/topics.js';
 import { masteredCount } from '../core/review.js';
@@ -385,14 +386,7 @@ export function profileScreen(app) {
           ${topicsPanel(p)}
         </div>
 
-        <div class="panel">
-          <h2>${t('profile.achievements')}</h2>
-          <div class="ach-grid">
-            ${ACHIEVEMENTS.map(
-              (a) => `<div class="ach ${p.achievements[a.id] ? 'earned' : ''}" title="${esc(tx(a.desc))}"><span class="ach-icon">${a.icon}</span><b>${esc(tx(a.name))}</b><small>${esc(tx(a.desc))}</small></div>`,
-            ).join('')}
-          </div>
-        </div>
+${achievementsPanel(p)}
 
         ${examsSection(p, values)}
 

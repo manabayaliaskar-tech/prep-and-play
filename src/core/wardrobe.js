@@ -25,21 +25,25 @@ export const ITEMS = [
   item('wizard', 'head', '🧙', ach('quizmaster')),
   item('halo', 'head', '😇', level(20)),
   item('astro', 'head', '🚀', chest(100)),
+  item('nightcap', 'head', '🌙', ach('night')),
   // Лицо
   item('glasses', 'face', '🤓', chest(7)),
   item('sunglasses', 'face', '😎', ach('quizsprint')),
   item('starglasses', 'face', '🤩', ach('quizdaily')),
   item('mustache', 'face', '🥸', ach('combo15')),
+  item('monocle', 'face', '🧐', ach('accuracy')),
   // Шея
   item('scarf', 'neck', '🧣', chest(3)),
   item('bowtie', 'neck', '🤵', ach('streak3')),
   item('medal', 'neck', '🏅', ach('century')),
   item('chain', 'neck', '📿', ach('flawless')),
+  item('lei', 'neck', '🌺', ach('weekend')),
   // Спина
   item('backpack', 'back', '🎒', ach('practice1')),
   item('cape', 'back', '🦸', level(5)),
   item('sword', 'back', '🗡️', ach('champion')),
   item('wings', 'back', '🪽', level(10)),
+  item('jetpack', 'back', '🔥', ach('marathon')),
   // Цвет
   item('classic', 'color', '🟣'),
   item('mint', 'color', '🟢', ach('streak7')),
@@ -47,6 +51,8 @@ export const ITEMS = [
   item('night', 'color', '🌑', ach('perfect')),
   item('gold', 'color', '🟡', level(15)),
   item('rainbow', 'color', '🌈', ach('quizsurvivor')),
+  item('ocean', 'color', '🌊', ach('linguist')),
+  item('sunset', 'color', '🌅', ach('streak30')),
 ];
 
 export const itemById = (id) => ITEMS.find((x) => x.id === id) ?? null;
@@ -121,4 +127,6 @@ export const COLORS = {
   night: ['#c7d2fe', '#4338ca', '#0f172a'],
   gold: ['#fef9c3', '#facc15', '#b45309'],
   rainbow: ['#fde68a', '#f472b6', '#6366f1'],
+  ocean: ['#bae6fd', '#0ea5e9', '#075985'],
+  sunset: ['#fed7aa', '#f97316', '#9a3412'],
 };
