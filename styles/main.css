@@ -3451,6 +3451,193 @@ button {
   }
 }
 
+/* ---------- Квиз ---------- */
+
+.quiz-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 16px;
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  color: #fff;
+  text-decoration: none;
+  background: linear-gradient(120deg, #f43f5e, #f59e0b 45%, #22c55e 75%, #0ea5e9);
+  background-size: 200% 100%;
+  box-shadow: 0 5px 0 #9f1239;
+  animation: quiz-shift 8s ease-in-out infinite alternate;
+  transition: transform 0.12s;
+}
+
+.quiz-card:hover {
+  transform: translateY(-2px);
+}
+
+.quiz-card-dice {
+  width: 50px;
+  height: 50px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.22);
+  font-size: 1.7rem;
+  animation: dice-roll 4s ease-in-out infinite;
+}
+
+.quiz-card-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.quiz-card-text b {
+  font-size: 1.12rem;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
+}
+
+.quiz-card-text small {
+  opacity: 0.92;
+  font-weight: 700;
+}
+
+.quiz-card-icons {
+  margin-left: auto;
+  font-size: 1.2rem;
+  letter-spacing: 4px;
+  white-space: nowrap;
+}
+
+.quiz-card .daily-go {
+  margin-left: 0;
+  color: #be123c;
+}
+
+.quiz-orbit {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+}
+
+.quiz-orbit b {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 3rem;
+  animation: dice-roll 4s ease-in-out infinite;
+}
+
+.quiz-orbit span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 34px;
+  height: 34px;
+  margin: -17px;
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+  border-radius: 50%;
+  background: var(--card);
+  box-shadow: 0 3px 10px rgba(30, 27, 58, 0.12);
+  animation: orbit 16s linear infinite;
+  animation-delay: calc(var(--i) * -2s);
+}
+
+.quiz-levels {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 6px;
+}
+
+.quiz-level {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 10px 0 6px;
+  border-radius: 14px;
+  border: 2px solid color-mix(in srgb, hsl(calc(140 - var(--k) * 14) 75% 45%) 40%, white);
+  border-bottom-width: 4px;
+  background: color-mix(in srgb, hsl(calc(140 - var(--k) * 14) 75% 45%) 10%, white);
+  color: var(--ink);
+  transition: transform 0.1s;
+}
+
+.quiz-level b {
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.quiz-level small {
+  font-size: 0.66rem;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.quiz-level:hover {
+  transform: translateY(-2px);
+}
+
+.quiz-level[aria-checked='true'] {
+  color: #fff;
+  background: hsl(calc(140 - var(--k) * 14) 75% 42%);
+  border-color: hsl(calc(140 - var(--k) * 14) 75% 32%);
+  transform: translateY(-2px) scale(1.06);
+}
+
+.quiz-level[aria-checked='true'] small {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.quiz-level-name {
+  margin: 0;
+}
+
+@keyframes quiz-shift {
+  to {
+    background-position: 100% 0;
+  }
+}
+
+@keyframes dice-roll {
+  0%,
+  70%,
+  100% {
+    transform: rotate(0);
+  }
+  80% {
+    transform: rotate(-18deg) scale(1.1);
+  }
+  90% {
+    transform: rotate(14deg);
+  }
+}
+
+@keyframes orbit {
+  from {
+    transform: rotate(0) translateX(62px) rotate(0);
+  }
+  to {
+    transform: rotate(360deg) translateX(62px) rotate(-360deg);
+  }
+}
+
+@media (max-width: 720px) {
+  .quiz-levels {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .quiz-card-icons {
+    display: none;
+  }
+}
+
 /* Тест на время: не показываем комбо и опыт, чтобы не подсказывать, верен ли ответ. */
 .is-silent .combo-chip,
 .is-silent .xp-chip {

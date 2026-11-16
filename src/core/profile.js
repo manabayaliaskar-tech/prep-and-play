@@ -21,14 +21,14 @@ function defaults() {
     daily: {},
     skills: {},
     map: { stars: {}, bosses: {} },
-    records: { survival: 0, blitz: 0, detective: 0 },
+    records: { survival: 0, blitz: 0, detective: 0, quiz: {} },
     exams: [],
     // Результаты тренировок по дорожкам каталога: { 'math:l3': { best, runs, pct, last } }.
     practice: {},
     // Последнее занятие — для кнопки «Продолжить» на главной.
     last: null,
     achievements: {},
-    counters: { answered: 0, correct: 0, bestCombo: 0, detectiveFound: 0, duelsSent: 0, langSwitch: 0, dailyDone: 0 },
+    counters: { answered: 0, correct: 0, bestCombo: 0, detectiveFound: 0, duelsSent: 0, langSwitch: 0, dailyDone: 0, quizzes: 0 },
   };
 }
 

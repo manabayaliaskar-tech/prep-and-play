@@ -13,6 +13,7 @@ import { hubScreen } from './screens/hub.js';
 import { bossRoute, levelRoute, mapScreen } from './screens/map.js';
 import { blitzRoute, dailyRoute, duelAcceptRoute, duelRoute, survivalRoute, weakRoute } from './screens/modes.js';
 import { trackRoute } from './screens/practice.js';
+import { quizRoute } from './screens/quiz.js';
 import { profileScreen } from './screens/profile.js';
 import { premiumScreen } from './screens/premium.js';
 import { satHomeScreen } from './screens/sat-home.js';
@@ -26,6 +27,7 @@ route('/', () => hubScreen(app));
 route('/exams', () => examsScreen(app));
 route('/practice', () => practiceHubScreen(app));
 route('/code', () => practiceHubScreen(app, 'code'));
+route('/quiz', () => quizRoute(app));
 route('/c/:course', (params) => courseScreen(app, params));
 route('/c/:course/:track', (params) => trackRoute(app, params));
 // SAT

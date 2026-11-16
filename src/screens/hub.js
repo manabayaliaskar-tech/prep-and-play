@@ -101,6 +101,13 @@ export function hubScreen(app) {
 
         ${continueCard() ? `<div class="continue-row single">${continueCard()}</div>` : ''}
 
+        <a class="quiz-card" href="#/quiz">
+          <span class="quiz-card-dice" aria-hidden="true">🎲</span>
+          <span class="quiz-card-text"><b>${t('quiz.title')}</b><small>${t('hub.quizCta')}</small></span>
+          <span class="quiz-card-icons" aria-hidden="true">📐 🌍 ⚛️ 🧬 📜 🔤</span>
+          <span class="daily-go">▶</span>
+        </a>
+
         <section class="block">
           ${head(group('daily'), t('hub.open'))}
           <div class="daily-grid">

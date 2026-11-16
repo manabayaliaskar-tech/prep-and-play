@@ -77,6 +77,12 @@ export const ACHIEVEMENTS = [
   a('olympian', '🏆', 'Olympian', 'Олимпиец', 'Олимпиадашы',
     'Get 2 stars on any level of olympiad math', 'Получи 2 звезды на любом уровне олимпиадной математики', 'Олимпиадалық математиканың кез келген деңгейінде 2 жұлдыз ал',
     (p) => practiced(p).some(([key, rec]) => key.startsWith('olymp:') && rec.best >= 2)),
+  a('quiz', '🎲', 'Know-it-all', 'Всезнайка', 'Бәрін білгіш',
+    'Finish a quiz', 'Пройди квиз', 'Квизді аяқта',
+    (p) => (p.counters.quizzes ?? 0) >= 1),
+  a('quizmaster', '🧠', 'Quiz master', 'Мастер квиза', 'Квиз шебері',
+    'Answer 10 of 10 in a quiz of difficulty 7 or higher', 'Ответь на 10 из 10 в квизе сложности 7 или выше', '7 немесе одан жоғары күрделіліктегі квизде 10 сұрақтың 10-ына жауап бер',
+    (p) => Object.entries(p.records?.quiz ?? {}).some(([level, best]) => Number(level) >= 7 && best >= 10)),
 ];
 
 /** Записи о тренировках из каталога: [[ключ, { best, runs, pct }], …]. */

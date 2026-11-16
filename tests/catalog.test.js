@@ -202,3 +202,42 @@ test('достижения за уровни и экзамены из катал
   assert.ok(got({ 'olymp:l2': { best: 2, runs: 1, pct: 80 } }).has('olympian'));
   assert.ok(!got({ 'olymp:l2': { best: 1, runs: 1, pct: 60 } }).has('olympian'));
 });
+
+// ---------- Квиз ----------
+
+import { QUIZ_COUNT, buildQuiz, englishLevel, quizSubjects } from '../src/pools/quiz.js';
+import { saveQuizResult } from '../src/screens/quiz.js';
+
+test('квиз: вопросы из разных предметов подряд, на каждой сложности', () => {
+  for (let level = 1; level <= 10; level++) {
+    assert.ok(quizSubjects(level).every((s) => s.spec.every(([topic]) => TOPICS[topic])), `уровень ${level}`);
+    for (let seed = 0; seed < 15; seed++) {
+      const questions = buildQuiz({ rng: createRng(seed * 7 + level), level });
+      assert.equal(questions.length, QUIZ_COUNT);
+      assert.equal(new Set(questions.map((q) => q.id)).size, QUIZ_COUNT, `повтор вопроса, уровень ${level}`);
+      const pools = questions.map((q) => TOPICS[q.skill].pool);
+      for (let i = 1; i < pools.length; i++) assert.notEqual(pools[i], pools[i - 1], `два вопроса подряд по одному предмету: ${pools.join(', ')}`);
+      assert.ok(new Set(pools).size >= 7, `предметов: ${new Set(pools).size}`);
+      assert.ok(questions.every((q) => q.type === 'mc'), 'в квизе только вопросы с вариантами');
+    }
+  }
+  const ids = (seed) => buildQuiz({ rng: createRng(seed), level: 5 }).map((q) => q.id);
+  assert.deepEqual(ids(11), ids(11));
+  // Математика: сложность 1 — 2 класс, сложность 10 — 11 класс.
+  assert.deepEqual(quizSubjects(1)[0].spec, courseById('math').tracks[1].spec);
+  assert.deepEqual(quizSubjects(10)[0].spec, courseById('math').tracks[10].spec);
+  assert.deepEqual([1, 5, 10].map(englishLevel), [1, 3, 6]);
+});
+
+test('квиз: рекорд на каждой сложности не ухудшается, достижения засчитываются', () => {
+  _setProfileForTests({});
+  assert.equal(saveQuizResult(7, 8), true);
+  assert.equal(saveQuizResult(7, 6), false);
+  assert.equal(saveQuizResult(3, 10), true);
+  assert.deepEqual(getProfile().records.quiz, { 7: 8, 3: 10 });
+  let got = new Set(evaluateAchievements(getProfile()));
+  assert.ok(got.has('quiz') && !got.has('quizmaster'), '10 из 10 на сложности 3 — ещё не мастер');
+  saveQuizResult(8, 10);
+  got = new Set(evaluateAchievements(getProfile()));
+  assert.ok(got.has('quizmaster'));
+});
