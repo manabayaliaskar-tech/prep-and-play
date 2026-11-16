@@ -16,7 +16,7 @@ const full = (obj, label) => {
 };
 
 test('каталог: у каждого курса есть название, описание и раздел', () => {
-  assert.deepEqual(GROUPS.map((g) => g.id), ['exams', 'olymp', 'daily']);
+  assert.deepEqual(GROUPS.map((g) => g.id), ['exams', 'olymp', 'code', 'daily']);
   const ids = new Set();
   for (const course of COURSES) {
     assert.ok(!ids.has(course.id), `повтор курса ${course.id}`);

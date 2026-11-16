@@ -19,7 +19,7 @@ export function ring(value, max) {
 
 /** Значок курса: код страны или экзамена в цветном кружке либо эмодзи. */
 export function courseBadge(course, cls = '') {
-  const isText = /^[A-Za-z]+$/.test(course.code);
+  const isText = /^[A-Za-z+#]+$/.test(course.code);
   return `<span class="code-badge ${isText ? 'is-text' : ''} ${course.code.length > 3 ? 'is-long' : ''} ${cls}" style="--c:${course.color}" aria-hidden="true">${course.code}</span>`;
 }
 
@@ -128,6 +128,21 @@ export function hubScreen(app) {
               <a class="daily-course-head" href="#${courseHref(olymp)}">${courseBadge(olymp)}<span class="course-text"><b>${esc(tx(olymp.name))}</b><small>${esc(tx(olymp.full))}</small></span></a>
               ${olymp.tracks.length ? levelChips(olymp) : `<p class="muted small">${t('cat.soonShort')}</p>`}
             </div>
+          </div>
+        </section>
+
+        <section class="block">
+          ${head(group('code'), t('hub.open'))}
+          <div class="daily-grid">
+            ${coursesIn('code')
+              .map(
+                (course) => `
+              <div class="daily-course" style="--c:${course.color}">
+                <a class="daily-course-head" href="#${courseHref(course)}">${courseBadge(course)}<span class="course-text"><b>${esc(tx(course.name))}</b><small>${esc(tx(course.full))}</small></span></a>
+                ${levelChips(course)}
+              </div>`,
+              )
+              .join('')}
           </div>
         </section>
 

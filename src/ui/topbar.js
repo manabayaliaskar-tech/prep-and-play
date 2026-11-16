@@ -38,6 +38,7 @@ export function renderTopbar() {
         ${item('/practice', 'nav.practice', '📅', group === 'daily')}
         ${item('/exams', 'nav.exams', '📝', group === 'exams')}
         ${item('/c/olymp', 'nav.olymp', '🏆', group === 'olymp')}
+        ${item('/code', 'nav.code', '💻', group === 'code')}
         ${item('/profile', 'nav.profile', '👤', path.startsWith('/profile'))}
       </nav>
       <div class="top-stats">

@@ -373,3 +373,40 @@ test('иностранные языки: по 10 заданий на урове�
     }
   }
 });
+
+// ---------- Программирование ----------
+
+import { CODE_LANGS, codeTopics, execute, render } from '../src/pools/code.js';
+
+test('программирование: код на JavaScript при запуске печатает то же, что ответ задания', () => {
+  const topics = codeTopics('js');
+  let checked = 0;
+  for (const [id, make] of Object.entries(topics)) {
+    for (const d of [1, 2, 3]) {
+      for (let s = 0; s < 60; s++) {
+        const q = make({ rng: createRng(s * 19 + d), mcOnly: s % 2 === 0, used: new Set() }, d);
+        assertValid(q, `${id} d${d} s${s}`);
+        const printed = [];
+        // eslint-disable-next-line no-new-func
+        new Function('console', render(q.program, 'js').join('\n'))({ log: (v) => printed.push(v) });
+        assert.deepEqual(printed, execute(q.program), `${id} d${d} s${s}`);
+        const answer = q.type === 'spr' ? q.value : Number(text(q.choices[q.answer]));
+        assert.equal(answer, printed.at(-1), `${id} d${d} s${s}: ответ задания`);
+        checked += 1;
+      }
+    }
+  }
+  assert.equal(checked, 5 * 3 * 60);
+});
+
+test('программирование: одна программа выглядит по-своему в каждом языке', () => {
+  const q = codeTopics('py')['py.arr']({ rng: createRng(3), mcOnly: true, used: new Set() }, 2);
+  const code = Object.fromEntries(Object.keys(CODE_LANGS).map((lang) => [lang, render(q.program, lang).join('\n')]));
+  assert.match(code.py, /for i in range\(len\(a\)\):/);
+  assert.match(code.cpp, /vector<int> a = \{/);
+  assert.match(code.cpp, /cout << s << endl;/);
+  assert.match(code.js, /console\.log\(s\);/);
+  assert.match(code.java, /int\[\] a = \{/);
+  assert.match(code.java, /System\.out\.println\(s\);/);
+  assert.equal(new Set(Object.values(code)).size, 4);
+});

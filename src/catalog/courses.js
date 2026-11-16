@@ -32,6 +32,18 @@ export const GROUPS = [
     ),
   },
   {
+    id: 'code',
+    href: '/code',
+    icon: '💻',
+    color: '#0f172a',
+    name: L('Programming', 'Программирование', 'Бағдарламалау'),
+    desc: L(
+      'Python, C++, JavaScript and Java: read code and predict what it prints.',
+      'Python, C++, JavaScript и Java: читай код и угадывай, что он выведет.',
+      'Python, C++, JavaScript және Java: кодты оқып, оның не шығаратынын тап.',
+    ),
+  },
+  {
     id: 'daily',
     href: '/practice',
     icon: '📅',
@@ -208,6 +220,8 @@ const HSK_DESC = [
   L('把 and 被, 虽然…但是, 越来越', '把 и 被, 虽然…但是, 越来越', '把 және 被, 虽然…但是, 越来越'),
   L('尽管, 即使, 无论…都 and other connectors', '尽管, 即使, 无论…都 и другие связки', '尽管, 即使, 无论…都 және басқа жалғаулықтар'),
 ];
+
+const CODE_NAMES = { py: 'Python', cpp: 'C++', js: 'JavaScript', java: 'Java' };
 
 // ---------- Курсы ----------
 
@@ -716,4 +730,29 @@ export const COURSES = [
       track('g3', '3', L('The world in depth', 'Мир подробно', 'Әлем тереңірек'), L('Time zones, fronts, resources, population', 'Часовые пояса, фронты, ресурсы, население', 'Уақыт белдеулері, фронттар, ресурстар, халық'), [['g.bank', [3]]]),
     ],
   },
+  // ===== Программирование =====
+  ...[
+    ['python', 'py', 'Py', '#2563eb', L('The most popular first language: simple and readable syntax.', 'Самый популярный первый язык: простой и понятный синтаксис.', 'Ең танымал алғашқы тіл: қарапайым әрі түсінікті синтаксис.')],
+    ['cpp', 'cpp', 'C++', '#4f46e5', L('A fast language for olympiads, games and systems programming.', 'Быстрый язык для олимпиад, игр и системного программирования.', 'Олимпиадаларға, ойындарға және жүйелік бағдарламалауға арналған жылдам тіл.')],
+    ['javascript', 'js', 'JS', '#ca8a04', L('The language of the web: it runs in every browser.', 'Язык веба: работает в каждом браузере.', 'Веб тілі: әр браузерде жұмыс істейді.')],
+    ['java', 'java', 'Java', '#c2410c', L('A strict language for big applications and Android.', 'Строгий язык для больших приложений и Android.', 'Үлкен қосымшалар мен Android-ке арналған қатаң тіл.')],
+  ].map(([id, lang, code, color, about]) => ({
+    id,
+    group: 'code',
+    code,
+    color,
+    leveled: true,
+    name: L(CODE_NAMES[lang], CODE_NAMES[lang], CODE_NAMES[lang]),
+    full: L('Three levels', 'Три уровня', 'Үш деңгей'),
+    about: L(
+      `${about.en} Each question is a short program: read it and say what it prints. The answers are computed by actually running the code.`,
+      `${about.ru} Каждое задание — короткая программа: прочитай её и скажи, что она выведет. Ответы получены настоящим запуском кода.`,
+      `${about.kk} Әр тапсырма — қысқа бағдарлама: оны оқып, не шығаратынын айт. Жауаптар кодты шынымен іске қосу арқылы алынған.`,
+    ),
+    tracks: [
+      track('l1', '1', L('Basics', 'Основы', 'Негіздер'), L('Variables, arithmetic, the first if', 'Переменные, арифметика, первое условие', 'Айнымалылар, арифметика, алғашқы шарт'), [[`${lang}.vars`, [1, 2]], [`${lang}.cond`, [1]], ['code.theory', [1]]], { count: 10, minutes: 15 }),
+      track('l2', '2', L('Conditions and loops', 'Условия и циклы', 'Шарттар мен циклдер'), L('if-else chains, for loops, arrays', 'Цепочки if-else, циклы for, массивы', 'if-else тізбектері, for циклдері, массивтер'), [[`${lang}.cond`, [2, 3]], [`${lang}.loop`, [1, 2]], [`${lang}.arr`, [1]], ['code.theory', [2]]], { count: 10, minutes: 15 }),
+      track('l3', '3', L('Algorithms and functions', 'Алгоритмы и функции', 'Алгоритмдер мен функциялар'), L('while loops, maximum search, functions, recursion', 'Циклы while, поиск максимума, функции, рекурсия', 'while циклдері, ең үлкенін іздеу, функциялар, рекурсия'), [[`${lang}.loop`, [3]], [`${lang}.arr`, [2, 3]], [`${lang}.func`, [2, 3]], [`${lang}.vars`, [3]], ['code.theory', [3]]], { count: 10, minutes: 15 }),
+    ],
+  })),
 ];

@@ -25,6 +25,7 @@ const app = document.getElementById('app');
 route('/', () => hubScreen(app));
 route('/exams', () => examsScreen(app));
 route('/practice', () => practiceHubScreen(app));
+route('/code', () => practiceHubScreen(app, 'code'));
 route('/c/:course', (params) => courseScreen(app, params));
 route('/c/:course/:track', (params) => trackRoute(app, params));
 // SAT

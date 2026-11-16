@@ -12,6 +12,8 @@ import { early } from './math/early.js';
 import { complexNumbers, integrals, limits, matrices, vectors } from './math/higher.js';
 import { englishMaker } from './english/index.js';
 import { readingMaker } from './reading.js';
+import { CODE_LANGS, CODE_TOPIC_NAMES, codeTopics } from './code.js';
+import { CODE_THEORY } from './code-theory.js';
 import { languageMaker } from './languages/index.js';
 import { FRENCH, SPANISH } from './languages/romance.js';
 import { CHINESE } from './languages/chinese.js';
@@ -132,6 +134,17 @@ export const TOPICS = {
   'fr.bank': topic('french', L('French grammar and vocabulary', 'Французский: грамматика и лексика', 'Француз тілі: грамматика және лексика'), languageMaker('fr.bank', FRENCH)),
   'zh.bank': topic('chinese', L('Chinese words and grammar', 'Китайский: слова и грамматика', 'Қытай тілі: сөздер мен грамматика'), languageMaker('zh.bank', CHINESE)),
 
+  // ----- Программирование -----
+  'code.theory': topic('code', L('Programming basics', 'Основы программирования', 'Бағдарламалау негіздері'), bankMaker('code.theory', CODE_THEORY)),
+  ...Object.fromEntries(
+    Object.entries(CODE_LANGS).flatMap(([lang, { name }]) =>
+      Object.entries(codeTopics(lang)).map(([id, make]) => {
+        const base = CODE_TOPIC_NAMES[id.split('.')[1]];
+        return [id, topic('code', L(`${name}: ${base.en.toLowerCase()}`, `${name}: ${base.ru.toLowerCase()}`, `${name}: ${base.kk.toLowerCase()}`), make)];
+      }),
+    ),
+  ),
+
   // ----- Олимпиадная математика -----
   'o.count': topic('olymp', L('Counting and inclusion–exclusion', 'Подсчёт и формула включений-исключений', 'Санау және қосу-алу формуласы'), counting),
   'o.digit': topic('olymp', L('Last digit', 'Последняя цифра', 'Соңғы цифр'), lastDigit),
@@ -164,6 +177,7 @@ export const POOLS = {
   spanish: { icon: 'ES', color: '#dc2626' },
   french: { icon: 'FR', color: '#2563eb' },
   chinese: { icon: '中', color: '#b91c1c' },
+  code: { icon: '</>', color: '#0f172a' },
 };
 
 export const topicIds = (pool) => Object.keys(TOPICS).filter((id) => !pool || TOPICS[id].pool === pool);

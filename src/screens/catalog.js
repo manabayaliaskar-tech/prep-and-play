@@ -101,16 +101,16 @@ export function courseScreen(app, { course: id }) {
   return { relabel: render };
 }
 
-export function practiceHubScreen(app) {
+export function practiceHubScreen(app, groupId = 'daily') {
   const render = () => {
-    const group = groupById('daily');
+    const group = groupById(groupId);
     app.innerHTML = `
       <section class="page catalog">
         <div class="page-head">
           <h1>${group.icon} ${esc(tx(group.name))}</h1>
-          <p class="muted">${t('pr.hubDesc')}</p>
+          <p class="muted">${groupId === 'code' ? t('pr.codeDesc') : t('pr.hubDesc')}</p>
         </div>
-        ${coursesIn('daily')
+        ${coursesIn(groupId)
           .map(
             (course) => `
           <div class="practice-course" style="--c:${course.color}">

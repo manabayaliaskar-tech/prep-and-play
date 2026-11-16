@@ -38,6 +38,7 @@ export function courseStars(course) {
 export function groupOfPath(path) {
   if (path === '/exams' || /^\/(sat|map|level|boss|exam|survival|blitz|weak|daily|duel|detective)(\/|$)/.test(path)) return 'exams';
   if (path === '/practice') return 'daily';
+  if (path === '/code') return 'code';
   const match = path.match(/^\/c\/([^/]+)/);
   return match ? (courseById(match[1])?.group ?? null) : null;
 }

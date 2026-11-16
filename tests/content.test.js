@@ -160,7 +160,7 @@ test('переводы: каждый ключ интерфейса есть на
   }
   // Ключи, которые собираются в коде из частей, — их поиск по тексту не находит.
   const dynamic = [
-    'nav.home', 'nav.practice', 'nav.exams', 'nav.olymp', 'nav.profile', 'nav.premium',
+    'nav.home', 'nav.practice', 'nav.exams', 'nav.olymp', 'nav.code', 'nav.profile', 'nav.premium',
     'premium.limitDay', 'premium.unlimited', 'premium.tutorLimit',
     'premium.rowAll', 'premium.rowSolutions', 'premium.rowTests', 'premium.rowStats', 'premium.rowPlan', 'premium.rowTutor', 'premium.rowClass', 'premium.rowAudio',
     ...PLANS.flatMap((p) => [`premium.${p.id}`, `premium.${p.id}Desc`]),

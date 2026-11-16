@@ -17,6 +17,8 @@ import { courseBadge } from './hub.js';
 import { baseStats, celebrate, runSession } from './play.js';
 
 export const TRAIN_COUNT = 10;
+/** Куда ведёт кнопка «назад» из тренировки: для разделов с общей страницей — на неё. */
+const GROUP_HOME = { daily: '/practice', code: '/code' };
 
 /** Сохраняет результат тренировки. Возвращает запись с лучшими показателями. */
 export function saveTrackResult(course, track, { correct, total }, today = dayKey()) {
@@ -71,7 +73,7 @@ export function trackRoute(app, { course: courseId, track: trackId }) {
           actions: [
             ...(next && stars >= 2 ? [{ label: `${t('pr.next')} →`, href: trackHref(course, next), primary: true }] : []),
             { label: `↻ ${t('pr.again')}`, onClick: () => navigate(trackHref(course, track)), primary: !(next && stars >= 2) },
-            { label: `← ${esc(tx(course.name))}`, href: course.group === 'daily' ? '/practice' : courseHref(course) },
+            { label: `← ${esc(tx(course.name))}`, href: GROUP_HOME[course.group] ?? courseHref(course) },
           ],
         });
       },
@@ -83,7 +85,7 @@ export function trackRoute(app, { course: courseId, track: trackId }) {
     const topics = trackTopics(track);
     app.innerHTML = `
       <section class="page setup">
-        <a class="crumb" href="#${course.group === 'daily' ? '/practice' : courseHref(course)}">← ${esc(tx(course.name))}</a>
+        <a class="crumb" href="#${GROUP_HOME[course.group] ?? courseHref(course)}">← ${esc(tx(course.name))}</a>
         <div class="setup-card wide" style="--c:${course.color}">
           ${courseBadge(course, 'big')}
           <p class="track-kicker">${course.leveled ? `${esc(tx(course.name))} · ${levelLabel(course, track)}` : esc(tx(course.name))}</p>
