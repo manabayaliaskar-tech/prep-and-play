@@ -20,6 +20,8 @@ function defaults() {
     // Счётчики сегодняшнего дня: цель по опыту и ежедневные задания (quests — уже выданные награды).
     today: { date: null, xp: 0, answered: 0, correct: 0, combo: 0, stars2: 0, bosses: 0, quizzes: 0, quests: {} },
     daily: {},
+    // Итоги прошлых дней { 'ГГГГ-ММ-ДД': { xp, a, c } } — для недельного отчёта.
+    history: {},
     skills: {},
     map: { stars: {}, bosses: {} },
     records: { survival: 0, blitz: 0, detective: 0, quiz: {} },
@@ -92,8 +94,28 @@ export function todayXp(today = dayKey()) {
 
 /** Счётчики сегодняшнего дня; в новый день начинаются с нуля. */
 export function todayStats(today = dayKey()) {
-  if (profile.today.date !== today) profile.today = { ...defaults().today, date: today };
+  if (profile.today.date !== today) {
+    archiveDay(profile.today);
+    profile.today = { ...defaults().today, date: today };
+  }
   return profile.today;
+}
+
+const HISTORY_DAYS = 70;
+
+/** Переносит итоги закончившегося дня в историю (для недельного отчёта). Хранятся последние 70 дней. */
+function archiveDay(day) {
+  if (!day?.date || !(day.answered || day.xp)) return;
+  const history = (profile.history ??= {});
+  history[day.date] = { xp: day.xp, a: day.answered, c: day.correct };
+  const keys = Object.keys(history).sort();
+  for (const k of keys.slice(0, Math.max(0, keys.length - HISTORY_DAYS))) delete history[k];
+}
+
+/** Итоги дня: из истории или (для сегодняшнего) из текущих счётчиков. */
+export function dayRecord(day) {
+  if (profile.today.date === day) return { xp: profile.today.xp, a: profile.today.answered, c: profile.today.correct };
+  return profile.history?.[day] ?? null;
 }
 
 export function addXp(amount) {

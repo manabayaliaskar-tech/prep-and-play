@@ -168,6 +168,7 @@ test('переводы: каждый ключ интерфейса есть на
     ...PERIODS.map((p) => `premium.period${p.months}`),
     ...QUESTS.map((q) => `quest.${q.id}`),
     'pin.add',
+    ...['cap', 'scarf', 'glasses', 'headphones', 'crown', 'bow', 'astro'].map((w) => `wear.${w}`),
     'rv.stage0', 'rv.stage1', 'rv.stage2', 'rv.stage3',
     'quiz.level', 'quiz.startLevel', 'quiz.dailyInfo', 'quiz.dailyAgain',
     ...['classic', 'blitz', 'survival', 'custom', 'daily'].flatMap((m) => [`quiz.mode.${m}`, `quiz.mode.${m}Desc`, `quiz.go.${m}`]),

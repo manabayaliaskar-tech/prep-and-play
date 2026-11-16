@@ -11,6 +11,7 @@ import { mascot } from '../ui/mascot.js';
 import { homeCourses, isPinned, pinButton } from '../core/pins.js';
 import { reviewCardHtml } from './review.js';
 import { planCardHtml } from './plan.js';
+import { nextChestBadge, openChestModal, rewardCardsHtml } from './report.js';
 
 export function ring(value, max) {
   const r = 34;
@@ -164,6 +165,7 @@ export function hubScreen(app) {
               <span class="badge">⭐ ${t('home.level', { n: lvl.level })}</span>
               <span class="badge ${streak ? 'fire' : ''}">🔥 ${t('home.streak', { n: streak })}</span>
               <span class="badge">⚡ ${p.xp} XP</span>
+              ${nextChestBadge()}
             </div>
           </div>
           <div class="goal">
@@ -175,6 +177,8 @@ export function hubScreen(app) {
         ${quizHero(p)}
 
         ${continueCard() ? `<div class="continue-row single">${continueCard()}</div>` : ''}
+
+        ${rewardCardsHtml()}
 
         ${planCardHtml()}
 
@@ -220,6 +224,7 @@ export function hubScreen(app) {
           <p class="muted tiny">${t('cat.disclaimer')}</p>
         </div>
       </section>`;
+    app.querySelectorAll('[data-open-chest]').forEach((b) => b.addEventListener('click', () => openChestModal(Number(b.dataset.openChest), render)));
   };
   render();
   return { relabel: render };

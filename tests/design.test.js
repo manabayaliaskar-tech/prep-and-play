@@ -228,3 +228,23 @@ test('карточки слов: 4 раза «знал» — слово выуч
     assert.equal(sessionCards(lang, 1, 15, day).length, 15);
   }
 });
+
+test('сундуки и отчёт: сундук по лучшей серии, открывается один раз; неделя считается с понедельника', async () => {
+  const mem = new Map();
+  globalThis.localStorage ??= { getItem: (k) => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, String(v)), removeItem: (k) => mem.delete(k), clear: () => mem.clear() };
+  globalThis.localStorage.removeItem('prepplay:chests');
+  const { availableChests, openChest, unlockedWear, nextChest, weekStart, weekSummary } = await import('../src/core/rewards.js');
+  const p = { streak: { count: 2, best: 8 } };
+  assert.deepEqual(availableChests(p).map((c) => c.days), [3, 7]);
+  assert.equal(openChest(3).xp, 30);
+  assert.equal(openChest(3), null, 'второй раз не открывается');
+  assert.ok(unlockedWear().includes('scarf') && !unlockedWear().includes('glasses'));
+  assert.equal(nextChest(p).days, 14);
+  assert.equal(nextChest(p).left, 6);
+  assert.equal(weekStart('2026-11-16'), '2026-11-16');
+  assert.equal(weekStart('2026-11-22'), '2026-11-16');
+  assert.equal(weekStart('2026-11-23'), '2026-11-23');
+  const week = weekSummary('2026-11-09');
+  assert.equal(week.rows.length, 7);
+  assert.equal(week.rows[6].day, '2026-11-15');
+});

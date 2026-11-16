@@ -25,6 +25,7 @@ const PRAISE_KEYS = ['fb.praise1', 'fb.praise2', 'fb.praise3', 'fb.praise4', 'fb
  *  lives, boss { icon, name }, timeLimit (сек), quick (быстрый режим без паузы на разбор),
  *  silent (тест: без подсказки «верно/неверно», разбор только в конце),
  *  catalog (сессия из каталога сама запоминает, что продолжать), review (повтор ошибок — не записывать их заново),
+ *  hints (кнопка подсказки; по умолчанию — кроме теста и быстрых режимов),
  *  exitTo, onFinish(run, { reason }) → функция build для экрана результатов.
  */
 export function runSession(app, config) {
@@ -40,6 +41,7 @@ export function runSession(app, config) {
     silent = false,
     catalog = false,
     review = false,
+    hints = !silent && !quick,
     exitTo = '/',
     onFinish,
   } = config;
@@ -59,6 +61,7 @@ export function runSession(app, config) {
     finished: false,
     build: null,
     timer: null,
+    hint: false,
   };
 
   setLeaveGuard(() => state.finished || run.answered === 0 || confirm(t('session.leave')));
@@ -88,7 +91,7 @@ export function runSession(app, config) {
               </div>`
             : ''
         }
-        <div class="session-title"><span>${esc(titleText())}</span><span class="q-counter"></span><button type="button" class="link-btn ref-btn" hidden>📏 ${t('ref.short')}</button>${langSwitchHtml('mini')}</div>
+        <div class="session-title"><span>${esc(titleText())}</span><span class="q-counter"></span><button type="button" class="link-btn ref-btn" hidden>📏 ${t('ref.short')}</button>${hints ? `<button type="button" class="link-btn hint-btn" title="${t('hint.btn')}" aria-label="${t('hint.btn')}">💡<span class="hint-label"> ${t('hint.btn')}</span></button>` : ''}${langSwitchHtml('mini')}</div>
         <main class="q-area"></main>
         <footer class="answer-bar"><div class="answer-bar-inner"><button type="button" class="btn btn-primary btn-lg btn-check" disabled>${checkLabel()}</button></div></footer>
         <div class="sheet" hidden></div>
@@ -107,6 +110,8 @@ export function runSession(app, config) {
     el.check = app.querySelector('.btn-check');
     el.sheet = app.querySelector('.sheet');
     el.ref = app.querySelector('.ref-btn');
+    el.hint = app.querySelector('.hint-btn');
+    el.hint?.addEventListener('click', useHint);
     app.querySelector('.hud-close').addEventListener('click', () => navigate(exitTo));
     el.check.addEventListener('click', () => (state.phase === 'answer' ? check() : proceed()));
     el.ref.addEventListener('click', openReference);
@@ -158,6 +163,11 @@ export function runSession(app, config) {
     el.check.disabled = true;
     el.check.textContent = checkLabel();
     el.check.className = 'btn btn-primary btn-lg btn-check';
+    if (el.hint) {
+      el.hint.disabled = state.phase !== 'answer' || state.hint;
+      el.hint.classList.toggle('is-used', state.hint);
+    }
+    if (state.hint) applyHint(false);
     if (state.phase === 'feedback' && state.last) {
       state.binder.setResponse(state.last.response);
       state.binder.lock(state.last.correct);
@@ -166,9 +176,46 @@ export function runSession(app, config) {
     updateHud();
   }
 
+  /** Подсказка: убирает два неверных варианта или показывает первый шаг решения. Опыт за ответ — вдвое меньше. */
+  function applyHint(fresh) {
+    const q = state.q;
+    if (q.type === 'mc') {
+      if (fresh) {
+        const wrong = q.choices.map((_, i) => i).filter((i) => i !== q.answer && i !== state.binder.response);
+        state.hidden = wrong.sort(() => 0.5 - Math.random()).slice(0, Math.max(0, q.choices.length - 2));
+      }
+      for (const i of state.hidden ?? []) {
+        const b = el.area.querySelector(`[data-choice="${i}"]`);
+        if (b) {
+          b.disabled = true;
+          b.classList.add('is-eliminated');
+        }
+      }
+    } else if (!el.area.querySelector('.hint-box')) {
+      const ex = tx(q.ex);
+      const first = Array.isArray(ex) ? ex[0] : String(ex ?? '').split(/(?<=[.!?])\s/)[0];
+      const box = document.createElement('div');
+      box.className = 'hint-box';
+      box.innerHTML = `<b>💡 ${t('hint.step')}</b><span>${q.section === 'math' ? first : esc(first)}</span>`;
+      el.area.append(box);
+    }
+  }
+
+  function useHint() {
+    if (state.phase !== 'answer' || state.hint) return;
+    state.hint = true;
+    applyHint(true);
+    el.hint.disabled = true;
+    el.hint.classList.add('is-used');
+    floatXp(t('hint.cost'), 'dmg');
+    sfx.tap();
+  }
+
   function showQuestion() {
     state.phase = 'answer';
     state.last = null;
+    state.hint = false;
+    state.hidden = null;
     state.q = questions ? questions[state.index] : stream.next(difficultyAt(run.answered));
     state.qStart = performance.now();
     renderCurrent();
@@ -190,6 +237,11 @@ export function runSession(app, config) {
     const correct = checkAnswer(q, response);
     const timeMs = performance.now() - state.qStart;
     const result = applyAnswer(run, { question: q, correct, response, timeMs });
+    if (state.hint && result.xp > 0) {
+      const cut = Math.ceil(result.xp / 2);
+      result.xp -= cut;
+      run.xp -= cut;
+    }
     recordAnswer(q.skill, correct);
     // Ошибка попадает в «Работу над ошибками» (в самом повторе расписание ведёт экран повтора).
     if (!correct && !review) addMistake(q);
@@ -200,6 +252,7 @@ export function runSession(app, config) {
     day.combo = Math.max(day.combo, run.combo);
     state.last = { correct, response, result };
     state.phase = 'feedback';
+    if (el.hint) el.hint.disabled = true;
     state.index += 1;
     state.end =
       (total !== null && state.index >= total) || result.outOfLives || result.bossDefeated || (timeLimit !== null && state.timeLeft <= 0);
