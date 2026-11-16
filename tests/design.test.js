@@ -186,3 +186,19 @@ test('слабые темы курса: только темы с точност�
   assert.equal(spec.length, 2);
   assert.ok(spec.every(([, keys]) => keys.length >= 1));
 });
+
+test('план подготовки: норма растёт к экзамену, готовность и слабые предметы считаются по профилю', async () => {
+  const { dailyTarget, readiness, planSpec, trackScores, planExams } = await import('../src/core/plan.js');
+  assert.ok(dailyTarget(120) < dailyTarget(50) && dailyTarget(50) < dailyTarget(25) && dailyTarget(25) < dailyTarget(5));
+  const ent = COURSES.find((c) => c.id === 'ent');
+  const empty = { skills: {}, practice: {} };
+  assert.equal(readiness(ent, empty), 0);
+  const strong = { skills: {}, practice: Object.fromEntries(ent.tracks.map((tr) => [`ent:${tr.id}`, { pct: 100 }])) };
+  assert.equal(readiness(ent, strong), 90);
+  // Самые слабые предметы идут в тренировку дня.
+  const partial = { skills: {}, practice: { 'ent:mathlit': { pct: 100 }, 'ent:math': { pct: 100 } } };
+  const weakest = trackScores(ent, partial).sort((a, b) => a.score - b.score).slice(0, 2).map((x) => x.track.id);
+  assert.ok(!weakest.includes('mathlit') && !weakest.includes('math'));
+  assert.ok(planSpec(ent, partial).length > 0);
+  assert.ok(planExams().some((c) => c.id === 'sat') && planExams().some((c) => c.id === 'ent'));
+});

@@ -6533,3 +6533,199 @@ body {
     animation: none;
   }
 }
+
+/* ---------- План подготовки ---------- */
+.plan-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 16px 0;
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--c, #7c3aed) 14%, var(--card)), var(--card));
+  border: 1px solid color-mix(in srgb, var(--c, #7c3aed) 35%, var(--line));
+  box-shadow: var(--shadow);
+  color: var(--ink);
+  text-decoration: none;
+  transition: transform 0.2s var(--ease-spring, ease);
+}
+.plan-card:hover {
+  transform: translateY(-2px);
+}
+.plan-card.is-empty {
+  border-style: dashed;
+}
+.plan-card-icon {
+  font-size: 2rem;
+}
+.plan-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+.plan-card-text small {
+  color: var(--muted);
+}
+.plan-ring {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  flex: none;
+}
+.plan-ring .ring {
+  width: 100%;
+  height: 100%;
+}
+.plan-ring b {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 0.85rem;
+}
+.plan-bar {
+  display: block;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+.plan-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--c, #7c3aed), #ec4899);
+  transition: width 0.8s var(--ease-out, ease);
+}
+.plan-card-go {
+  width: 42px;
+  height: 42px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--c, #7c3aed), #ec4899);
+}
+.plan-card-go.is-done {
+  background: #16a34a;
+}
+.plan-exams {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+.plan-exam {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  border: 2px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+}
+.plan-exam .code-badge {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+}
+.plan-exam[aria-checked='true'] {
+  border-color: var(--c);
+  background: color-mix(in srgb, var(--c) 12%, var(--card));
+}
+.plan-date {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 18px 0;
+  font-weight: 700;
+}
+.plan-date input {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 2px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+}
+.plan-date.is-error input {
+  border-color: #ef4444;
+}
+.plan-hero {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 24px;
+  align-items: center;
+  padding: 24px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--c) 18%, var(--card)), var(--card));
+  border: 1px solid color-mix(in srgb, var(--c) 35%, var(--line));
+  box-shadow: var(--shadow);
+}
+.plan-big-ring {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  margin: 0 auto;
+}
+.plan-big-ring .ring {
+  width: 100%;
+  height: 100%;
+}
+.plan-big-ring > div {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.plan-big-ring b {
+  font-size: 2.4rem;
+}
+.plan-big-ring small {
+  color: var(--muted);
+}
+.plan-today {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0 16px;
+  font-weight: 700;
+}
+.plan-page .panel {
+  margin-top: 18px;
+}
+.plan-subject {
+  color: var(--ink);
+  text-decoration: none;
+}
+.plan-subject.is-focus .weak-name {
+  font-weight: 800;
+}
+.plan-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+@media (max-width: 720px) {
+  .plan-hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  .plan-big-ring {
+    width: 150px;
+    height: 150px;
+  }
+}

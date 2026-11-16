@@ -10,6 +10,7 @@ import { esc } from '../ui/dom.js';
 import { mascot } from '../ui/mascot.js';
 import { homeCourses, isPinned, pinButton } from '../core/pins.js';
 import { reviewCardHtml } from './review.js';
+import { planCardHtml } from './plan.js';
 
 export function ring(value, max) {
   const r = 34;
@@ -174,6 +175,8 @@ export function hubScreen(app) {
         ${quizHero(p)}
 
         ${continueCard() ? `<div class="continue-row single">${continueCard()}</div>` : ''}
+
+        ${planCardHtml()}
 
         ${questsCard(p)}
 
