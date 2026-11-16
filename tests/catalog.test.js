@@ -35,7 +35,7 @@ test('каталог: у каждого курса есть название, о
   for (const id of ['sat', 'ielts', 'toefl', 'ent', 'ege', 'oge', 'ct', 'dtm', 'ort', 'tj', 'dim', 'arm', 'bac']) assert.ok(courseById(id), id);
   assert.equal(coursesIn('exams', 'intl').length, 3);
   assert.equal(coursesIn('exams', 'cis').length, 10);
-  assert.equal(courseById('math').tracks.length, 9);
+  assert.equal(courseById('math').tracks.length, 14, '11 классов и три уровня после школы');
   assert.deepEqual(courseById('english').tracks.map((t) => t.icon), ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']);
   assert.equal(courseById('olymp').tracks.length, 3);
 });
@@ -76,15 +76,18 @@ test('каталог: тренировка и тест собираются бе
 });
 
 test('уровни математики идут от простого к сложному', () => {
-  const avg = (track) => {
-    const all = cells(track.spec);
-    return all.reduce((sum, c) => sum + c.key, 0) / all.length;
-  };
   const tracks = courseById('math').tracks;
-  // Темы первых уровней — арифметика, последних — старшая школа.
-  assert.ok(tracks[0].spec.every(([topic]) => ['m.add', 'm.mul', 'm.seq'].includes(topic)));
-  assert.ok(tracks.at(-1).spec.some(([topic]) => topic === 'm.log'));
-  assert.ok(avg(tracks[0]) < 2.1);
+  // 1 класс — счёт до 10, 11 класс — производная, после школы — пределы и интегралы.
+  assert.deepEqual(tracks[0].spec, [['m.early', [1]]]);
+  assert.ok(tracks[10].spec.some(([topic]) => topic === 'm.deriv'));
+  assert.ok(tracks.at(-1).spec.some(([topic]) => topic === 'm.integral'));
+  // Геометрия и тригонометрия входят в школьные классы.
+  const school = tracks.slice(0, 11).flatMap((t) => t.spec.map(([topic]) => topic));
+  for (const topic of ['m.area', 'm.angle', 'm.pyth', 'm.vol', 'm.trig']) assert.ok(school.includes(topic), topic);
+  // Каждая школьная тема встречается хотя бы в одном классе.
+  for (const id of Object.keys(TOPICS).filter((id) => TOPICS[id].pool === 'math' && !['m.limit', 'm.integral', 'm.complex', 'm.vector', 'm.matrix'].includes(id))) {
+    assert.ok(school.includes(id), `тема ${id} не входит ни в один класс`);
+  }
   // Английский: на каждом уровне свой ключ.
   courseById('english').tracks.forEach((track, i) => assert.ok(cells(track.spec).every((c) => c.key === i + 1)));
 });
@@ -162,7 +165,7 @@ test('профиль: прогресс по разделам и точность
   // Курсы идут в порядке каталога: олимпиада раньше ежедневной математики.
   assert.deepEqual(rows.map((r) => [r.course.id, r.stars, r.max, r.done, r.total]), [
     ['olymp', 2, 9, 1, 3],
-    ['math', 4, 27, 2, 9],
+    ['math', 4, 42, 2, 14],
   ]);
 
   // Точность: слабые темы идут первыми, темы с одним-двумя ответами не показываются.

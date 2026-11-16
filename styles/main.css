@@ -1296,6 +1296,20 @@ button {
   font-size: 1.1rem;
 }
 
+/* Матрица в задании по высшей математике. */
+.matrix {
+  display: inline-flex;
+  flex-direction: column;
+  vertical-align: middle;
+  margin: 0 4px;
+  padding: 2px 8px;
+  border-left: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+  border-radius: 6px;
+  text-align: center;
+  line-height: 1.35;
+}
+
 /* Программа в задании по информатике. */
 .code-block {
   display: flex;

@@ -8,6 +8,8 @@ import { expressions, functions, inequalities, linearEq, powers, progressions, q
 import { combinatorics, derivative, logarithms, probability, statistics, trig } from './math/advanced.js';
 import { angles, area, pythagoras, volume } from './math/geometry.js';
 import { mixtures, motion, work } from './math/word.js';
+import { early } from './math/early.js';
+import { complexNumbers, integrals, limits, matrices, vectors } from './math/higher.js';
 import { englishMaker } from './english/index.js';
 import { readingMaker } from './reading.js';
 import { bankMaker } from './bank.js';
@@ -24,6 +26,7 @@ const topic = (pool, name, make) => ({ pool, name, make });
 
 export const TOPICS = {
   // ----- Математика -----
+  'm.early': topic('math', L('Counting within 100', 'Счёт в пределах 100', '100 көлеміндегі санау'), early),
   'm.add': topic('math', L('Addition and subtraction', 'Сложение и вычитание', 'Қосу және азайту'), add),
   'm.mul': topic('math', L('Multiplication and division', 'Умножение и деление', 'Көбейту және бөлу'), mul),
   'm.order': topic('math', L('Order of operations', 'Порядок действий', 'Амалдар реті'), order),
@@ -55,6 +58,11 @@ export const TOPICS = {
   'm.motion': topic('math', L('Motion problems', 'Задачи на движение', 'Қозғалыс есептері'), motion),
   'm.work': topic('math', L('Work problems', 'Задачи на работу', 'Жұмысқа берілген есептер'), work),
   'm.mix': topic('math', L('Prices, solutions and mixtures', 'Покупки, растворы и смеси', 'Сатып алу, ерітінділер мен қоспалар'), mixtures),
+  'm.limit': topic('math', L('Limits', 'Пределы', 'Шектер'), limits),
+  'm.integral': topic('math', L('Integrals', 'Интегралы', 'Интегралдар'), integrals),
+  'm.complex': topic('math', L('Complex numbers', 'Комплексные числа', 'Комплекс сандар'), complexNumbers),
+  'm.vector': topic('math', L('Vectors', 'Векторы', 'Векторлар'), vectors),
+  'm.matrix': topic('math', L('Matrices', 'Матрицы', 'Матрицалар'), matrices),
 
   // ----- Английский язык -----
   'e.basics': topic('english', L('Basics: to be, pronouns, nouns', 'Основы: to be, местоимения, существительные', 'Негіздер: to be, есімдіктер, зат есімдер'), englishMaker('e.basics')),

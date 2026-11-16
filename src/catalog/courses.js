@@ -47,53 +47,44 @@ export const GROUPS = [
 
 // ---------- Наборы тем ----------
 
-const MATH_LEVELS = [
-  {
-    name: L('Counting', 'Счёт', 'Санау'),
-    desc: L('Addition, subtraction, times tables', 'Сложение, вычитание, таблица умножения', 'Қосу, азайту, көбейту кестесі'),
-    spec: [['m.add', [1, 2]], ['m.mul', [1]], ['m.seq', [1]]],
-  },
-  {
-    name: L('Arithmetic', 'Арифметика', 'Арифметика'),
-    desc: L('Multi-digit numbers, order of operations', 'Многозначные числа, порядок действий', 'Көп таңбалы сандар, амалдар реті'),
-    spec: [['m.add', [3]], ['m.mul', [2, 3]], ['m.order', [1, 2]], ['m.seq', [2]]],
-  },
-  {
-    name: L('Numbers', 'Числа', 'Сандар'),
-    desc: L('Negative numbers, divisibility, GCD and LCM', 'Отрицательные числа, делимость, НОД и НОК', 'Теріс сандар, бөлінгіштік, ЕҮОБ және ЕКОЕ'),
-    spec: [['m.neg', [1, 2]], ['m.divis', [1, 2, 3]], ['m.order', [3]], ['m.frac', [1]]],
-  },
-  {
-    name: L('Fractions', 'Дроби', 'Бөлшектер'),
-    desc: L('Common fractions and decimals', 'Обыкновенные и десятичные дроби', 'Жай және ондық бөлшектер'),
-    spec: [['m.frac', [2, 3]], ['m.dec', [1, 2, 3]], ['m.neg', [3]], ['m.seq', [3]]],
-  },
-  {
-    name: L('Percentages and proportions', 'Проценты и пропорции', 'Пайыздар мен пропорциялар'),
-    desc: L('Percentages, ratios, simple word problems', 'Проценты, отношения, простые текстовые задачи', 'Пайыздар, қатынастар, қарапайым мәтінді есептер'),
-    spec: [['m.pct', [1, 2, 3]], ['m.ratio', [1, 2, 3]], ['m.stat', [1]], ['m.area', [1]], ['m.motion', [1]], ['m.mix', [1]], ['m.work', [1]]],
-  },
-  {
-    name: L('Equations', 'Уравнения', 'Теңдеулер'),
-    desc: L('Linear equations, expressions, powers', 'Линейные уравнения, выражения, степени', 'Сызықтық теңдеулер, өрнектер, дәрежелер'),
-    spec: [['m.lineq', [1, 2, 3]], ['m.expr', [1, 2]], ['m.pow', [1]], ['m.angle', [1]], ['m.area', [2]], ['m.stat', [2]], ['m.motion', [2]]],
-  },
-  {
-    name: L('Algebra', 'Алгебра', 'Алгебра'),
-    desc: L('Systems, inequalities, functions, Pythagoras', 'Системы, неравенства, функции, теорема Пифагора', 'Жүйелер, теңсіздіктер, функциялар, Пифагор теоремасы'),
-    spec: [['m.sys', [1, 2]], ['m.ineq', [1, 2]], ['m.pow', [2]], ['m.expr', [3]], ['m.func', [1, 2]], ['m.pyth', [1, 2]], ['m.prob', [1]], ['m.angle', [2]], ['m.work', [2]], ['m.mix', [2]]],
-  },
-  {
-    name: L('Quadratics and functions', 'Квадратные уравнения и функции', 'Квадрат теңдеулер мен функциялар'),
-    desc: L('Quadratic equations, progressions, geometry', 'Квадратные уравнения, прогрессии, геометрия', 'Квадрат теңдеулер, прогрессиялар, геометрия'),
-    spec: [['m.quad', [1, 2, 3]], ['m.func', [3]], ['m.prog', [1, 2]], ['m.pow', [3]], ['m.sys', [3]], ['m.ineq', [3]], ['m.vol', [1, 2]], ['m.comb', [1]], ['m.prob', [2]], ['m.stat', [3]], ['m.motion', [3]], ['m.area', [3]], ['m.angle', [3]], ['m.pyth', [3]]],
-  },
-  {
-    name: L('Senior school', 'Старшая школа', 'Жоғары сыныптар'),
-    desc: L('Logarithms, trigonometry, derivative, combinatorics', 'Логарифмы, тригонометрия, производная, комбинаторика', 'Логарифмдер, тригонометрия, туынды, комбинаторика'),
-    spec: [['m.log', [1, 2, 3]], ['m.trig', [1, 2, 3]], ['m.prog', [3]], ['m.deriv', [1, 2, 3]], ['m.comb', [2, 3]], ['m.prob', [3]], ['m.vol', [3]], ['m.work', [3]], ['m.mix', [3]]],
-  },
+/** Математика по классам: 1–11 класс и три уровня после школы. Сложность внутри темы — 1…3. */
+const G = (en, ru, kk) => L(en, ru, kk);
+const MATH_GRADES = [
+  [G('Counting to 10', 'Счёт до 10', '10-ға дейін санау'), G('Adding and subtracting within 10', 'Сложение и вычитание в пределах 10', '10 көлемінде қосу және азайту'),
+    [['m.early', [1]]]],
+  [G('Numbers to 100', 'Числа до 100', '100-ге дейінгі сандар'), G('Crossing ten, comparison, first word problems', 'Переход через десяток, сравнение, первые задачи', 'Ондықтан өту, салыстыру, алғашқы есептер'),
+    [['m.early', [2, 3]], ['m.add', [1]], ['m.mul', [1]]]],
+  [G('Times tables', 'Таблица умножения', 'Көбейту кестесі'), G('Multiplication, division, order of operations', 'Умножение, деление, порядок действий', 'Көбейту, бөлу, амалдар реті'),
+    [['m.add', [1, 2]], ['m.mul', [1, 2]], ['m.seq', [1]], ['m.order', [1]]]],
+  [G('Multi-digit numbers', 'Многозначные числа', 'Көп таңбалы сандар'), G('Big numbers, motion, area of a rectangle', 'Большие числа, движение, площадь прямоугольника', 'Үлкен сандар, қозғалыс, тіктөртбұрыш ауданы'),
+    [['m.add', [2, 3]], ['m.mul', [2, 3]], ['m.order', [1, 2]], ['m.seq', [1, 2]], ['m.area', [1]], ['m.motion', [1]]]],
+  [G('Fractions and decimals', 'Дроби и десятичные', 'Бөлшектер мен ондық сандар'), G('Fractions, decimals, divisibility, angles', 'Обыкновенные и десятичные дроби, делимость, углы', 'Жай және ондық бөлшектер, бөлінгіштік, бұрыштар'),
+    [['m.frac', [1, 2]], ['m.dec', [1, 2]], ['m.divis', [1, 2]], ['m.order', [2, 3]], ['m.area', [1, 2]], ['m.pct', [1]], ['m.angle', [1]], ['m.mix', [1]]]],
+  [G('Negative numbers and ratios', 'Отрицательные числа и пропорции', 'Теріс сандар мен пропорциялар'), G('Negative numbers, proportions, first equations', 'Отрицательные числа, пропорции, первые уравнения', 'Теріс сандар, пропорциялар, алғашқы теңдеулер'),
+    [['m.neg', [1, 2, 3]], ['m.frac', [3]], ['m.dec', [3]], ['m.ratio', [1, 2]], ['m.pct', [1, 2]], ['m.divis', [3]], ['m.lineq', [1]], ['m.stat', [1]], ['m.work', [1]]]],
+  [G('Algebra begins', 'Начало алгебры', 'Алгебраның басы'), G('Linear equations, expressions, functions, triangles', 'Линейные уравнения, выражения, функции, треугольники', 'Сызықтық теңдеулер, өрнектер, функциялар, үшбұрыштар'),
+    [['m.lineq', [1, 2, 3]], ['m.expr', [1, 2]], ['m.pow', [1]], ['m.func', [1]], ['m.sys', [1]], ['m.angle', [1, 2]], ['m.motion', [2]], ['m.prob', [1]]]],
+  [G('Quadratics and Pythagoras', 'Квадратные уравнения и Пифагор', 'Квадрат теңдеулер мен Пифагор'), G('Quadratic equations, roots, inequalities, areas', 'Квадратные уравнения, корни, неравенства, площади', 'Квадрат теңдеулер, түбірлер, теңсіздіктер, аудандар'),
+    [['m.quad', [1, 2]], ['m.pow', [2]], ['m.ineq', [1, 2]], ['m.pyth', [1, 2]], ['m.area', [2, 3]], ['m.expr', [3]], ['m.func', [2]], ['m.stat', [2]]]],
+  [G('Progressions and systems', 'Прогрессии и системы', 'Прогрессиялар мен жүйелер'), G('Progressions, systems, probability, circles', 'Прогрессии, системы, вероятность, окружность', 'Прогрессиялар, жүйелер, ықтималдық, шеңбер'),
+    [['m.prog', [1, 2]], ['m.sys', [2, 3]], ['m.ineq', [3]], ['m.func', [3]], ['m.prob', [2]], ['m.comb', [1]], ['m.angle', [3]], ['m.vol', [1]], ['m.work', [2]], ['m.mix', [2]]]],
+  [G('Trigonometry and logarithms', 'Тригонометрия и логарифмы', 'Тригонометрия мен логарифмдер'), G('Trigonometry, logarithms, combinatorics, solids', 'Тригонометрия, логарифмы, комбинаторика, тела', 'Тригонометрия, логарифмдер, комбинаторика, денелер'),
+    [['m.trig', [1, 2, 3]], ['m.log', [1, 2]], ['m.pow', [3]], ['m.vol', [2]], ['m.comb', [2]], ['m.prob', [3]], ['m.quad', [3]]]],
+  [G('Derivative and exam prep', 'Производная и подготовка к экзаменам', 'Туынды және емтиханға дайындық'), G('Derivative, logarithmic equations, volumes, statistics', 'Производная, логарифмические уравнения, объёмы, статистика', 'Туынды, логарифмдік теңдеулер, көлемдер, статистика'),
+    [['m.deriv', [1, 2, 3]], ['m.log', [3]], ['m.prog', [3]], ['m.vol', [3]], ['m.comb', [3]], ['m.stat', [3]], ['m.pyth', [3]], ['m.motion', [3]], ['m.mix', [3]]]],
 ];
+const MATH_BEYOND = [
+  ['🎓', G('Whole school course', 'Весь школьный курс', 'Мектеп курсы толығымен'), G('The hardest school problems from every topic', 'Самые трудные школьные задачи по всем темам', 'Барлық тақырып бойынша ең қиын мектеп есептері'),
+    [['m.lineq', [3]], ['m.quad', [3]], ['m.sys', [3]], ['m.ineq', [3]], ['m.func', [3]], ['m.pow', [3]], ['m.log', [3]], ['m.trig', [3]], ['m.deriv', [3]], ['m.prog', [3]], ['m.prob', [3]], ['m.comb', [3]], ['m.vol', [3]], ['m.pyth', [3]], ['m.pct', [3]], ['m.mix', [3]]]],
+  ['∑', G('Introduction to higher math', 'Начала высшей математики', 'Жоғары математиканың бастамасы'), G('Limits, integrals, complex numbers, vectors', 'Пределы, интегралы, комплексные числа, векторы', 'Шектер, интегралдар, комплекс сандар, векторлар'),
+    [['m.limit', [1, 2]], ['m.integral', [1, 2]], ['m.complex', [1, 2]], ['m.vector', [1, 2]], ['m.matrix', [1]]]],
+  ['∫', G('Higher mathematics', 'Высшая математика', 'Жоғары математика'), G('Harder limits and integrals, matrices, perpendicular vectors', 'Сложные пределы и интегралы, матрицы, перпендикулярные векторы', 'Күрделі шектер мен интегралдар, матрицалар, перпендикуляр векторлар'),
+    [['m.limit', [3]], ['m.integral', [3]], ['m.complex', [3]], ['m.vector', [3]], ['m.matrix', [2, 3]], ['m.deriv', [3]]]],
+];
+
+/** Подписи уровней математики: «1 класс» … «11 класс», «11+ · уровень 1» … */
+const gradeKicker = (g) => L(`Grade ${g}`, `${g} класс`, `${g}-сынып`);
+const beyondKicker = (k) => L(`11+ · level ${k}`, `11+ · уровень ${k}`, `11+ · ${k}-деңгей`);
 
 /** Математическая грамотность: проценты, пропорции, текстовые задачи, данные. */
 const MATH_LITERACY = [['m.pct', [1, 2, 3]], ['m.ratio', [2, 3]], ['m.motion', [1, 2]], ['m.work', [1, 2]], ['m.mix', [1, 2]], ['m.seq', [2, 3]], ['m.stat', [1, 2, 3]], ['m.area', [1, 2]], ['m.prob', [1]], ['m.order', [2]], ['m.frac', [2]], ['m.dec', [2]]];
@@ -520,13 +511,16 @@ export const COURSES = [
     color: '#22c55e',
     leveled: true,
     name: L('Mathematics', 'Математика', 'Математика'),
-    full: L('From counting to senior school', 'От счёта до старшей школы', 'Санаудан жоғары сыныптарға дейін'),
+    full: L('Grades 1–11 and beyond', '1–11 классы и дальше', '1–11 сыныптар және одан әрі'),
     about: L(
-      'Nine levels: start where it is easy and move up. Problems are generated endlessly, each with a step-by-step solution.',
-      'Девять уровней: начни там, где легко, и поднимайся выше. Задачи создаются бесконечно, у каждой — пошаговое решение.',
-      'Тоғыз деңгей: жеңіл жерден бастап, жоғары көтеріл. Есептер шексіз құрастырылады, әрқайсысының қадамдық шешімі бар.',
+      'A section for every school grade from 1 to 11 and three levels after school, up to limits and integrals. Algebra, geometry and trigonometry are all included. Problems are generated endlessly, each with a step-by-step solution.',
+      'Раздел для каждого класса с 1-го по 11-й и три уровня после школы — вплоть до пределов и интегралов. Алгебра, геометрия и тригонометрия — всё внутри. Задачи создаются бесконечно, у каждой — пошаговое решение.',
+      '1-ден 11-ге дейінгі әр сыныпқа арналған бөлім және мектептен кейінгі үш деңгей — шектер мен интегралдарға дейін. Алгебра, геометрия және тригонометрия — бәрі ішінде. Есептер шексіз құрастырылады, әрқайсысының қадамдық шешімі бар.',
     ),
-    tracks: MATH_LEVELS.map((lvl, i) => track(`l${i + 1}`, String(i + 1), lvl.name, lvl.desc, lvl.spec)),
+    tracks: [
+      ...MATH_GRADES.map(([name, desc, spec], i) => ({ ...track(`g${i + 1}`, String(i + 1), name, desc, spec), kicker: gradeKicker(i + 1) })),
+      ...MATH_BEYOND.map(([icon, name, desc, spec], i) => ({ ...track(`u${i + 1}`, icon, name, desc, spec), kicker: beyondKicker(i + 1) })),
+    ],
   },
   {
     id: 'english',
@@ -543,5 +537,83 @@ export const COURSES = [
       'Еуропалық шкаланың алты деңгейіндегі грамматика мен лексика: бастауыштан (A1) еркін меңгеруге (C2) дейін. Әр жауапқа — өз тіліңдегі ереже.',
     ),
     tracks: ENGLISH_LEVELS.map(([code, name, desc], i) => track(code.toLowerCase(), code, name, desc, englishSpec([i + 1]))),
+  },
+  // ===== Ежедневная практика: естественные науки =====
+  {
+    id: 'physics',
+    group: 'daily',
+    code: '⚛️',
+    color: '#6366f1',
+    leveled: true,
+    name: N.physics,
+    full: L('Grades 7–11', '7–11 классы', '7–11 сыныптар'),
+    about: L(
+      'Motion, forces, energy, heat, electricity and waves. Calculation problems are generated endlessly and come with a step-by-step solution.',
+      'Движение, силы, энергия, тепло, электричество и волны. Расчётные задачи создаются бесконечно, у каждой — пошаговое решение.',
+      'Қозғалыс, күштер, энергия, жылу, электр және толқындар. Есептер шексіз құрастырылады, әрқайсысының қадамдық шешімі бар.',
+    ),
+    tracks: [
+      { ...track('p1', '7', L('Motion and forces', 'Движение и силы', 'Қозғалыс және күштер'), L('Speed, mass, weight, work', 'Скорость, масса, вес, работа', 'Жылдамдық, масса, салмақ, жұмыс'), [['p.kin', [1]], ['p.dyn', [1]], ['p.energy', [1]], ['p.theory', [1]]]), kicker: L('Grade 7', '7 класс', '7-сынып') },
+      { ...track('p2', '8', L('Heat and electricity', 'Тепло и электричество', 'Жылу және электр'), L('Heating, melting, Ohm’s law, circuits', 'Нагревание, плавление, закон Ома, цепи', 'Қыздыру, балқу, Ом заңы, тізбектер'), [['p.heat', [1, 2]], ['p.elec', [1, 2]], ['p.theory', [2]]]), kicker: L('Grade 8', '8 класс', '8-сынып') },
+      { ...track('p3', '9', L('Mechanics', 'Механика', 'Механика'), L('Acceleration, Newton’s laws, energy, oscillations', 'Ускорение, законы Ньютона, энергия, колебания', 'Үдеу, Ньютон заңдары, энергия, тербелістер'), [['p.kin', [2, 3]], ['p.dyn', [2, 3]], ['p.energy', [2, 3]], ['p.wave', [1]]]), kicker: L('Grade 9', '9 класс', '9-сынып') },
+      { ...track('p4', '10', L('Senior physics', 'Физика старших классов', 'Жоғары сынып физикасы'), L('Waves, optics, Joule heating, heat balance', 'Волны, оптика, закон Джоуля — Ленца, тепловой баланс', 'Толқындар, оптика, Джоуль — Ленц заңы, жылу балансы'), [['p.wave', [2, 3]], ['p.elec', [3]], ['p.heat', [3]], ['p.theory', [3]], ['p.energy', [3]]]), kicker: L('Grades 10–11', '10–11 классы', '10–11-сыныптар') },
+    ],
+  },
+  {
+    id: 'chemistry',
+    group: 'daily',
+    code: '⚗️',
+    color: '#14b8a6',
+    leveled: true,
+    name: N.chemistry,
+    full: L('Grades 8–11', '8–11 классы', '8–11 сыныптар'),
+    about: L(
+      'Formulas, molar mass, amount of substance, reactions and the classes of compounds.',
+      'Формулы, молярная масса, количество вещества, реакции и классы соединений.',
+      'Формулалар, молярлық масса, зат мөлшері, реакциялар және қосылыстар кластары.',
+    ),
+    tracks: [
+      { ...track('c1', '8', L('Substances and formulas', 'Вещества и формулы', 'Заттар мен формулалар'), L('Elements, molar mass, simple calculations', 'Элементы, молярная масса, простые расчёты', 'Элементтер, молярлық масса, қарапайым есептеулер'), [['c.molar', [1]], ['c.mole', [1]], ['c.theory', [1]]]), kicker: L('Grade 8', '8 класс', '8-сынып') },
+      { ...track('c2', '9', L('Reactions and solutions', 'Реакции и растворы', 'Реакциялар мен ерітінділер'), L('Gas volumes, acids and bases, types of reactions', 'Объёмы газов, кислоты и основания, типы реакций', 'Газ көлемдері, қышқылдар мен негіздер, реакция түрлері'), [['c.molar', [2]], ['c.mole', [2]], ['c.theory', [2]]]), kicker: L('Grade 9', '9 класс', '9-сынып') },
+      { ...track('c3', '10', L('Senior chemistry', 'Химия старших классов', 'Жоғары сынып химиясы'), L('Mass fractions, reaction calculations, bonds, redox', 'Массовые доли, расчёты по уравнениям, связи, окисление', 'Массалық үлестер, теңдеу бойынша есептеу, байланыстар, тотығу'), [['c.molar', [3]], ['c.mole', [3]], ['c.theory', [3]]]), kicker: L('Grades 10–11', '10–11 классы', '10–11-сыныптар') },
+    ],
+  },
+  {
+    id: 'biology',
+    group: 'daily',
+    code: '🧬',
+    color: '#16a34a',
+    leveled: true,
+    name: N.biology,
+    full: L('Three levels', 'Три уровня', 'Үш деңгей'),
+    about: L(
+      'From plants and animals to the cell, genetics and evolution.',
+      'От растений и животных до клетки, генетики и эволюции.',
+      'Өсімдіктер мен жануарлардан жасушаға, генетика мен эволюцияға дейін.',
+    ),
+    tracks: [
+      track('b1', '1', L('Living world', 'Живой мир', 'Тірі әлем'), L('Plants, animals, the main organs', 'Растения, животные, главные органы', 'Өсімдіктер, жануарлар, негізгі мүшелер'), [['b.bank', [1]]]),
+      track('b2', '2', L('Human body', 'Человек и здоровье', 'Адам және денсаулық'), L('Blood, digestion, hormones, ecosystems', 'Кровь, пищеварение, гормоны, экосистемы', 'Қан, ас қорыту, гормондар, экожүйелер'), [['b.bank', [2]]]),
+      track('b3', '3', L('Cell and genetics', 'Клетка и генетика', 'Жасуша және генетика'), L('DNA, proteins, heredity, evolution', 'ДНК, белки, наследственность, эволюция', 'ДНҚ, ақуыздар, тұқым қуалаушылық, эволюция'), [['b.bank', [3]]]),
+    ],
+  },
+  {
+    id: 'geography',
+    group: 'daily',
+    code: '🌍',
+    color: '#0891b2',
+    leveled: true,
+    name: N.geography,
+    full: L('Three levels', 'Три уровня', 'Үш деңгей'),
+    about: L(
+      'Continents and oceans, maps and climate, Kazakhstan and the world.',
+      'Материки и океаны, карты и климат, Казахстан и мир.',
+      'Материктер мен мұхиттар, карталар мен климат, Қазақстан және әлем.',
+    ),
+    tracks: [
+      track('g1', '1', L('Earth and maps', 'Земля и карты', 'Жер және карталар'), L('Continents, oceans, the highest and the longest', 'Материки, океаны, самые высокие и длинные', 'Материктер, мұхиттар, ең биік және ең ұзын'), [['g.bank', [1]]]),
+      track('g2', '2', L('Climate and nature', 'Климат и природа', 'Климат және табиғат'), L('Map scale, winds, deserts, rivers', 'Масштаб, ветры, пустыни, реки', 'Масштаб, желдер, шөлдер, өзендер'), [['g.bank', [2]]]),
+      track('g3', '3', L('The world in depth', 'Мир подробно', 'Әлем тереңірек'), L('Time zones, fronts, resources, population', 'Часовые пояса, фронты, ресурсы, население', 'Уақыт белдеулері, фронттар, ресурстар, халық'), [['g.bank', [3]]]),
+    ],
   },
 ];

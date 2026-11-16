@@ -1,6 +1,6 @@
 // Доступ к каталогу: поиск курса и дорожки, ссылки, прогресс.
 
-import { t } from '../core/i18n.js';
+import { t, tx } from '../core/i18n.js';
 import { getProfile } from '../core/profile.js';
 import { COURSES, GROUPS } from './courses.js';
 
@@ -18,6 +18,7 @@ export const practiceKey = (course, track) => `${course.id}:${track.id}`;
 /** Подпись уровня: «Уровень 3» или код европейской шкалы (A1…C2). Для предметов экзамена — пусто. */
 export function levelLabel(course, track) {
   if (!course.leveled) return '';
+  if (track.kicker) return tx(track.kicker);
   return course.cefr ? track.icon : t('pr.level', { n: course.tracks.indexOf(track) + 1 });
 }
 
