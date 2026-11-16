@@ -93,7 +93,7 @@ export function runSession(app, config) {
         }
         <div class="session-title"><span>${esc(titleText())}</span><span class="q-counter"></span><button type="button" class="link-btn ref-btn" hidden>📏 ${t('ref.short')}</button>${hints ? `<button type="button" class="link-btn hint-btn" title="${t('hint.btn')}" aria-label="${t('hint.btn')}">💡<span class="hint-label"> ${t('hint.btn')}</span></button>` : ''}${langSwitchHtml('mini')}</div>
         <main class="q-area"></main>
-        <footer class="answer-bar"><div class="answer-bar-inner"><button type="button" class="btn btn-primary btn-lg btn-check" disabled>${checkLabel()}</button></div></footer>
+        <footer class="answer-bar"><div class="answer-bar-inner"><span class="hud-prepi" aria-hidden="true">${mascot(silent ? 'think' : 'happy', 'mascot-xs')}</span><button type="button" class="btn btn-primary btn-lg btn-check" disabled>${checkLabel()}</button></div></footer>
         <div class="sheet" hidden></div>
       </div>`;
     el.session = app.querySelector('.session');
@@ -110,6 +110,7 @@ export function runSession(app, config) {
     el.check = app.querySelector('.btn-check');
     el.sheet = app.querySelector('.sheet');
     el.ref = app.querySelector('.ref-btn');
+    el.prepi = app.querySelector('.hud-prepi');
     el.hint = app.querySelector('.hint-btn');
     el.hint?.addEventListener('click', useHint);
     app.querySelector('.hud-close').addEventListener('click', () => navigate(exitTo));
@@ -201,6 +202,17 @@ export function runSession(app, config) {
     }
   }
 
+  /** Препи в нижней панели реагирует на ответы. */
+  function setPrepi(mood, anim = '') {
+    if (!el.prepi) return;
+    el.prepi.innerHTML = mascot(mood, 'mascot-xs');
+    el.prepi.className = 'hud-prepi';
+    if (anim) {
+      void el.prepi.offsetWidth;
+      el.prepi.classList.add(anim);
+    }
+  }
+
   function useHint() {
     if (state.phase !== 'answer' || state.hint) return;
     state.hint = true;
@@ -216,6 +228,7 @@ export function runSession(app, config) {
     state.last = null;
     state.hint = false;
     state.hidden = null;
+    if (!silent && state.index > 0) setPrepi(run.combo >= 3 ? 'wow' : 'happy');
     state.q = questions ? questions[state.index] : stream.next(difficultyAt(run.answered));
     state.qStart = performance.now();
     renderCurrent();
@@ -267,6 +280,8 @@ export function runSession(app, config) {
 
     const card = el.area.firstElementChild;
     card.classList.remove('slide-in');
+    if (correct) setPrepi('win', run.combo >= 3 ? 'is-cheer' : 'is-hop');
+    else setPrepi('sad', 'is-shake');
     if (correct) {
       card.classList.add('pop');
       sfx.correct(run.combo);

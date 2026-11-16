@@ -6,6 +6,7 @@ import { esc } from './dom.js';
 import { mascot } from './mascot.js';
 import { bindQuestion, questionHtml } from './question.js';
 import { mountSolution } from './solution.js';
+import { sfx } from '../core/sound.js';
 
 export function starsHtml(stars, max = 3) {
   return `<div class="stars" aria-label="${stars}/${max}">${Array.from({ length: max }, (_, i) => `<span class="star ${i < stars ? 'on' : ''}" style="--d:${i * 180}ms">★</span>`).join('')}</div>`;
@@ -77,5 +78,34 @@ export function renderResults(app, build) {
     </section>`;
   app.querySelectorAll('[data-res-action]').forEach((b) => b.addEventListener('click', () => data.actions[Number(b.dataset.resAction)].onClick?.()));
   if (data.log) bindReview(app, data.log);
+  animateResults(app, data);
   data.afterRender?.(app);
+}
+
+/** Числа «набегают» от нуля, звёзды загораются по одной со звуком, новый рекорд — фанфары. */
+export function animateResults(root, data = {}) {
+  const reduce = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const targets = [...root.querySelectorAll('.result-stat b, .xp-earned')];
+  for (const el of targets) {
+    const text = el.textContent;
+    const m = text.match(/^(\D*)(\d+)(\D*)$/);
+    if (!m || reduce) continue;
+    const [, pre, num, post] = m;
+    const to = Number(num);
+    if (to < 2) continue;
+    const start = performance.now();
+    const dur = Math.min(1200, 400 + to * 8);
+    const step = (now) => {
+      const k = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - k, 3);
+      el.textContent = `${pre}${Math.round(to * eased)}${post}`;
+      if (k < 1) requestAnimationFrame(step);
+    };
+    el.textContent = `${pre}0${post}`;
+    requestAnimationFrame(step);
+  }
+  const stars = root.querySelectorAll('.stars .star.on');
+  stars.forEach((_, i) => setTimeout(() => sfx.star(i), 350 + i * 180));
+  if (data.title && String(data.title).includes(t('res.newRecord'))) setTimeout(() => sfx.record(), 300);
+  else if (data.xp) setTimeout(() => sfx.coin(), 250);
 }

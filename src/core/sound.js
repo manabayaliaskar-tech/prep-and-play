@@ -1,6 +1,17 @@
 // Звуки игры, синтезированные прямо в браузере (Web Audio) — без аудиофайлов.
 
 import { getProfile } from './profile.js';
+import { storage } from './storage.js';
+
+/** Громкость 0…1, по умолчанию 0.8. */
+export function getVolume() {
+  const v = storage.get('volume', 0.8);
+  return typeof v === 'number' && v >= 0 && v <= 1 ? v : 0.8;
+}
+
+export function setVolume(v) {
+  storage.set('volume', Math.max(0, Math.min(1, v)));
+}
 
 let ctx = null;
 
@@ -23,7 +34,7 @@ function tone(freq, start, duration, { type = 'sine', gain = 0.1 } = {}) {
   osc.type = type;
   osc.frequency.setValueAtTime(freq, t0);
   g.gain.setValueAtTime(0.0001, t0);
-  g.gain.exponentialRampToValueAtTime(gain, t0 + 0.015);
+  g.gain.exponentialRampToValueAtTime(Math.max(0.0002, gain * getVolume() * 1.25), t0 + 0.015);
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
   osc.connect(g).connect(c.destination);
   osc.start(t0);
@@ -65,6 +76,20 @@ export const sfx = {
   lose: () => play(() => [4, 2, 0].forEach((n, i) => tone(NOTES[n] / 2, i * 0.16, 0.32, { type: 'sine', gain: 0.08 }))),
   levelUp: () => play(() => [0, 4, 7, 4, 7].forEach((n, i) => tone(NOTES[n] * 1.5, i * 0.09, 0.22, { type: 'square', gain: 0.04 }))),
   tick: () => play(() => tone(1200, 0, 0.03, { type: 'square', gain: 0.025 })),
+  /** Звезда на экране результатов: каждая следующая — выше. */
+  star: (i = 0) => play(() => tone(NOTES[4 + i] ?? NOTES[7], 0, 0.18, { type: 'triangle', gain: 0.08 })),
+  /** Новый рекорд: короткие фанфары. */
+  record: () =>
+    play(() => {
+      [0, 4, 7, 12].forEach((n, i) => tone(NOTES[0] * Math.pow(2, n / 12), i * 0.09, 0.26, { type: 'square', gain: 0.045 }));
+      tone(NOTES[7] * 2, 0.4, 0.5, { type: 'triangle', gain: 0.07 });
+    }),
+  /** Монетка: начисление опыта. */
+  coin: () =>
+    play(() => {
+      tone(988, 0, 0.07, { type: 'square', gain: 0.035 });
+      tone(1319, 0.06, 0.16, { type: 'square', gain: 0.035 });
+    }),
 };
 
 export function vibrate(pattern) {

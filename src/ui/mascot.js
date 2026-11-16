@@ -3,6 +3,8 @@
 // Глаза моргают и следят за курсором (переменные --lx/--ly задаёт ui/motion.js).
 // Настроения: happy, wow, sad, win, think.
 
+import { currentWear } from '../core/rewards.js';
+
 const INK = '#22164f';
 let uid = 0;
 
@@ -44,11 +46,31 @@ const MOUTHS = {
 const sparkle = (x, y, s, delay) =>
   `<path class="spark" style="animation-delay:${delay}s" d="M${x} ${y - s} Q${x} ${y} ${x + s} ${y} Q${x} ${y} ${x} ${y + s} Q${x} ${y} ${x - s} ${y} Q${x} ${y} ${x} ${y - s} Z" fill="#facc15"/>`;
 
+// Наряды Препи (открываются в сундуках за серию дней). Шапочку заменяют корона, бантик, наушники и шлем.
+const CAP = `
+      <g class="cap" transform="rotate(-10 70 30)">
+        <path d="M50 30 L50 40 Q70 49 90 40 L90 30 L70 37 Z" fill="${'#22164f'}"/>
+        <path d="M70 13 L108 26 L70 39 L32 26 Z" fill="${'#22164f'}"/>
+        <path d="M70 15 L102 26 L70 22 L38 26 Z" fill="#fff" opacity=".14"/>
+        <g class="tassel"><path d="M70 26 L101 28 L102 44" stroke="#facc15" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="102" cy="47" r="4.4" fill="#facc15"/></g>
+      </g>`;
+const HEAD = {
+  crown: `<g class="wear-crown"><path d="M44 42 L47 16 L58 29 L70 10 L82 29 L93 16 L96 42 Z" fill="#facc15" stroke="#f59e0b" stroke-width="2.5" stroke-linejoin="round"/><circle cx="70" cy="33" r="4" fill="#ef4444"/><circle cx="55" cy="36" r="3" fill="#3b82f6"/><circle cx="85" cy="36" r="3" fill="#22c55e"/></g>`,
+  bow: `<g class="wear-bow" transform="rotate(14 98 38)"><path d="M98 38 L80 26 Q76 38 80 50 Z" fill="#ec4899"/><path d="M98 38 L116 26 Q120 38 116 50 Z" fill="#ec4899"/><circle cx="98" cy="38" r="6" fill="#be185d"/></g>`,
+  headphones: `<g class="wear-headphones"><path d="M24 80 Q24 24 70 24 Q116 24 116 80" stroke="#1e293b" stroke-width="7" fill="none" stroke-linecap="round"/><rect x="14" y="66" width="18" height="30" rx="8" fill="#7c3aed"/><rect x="108" y="66" width="18" height="30" rx="8" fill="#7c3aed"/></g>`,
+  astro: `<g class="wear-astro"><circle cx="70" cy="80" r="60" fill="#bae6fd" fill-opacity=".18" stroke="#e2e8f0" stroke-width="4"/><path d="M36 50 Q48 32 68 28" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity=".7"/><line x1="70" y1="20" x2="70" y2="8" stroke="#94a3b8" stroke-width="3"/><circle cx="70" cy="7" r="4" fill="#ef4444"/></g>`,
+};
+const FACE = {
+  glasses: `<g class="wear-glasses"><circle cx="53" cy="76" r="14" fill="#fff" fill-opacity=".12" stroke="#22164f" stroke-width="3.2"/><circle cx="87" cy="76" r="14" fill="#fff" fill-opacity=".12" stroke="#22164f" stroke-width="3.2"/><path d="M67 75 Q70 71 73 75" stroke="#22164f" stroke-width="3" fill="none"/></g>`,
+  scarf: `<g class="wear-scarf"><path d="M32 106 Q70 128 108 106 L106 118 Q70 140 34 118 Z" fill="#ef4444"/><path d="M88 120 L96 142 L85 144 L80 123 Z" fill="#dc2626"/><path d="M40 112 Q70 130 100 112" stroke="#fff" stroke-width="2" stroke-dasharray="4 5" fill="none" opacity=".6"/></g>`,
+};
+
 export function mascot(mood = 'happy', cls = '') {
+  const wear = currentWear();
   const id = `pp${++uid}`;
   const eyes = mood === 'win' ? EYES.happy : mood === 'wow' ? EYES.big : mood === 'think' ? EYES.up : EYES.open;
   const mouth = MOUTHS[mood] ?? MOUTHS.happy;
-  return `<svg class="mascot mascot-${mood} ${cls}" viewBox="0 0 140 150" aria-hidden="true">
+  return `<svg class="mascot mascot-${mood} wear-${wear} ${cls}" viewBox="0 0 140 150" aria-hidden="true">
     <defs>
       <radialGradient id="${id}b" cx=".36" cy=".3" r=".78">
         <stop offset="0" style="stop-color:var(--mascot-hi)"/>
@@ -76,13 +98,9 @@ export function mascot(mood = 'happy', cls = '') {
       <g class="face">${eyes}</g>
       ${mouth}
       ${mood === 'sad' ? '<path class="tear" d="M98 84 Q102 92 98 95 Q94 92 98 84 Z" fill="#7dd3fc"/>' : ''}
+      ${FACE[wear] ?? ''}
       <g transform="rotate(-9 70 112)"><path class="ring-front" d="M6 112 A64 13 0 0 0 134 112" fill="none" stroke="url(#${id}r)" stroke-width="5"/></g>
-      <g class="cap" transform="rotate(-10 70 30)">
-        <path d="M50 30 L50 40 Q70 49 90 40 L90 30 L70 37 Z" fill="${INK}"/>
-        <path d="M70 13 L108 26 L70 39 L32 26 Z" fill="${INK}"/>
-        <path d="M70 15 L102 26 L70 22 L38 26 Z" fill="#fff" opacity=".14"/>
-        <g class="tassel"><path d="M70 26 L101 28 L102 44" stroke="#facc15" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="102" cy="47" r="4.4" fill="#facc15"/></g>
-      </g>
+${HEAD[wear] ?? CAP}
     </g>
     ${mood === 'win' ? sparkle(14, 40, 7, 0) + sparkle(126, 52, 6, 0.5) + sparkle(120, 118, 5, 1) + sparkle(20, 112, 5, 1.4) : ''}
   </svg>`;
