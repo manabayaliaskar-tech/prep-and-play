@@ -24,7 +24,7 @@ export function quizSubjects(level) {
     { pool: 'biology', spec: [['b.bank', [d]]] },
     { pool: 'geography', spec: [['g.bank', [d]]] },
     { pool: 'history', spec: [['h.world', [d]], ['h.kz', [d]]] },
-    { pool: 'english', spec: [['e.vocab', [englishLevel(level)]], ['e.tenses', [Math.min(5, englishLevel(level))]]] },
+    { pool: 'english', spec: [['e.vocab', [englishLevel(level)]], ['e.tenses', [Math.min(5, englishLevel(level))]], ['e.words', [englishLevel(level)]], ['e.gram', [englishLevel(level)]]] },
     { pool: 'informatics', spec: [['i.num', [d]], ['i.logic', [d]], ['i.units', [d]], ['i.theory', [d]]] },
   ];
 }

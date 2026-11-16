@@ -4,7 +4,7 @@ import { TOPICS, topicIds } from '../src/pools/topics.js';
 import { TopicStream, buildTopicSet, cells } from '../src/pools/stream.js';
 import { BANK } from '../src/pools/english/bank.js';
 import { RULES } from '../src/pools/english/rules.js';
-import { CEFR, englishSpec } from '../src/pools/english/index.js';
+import { CEFR, ENGLISH_GENERATED, englishSpec } from '../src/pools/english/index.js';
 import { plural } from '../src/pools/gen.js';
 import { checkAnswer } from '../src/engine/answer.js';
 import { createRng } from '../src/core/random.js';
@@ -89,8 +89,9 @@ test('английский: банк корректен, у каждого за�
 test('английский: на каждом уровне хватает заданий и они не повторяются в тренировке', () => {
   for (let level = 1; level <= 6; level++) {
     const spec = englishSpec([level]);
-    const count = spec.reduce((sum, [topic]) => sum + BANK[topic].filter((row) => row[0] === level).length, 0);
-    assert.ok(count >= 30, `${CEFR[level - 1]}: заданий ${count}`);
+    const count = spec.reduce((sum, [topic]) => sum + (BANK[topic]?.filter((row) => row[0] === level).length ?? 0), 0);
+    assert.ok(count >= 30, `${CEFR[level - 1]}: заданий в банке ${count}`);
+    for (const id of ENGLISH_GENERATED) assert.ok(spec.some(([topic]) => topic === id) || id === 'e.comp' || id === 'e.irreg', `${id} на уровне ${level}`);
     const set = buildTopicSet({ rng: createRng(level), spec, count: 20 });
     assert.equal(new Set(set.map((q) => q.id)).size, 20, `${CEFR[level - 1]}: повтор в тренировке`);
     for (const q of set) {
@@ -354,14 +355,14 @@ import { CHINESE } from '../src/pools/languages/chinese.js';
 
 test('иностранные языки: по 10 заданий на уровень, разбор на трёх языках', () => {
   for (const [name, rows] of Object.entries({ SPANISH, FRENCH, CHINESE })) {
-    for (let level = 1; level <= 4; level++) {
+    for (let level = 1; level <= 6; level++) {
       const items = rows.filter((row) => row[0] === level);
       assert.ok(items.length >= 10, `${name} уровень ${level}: ${items.length}`);
     }
     const seen = new Set();
     for (const [level, question, correct, wrong, ex] of rows) {
       const label = `${name}: ${text(question, 'ru')}`;
-      assert.ok(level >= 1 && level <= 4, label);
+      assert.ok(level >= 1 && level <= 6, label);
       const key = `${text(question, 'ru')}|${text(correct, 'ru')}`;
       assert.ok(!seen.has(key), `повтор — ${label}`);
       seen.add(key);

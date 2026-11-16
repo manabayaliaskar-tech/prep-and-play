@@ -17,6 +17,10 @@ import { CODE_THEORY } from './code-theory.js';
 import { languageMaker } from './languages/index.js';
 import { FRENCH, SPANISH } from './languages/romance.js';
 import { CHINESE } from './languages/chinese.js';
+import { wordsMaker } from './languages/vocab.js';
+import { verbsMaker } from './languages/verbs.js';
+import { hanziMaker } from './languages/zh.js';
+import { comparisonMaker, grammarMaker, irregularMaker } from './english/gen.js';
 import { bankMaker } from './bank.js';
 import { PHYSICS_THEORY, dynamics, electricity, energy, heat, kinematics, waves } from './science/physics.js';
 import { CHEMISTRY_THEORY, molarMass, moles } from './science/chemistry.js';
@@ -80,6 +84,10 @@ export const TOPICS = {
   'e.vocab': topic('english', L('Vocabulary', 'Лексика', 'Лексика'), englishMaker('e.vocab')),
   'e.phrasal': topic('english', L('Phrasal verbs and idioms', 'Фразовые глаголы и идиомы', 'Фразалық етістіктер мен идиомалар'), englishMaker('e.phrasal')),
   'e.wordform': topic('english', L('Word formation', 'Словообразование', 'Сөзжасам'), englishMaker('e.wordform')),
+  'e.words': topic('english', L('Words', 'Слова', 'Сөздер'), wordsMaker('e.words', 'en')),
+  'e.gram': topic('english', L('Tenses in sentences', 'Времена в предложениях', 'Сөйлемдегі шақтар'), grammarMaker('e.gram')),
+  'e.irreg': topic('english', L('Irregular verbs', 'Неправильные глаголы', 'Бұрыс етістіктер'), irregularMaker('e.irreg')),
+  'e.comp': topic('english', L('Comparison of adjectives', 'Степени сравнения', 'Сын есімнің шырайлары'), comparisonMaker('e.comp')),
 
   // ----- Физика -----
   'p.kin': topic('physics', L('Kinematics', 'Кинематика', 'Кинематика'), kinematics),
@@ -133,6 +141,11 @@ export const TOPICS = {
   'es.bank': topic('spanish', L('Spanish grammar and vocabulary', 'Испанский: грамматика и лексика', 'Испан тілі: грамматика және лексика'), languageMaker('es.bank', SPANISH)),
   'fr.bank': topic('french', L('French grammar and vocabulary', 'Французский: грамматика и лексика', 'Француз тілі: грамматика және лексика'), languageMaker('fr.bank', FRENCH)),
   'zh.bank': topic('chinese', L('Chinese words and grammar', 'Китайский: слова и грамматика', 'Қытай тілі: сөздер мен грамматика'), languageMaker('zh.bank', CHINESE)),
+  'es.words': topic('spanish', L('Spanish words', 'Испанский: слова', 'Испан тілі: сөздер'), wordsMaker('es.words', 'es')),
+  'es.verbs': topic('spanish', L('Spanish verb conjugation', 'Испанский: спряжение глаголов', 'Испан тілі: етістіктің жіктелуі'), verbsMaker('es.verbs', 'es')),
+  'fr.words': topic('french', L('French words', 'Французский: слова', 'Француз тілі: сөздер'), wordsMaker('fr.words', 'fr')),
+  'fr.verbs': topic('french', L('French verb conjugation', 'Французский: спряжение глаголов', 'Француз тілі: етістіктің жіктелуі'), verbsMaker('fr.verbs', 'fr')),
+  'zh.words': topic('chinese', L('Chinese characters and pinyin', 'Китайский: иероглифы и пиньинь', 'Қытай тілі: иероглифтер мен пиньинь'), hanziMaker('zh.words')),
 
   // ----- Программирование -----
   'code.theory': topic('code', L('Programming basics', 'Основы программирования', 'Бағдарламалау негіздері'), bankMaker('code.theory', CODE_THEORY)),
