@@ -9,6 +9,7 @@ import { DAILY_GOAL, currentStreak, getProfile, levelInfo, todayXp } from '../co
 import { esc } from '../ui/dom.js';
 import { mascot } from '../ui/mascot.js';
 import { homeCourses, isPinned, pinButton } from '../core/pins.js';
+import { reviewCardHtml } from './review.js';
 
 export function ring(value, max) {
   const r = 34;
@@ -175,6 +176,8 @@ export function hubScreen(app) {
         ${continueCard() ? `<div class="continue-row single">${continueCard()}</div>` : ''}
 
         ${questsCard(p)}
+
+        ${reviewCardHtml()}
 
         <section class="block">
           ${head(group('daily'), t('hub.open'), dailyBlock.hidden)}

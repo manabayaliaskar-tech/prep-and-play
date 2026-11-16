@@ -7,6 +7,7 @@ import { currentStreak, getProfile, levelInfo, resetProgress, saveProfile } from
 import { ACHIEVEMENTS } from '../content/achievements.js';
 import { DOMAINS, LEVELS_PER_ZONE, SKILLS, ZONES } from '../content/skills.js';
 import { POOLS, TOPICS } from '../pools/topics.js';
+import { masteredCount } from '../core/review.js';
 import { esc } from '../ui/dom.js';
 import { mascot } from '../ui/mascot.js';
 import { openModal, toast } from '../ui/overlay.js';
@@ -216,6 +217,11 @@ export function profileScreen(app) {
               <div><span>⚡ ${t('mode.blitz.title')}</span><b>${p.records.blitz}</b></div>
               <div><span>🕵️ ${t('mode.det.title')}</span><b>${p.records.detective}</b></div>
               <div><span>⚔️ ${t('profile.bosses')}</span><b>${Object.keys(p.map.bosses).length}/${ZONES.length}</b></div>
+              <div><span>🎯 ${t('quiz.short')} · ${t('quiz.mode.classic')}</span><b>${Object.values(p.records.quiz ?? {}).length ? `${Math.max(...Object.values(p.records.quiz))}/10` : '—'}</b></div>
+              <div><span>⚡ ${t('quiz.short')} · ${t('quiz.mode.blitz')}</span><b>${p.records.quizBlitz ?? 0}</b></div>
+              <div><span>❤️ ${t('quiz.short')} · ${t('quiz.mode.survival')}</span><b>${p.records.quizSurvival ?? 0}</b></div>
+              <div><span>📅 ${t('quiz.mode.daily')}</span><b>${Object.keys(p.records.quizDaily ?? {}).length}</b></div>
+              <div><span>🔁 ${t('rv.mastered')}</span><b>${masteredCount()}</b></div>
             </div>
           </div>
           <div class="panel">

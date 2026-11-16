@@ -8,6 +8,7 @@ import { navigate, setLeaveGuard } from '../core/router.js';
 import { sfx, vibrate } from '../core/sound.js';
 import { checkAnswer } from '../engine/answer.js';
 import { applyAnswer, createRun } from '../engine/session.js';
+import { addMistake } from '../core/review.js';
 import { esc, formatTime } from '../ui/dom.js';
 import { mascot } from '../ui/mascot.js';
 import { bindQuestion, correctAnswerHtml, questionHtml } from '../ui/question.js';
@@ -23,7 +24,7 @@ const PRAISE_KEYS = ['fb.praise1', 'fb.praise2', 'fb.praise3', 'fb.praise4', 'fb
  *  title, questions (массив) или stream + difficultyAt(i),
  *  lives, boss { icon, name }, timeLimit (сек), quick (быстрый режим без паузы на разбор),
  *  silent (тест: без подсказки «верно/неверно», разбор только в конце),
- *  catalog (сессия из каталога сама запоминает, что продолжать),
+ *  catalog (сессия из каталога сама запоминает, что продолжать), review (повтор ошибок — не записывать их заново),
  *  exitTo, onFinish(run, { reason }) → функция build для экрана результатов.
  */
 export function runSession(app, config) {
@@ -38,6 +39,7 @@ export function runSession(app, config) {
     quick = false,
     silent = false,
     catalog = false,
+    review = false,
     exitTo = '/',
     onFinish,
   } = config;
@@ -189,6 +191,8 @@ export function runSession(app, config) {
     const timeMs = performance.now() - state.qStart;
     const result = applyAnswer(run, { question: q, correct, response, timeMs });
     recordAnswer(q.skill, correct);
+    // Ошибка попадает в «Работу над ошибками» (в самом повторе расписание ведёт экран повтора).
+    if (!correct && !review) addMistake(q);
     addXp(result.xp);
     const p = getProfile();
     p.counters.bestCombo = Math.max(p.counters.bestCombo, run.bestCombo);

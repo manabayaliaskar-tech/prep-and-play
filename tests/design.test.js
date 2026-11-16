@@ -147,3 +147,42 @@ test('квиз: без повторов внутри игры и между иг
   const rows = bySubject(blitz.map((question, i) => ({ question, correct: i % 2 === 0 })));
   assert.equal(rows.reduce((s, r) => s + r.total, 0), 60);
 });
+
+test('работа над ошибками: ступени 0 → 1 день → 3 дня → неделя → освоено; ошибка — снова завтра', async () => {
+  const { addMistake, applyReview, dueMistakes, getMistakes, addDays } = await import('../src/core/review.js');
+  // В Node нет localStorage — подставляем простое хранилище в памяти.
+  const mem = new Map();
+  globalThis.localStorage ??= { getItem: (k) => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, String(v)), removeItem: (k) => mem.delete(k), clear: () => mem.clear() };
+  globalThis.localStorage.clear();
+  const q = { id: 'test:1', skill: 'm.add', prompt: 'x', type: 'mc', choices: ['1', '2', '3', '4'], answer: 0 };
+  const day = '2026-11-16';
+  addMistake(q, day);
+  assert.equal(dueMistakes(day).length, 1, 'новая ошибка доступна сразу');
+  assert.equal(applyReview('test:1', true, day), false);
+  assert.equal(getMistakes()[0].due, addDays(day, 1));
+  assert.equal(dueMistakes(day).length, 0);
+  applyReview('test:1', true, addDays(day, 1));
+  assert.equal(getMistakes()[0].due, addDays(day, 4));
+  applyReview('test:1', false, addDays(day, 4));
+  assert.equal(getMistakes()[0].stage, 0);
+  assert.equal(getMistakes()[0].due, addDays(day, 5));
+  let d = addDays(day, 5);
+  for (const gap of [1, 3, 7]) {
+    assert.equal(applyReview('test:1', true, d), false);
+    d = addDays(d, gap);
+  }
+  assert.equal(applyReview('test:1', true, d), true, 'четвёртый верный ответ — освоено');
+  assert.equal(getMistakes().length, 0);
+  assert.equal(addDays('2026-12-31', 1), '2027-01-01');
+});
+
+test('слабые темы курса: только темы с точностью ниже 75% и хотя бы 3 ответами', async () => {
+  const { courseWeakTopics, weakSpec } = await import('../src/screens/review.js');
+  const math = COURSES.find((c) => c.id === 'math');
+  const profile = { skills: { 'm.add': { a: 10, c: 3 }, 'm.mul': { a: 10, c: 9 }, 'm.frac': { a: 2, c: 0 }, 'm.pct': { a: 6, c: 4 } } };
+  const weak = courseWeakTopics(math, profile);
+  assert.deepEqual(weak.map((w) => w.topic), ['m.add', 'm.pct']);
+  const spec = weakSpec(math, weak);
+  assert.equal(spec.length, 2);
+  assert.ok(spec.every(([, keys]) => keys.length >= 1));
+});

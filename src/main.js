@@ -25,6 +25,7 @@ import { toast } from './ui/overlay.js';
 import { startMotion } from './ui/motion.js';
 import { bindThemePicker } from './ui/theme-picker.js';
 import { bindPins } from './core/pins.js';
+import { mistakesRoute, weakCourseRoute } from './screens/review.js';
 import { bindLangSwitches, renderTopbar } from './ui/topbar.js';
 
 const app = document.getElementById('app');
@@ -36,6 +37,8 @@ route('/practice', () => practiceHubScreen(app));
 route('/code', () => practiceHubScreen(app, 'code'));
 route('/quiz', () => quizRoute(app));
 route('/quiz/:mode', (params) => quizRoute(app, params));
+route('/mistakes', () => mistakesRoute(app));
+route('/weak/:course', (params) => weakCourseRoute(app, params));
 route('/c/:course', (params) => courseScreen(app, params));
 route('/c/:course/:track', (params) => trackRoute(app, params));
 // SAT

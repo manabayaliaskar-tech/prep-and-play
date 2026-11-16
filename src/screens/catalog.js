@@ -8,6 +8,7 @@ import { esc } from '../ui/dom.js';
 import { mascot } from '../ui/mascot.js';
 import { courseBadge, courseCard } from './hub.js';
 import { isPinned, pinButton } from '../core/pins.js';
+import { weakCardHtml } from './review.js';
 
 const stars = (n) => `<span class="track-stars ${n ? 'has' : ''}" aria-label="${n}/3">${'★'.repeat(n)}${'☆'.repeat(3 - n)}</span>`;
 
@@ -125,6 +126,7 @@ export function courseScreen(app, { course: id }) {
       <section class="page catalog">
         <a class="crumb" href="#${group.id === 'olymp' ? '/' : group.href}">← ${group.id === 'olymp' ? t('nav.home') : esc(tx(group.name))}</a>
         ${courseHero(course)}
+        ${weakCardHtml(course)}
         <h2 class="section-title">${course.leveled ? t('cat.levels') : t('cat.subjects')}</h2>
         ${course.leveled && course.tracks.length ? pathHtml(course) : tracksHtml(course)}
         ${
