@@ -27,6 +27,7 @@ import { bindThemePicker } from './ui/theme-picker.js';
 import { bindPins } from './core/pins.js';
 import { mistakesRoute, weakCourseRoute } from './screens/review.js';
 import { planRoute } from './screens/plan.js';
+import { cardsRoute } from './screens/cards.js';
 import { bindLangSwitches, renderTopbar } from './ui/topbar.js';
 
 const app = document.getElementById('app');
@@ -40,6 +41,7 @@ route('/quiz', () => quizRoute(app));
 route('/quiz/:mode', (params) => quizRoute(app, params));
 route('/mistakes', () => mistakesRoute(app));
 route('/plan', () => planRoute(app));
+route('/cards/:lang', (params) => cardsRoute(app, params));
 route('/weak/:course', (params) => weakCourseRoute(app, params));
 route('/c/:course', (params) => courseScreen(app, params));
 route('/c/:course/:track', (params) => trackRoute(app, params));

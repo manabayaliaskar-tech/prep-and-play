@@ -202,3 +202,29 @@ test('план подготовки: норма растёт к экзамену
   assert.ok(planSpec(ent, partial).length > 0);
   assert.ok(planExams().some((c) => c.id === 'sat') && planExams().some((c) => c.id === 'ent'));
 });
+
+test('карточки слов: 4 раза «знал» — слово выучено, «не знал» — завтра с начала; колоды на 4 языка', async () => {
+  const { rateCard, cardState, deck, sessionCards, deckStats } = await import('../src/core/cards.js');
+  const { addDays } = await import('../src/core/review.js');
+  const mem = new Map();
+  globalThis.localStorage ??= { getItem: (k) => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, String(v)), removeItem: (k) => mem.delete(k), clear: () => mem.clear() };
+  globalThis.localStorage.removeItem('prepplay:cards');
+  const day = '2026-11-16';
+  assert.equal(rateCard('es:0', true, day), false);
+  assert.equal(cardState()['es:0'].d, addDays(day, 1));
+  rateCard('es:0', false, addDays(day, 1));
+  assert.equal(cardState()['es:0'].s, 0);
+  let d = addDays(day, 2);
+  const results = [];
+  for (const gap of [1, 3, 7, 21]) {
+    results.push(rateCard('es:0', true, d));
+    d = addDays(d, gap);
+  }
+  assert.deepEqual(results, [false, false, false, true]);
+  assert.equal(deckStats('es', d).learned, 1);
+  for (const lang of ['en', 'es', 'fr', 'zh']) {
+    assert.ok(deck(lang).length >= 380, lang);
+    assert.ok(deck(lang).every((c) => c.front && c.back.ru && c.back.kk && c.back.en), lang);
+    assert.equal(sessionCards(lang, 1, 15, day).length, 15);
+  }
+});
