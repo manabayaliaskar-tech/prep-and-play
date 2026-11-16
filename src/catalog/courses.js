@@ -143,6 +143,38 @@ const ENGLISH_LEVELS = [
 const englishTrack = (levels, test) =>
   track('english', 'EN', N.english, L('Grammar and vocabulary', 'Грамматика и лексика', 'Грамматика және лексика'), englishSpec(levels), test);
 
+// ---------- Предметы экзаменов: одни и те же наборы тем для разных стран ----------
+// Ключ 0 у банков знаний — задания любой сложности.
+
+const ALL = [1, 2, 3];
+const SUBJECT = {
+  physics: () =>
+    track('physics', '⚛️', N.physics, L('Mechanics, electricity, heat, optics', 'Механика, электричество, тепло, оптика', 'Механика, электр, жылу, оптика'),
+      [['p.kin', ALL], ['p.dyn', ALL], ['p.energy', ALL], ['p.elec', ALL], ['p.heat', ALL], ['p.wave', ALL], ['p.theory', [0]]], { count: 15, minutes: 30 }),
+  chemistry: () =>
+    track('chemistry', '⚗️', N.chemistry, L('Calculations, substances and reactions', 'Расчёты, вещества и реакции', 'Есептеулер, заттар мен реакциялар'),
+      [['c.molar', ALL], ['c.mole', ALL], ['c.theory', [0]]], { count: 15, minutes: 30 }),
+  biology: () =>
+    track('biology', '🧬', N.biology, L('Cell, human body, genetics, ecology', 'Клетка, человек, генетика, экология', 'Жасуша, адам, генетика, экология'),
+      [['b.bank', ALL]], { count: 12, minutes: 15 }),
+  geography: () =>
+    track('geography', '🌍', N.geography, L('Maps, climate, nature, population', 'Карты, климат, природа, население', 'Карталар, климат, табиғат, халық'),
+      [['g.bank', ALL]], { count: 12, minutes: 15 }),
+  informatics: () =>
+    track('informatics', '💻', N.informatics, L('Number systems, logic, algorithms', 'Системы счисления, логика, алгоритмы', 'Санау жүйелері, логика, алгоритмдер'),
+      [['i.num', ALL], ['i.units', ALL], ['i.logic', ALL], ['i.algo', ALL], ['i.theory', [0]]], { count: 15, minutes: 30 }),
+  russian: () =>
+    track('russian', 'Аа', N.russian, L('Spelling, punctuation, language norms', 'Орфография, пунктуация, нормы языка', 'Орфография, пунктуация, тіл нормалары'),
+      [['l.ru', ALL]], { count: 15, minutes: 20 }),
+  social: () =>
+    track('social', '⚖️', N.social, L('State, law, economics, society', 'Государство, право, экономика, общество', 'Мемлекет, құқық, экономика, қоғам'),
+      [['s.bank', ALL]], { count: 10, minutes: 12 }),
+  /** История страны: свой банк вместе со всемирной историей. */
+  history: (topic, name, id = 'history') =>
+    track(id, '📜', name, L('Key events and people', 'Главные события и личности', 'Басты оқиғалар мен тұлғалар'),
+      topic === 'h.world' ? [[topic, [0]]] : [[topic, [0]], ['h.world', [0]]], { count: topic === 'h.world' ? 10 : 12, minutes: 15 }),
+};
+
 // Олимпиадная математика: три уровня. Ключ в наборе тем — номер уровня.
 const OLYMP_TOPICS = ['o.count', 'o.digit', 'o.div', 'o.pigeon', 'o.sum', 'o.games', 'o.logic', 'o.geom', 'o.rem', 'o.fact', 'o.paths'];
 const OLYMP_LEVELS = [
@@ -229,12 +261,15 @@ export const COURSES = [
     tracks: [
       track('mathlit', '🧩', N.mathLit, D.mathLit, MATH_LITERACY, { count: 10, minutes: 20 }),
       track('math', '📐', N.mathProfile, D.mathSenior, MATH_SENIOR, { count: 15, minutes: 30 }),
+      track('history', '📜', L('History of Kazakhstan', 'История Казахстана', 'Қазақстан тарихы'), L('From the Saka to independence', 'От саков до независимости', 'Сақтардан тәуелсіздікке дейін'), [['h.kz', ALL]], { count: 15, minutes: 20 }),
+      track('reading', '📖', L('Reading literacy', 'Грамотность чтения', 'Оқу сауаттылығы'), L('Texts and questions about them', 'Тексты и вопросы к ним', 'Мәтіндер және оларға сұрақтар'), [['r.literacy', [1]]], { count: 12, minutes: 20 }),
       englishTrack([3, 4], { count: 20, minutes: 20 }),
-    ],
-    soon: [
-      L('History of Kazakhstan', 'История Казахстана', 'Қазақстан тарихы'),
-      L('Reading literacy', 'Грамотность чтения', 'Оқу сауаттылығы'),
-      N.physics, N.chemistry, N.biology, N.geography, N.informatics,
+      SUBJECT.physics(),
+      SUBJECT.chemistry(),
+      SUBJECT.biology(),
+      SUBJECT.geography(),
+      SUBJECT.informatics(),
+      SUBJECT.history('h.world', L('World history', 'Всемирная история', 'Дүниежүзі тарихы'), 'world'),
     ],
   },
   {
@@ -254,9 +289,17 @@ export const COURSES = [
     tracks: [
       track('base', '🧮', L('Mathematics (basic level)', 'Математика (базовый уровень)', 'Математика (базалық деңгей)'), D.mathLit, [...MATH_LITERACY, ['m.lineq', [1, 2]], ['m.pow', [1, 2]], ['m.pyth', [1, 2]], ['m.angle', [1, 2]], ['m.vol', [1, 2]], ['m.log', [1]]], { count: 10, minutes: 25 }),
       track('profile', '📐', L('Mathematics (profile level, part 1)', 'Математика (профильный уровень, часть 1)', 'Математика (бейіндік деңгей, 1-бөлім)'), D.mathSenior, MATH_SENIOR, { count: 12, minutes: 45 }),
+      SUBJECT.russian(),
       englishTrack([3, 4], { count: 20, minutes: 20 }),
+      SUBJECT.social(),
+      SUBJECT.history('h.ru', L('History of Russia', 'История России', 'Ресей тарихы')),
+      SUBJECT.physics(),
+      SUBJECT.chemistry(),
+      SUBJECT.biology(),
+      SUBJECT.geography(),
+      SUBJECT.informatics(),
     ],
-    soon: [N.russian, N.social, N.physics, N.informatics, N.history, N.biology, N.chemistry],
+
   },
   {
     id: 'oge',
@@ -272,8 +315,17 @@ export const COURSES = [
       'Ресейде 9-сыныптан кейінгі емтихан: орыс тілі, математика және таңдау бойынша екі пән.',
     ),
     official: { label: 'fipi.ru', url: 'https://fipi.ru/' },
-    tracks: [track('math', '📐', N.math, D.mathAll, MATH_BASIC, { count: 12, minutes: 30 }), englishTrack([2, 3], { count: 15, minutes: 15 })],
-    soon: [N.russian, N.social, N.informatics, N.geography, N.physics],
+    tracks: [
+      track('math', '📐', N.math, D.mathAll, MATH_BASIC, { count: 12, minutes: 30 }),
+      SUBJECT.russian(),
+      englishTrack([2, 3], { count: 15, minutes: 15 }),
+      SUBJECT.social(),
+      SUBJECT.informatics(),
+      SUBJECT.geography(),
+      SUBJECT.physics(),
+      SUBJECT.biology(),
+      SUBJECT.chemistry(),
+    ],
   },
   {
     id: 'ct',
@@ -289,8 +341,16 @@ export const COURSES = [
       'Орталықтандырылған емтихан (ЦЭ) мен орталықтандырылған тестілеу (ЦТ) Беларусь ЖОО-ларына түсу үшін қажет. Әр пән 100 балдық шкаламен бағаланады.',
     ),
     official: { label: 'rikc.by', url: 'https://rikc.by/' },
-    tracks: [track('math', '📐', N.math, D.mathSenior, MATH_SENIOR, { count: 12, minutes: 35 }), englishTrack([3, 4], { count: 20, minutes: 20 })],
-    soon: [N.russian, L('Belarusian language', 'Белорусский язык', 'Беларусь тілі'), N.physics, N.chemistry, N.biology, N.history],
+    tracks: [
+      track('math', '📐', N.math, D.mathSenior, MATH_SENIOR, { count: 12, minutes: 35 }),
+      englishTrack([3, 4], { count: 20, minutes: 20 }),
+      SUBJECT.russian(),
+      SUBJECT.history('h.by', L('History of Belarus', 'История Беларуси', 'Беларусь тарихы')),
+      SUBJECT.physics(),
+      SUBJECT.chemistry(),
+      SUBJECT.biology(),
+    ],
+    soon: [L('Belarusian language', 'Белорусский язык', 'Беларусь тілі')],
   },
   {
     id: 'dtm',
@@ -309,8 +369,12 @@ export const COURSES = [
       track('mathbase', '🧮', L('Mathematics (compulsory block)', 'Математика (обязательный блок)', 'Математика (міндетті блок)'), D.mathAll, MATH_BASIC, { count: 10, minutes: 20 }),
       track('math', '📐', N.mathProfile, D.mathSenior, MATH_SENIOR, { count: 15, minutes: 35 }),
       englishTrack([3, 4], { count: 20, minutes: 20 }),
+      SUBJECT.history('h.uz', L('History of Uzbekistan', 'История Узбекистана', 'Өзбекстан тарихы')),
+      SUBJECT.physics(),
+      SUBJECT.chemistry(),
+      SUBJECT.biology(),
     ],
-    soon: [N.native, L('History of Uzbekistan', 'История Узбекистана', 'Өзбекстан тарихы'), N.physics, N.chemistry, N.biology],
+    soon: [L('Uzbek language and literature', 'Узбекский язык и литература', 'Өзбек тілі мен әдебиеті')],
   },
   {
     id: 'ort',
@@ -325,11 +389,16 @@ export const COURSES = [
       'Тест для поступления в вузы Кыргызстана. Основной тест: математика, аналогии и дополнение предложений, чтение и понимание, практическая грамматика. Есть и предметные тесты.',
       'Қырғызстан ЖОО-ларына түсу тесті. Негізгі тест: математика, аналогиялар мен сөйлемдерді толықтыру, оқу және түсіну, практикалық грамматика. Пәндік тесттер де бар.',
     ),
-    tracks: [track('math', '📐', L('Mathematics (main test)', 'Математика (основной тест)', 'Математика (негізгі тест)'), D.mathLit, [...MATH_LITERACY, ['m.lineq', [1, 2]], ['m.ineq', [1, 2]], ['m.pyth', [1, 2]], ['m.angle', [1, 2]], ['m.pow', [1, 2]]], { count: 15, minutes: 30 }), englishTrack([3, 4], { count: 20, minutes: 20 })],
-    soon: [
-      L('Analogies and sentence completion', 'Аналогии и дополнение предложений', 'Аналогиялар мен сөйлемдерді толықтыру'),
-      L('Reading comprehension', 'Чтение и понимание', 'Оқу және түсіну'),
-      L('Practical grammar', 'Практическая грамматика', 'Практикалық грамматика'),
+    tracks: [
+      track('math', '📐', L('Mathematics (main test)', 'Математика (основной тест)', 'Математика (негізгі тест)'), D.mathLit, [...MATH_LITERACY, ['m.lineq', [1, 2]], ['m.ineq', [1, 2]], ['m.pyth', [1, 2]], ['m.angle', [1, 2]], ['m.pow', [1, 2]]], { count: 15, minutes: 30 }),
+      track('analogies', '🔗', L('Analogies and sentence completion', 'Аналогии и дополнение предложений', 'Аналогиялар мен сөйлемдерді толықтыру'), L('Relations between words, meaning in context', 'Связи между словами, смысл в контексте', 'Сөздер арасындағы байланыс, контекстегі мағына'), [['l.analogy', [0]], ['l.complete', [0]]], { count: 15, minutes: 15 }),
+      track('reading', '📖', L('Reading comprehension', 'Чтение и понимание', 'Оқу және түсіну'), L('Texts and questions about them', 'Тексты и вопросы к ним', 'Мәтіндер және оларға сұрақтар'), [['r.literacy', [1]]], { count: 12, minutes: 20 }),
+      track('grammar', 'Аа', L('Practical grammar (Russian)', 'Практическая грамматика (русский язык)', 'Практикалық грамматика (орыс тілі)'), L('Spelling, punctuation, language norms', 'Орфография, пунктуация, нормы языка', 'Орфография, пунктуация, тіл нормалары'), [['l.ru', ALL]], { count: 15, minutes: 20 }),
+      englishTrack([3, 4], { count: 20, minutes: 20 }),
+      SUBJECT.history('h.kg', L('History of Kyrgyzstan', 'История Кыргызстана', 'Қырғызстан тарихы')),
+      SUBJECT.physics(),
+      SUBJECT.chemistry(),
+      SUBJECT.biology(),
     ],
   },
   {
@@ -345,8 +414,15 @@ export const COURSES = [
       'Централизованные вступительные экзамены в вузы Таджикистана. Их проводит Национальный центр тестирования.',
       'Тәжікстан ЖОО-ларына орталықтандырылған түсу емтихандары. Оларды Ұлттық тестілеу орталығы өткізеді.',
     ),
-    tracks: [track('math', '📐', N.math, D.mathAll, [...MATH_BASIC, ['m.log', [1, 2]], ['m.trig', [1, 2]]], { count: 12, minutes: 30 }), englishTrack([3, 4], { count: 20, minutes: 20 })],
-    soon: [L('Tajik language', 'Таджикский язык', 'Тәжік тілі'), N.history, N.physics, N.chemistry, N.biology],
+    tracks: [
+      track('math', '📐', N.math, D.mathAll, [...MATH_BASIC, ['m.log', [1, 2]], ['m.trig', [1, 2]]], { count: 12, minutes: 30 }),
+      englishTrack([3, 4], { count: 20, minutes: 20 }),
+      SUBJECT.history('h.tj', L('History of Tajikistan', 'История Таджикистана', 'Тәжікстан тарихы')),
+      SUBJECT.physics(),
+      SUBJECT.chemistry(),
+      SUBJECT.biology(),
+    ],
+    soon: [L('Tajik language', 'Таджикский язык', 'Тәжік тілі')],
   },
   {
     id: 'dim',
@@ -362,8 +438,15 @@ export const COURSES = [
       'Әзербайжандағы бітіру және түсу емтихандары. Оларды Мемлекеттік емтихан орталығы (DİM) өткізеді. Түсу емтиханында ең жоғары балл — 700.',
     ),
     official: { label: 'dim.gov.az', url: 'https://dim.gov.az/' },
-    tracks: [track('math', '📐', N.math, D.mathSenior, MATH_SENIOR, { count: 12, minutes: 35 }), englishTrack([3, 4], { count: 20, minutes: 20 })],
-    soon: [L('Azerbaijani language', 'Азербайджанский язык', 'Әзербайжан тілі'), N.history, N.physics, N.chemistry, N.biology],
+    tracks: [
+      track('math', '📐', N.math, D.mathSenior, MATH_SENIOR, { count: 12, minutes: 35 }),
+      englishTrack([3, 4], { count: 20, minutes: 20 }),
+      SUBJECT.history('h.az', L('History of Azerbaijan', 'История Азербайджана', 'Әзербайжан тарихы')),
+      SUBJECT.physics(),
+      SUBJECT.chemistry(),
+      SUBJECT.biology(),
+    ],
+    soon: [L('Azerbaijani language', 'Азербайджанский язык', 'Әзербайжан тілі')],
   },
   {
     id: 'arm',
@@ -378,8 +461,15 @@ export const COURSES = [
       'Единые государственные экзамены для поступления в вузы Армении. Каждый предмет оценивается по 20-балльной шкале.',
       'Армения ЖОО-ларына түсуге арналған бірыңғай мемлекеттік емтихандар. Әр пән 20 балдық шкаламен бағаланады.',
     ),
-    tracks: [track('math', '📐', N.math, D.mathSenior, MATH_SENIOR, { count: 12, minutes: 35 }), englishTrack([3, 4], { count: 20, minutes: 20 })],
-    soon: [L('Armenian language', 'Армянский язык', 'Армян тілі'), N.history, N.physics, N.chemistry, N.biology],
+    tracks: [
+      track('math', '📐', N.math, D.mathSenior, MATH_SENIOR, { count: 12, minutes: 35 }),
+      englishTrack([3, 4], { count: 20, minutes: 20 }),
+      SUBJECT.history('h.am', L('History of Armenia', 'История Армении', 'Армения тарихы')),
+      SUBJECT.physics(),
+      SUBJECT.chemistry(),
+      SUBJECT.biology(),
+    ],
+    soon: [L('Armenian language', 'Армянский язык', 'Армян тілі')],
   },
   {
     id: 'bac',
@@ -394,8 +484,15 @@ export const COURSES = [
       'Национальные выпускные экзамены лицеев в Молдове. Оценки ставятся по 10-балльной шкале.',
       'Молдовадағы лицейлердің ұлттық бітіру емтихандары. Бағалар 10 балдық шкаламен қойылады.',
     ),
-    tracks: [track('math', '📐', N.math, D.mathSenior, MATH_SENIOR, { count: 12, minutes: 35 }), englishTrack([3, 4], { count: 20, minutes: 20 })],
-    soon: [L('Romanian language', 'Румынский язык', 'Румын тілі'), N.history, N.physics, N.chemistry, N.biology],
+    tracks: [
+      track('math', '📐', N.math, D.mathSenior, MATH_SENIOR, { count: 12, minutes: 35 }),
+      englishTrack([3, 4], { count: 20, minutes: 20 }),
+      SUBJECT.history('h.md', L('History of Moldova', 'История Молдовы', 'Молдова тарихы')),
+      SUBJECT.physics(),
+      SUBJECT.chemistry(),
+      SUBJECT.biology(),
+    ],
+    soon: [L('Romanian language', 'Румынский язык', 'Румын тілі')],
   },
   // ===== Олимпиадная математика =====
   {

@@ -85,7 +85,8 @@ export function courseScreen(app, { course: id }) {
         ${
           course.soon?.length
             ? `<h2 class="section-title">${t('cat.soon')}</h2>
-               <div class="soon-chips">${course.soon.map((s) => `<span class="soon-chip">🔒 ${esc(tx(s))}</span>`).join('')}</div>`
+               <div class="soon-chips">${course.soon.map((s) => `<span class="soon-chip">🔒 ${esc(tx(s))}</span>`).join('')}</div>
+               <p class="muted small soon-note">${course.group === 'exams' && ['ielts', 'toefl'].includes(course.id) ? t('cat.soonAudio') : t('cat.soonNative')}</p>`
             : ''
         }
         ${

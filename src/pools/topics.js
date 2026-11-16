@@ -10,6 +10,14 @@ import { angles, area, pythagoras, volume } from './math/geometry.js';
 import { mixtures, motion, work } from './math/word.js';
 import { englishMaker } from './english/index.js';
 import { readingMaker } from './reading.js';
+import { bankMaker } from './bank.js';
+import { PHYSICS_THEORY, dynamics, electricity, energy, heat, kinematics, waves } from './science/physics.js';
+import { CHEMISTRY_THEORY, molarMass, moles } from './science/chemistry.js';
+import { BIOLOGY, GEOGRAPHY } from './science/bio-geo.js';
+import { HISTORY_KZ, HISTORY_REGION, HISTORY_RU, HISTORY_WORLD } from './humanities/history.js';
+import { ANALOGIES, RUSSIAN, SENTENCES, SOCIAL } from './humanities/language.js';
+import { LITERACY } from './humanities/literacy.js';
+import { INFORMATICS_THEORY, algorithms, infoUnits, logic as boolLogic, numberSystems } from './science/informatics.js';
 import { counting, diophantine, divisors, factorials, lastDigit, logic, paths, pigeonhole, remainders, shapes, sums, tournaments } from './olymp.js';
 
 const topic = (pool, name, make) => ({ pool, name, make });
@@ -60,6 +68,50 @@ export const TOPICS = {
   'e.phrasal': topic('english', L('Phrasal verbs and idioms', 'Фразовые глаголы и идиомы', 'Фразалық етістіктер мен идиомалар'), englishMaker('e.phrasal')),
   'e.wordform': topic('english', L('Word formation', 'Словообразование', 'Сөзжасам'), englishMaker('e.wordform')),
 
+  // ----- Физика -----
+  'p.kin': topic('physics', L('Kinematics', 'Кинематика', 'Кинематика'), kinematics),
+  'p.dyn': topic('physics', L('Forces, pressure, density', 'Силы, давление, плотность', 'Күштер, қысым, тығыздық'), dynamics),
+  'p.energy': topic('physics', L('Work, energy, power', 'Работа, энергия, мощность', 'Жұмыс, энергия, қуат'), energy),
+  'p.elec': topic('physics', L('Electricity', 'Электричество', 'Электр'), electricity),
+  'p.heat': topic('physics', L('Heat', 'Тепловые явления', 'Жылу құбылыстары'), heat),
+  'p.wave': topic('physics', L('Oscillations, waves, optics', 'Колебания, волны, оптика', 'Тербелістер, толқындар, оптика'), waves),
+  'p.theory': topic('physics', L('Laws and units', 'Законы и единицы', 'Заңдар мен бірліктер'), bankMaker('p.theory', PHYSICS_THEORY)),
+
+  // ----- Химия -----
+  'c.molar': topic('chemistry', L('Molar mass and mass fraction', 'Молярная масса и массовая доля', 'Молярлық масса және массалық үлес'), molarMass),
+  'c.mole': topic('chemistry', L('Amount of substance and reactions', 'Количество вещества и расчёты по уравнениям', 'Зат мөлшері және теңдеу бойынша есептеулер'), moles),
+  'c.theory': topic('chemistry', L('Substances and reactions', 'Вещества и реакции', 'Заттар мен реакциялар'), bankMaker('c.theory', CHEMISTRY_THEORY)),
+
+  // ----- Информатика -----
+  'i.num': topic('informatics', L('Number systems', 'Системы счисления', 'Санау жүйелері'), numberSystems),
+  'i.units': topic('informatics', L('Measuring information', 'Измерение информации', 'Ақпаратты өлшеу'), infoUnits),
+  'i.logic': topic('informatics', L('Logic', 'Логика', 'Логика'), boolLogic),
+  'i.algo': topic('informatics', L('Algorithms', 'Алгоритмы', 'Алгоритмдер'), algorithms),
+  'i.theory': topic('informatics', L('Computers and networks', 'Компьютер и сети', 'Компьютер және желілер'), bankMaker('i.theory', INFORMATICS_THEORY)),
+
+  // ----- Биология и география -----
+  'b.bank': topic('biology', L('Biology', 'Биология', 'Биология'), bankMaker('b.bank', BIOLOGY)),
+  'g.bank': topic('geography', L('Geography', 'География', 'География'), bankMaker('g.bank', GEOGRAPHY)),
+
+  // ----- История и обществознание -----
+  'h.kz': topic('history', L('History of Kazakhstan', 'История Казахстана', 'Қазақстан тарихы'), bankMaker('h.kz', HISTORY_KZ)),
+  'h.world': topic('history', L('World history', 'Всемирная история', 'Дүниежүзі тарихы'), bankMaker('h.world', HISTORY_WORLD)),
+  'h.ru': topic('history', L('History of Russia', 'История России', 'Ресей тарихы'), bankMaker('h.ru', HISTORY_RU)),
+  'h.uz': topic('history', L('History of Uzbekistan', 'История Узбекистана', 'Өзбекстан тарихы'), bankMaker('h.uz', HISTORY_REGION.uz)),
+  'h.kg': topic('history', L('History of Kyrgyzstan', 'История Кыргызстана', 'Қырғызстан тарихы'), bankMaker('h.kg', HISTORY_REGION.kg)),
+  'h.tj': topic('history', L('History of Tajikistan', 'История Таджикистана', 'Тәжікстан тарихы'), bankMaker('h.tj', HISTORY_REGION.tj)),
+  'h.az': topic('history', L('History of Azerbaijan', 'История Азербайджана', 'Әзербайжан тарихы'), bankMaker('h.az', HISTORY_REGION.az)),
+  'h.am': topic('history', L('History of Armenia', 'История Армении', 'Армения тарихы'), bankMaker('h.am', HISTORY_REGION.am)),
+  'h.by': topic('history', L('History of Belarus', 'История Беларуси', 'Беларусь тарихы'), bankMaker('h.by', HISTORY_REGION.by)),
+  'h.md': topic('history', L('History of Moldova', 'История Молдовы', 'Молдова тарихы'), bankMaker('h.md', HISTORY_REGION.md)),
+  's.bank': topic('social', L('Social studies', 'Обществознание', 'Қоғамтану'), bankMaker('s.bank', SOCIAL)),
+
+  // ----- Русский язык, логика и чтение на языке интерфейса -----
+  'l.ru': topic('russian', L('Russian language', 'Русский язык', 'Орыс тілі'), bankMaker('l.ru', RUSSIAN)),
+  'l.analogy': topic('russian', L('Analogies', 'Аналогии', 'Аналогиялар'), bankMaker('l.analogy', ANALOGIES)),
+  'l.complete': topic('russian', L('Sentence completion', 'Дополнение предложений', 'Сөйлемді толықтыру'), bankMaker('l.complete', SENTENCES)),
+  'r.literacy': topic('reading', L('Reading literacy', 'Грамотность чтения', 'Оқу сауаттылығы'), readingMaker('r.literacy', LITERACY)),
+
   // ----- Чтение -----
   'r.ielts': topic('reading', L('IELTS Reading', 'IELTS: чтение', 'IELTS: оқылым'), readingMaker('r.ielts', 'ielts')),
   'r.toefl': topic('reading', L('TOEFL Reading', 'TOEFL: чтение', 'TOEFL: оқылым'), readingMaker('r.toefl', 'toefl')),
@@ -77,6 +129,22 @@ export const TOPICS = {
   'o.fact': topic('olymp', L('Digits and factorials', 'Цифры и факториалы', 'Цифрлар мен факториалдар'), factorials),
   'o.paths': topic('olymp', L('Routes and the multiplication rule', 'Маршруты и правило умножения', 'Маршруттар және көбейту ережесі'), paths),
   'o.eq': topic('olymp', L('Equations in integers', 'Уравнения в целых числах', 'Бүтін сандардағы теңдеулер'), diophantine),
+};
+
+/** Значок и цвет полосы для каждого банка заданий (поле pool в src/pools/topics.js). */
+export const POOLS = {
+  math: { icon: '📐', color: '#22c55e' },
+  english: { icon: '🔤', color: '#3b82f6' },
+  olymp: { icon: '🏆', color: '#f59e0b' },
+  reading: { icon: '📖', color: '#e11d48' },
+  physics: { icon: '⚛️', color: '#6366f1' },
+  chemistry: { icon: '⚗️', color: '#14b8a6' },
+  informatics: { icon: '💻', color: '#0ea5e9' },
+  biology: { icon: '🧬', color: '#16a34a' },
+  geography: { icon: '🌍', color: '#0891b2' },
+  history: { icon: '📜', color: '#b45309' },
+  social: { icon: '⚖️', color: '#7c3aed' },
+  russian: { icon: 'Аа', color: '#db2777' },
 };
 
 export const topicIds = (pool) => Object.keys(TOPICS).filter((id) => !pool || TOPICS[id].pool === pool);

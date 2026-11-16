@@ -6,7 +6,7 @@ import { t, tx } from '../core/i18n.js';
 import { currentStreak, getProfile, levelInfo, resetProgress, saveProfile } from '../core/profile.js';
 import { ACHIEVEMENTS } from '../content/achievements.js';
 import { DOMAINS, LEVELS_PER_ZONE, SKILLS, ZONES } from '../content/skills.js';
-import { TOPICS } from '../pools/topics.js';
+import { POOLS, TOPICS } from '../pools/topics.js';
 import { esc } from '../ui/dom.js';
 import { mascot } from '../ui/mascot.js';
 import { openModal, toast } from '../ui/overlay.js';
@@ -14,12 +14,6 @@ import { courseBadge } from './hub.js';
 
 /** Сколько тем показывать сразу; остальные открываются по нажатию. */
 const TOPICS_SHOWN = 8;
-const POOLS = {
-  math: { icon: '📐', color: '#22c55e' },
-  english: { icon: '🔤', color: '#3b82f6' },
-  olymp: { icon: '🏆', color: '#f59e0b' },
-  reading: { icon: '📖', color: '#e11d48' },
-};
 
 export function domainMastery(profile) {
   const result = {};

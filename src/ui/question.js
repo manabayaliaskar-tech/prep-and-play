@@ -3,6 +3,7 @@
 import { t, tx } from '../core/i18n.js';
 import { NOTES_INTRO } from '../content/rw/prompts.js';
 import { skillName } from '../content/labels.js';
+import { POOLS, TOPICS } from '../pools/topics.js';
 import { esc, isFinePointer } from './dom.js';
 
 export const LETTERS = ['A', 'B', 'C', 'D'];
@@ -25,7 +26,7 @@ export function difficultyDots(d) {
 
 export function questionHtml(q) {
   const parts = [
-    `<div class="q-meta"><span class="q-tag q-tag-${q.section}">${q.section === 'rw' ? '📖' : '📐'} ${esc(tx(skillName(q.skill)))}</span>${difficultyDots(q.d)}</div>`,
+    `<div class="q-meta"><span class="q-tag q-tag-${q.section}">${POOLS[TOPICS[q.skill]?.pool]?.icon ?? (q.section === 'rw' ? '📖' : '📐')} ${esc(tx(skillName(q.skill)))}</span>${difficultyDots(q.d)}</div>`,
   ];
   if (q.section === 'rw') {
     if (q.passages) {

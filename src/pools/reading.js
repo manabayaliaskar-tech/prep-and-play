@@ -409,7 +409,7 @@ const TFNG_PROMPT = (statement) =>
     `Дұрыс (True), бұрыс (False) немесе мәтінде айтылмаған (Not Given)? — ${statement}`,
   );
 
-function build(topic, exam, passage, index, round, rng) {
+function build(topic, prefix, passage, index, round, rng) {
   const item = passage.qs[index];
   let choices;
   if (item.type === 'tfng') {
@@ -421,18 +421,22 @@ function build(topic, exam, passage, index, round, rng) {
   const q = poolQ(topic, 2, {
     kind: 'text',
     passage: passage.text,
-    prompt: item.type === 'tfng' ? TFNG_PROMPT(item.statement) : L(item.question, item.question, item.question),
+    prompt: item.type === 'tfng' ? TFNG_PROMPT(item.statement) : typeof item.question === 'string' ? L(item.question, item.question, item.question) : item.question,
     ex: item.ex,
     mc: choices,
   });
   q.passageLabel = passage.title;
-  q.id = `${exam}:${passage.id}:${index}${round ? `#${round}` : ''}`;
+  q.id = `${prefix}:${passage.id}:${index}${round ? `#${round}` : ''}`;
   return q;
 }
 
-/** Генератор чтения: выдаёт вопросы одного текста подряд, затем берёт следующий текст. */
-export function readingMaker(topic, exam) {
-  const passages = READING[exam];
+/**
+ * Генератор чтения: выдаёт вопросы одного текста подряд, затем берёт следующий текст.
+ * source — ключ экзамена из READING ('ielts', 'toefl') или свой список текстов на трёх языках.
+ */
+export function readingMaker(topic, source) {
+  const passages = typeof source === 'string' ? READING[source] : source;
+  const prefix = typeof source === 'string' ? source : topic;
   return (ctx) => {
     const store = (ctx.state ??= {});
     const state = (store[topic] ??= { queue: [], done: [], round: 0 });
@@ -448,7 +452,7 @@ export function readingMaker(topic, exam) {
       state.queue = passage.qs.map((_, i) => ({ passage, index: i }));
     }
     const { passage, index } = state.queue.shift();
-    return build(topic, exam, passage, index, state.round, ctx.rng);
+    return build(topic, prefix, passage, index, state.round, ctx.rng);
   };
 }
 

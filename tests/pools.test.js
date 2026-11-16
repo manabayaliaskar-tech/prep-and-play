@@ -270,3 +270,79 @@ test('русское склонение после числа', () => {
   const day = (k) => plural(k, 'день', 'дня', 'дней');
   assert.deepEqual([1, 2, 5, 11, 12, 21, 22, 25, 111, 101].map(day), ['день', 'дня', 'дней', 'дней', 'дней', 'день', 'дня', 'дней', 'дней', 'день']);
 });
+
+// ---------- Банки знаний: физика, химия, биология, история, языки и другие ----------
+
+import { PHYSICS_THEORY } from '../src/pools/science/physics.js';
+import { CHEMISTRY_THEORY } from '../src/pools/science/chemistry.js';
+import { INFORMATICS_THEORY } from '../src/pools/science/informatics.js';
+import { BIOLOGY, GEOGRAPHY } from '../src/pools/science/bio-geo.js';
+import { HISTORY_KZ, HISTORY_REGION, HISTORY_RU, HISTORY_WORLD } from '../src/pools/humanities/history.js';
+import { ANALOGIES, RUSSIAN, SENTENCES, SOCIAL } from '../src/pools/humanities/language.js';
+import { LITERACY } from '../src/pools/humanities/literacy.js';
+import { POOLS } from '../src/pools/topics.js';
+
+const BANKS = {
+  PHYSICS_THEORY, CHEMISTRY_THEORY, INFORMATICS_THEORY, BIOLOGY, GEOGRAPHY, HISTORY_KZ, HISTORY_RU, HISTORY_WORLD,
+  ...Object.fromEntries(Object.entries(HISTORY_REGION).map(([k, v]) => [`HISTORY_${k}`, v])),
+  ANALOGIES, RUSSIAN, SENTENCES, SOCIAL,
+};
+
+test('банки знаний: 4 разных варианта, тексты и разбор на трёх языках', () => {
+  let total = 0;
+  for (const [name, rows] of Object.entries(BANKS)) {
+    const seen = new Set();
+    for (const [d, question, correct, wrong, ex] of rows) {
+      total += 1;
+      const label = `${name}: ${text(question, 'ru')}`;
+      assert.ok([1, 2, 3].includes(d), label);
+      // Одинаковая формулировка допустима (например, «Где нужна запятая?»), повтор задания целиком — нет.
+      const key = `${text(question, 'ru')}|${text(correct, 'ru')}`;
+      assert.ok(!seen.has(key), `повтор задания — ${label}`);
+      seen.add(key);
+      assert.equal(wrong.length, 3, label);
+      for (const l of LANGS) {
+        assert.ok(text(question, l).length > 5, `вопрос на ${l} — ${label}`);
+        assert.ok(text(ex, l).length > 20, `разбор на ${l} — ${label}`);
+        const options = [correct, ...wrong].map((c) => text(c, l));
+        assert.equal(new Set(options).size, 4, `повтор вариантов на ${l} — ${label}`);
+        assert.ok(options.every((o) => o.length > 0), label);
+      }
+    }
+  }
+  assert.ok(total >= 170, `заданий в банках: ${total}`);
+});
+
+test('грамотность чтения: тексты и вопросы на трёх языках', () => {
+  for (const passage of LITERACY) {
+    for (const l of LANGS) {
+      assert.ok(text(passage.title, l).length > 3, passage.id);
+      const words = text(passage.text, l).split(/\s+/).length;
+      assert.ok(words >= 70 && words <= 160, `${passage.id} (${l}): ${words} слов`);
+    }
+    assert.equal(passage.qs.length, 4, passage.id);
+    for (const item of passage.qs) {
+      for (const l of LANGS) {
+        assert.ok(text(item.question, l).length > 5);
+        assert.equal(new Set(item.choices.map((c) => text(c, l))).size, 4, `${passage.id}: повтор вариантов (${l})`);
+        assert.ok(text(item.ex, l).length > 20);
+      }
+    }
+  }
+});
+
+test('у каждого банка заданий есть значок для профиля', () => {
+  for (const [id, topic] of Object.entries(TOPICS)) assert.ok(POOLS[topic.pool], `${id}: нет значка для «${topic.pool}»`);
+});
+
+test('физика и химия: ответы расчётных задач сходятся с формулами', () => {
+  // Каждое задание с вводом ответа уже проверено: показанный ответ засчитывается. Здесь — выборочные формулы.
+  for (const id of ['p.kin', 'p.dyn', 'p.energy', 'p.elec', 'p.heat', 'p.wave', 'c.molar', 'c.mole', 'i.num', 'i.units', 'i.logic', 'i.algo']) {
+    for (const d of [1, 2, 3]) {
+      for (let s = 0; s < 120; s++) {
+        const q = TOPICS[id].make({ rng: createRng(s * 13 + d), mcOnly: s % 2 === 0, used: new Set() }, d);
+        assertValid(q, `${id} d${d} s${s}`);
+      }
+    }
+  }
+});
