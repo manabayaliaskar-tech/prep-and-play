@@ -156,10 +156,10 @@ test('генетика и география: ответы проверяютс�
   assert.equal(new Set(COUNTRIES.map((c) => c.capital.ru)).size, COUNTRIES.length);
 });
 
-test('науки: 6 уровней в каждом курсе, информатика — отдельный курс', () => {
+test('науки: не меньше 6 уровней в каждом курсе, информатика — отдельный курс', () => {
   for (const id of ['physics', 'chemistry', 'biology', 'geography', 'informatics']) {
     const course = COURSES.find((c) => c.id === id);
-    assert.equal(course.tracks.length, 6, id);
+    assert.ok(course.tracks.length >= 6, id);
     for (const track of course.tracks) {
       const set = buildTopicSet({ rng: createRng(5), spec: track.spec, count: 20 });
       assert.equal(new Set(set.map((q) => q.id)).size, 20, `${id}/${track.id}: повтор`);

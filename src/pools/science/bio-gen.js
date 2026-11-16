@@ -213,6 +213,46 @@ function organTask(ctx, topic, d) {
 // сложность|понятие en|ru|kk|ответ en|ru|kk
 const TABLES = [
   {
+    id: 'plants',
+    pairs: pairTable(`
+1|root|корень|тамыр|absorbs water and minerals from the soil|всасывает воду и минеральные соли из почвы|топырақтан су мен минералды тұздарды сорады
+1|leaf|лист|жапырақ|makes food from light by photosynthesis|создаёт питательные вещества на свету (фотосинтез)|жарықта қоректік заттар түзеді (фотосинтез)
+1|stem|стебель|сабақ|carries water and food between the root and the leaves|проводит воду и вещества между корнем и листьями|тамыр мен жапырақтар арасында су мен заттарды өткізеді
+1|flower|цветок|гүл|is the organ of seed reproduction|орган семенного размножения|тұқыммен көбею мүшесі
+1|fruit|плод|жеміс|protects the seeds and helps spread them|защищает семена и помогает их распространению|тұқымды қорғайды және таралуына көмектеседі
+1|seed|семя|тұқым|contains the embryo of a new plant|содержит зародыш нового растения|жаңа өсімдіктің ұрығы бар
+2|stomata|устьица|лептесіктер|let gases in and out of the leaf|пропускают газы в лист и из него|жапыраққа газдарды кіргізіп-шығарады
+2|pollen|пыльца|тозаң|carries the male sex cells of a plant|переносит мужские половые клетки растения|өсімдіктің аталық жыныс жасушаларын тасымалдайды
+2|root hairs|корневые волоски|тамыр түктері|greatly increase the area that absorbs water|многократно увеличивают всасывающую поверхность корня|су сіңіретін бетті бірнеше есе арттырады
+2|chlorophyll|хлорофилл|хлорофилл|the green pigment that captures sunlight|зелёный пигмент, улавливающий солнечный свет|күн сәулесін сіңіретін жасыл пигмент
+3|xylem|ксилема (древесина)|ксилема (сүрек)|carries water up from the roots|проводит воду вверх от корней|суды тамырдан жоғары өткізеді
+3|phloem|флоэма (луб)|флоэма (тін)|carries sugars from the leaves to other parts|проводит сахара от листьев к другим частям|қантты жапырақтан басқа мүшелерге өткізеді
+3|spore|спора|спора|reproduces ferns and mosses without seeds|служит для размножения папоротников и мхов без семян|қырықжапырақ пен мүктерді тұқымсыз көбейтеді
+`),
+    ask: (p) => L(`What does the ${p.a.en} of a plant do?`, `Какую функцию выполняет ${p.a.ru} у растения?`, `Өсімдіктің ${p.a.kk} қандай қызмет атқарады?`),
+    back: (p) => L(`Which part of a plant ${p.b.en}?`, `Какая часть растения ${p.b.ru}?`, `Өсімдіктің қай бөлігі ${p.b.kk}?`),
+  },
+  {
+    id: 'eco',
+    pairs: pairTable(`
+1|producers|продуценты|продуценттер|make organic matter from inorganic (green plants)|создают органические вещества из неорганических (зелёные растения)|бейорганикалық заттан органикалық зат түзеді (жасыл өсімдіктер)
+1|consumers|консументы|консументтер|eat ready-made organic matter (animals)|питаются готовыми органическими веществами (животные)|дайын органикалық затпен қоректенеді (жануарлар)
+1|decomposers|редуценты|редуценттер|break down dead remains (fungi, bacteria)|разлагают мёртвые остатки (грибы, бактерии)|өлі қалдықтарды ыдыратады (саңырауқұлақтар, бактериялар)
+1|food chain|пищевая цепь|қоректік тізбек|the order in which organisms eat one another|последовательность, в которой организмы поедают друг друга|ағзалардың бірін-бірі жеу реті
+2|ecosystem|экосистема|экожүйе|living organisms together with their environment|живые организмы вместе со средой обитания|тірі ағзалар мен олардың тіршілік ортасы бірге
+2|population|популяция|популяция|a group of one species living in one area|группа особей одного вида на одной территории|бір аумақта тіршілік ететін бір түрдің дарақтар тобы
+2|habitat|среда обитания|тіршілік ортасы|the place where an organism naturally lives|место, где организм живёт в природе|ағза табиғатта тіршілік ететін орын
+2|predator|хищник|жыртқыш|an animal that hunts and eats other animals|животное, которое охотится на других животных и поедает их|басқа жануарларды аулап жейтін жануар
+2|parasite|паразит|паразит|lives on or in another organism and harms it|живёт на другом организме или внутри него и вредит ему|басқа ағзаның үстінде не ішінде тіршілік етіп, оған зиян келтіреді
+3|symbiosis|симбиоз|симбиоз|a close relationship that benefits both partners|тесное сожительство, выгодное обоим партнёрам|екі серікке де пайдалы тығыз қарым-қатынас
+3|biosphere|биосфера|биосфера|the layer of the Earth where life exists|оболочка Земли, населённая живыми организмами|тірі ағзалар мекендейтін Жер қабығы
+3|Red Book|Красная книга|Қызыл кітап|a list of rare and endangered species|список редких и исчезающих видов|сирек және жойылып бара жатқан түрлердің тізімі
+3|biodiversity|биоразнообразие|биоәртүрлілік|the variety of living things in an area|разнообразие живых организмов на территории|аумақтағы тірі ағзалардың алуан түрлілігі
+`),
+    ask: (p) => L(`What are «${p.a.en}» in ecology?`, `Что такое «${p.a.ru}» в экологии?`, `Экологияда «${p.a.kk}» дегеніміз не?`),
+    back: (p) => L(`Which term means: ${p.b.en}?`, `Какой термин означает: ${p.b.ru}?`, `Қай термин мынаны білдіреді: ${p.b.kk}?`),
+  },
+  {
     id: 'cell',
     pairs: pairTable(`
 1|nucleus|ядро|ядро|stores the hereditary information (DNA)|хранит наследственную информацию (ДНК)|тұқым қуалаушылық ақпаратты (ДНҚ) сақтайды
@@ -227,6 +267,23 @@ const TABLES = [
 `),
     ask: (p) => L(`What does the ${p.a.en} do?`, `Какую функцию выполняет ${p.a.ru}?`, `${p.a.kk} қандай қызмет атқарады?`),
     back: (p) => L(`Which part of the cell ${p.b.en}?`, `Какая часть клетки ${p.b.ru}?`, `Жасушаның қай бөлігі ${p.b.kk}?`),
+  },
+  {
+    id: 'proc',
+    pairs: pairTable(`
+1|photosynthesis|фотосинтез|фотосинтез|plants make sugar and oxygen from carbon dioxide and water in light|растения на свету образуют сахар и кислород из углекислого газа и воды|өсімдіктер жарықта көмірқышқыл газы мен судан қант пен оттегі түзеді
+1|respiration|дыхание (клеточное)|тыныс алу (жасушалық)|cells break down sugar with oxygen to release energy|клетки расщепляют сахар с помощью кислорода и получают энергию|жасушалар оттегі арқылы қантты ыдыратып, энергия алады
+2|mitosis|митоз|митоз|division that gives two identical body cells|деление, дающее две одинаковые клетки тела|екі бірдей дене жасушасын беретін бөліну
+2|meiosis|мейоз|мейоз|division that halves the chromosomes and gives sex cells|деление, которое уменьшает число хромосом вдвое и даёт половые клетки|хромосома санын екі есе азайтып, жыныс жасушаларын беретін бөліну
+2|diffusion|диффузия|диффузия|particles move from where there are more of them to where there are fewer|частицы переходят оттуда, где их больше, туда, где их меньше|бөлшектер көп жерден аз жерге қарай өтеді
+2|osmosis|осмос|осмос|water passes through a membrane towards the more concentrated solution|вода проходит через мембрану в сторону более концентрированного раствора|су мембрана арқылы концентрациясы жоғары ерітіндіге қарай өтеді
+3|transcription|транскрипция|транскрипция|an RNA copy is made from DNA|синтез РНК на матрице ДНК|ДНҚ үлгісі бойынша РНҚ синтезі
+3|translation|трансляция|трансляция|a protein is assembled on a ribosome from an RNA message|сборка белка на рибосоме по информации РНК|РНҚ ақпараты бойынша рибосомада ақуыз құрастыру
+3|mutation|мутация|мутация|a sudden inherited change in the DNA|внезапное наследуемое изменение ДНК|ДНҚ-ның кенеттен болатын тұқым қуалайтын өзгерісі
+3|fermentation|брожение|ашу|breaking down sugar without oxygen|расщепление сахара без кислорода|қантты оттегісіз ыдырату
+`),
+    ask: (p) => L(`What is ${p.a.en}?`, `Что такое ${p.a.ru}?`, `${p.a.kk} дегеніміз не?`),
+    back: (p) => L(`Which process is this: ${p.b.en}?`, `Какой это процесс: ${p.b.ru}?`, `Бұл қандай үдеріс: ${p.b.kk}?`),
   },
   {
     id: 'vit',
@@ -256,6 +313,12 @@ const TABLES = [
 3|Carl Linnaeus|Карл Линней|Карл Линней|the system of naming species with two words|система двойных названий видов|түрлерді екі сөзбен атау жүйесі
 3|Ivan Pavlov|Иван Павлов|Иван Павлов|conditioned reflexes|условные рефлексы|шартты рефлекстер
 3|Ilya Mechnikov|Илья Мечников|Илья Мечников|phagocytosis (cells that swallow microbes)|фагоцитоз (клетки, поглощающие микробов)|фагоцитоз (микробтарды жұтатын жасушалар)
+2|Edward Jenner|Эдвард Дженнер|Эдвард Дженнер|the first vaccine, against smallpox|первая вакцина — против оспы|алғашқы вакцина — шешекке қарсы
+2|Robert Koch|Роберт Кох|Роберт Кох|the bacterium that causes tuberculosis|возбудитель туберкулёза|туберкулездің қоздырғышы
+3|Jean-Baptiste Lamarck|Жан-Батист Ламарк|Жан-Батист Ламарк|the first complete theory of evolution|первая целостная теория эволюции|алғашқы тұтас эволюция теориясы
+3|Nikolai Vavilov|Николай Вавилов|Николай Вавилов|the centres of origin of cultivated plants|центры происхождения культурных растений|мәдени өсімдіктердің шығу орталықтары
+3|Vladimir Vernadsky|Владимир Вернадский|Владимир Вернадский|the doctrine of the biosphere|учение о биосфере|биосфера туралы ілім
+3|Ivan Sechenov|Иван Сеченов|Иван Сеченов|the reflexes of the brain|рефлексы головного мозга|ми рефлекстері
 `),
     ask: (p) => L(`What is ${p.a.en} famous for?`, `Чем знаменит ${p.a.ru}?`, `${p.a.kk} немен әйгілі?`),
     back: (p) => L(`Who is known for ${p.b.en}?`, `Кто известен открытием: ${p.b.ru}?`, `Кім «${p.b.kk}» ашуымен белгілі?`),
@@ -281,6 +344,17 @@ function tableTask(ctx, topic, d, id) {
   return q;
 }
 
+/** Из каких видов заданий состоит каждая тема биологии. */
+const PARTS = {
+  animals: ['animal'],
+  body: ['organ', 'organ', 'organ', 'vit'],
+  cell: ['cell', 'cell', 'proc', 'sci'],
+  plants: ['plants'],
+  eco: ['eco'],
+  sci: ['sci'],
+  nature: ['plants', 'eco', 'animal'],
+};
+
 /**
  * Генератор биологии. part: animals — классы животных; body — органы, системы и витамины;
  * cell — органоиды клетки и учёные.
@@ -288,12 +362,8 @@ function tableTask(ctx, topic, d, id) {
 export function biologyMaker(topic, part) {
   return (ctx, d) => {
     for (let attempt = 0; attempt < 10; attempt++) {
-      const q =
-        part === 'animals'
-          ? animalTask(ctx, topic, d)
-          : part === 'body'
-            ? ctx.rng() < 0.7 ? organTask(ctx, topic, d) : tableTask(ctx, topic, d, 'vit')
-            : tableTask(ctx, topic, d, pick(ctx.rng, ['cell', 'cell', 'sci']));
+      const kind = pick(ctx.rng, PARTS[part]);
+      const q = kind === 'animal' ? animalTask(ctx, topic, d) : kind === 'organ' ? organTask(ctx, topic, d) : tableTask(ctx, topic, d, kind);
       if (!ctx.used?.has(q.id) || attempt === 9) return q;
     }
     return null;

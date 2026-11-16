@@ -37,7 +37,7 @@ test('каталог: у каждого курса есть название, о
   assert.equal(coursesIn('exams', 'cis').length, 10);
   assert.equal(courseById('math').tracks.length, 14, '11 классов и три уровня после школы');
   assert.deepEqual(courseById('english').tracks.map((t) => t.icon), ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']);
-  assert.equal(courseById('olymp').tracks.length, 6);
+  assert.equal(courseById('olymp').tracks.length, 13);
 });
 
 test('каталог: каждая тема каждой дорожки даёт корректное задание', () => {
@@ -164,7 +164,7 @@ test('профиль: прогресс по разделам и точность
   const rows = courseProgress(getProfile());
   // Курсы идут в порядке каталога: олимпиада раньше ежедневной математики.
   assert.deepEqual(rows.map((r) => [r.course.id, r.stars, r.max, r.done, r.total]), [
-    ['olymp', 2, 18, 1, 6],
+    ['olymp', 2, 39, 1, 13],
     ['math', 4, 42, 2, 14],
   ]);
 
