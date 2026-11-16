@@ -252,3 +252,47 @@ export function informaticsFactsMaker(topic) {
     return null;
   };
 }
+
+// ---------- Программирование: понятия ----------
+
+const CODE_TERMS = rows(`
+1|variable|переменная|айнымалы|a named place that stores a value|именованное место для хранения значения|мәнді сақтайтын аталған орын
+1|loop|цикл|цикл|repeats a block of code several times|повторяет блок кода несколько раз|код блогын бірнеше рет қайталайды
+1|condition (if)|условие (if)|шарт (if)|runs code only when an expression is true|выполняет код, только если выражение истинно|өрнек ақиқат болғанда ғана кодты орындайды
+1|string|строка|жол (string)|a sequence of characters, i.e. text|последовательность символов, то есть текст|таңбалар тізбегі, яғни мәтін
+1|integer|целое число (int)|бүтін сан (int)|a whole number without a fractional part|число без дробной части|бөлшек бөлігі жоқ сан
+1|boolean|логический тип (bool)|логикалық түр (bool)|a type with only two values: true and false|тип только с двумя значениями: истина и ложь|тек екі мәні бар түр: ақиқат және жалған
+1|comment|комментарий|түсініктеме|a note in the code that the computer ignores|пояснение в коде, которое компьютер не выполняет|компьютер орындамайтын кодтағы түсініктеме
+2|function|функция|функция|a named block of code that can be called many times|именованный блок кода, который можно вызывать много раз|бірнеше рет шақыруға болатын аталған код блогы
+2|array (list)|массив (список)|массив (тізім)|an ordered collection of values accessed by index|упорядоченный набор значений с доступом по индексу|индекс арқылы қол жеткізілетін мәндердің реттелген жиыны
+2|syntax error|синтаксическая ошибка|синтаксистік қате|a mistake in how the code is written, so it cannot run|ошибка в записи кода, из-за которой он не запускается|кодтың жазылуындағы қате, сондықтан ол іске қосылмайды
+2|bug|баг|баг|a mistake that makes a program work incorrectly|ошибка, из-за которой программа работает неправильно|бағдарламаны дұрыс істемейтін ететін қате
+2|debugging|отладка|жөндеу (debugging)|finding and fixing mistakes in a program|поиск и исправление ошибок в программе|бағдарламадағы қателерді тауып, түзету
+2|operator|оператор|оператор|a symbol for an action, such as + or ==|знак действия, например + или ==|+ немесе == сияқты әрекет белгісі
+2|IDE|среда разработки (IDE)|әзірлеу ортасы (IDE)|a program for writing, running and debugging code|программа для написания, запуска и отладки кода|кодты жазуға, іске қосуға және жөндеуге арналған бағдарлама
+3|recursion|рекурсия|рекурсия|when a function calls itself|когда функция вызывает сама себя|функция өзін-өзі шақырғанда
+3|compiler|компилятор|компилятор|translates the whole program into machine code before running|переводит всю программу в машинный код до запуска|іске қоспас бұрын бүкіл бағдарламаны машиналық кодқа аударады
+3|interpreter|интерпретатор|интерпретатор|runs a program line by line without full translation in advance|выполняет программу построчно без полного перевода заранее|бағдарламаны алдын ала толық аудармай, жол-жолымен орындайды
+3|library|библиотека|кітапхана|ready-made code that other programs can use|готовый код, который могут использовать другие программы|басқа бағдарламалар пайдалана алатын дайын код
+3|class|класс|класс|a template for creating objects with data and methods|шаблон для создания объектов с данными и методами|деректері мен әдістері бар объектілер жасауға арналған үлгі
+3|API|API|API|a set of rules by which programs talk to each other|набор правил, по которым программы общаются друг с другом|бағдарламалардың бір-бірімен байланысу ережелерінің жиыны
+3|version control (git)|система контроля версий (git)|нұсқаларды басқару жүйесі (git)|stores the history of changes in code|хранит историю изменений кода|код өзгерістерінің тарихын сақтайды
+3|binary search|двоичный поиск|екілік іздеу|finds a value in a sorted list by halving it each step|ищет значение в отсортированном списке, деля его пополам|сұрыпталған тізімде мәнді әр қадамда екіге бөліп іздейді
+`).map(([d, en, ru, kk, ben, bru, bkk]) => ({ d: Number(d), a: L(en, ru, kk), b: L(ben, bru, bkk) }));
+
+const CODE_TABLE = {
+  id: 'code',
+  items: CODE_TERMS,
+  fwd: (p) => L(`What is "${p.a.en}" in programming?`, `Что такое «${p.a.ru}» в программировании?`, `Бағдарламалаудағы «${p.a.kk}» дегеніміз не?`),
+  back: (p) => L(`Which term matches this description: "${p.b.en}"?`, `Какое понятие подходит к описанию: «${p.b.ru}»?`, `Қай ұғым мына сипаттамаға сәйкес: «${p.b.kk}»?`),
+};
+
+export function codeTermsMaker(topic) {
+  return (ctx, d) => {
+    for (let attempt = 0; attempt < 10; attempt++) {
+      const q = pairTask(ctx, topic, d, CODE_TABLE);
+      if (!ctx.used?.has(q.id) || attempt === 9) return q;
+    }
+    return null;
+  };
+}

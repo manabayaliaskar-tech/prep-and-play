@@ -39,7 +39,7 @@ export const CATS = {
   color: L('colours', 'цвета', 'түстер'),
   nature: L('nature and weather', 'природа и погода', 'табиғат пен ауа райы'),
   time: L('time', 'время', 'уақыт'),
-  place: L('places in a town', 'места в городе', 'қаладағы орындар'),
+  place: L('places', 'места и здания', 'орындар мен ғимараттар'),
   clothes: L('clothes', 'одежда', 'киім'),
   transport: L('transport', 'транспорт', 'көлік'),
   job: L('jobs', 'профессии', 'мамандықтар'),
@@ -232,4 +232,54 @@ export function wordsCount(lang, level) {
   const words = WORDS.filter((w) => w.level === level).length;
   const arts = lang === 'en' || level > 3 ? 0 : articleWords(lang).filter((w) => w.level === level).length;
   return words * 2 + arts;
+}
+
+// ---------- Аналогии (ОРТ): «волк — животные = рубашка — ?» на языке интерфейса ----------
+
+const ANALOGY_CATS = ['food', 'animal', 'body', 'home', 'school', 'clothes', 'transport', 'job', 'nature', 'place', 'color', 'people'];
+
+export function analogyMaker(topic) {
+  return (ctx, d) => {
+    const { rng } = ctx;
+    const pool = WORDS.filter((w) => ANALOGY_CATS.includes(w.cat) && w.level <= d + 1);
+    for (let attempt = 0; attempt < 20; attempt++) {
+      const a = pick(rng, pool);
+      const b = pick(rng, pool.filter((w) => w.cat !== a.cat && !near(w.cat, a.cat)));
+      if (!b) continue;
+      const askCat = rng() < 0.5;
+      const cat = (w) => CATS[w.cat];
+      let q;
+      if (askCat) {
+        const wrong = shuffle(ANALOGY_CATS.filter((c) => c !== b.cat && c !== a.cat && !near(c, b.cat)), rng).slice(0, 3).map((c) => CATS[c]);
+        q = poolQ(topic, d, {
+          kind: 'text',
+          prompt: L(`Complete the analogy: ${a.en} — ${cat(a).en} = ${b.en} — ?`, `Продолжи по аналогии: ${a.ru} — ${cat(a).ru} = ${b.ru} — ?`, `Ұқсастық бойынша жалғастыр: ${a.kk} — ${cat(a).kk} = ${b.kk} — ?`),
+          ex: L(`"${a.en}" belongs to «${cat(a).en}», "${b.en}" belongs to «${cat(b).en}».`, `«${a.ru}» относится к группе «${cat(a).ru}», а «${b.ru}» — к группе «${cat(b).ru}».`, `«${a.kk}» — «${cat(a).kk}» тобына, ал «${b.kk}» — «${cat(b).kk}» тобына жатады.`),
+          mc: (() => {
+            const all = [cat(b), ...wrong];
+            const order = shuffle([0, 1, 2, 3], rng);
+            return { choices: order.map((k) => all[k]), answer: order.indexOf(0) };
+          })(),
+        });
+      } else {
+        const others = [];
+        for (const w of shuffle(pool.filter((x) => x.cat !== b.cat && !near(x.cat, b.cat)), rng)) {
+          if (others.length === 3) break;
+          if (compatible([b, a, ...others], w)) others.push(w);
+        }
+        if (others.length < 3) continue;
+        const all = [b, ...others].map((w) => L(w.en, w.ru, w.kk));
+        const order = shuffle([0, 1, 2, 3], rng);
+        q = poolQ(topic, d, {
+          kind: 'text',
+          prompt: L(`Complete the analogy: ${a.en} — ${cat(a).en} = ? — ${cat(b).en}`, `Продолжи по аналогии: ${a.ru} — ${cat(a).ru} = ? — ${cat(b).ru}`, `Ұқсастық бойынша жалғастыр: ${a.kk} — ${cat(a).kk} = ? — ${cat(b).kk}`),
+          ex: L(`Of these words only "${b.en}" belongs to «${cat(b).en}».`, `Из этих слов только «${b.ru}» относится к группе «${cat(b).ru}».`, `Бұл сөздердің ішінде тек «${b.kk}» «${cat(b).kk}» тобына жатады.`),
+          mc: { choices: order.map((k) => all[k]), answer: order.indexOf(0) },
+        });
+      }
+      q.id = `${topic}:${askCat ? 'c' : 'w'}:${a.i}:${b.i}`;
+      if (!ctx.used?.has(q.id) || attempt > 15) return q;
+    }
+    return null;
+  };
 }

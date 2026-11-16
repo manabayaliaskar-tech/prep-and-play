@@ -171,6 +171,13 @@ musc|1|muscles|мышцы|бұлшықеттер
 musc|2|skull|череп|бас сүйек
 musc|3|tendons|сухожилия|сіңірлер
 endo|2|thyroid gland|щитовидная железа|қалқанша без
+circ|3|aorta|аорта|қолқа
+resp|3|larynx|гортань|көмей
+dig|2|teeth|зубы|тістер
+dig|3|gallbladder|желчный пузырь|өт қабы
+nerv|3|cerebellum|мозжечок|мишық
+musc|2|spine|позвоночник|омыртқа жотасы
+musc|3|joints|суставы|буындар
 endo|3|pituitary gland|гипофиз|гипофиз
 endo|3|adrenal glands|надпочечники|бүйрек үсті бездері
 `).map(([sys, d, en, ru, kk]) => ({ sys, d: Number(d), name: L(en, ru, kk) }));

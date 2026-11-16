@@ -173,7 +173,7 @@ const SUBJECT = {
       [['l.ru', ALL], ['l.rugen', ALL]], { count: 15, minutes: 20 }),
   social: () =>
     track('social', '⚖️', N.social, L('State, law, economics, society', 'Государство, право, экономика, общество', 'Мемлекет, құқық, экономика, қоғам'),
-      [['s.bank', ALL], ['s.terms', ALL]], { count: 12, minutes: 15 }),
+      [['s.bank', ALL], ['s.terms', ALL], ['s.powers', ALL]], { count: 12, minutes: 15 }),
   /** История страны: свой банк вместе со всемирной историей. */
   history: (topic, name, id = 'history') =>
     track(id, '📜', name, L('Key events and people', 'Главные события и личности', 'Басты оқиғалар мен тұлғалар'),
@@ -183,9 +183,12 @@ const SUBJECT = {
 // Олимпиадная математика: три уровня. Ключ в наборе тем — номер уровня.
 const OLYMP_TOPICS = ['o.count', 'o.digit', 'o.div', 'o.pigeon', 'o.sum', 'o.games', 'o.logic', 'o.geom', 'o.rem', 'o.fact', 'o.paths'];
 const OLYMP_LEVELS = [
-  [L('Grades 5–6', '5–6 классы', '5–6 сыныптар'), L('First ideas: counting, pairs, the worst case', 'Первые идеи: подсчёт, разбиение на пары, худший случай', 'Алғашқы идеялар: санау, жұптау, ең нашар жағдай')],
-  [L('Grades 7–8', '7–8 классы', '7–8 сыныптар'), L('Divisibility, remainders, combinatorics', 'Делимость, остатки, комбинаторика', 'Бөлінгіштік, қалдықтар, комбинаторика')],
-  [L('Grades 9–11', '9–11 классы', '9–11 сыныптар'), L('Number theory, counting routes, clever sums', 'Теория чисел, подсчёт маршрутов, хитрые суммы', 'Сандар теориясы, маршруттарды санау, қызықты қосындылар')],
+  [L('Grade 5', '5 класс', '5-сынып'), L('First ideas: counting, pairs, the worst case', 'Первые идеи: подсчёт, разбиение на пары, худший случай', 'Алғашқы идеялар: санау, жұптау, ең нашар жағдай'), 1, ['o.count', 'o.digit', 'o.pigeon', 'o.logic', 'o.geom', 'o.paths']],
+  [L('Grade 6', '6 класс', '6-сынып'), L('Divisibility, remainders, tournaments', 'Делимость, остатки, турниры', 'Бөлінгіштік, қалдықтар, турнирлер'), 1, null],
+  [L('Grade 7', '7 класс', '7-сынып'), L('Combinatorics, clever sums, routes', 'Комбинаторика, хитрые суммы, маршруты', 'Комбинаторика, қызықты қосындылар, маршруттар'), 2, ['o.count', 'o.sum', 'o.paths', 'o.games', 'o.logic', 'o.pigeon', 'o.digit']],
+  [L('Grade 8', '8 класс', '8-сынып'), L('Number theory and equations in integers', 'Теория чисел и уравнения в целых числах', 'Сандар теориясы және бүтін сандардағы теңдеулер'), 2, null],
+  [L('Grade 9', '9 класс', '9-сынып'), L('Regional olympiad level', 'Уровень областной олимпиады', 'Облыстық олимпиада деңгейі'), 3, ['o.div', 'o.rem', 'o.fact', 'o.sum', 'o.count', 'o.geom', 'o.logic']],
+  [L('Grades 10–11', '10–11 классы', '10–11 сыныптар'), L('The hardest problems of every type', 'Самые трудные задачи всех типов', 'Барлық түрдегі ең қиын есептер'), 3, null],
 ];
 
 
@@ -464,7 +467,7 @@ export const COURSES = [
     ),
     tracks: [
       track('math', '📐', L('Mathematics (main test)', 'Математика (основной тест)', 'Математика (негізгі тест)'), D.mathLit, [...MATH_LITERACY, ['m.lineq', [1, 2]], ['m.ineq', [1, 2]], ['m.pyth', [1, 2]], ['m.angle', [1, 2]], ['m.pow', [1, 2]]], { count: 15, minutes: 30 }),
-      track('analogies', '🔗', L('Analogies and sentence completion', 'Аналогии и дополнение предложений', 'Аналогиялар мен сөйлемдерді толықтыру'), L('Relations between words, meaning in context', 'Связи между словами, смысл в контексте', 'Сөздер арасындағы байланыс, контекстегі мағына'), [['l.analogy', [0]], ['l.complete', [0]]], { count: 15, minutes: 15 }),
+      track('analogies', '🔗', L('Analogies and sentence completion', 'Аналогии и дополнение предложений', 'Аналогиялар мен сөйлемдерді толықтыру'), L('Relations between words, meaning in context', 'Связи между словами, смысл в контексте', 'Сөздер арасындағы байланыс, контекстегі мағына'), [['l.analogy', [0]], ['l.analogy2', [1, 2, 3]], ['l.complete', [0]]], { count: 15, minutes: 15 }),
       track('reading', '📖', L('Reading comprehension', 'Чтение и понимание', 'Оқу және түсіну'), L('Texts and questions about them', 'Тексты и вопросы к ним', 'Мәтіндер және оларға сұрақтар'), [['r.literacy', [1]]], { count: 12, minutes: 20 }),
       track('grammar', 'Аа', L('Practical grammar (Russian)', 'Практическая грамматика (русский язык)', 'Практикалық грамматика (орыс тілі)'), L('Spelling, punctuation, language norms', 'Орфография, пунктуация, нормы языка', 'Орфография, пунктуация, тіл нормалары'), [['l.ru', ALL], ['l.rugen', ALL]], { count: 15, minutes: 20 }),
       englishTrack([3, 4], { count: 20, minutes: 20 }),
@@ -581,8 +584,8 @@ export const COURSES = [
       'Задачи, которые решаются идеей, а не формулой: подсчёты, делимость, принцип Дирихле, крайние случаи. У каждой задачи — подробное решение.',
       'Формуламен емес, идеямен шешілетін есептер: санау, бөлінгіштік, Дирихле принципі, шеткі жағдайлар. Әр есептің толық шешімі бар.',
     ),
-    tracks: OLYMP_LEVELS.map(([name, desc], i) =>
-      track(`l${i + 1}`, String(i + 1), name, desc, [...OLYMP_TOPICS.map((id) => [id, [i + 1]]), ...(i > 0 ? [['o.eq', [i + 1]]] : [])], { count: 8, minutes: 30 }),
+    tracks: OLYMP_LEVELS.map(([name, desc, d, topics], i) =>
+      track(`l${i + 1}`, String(i + 1), name, desc, [...(topics ?? OLYMP_TOPICS).map((id) => [id, [d]]), ...(d > 1 && !topics ? [['o.eq', [d]]] : [])], { count: 8, minutes: 30 }),
     ),
   },
   // ===== Ежедневная практика =====
@@ -814,16 +817,19 @@ export const COURSES = [
     color,
     leveled: true,
     name: L(CODE_NAMES[lang], CODE_NAMES[lang], CODE_NAMES[lang]),
-    full: L('Three levels', 'Три уровня', 'Үш деңгей'),
+    full: L('Six levels', 'Шесть уровней', 'Алты деңгей'),
     about: L(
       `${about.en} Each question is a short program: read it and say what it prints. The answers are computed by actually running the code.`,
       `${about.ru} Каждое задание — короткая программа: прочитай её и скажи, что она выведет. Ответы получены настоящим запуском кода.`,
       `${about.kk} Әр тапсырма — қысқа бағдарлама: оны оқып, не шығаратынын айт. Жауаптар кодты шынымен іске қосу арқылы алынған.`,
     ),
     tracks: [
-      track('l1', '1', L('Basics', 'Основы', 'Негіздер'), L('Variables, arithmetic, the first if', 'Переменные, арифметика, первое условие', 'Айнымалылар, арифметика, алғашқы шарт'), [[`${lang}.vars`, [1, 2]], [`${lang}.cond`, [1]], ['code.theory', [1]]], { count: 10, minutes: 15 }),
-      track('l2', '2', L('Conditions and loops', 'Условия и циклы', 'Шарттар мен циклдер'), L('if-else chains, for loops, arrays', 'Цепочки if-else, циклы for, массивы', 'if-else тізбектері, for циклдері, массивтер'), [[`${lang}.cond`, [2, 3]], [`${lang}.loop`, [1, 2]], [`${lang}.arr`, [1]], ['code.theory', [2]]], { count: 10, minutes: 15 }),
-      track('l3', '3', L('Algorithms and functions', 'Алгоритмы и функции', 'Алгоритмдер мен функциялар'), L('while loops, maximum search, functions, recursion', 'Циклы while, поиск максимума, функции, рекурсия', 'while циклдері, ең үлкенін іздеу, функциялар, рекурсия'), [[`${lang}.loop`, [3]], [`${lang}.arr`, [2, 3]], [`${lang}.func`, [2, 3]], [`${lang}.vars`, [3]], ['code.theory', [3]]], { count: 10, minutes: 15 }),
+      track('l1', '1', L('Basics', 'Основы', 'Негіздер'), L('Variables, arithmetic, the first if', 'Переменные, арифметика, первое условие', 'Айнымалылар, арифметика, алғашқы шарт'), [[`${lang}.vars`, [1, 2]], [`${lang}.cond`, [1]], ['code.theory', [1]], ['code.terms', [1]]], { count: 10, minutes: 15 }),
+      track('l2', '2', L('Conditions', 'Условия', 'Шарттар'), L('if-else chains, logical operators, integer division', 'Цепочки if-else, логические операции, целочисленное деление', 'if-else тізбектері, логикалық амалдар, бүтін бөлу'), [[`${lang}.cond`, [2, 3]], [`${lang}.vars`, [3]], ['code.theory', [1, 2]], ['code.terms', [1, 2]]], { count: 10, minutes: 15 }),
+      track('l3', '3', L('Loops', 'Циклы', 'Циклдер'), L('for and while loops, counters and sums', 'Циклы for и while, счётчики и суммы', 'for және while циклдері, санауыштар мен қосындылар'), [[`${lang}.loop`, [1, 2]], [`${lang}.arr`, [1]], ['code.theory', [2]], ['code.terms', [2]]], { count: 10, minutes: 15 }),
+      track('l4', '4', L('Arrays', 'Массивы', 'Массивтер'), L('Indexes, searching for the maximum, nested loops', 'Индексы, поиск максимума, вложенные циклы', 'Индекстер, ең үлкенін іздеу, кірістірілген циклдер'), [[`${lang}.arr`, [2, 3]], [`${lang}.loop`, [3]], ['code.theory', [2]], ['code.terms', [2]]], { count: 10, minutes: 15 }),
+      track('l5', '5', L('Functions and recursion', 'Функции и рекурсия', 'Функциялар және рекурсия'), L('Calling functions, factorial, Fibonacci, powers', 'Вызов функций, факториал, Фибоначчи, степени', 'Функцияны шақыру, факториал, Фибоначчи, дәрежелер'), [[`${lang}.func`, [1, 2, 3]], [`${lang}.arr`, [3]], ['code.theory', [3]], ['code.terms', [3]]], { count: 10, minutes: 15 }),
+      track('l6', '🏆', L('Olympiad level', 'Олимпиадный уровень', 'Олимпиада деңгейі'), L('The hardest programs from every topic', 'Самые сложные программы по всем темам', 'Барлық тақырып бойынша ең күрделі бағдарламалар'), [[`${lang}.vars`, [3]], [`${lang}.cond`, [3]], [`${lang}.loop`, [3]], [`${lang}.arr`, [3]], [`${lang}.func`, [3]], ['code.terms', [3]]], { count: 12, minutes: 20 }),
     ],
   })),
 ];

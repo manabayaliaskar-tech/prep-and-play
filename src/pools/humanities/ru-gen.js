@@ -192,6 +192,27 @@ const TERMS = rows(`
 3|legal competence|дееспособность|әрекет қабілеттілігі|the ability to gain and exercise rights by one’s own actions|способность своими действиями приобретать и осуществлять права|өз әрекетімен құқықтарға ие болу және оларды жүзеге асыру қабілеті
 3|socialisation|социализация|әлеуметтену|the process of learning the norms and values of society|процесс усвоения человеком норм и ценностей общества|адамның қоғам нормалары мен құндылықтарын игеру үдерісі
 3|rule-of-law state|правовое государство|құқықтық мемлекет|a state in which the law is above everyone, including the authorities|государство, в котором закон выше всех, в том числе власти|заң бәрінен, соның ішінде биліктен де жоғары тұратын мемлекет
+1|election|выборы|сайлау|choosing officials by voting|избрание должностных лиц голосованием|лауазымды тұлғаларды дауыс беру арқылы сайлау
+1|law|закон|заң|a rule adopted by parliament that everyone must obey|правило, принятое парламентом и обязательное для всех|парламент қабылдаған, бәріне міндетті ереже
+1|family|семья|отбасы|a small group of people linked by marriage or kinship|малая группа людей, связанных браком или родством|некемен не туыстықпен байланысқан адамдардың шағын тобы
+1|salary|заработная плата|жалақы|payment for work|вознаграждение за труд|еңбек үшін төленетін ақы
+1|price|цена|баға|the amount of money paid for a good|количество денег, которое платят за товар|тауар үшін төленетін ақша мөлшері
+2|market|рынок|нарық|a place or system where buyers and sellers exchange goods|место или система обмена товаров между покупателями и продавцами|сатып алушылар мен сатушылар тауар алмасатын орын немесе жүйе
+2|bank|банк|банк|an organisation that accepts deposits and gives loans|организация, которая принимает вклады и выдаёт кредиты|салым қабылдап, несие беретін ұйым
+2|loan (credit)|кредит|несие|money lent that must be returned with interest|деньги в долг, которые нужно вернуть с процентами|пайызымен қайтару керек қарызға берілген ақша
+2|culture|культура|мәдениет|everything people have created: values, art, knowledge, traditions|всё, что создано людьми: ценности, искусство, знания, традиции|адамдар жасаған бәрі: құндылықтар, өнер, білім, дәстүрлер
+2|morality|мораль|мораль|the rules of good and bad behaviour accepted in society|принятые в обществе правила хорошего и плохого поведения|қоғамда қабылданған жақсы және жаман мінез-құлық ережелері
+2|crime|преступление|қылмыс|a dangerous act forbidden by criminal law|опасное деяние, запрещённое уголовным законом|қылмыстық заңмен тыйым салынған қауіпті әрекет
+2|court|суд|сот|a state body that settles disputes and decides cases by law|государственный орган, который разрешает споры и дела по закону|дауларды заң бойынша шешетін мемлекеттік орган
+2|human rights|права человека|адам құқықтары|freedoms that belong to every person from birth|свободы, которые принадлежат каждому человеку от рождения|әр адамға туғаннан тиесілі бостандықтар
+3|totalitarianism|тоталитаризм|тоталитаризм|a regime where the state controls every area of life|режим, при котором государство контролирует все сферы жизни|мемлекет өмірдің барлық салаларын бақылайтын режим
+3|globalisation|глобализация|жаһандану|the growing interconnection of countries in economics, politics and culture|усиление взаимосвязи стран в экономике, политике и культуре|елдердің экономикада, саясатта және мәдениетте өзара байланысының күшеюі
+3|civil society|гражданское общество|азаматтық қоғам|associations of citizens that are independent of the state|объединения граждан, независимые от государства|мемлекеттен тәуелсіз азаматтар бірлестіктері
+3|deficit|дефицит бюджета|бюджет тапшылығы|a situation where state spending is greater than income|ситуация, когда расходы государства больше доходов|мемлекет шығысы кірісінен көп болатын жағдай
+3|entrepreneurship|предпринимательство|кәсіпкерлік|independent activity aimed at making a profit at one’s own risk|самостоятельная деятельность ради прибыли на свой риск|өз тәуекелімен пайда табуға бағытталған дербес қызмет
+3|social mobility|социальная мобильность|әлеуметтік ұтқырлық|a person’s movement from one social position to another|переход человека из одной социальной позиции в другую|адамның бір әлеуметтік жағдайдан басқасына өтуі
+3|stock (share)|акция|акция|a security that gives its owner a share in a company|ценная бумага, дающая владельцу долю в компании|иесіне компаниядағы үлесті беретін бағалы қағаз
+3|subculture|субкультура|субмәдениет|the culture of a group that differs from the dominant culture|культура группы, отличающаяся от господствующей|үстем мәдениеттен ерекшеленетін топтың мәдениеті
 `).map(([d, en, ru, kk, den, dru, dkk]) => ({ d: Number(d), term: L(en, ru, kk), def: L(den, dru, dkk) }));
 
 export function socialMaker(topic) {
@@ -211,6 +232,84 @@ export function socialMaker(topic) {
         mc: fwd ? mcOf(rng, t.def, wrong.map((x) => x.def)) : mcOf(rng, t.term, wrong.map((x) => x.term)),
       });
       q.id = `${topic}:${fwd ? 'f' : 'b'}:${t.term.en}`;
+      if (!ctx.used?.has(q.id) || attempt === 9) return q;
+    }
+    return null;
+  };
+}
+
+// ---------- Обществознание: к какой ветви власти или сфере относится ----------
+
+const BRANCHES = {
+  leg: L('the legislative branch', 'законодательная власть', 'заң шығарушы билік'),
+  exe: L('the executive branch', 'исполнительная власть', 'атқарушы билік'),
+  jud: L('the judicial branch', 'судебная власть', 'сот билігі'),
+};
+const BODIES = rows(`
+leg|parliament|парламент|парламент
+leg|the Senate|Сенат|Сенат
+leg|the Mazhilis|Мажилис|Мәжіліс
+leg|the State Duma|Государственная дума|Мемлекеттік дума
+exe|the government|правительство|үкімет
+exe|a ministry|министерство|министрлік
+exe|the prime minister|премьер-министр|премьер-министр
+exe|a regional akimat (administration)|акимат (администрация региона)|әкімдік
+jud|the Supreme Court|Верховный суд|Жоғарғы сот
+jud|a district court|районный суд|аудандық сот
+jud|the Constitutional Court|Конституционный суд|Конституциялық сот
+`).map(([b, en, ru, kk]) => ({ b, name: L(en, ru, kk) }));
+
+const SPHERES = {
+  eco: L('economic', 'экономическая', 'экономикалық'),
+  pol: L('political', 'политическая', 'саяси'),
+  soc: L('social', 'социальная', 'әлеуметтік'),
+  spi: L('spiritual (cultural)', 'духовная', 'рухани'),
+};
+const FACTS = rows(`
+eco|a factory produces cars|завод выпускает автомобили|зауыт автомобиль шығарады
+eco|a family takes out a bank loan|семья берёт кредит в банке|отбасы банктен несие алады
+eco|a shop raises its prices|магазин повышает цены|дүкен бағаны көтереді
+eco|a farmer sells grain at the market|фермер продаёт зерно на рынке|фермер нарықта астық сатады
+pol|citizens vote in an election|граждане голосуют на выборах|азаматтар сайлауда дауыс береді
+pol|parliament passes a law|парламент принимает закон|парламент заң қабылдайды
+pol|two countries sign a peace treaty|две страны подписывают мирный договор|екі ел бейбітшілік шартына қол қояды
+pol|a party presents its programme|партия представляет свою программу|партия өз бағдарламасын ұсынады
+soc|a new school is opened for children|для детей открывают новую школу|балаларға жаңа мектеп ашылады
+soc|the state pays pensions to the elderly|государство выплачивает пенсии пожилым|мемлекет қарттарға зейнетақы төлейді
+soc|a young family receives housing support|молодая семья получает помощь с жильём|жас отбасы баспанаға көмек алады
+spi|a theatre stages a new play|театр ставит новый спектакль|театр жаңа спектакль қояды
+spi|scientists publish a discovery|учёные публикуют открытие|ғалымдар жаңалығын жариялайды
+spi|a museum opens an exhibition|музей открывает выставку|мұражай көрме ашады
+spi|a writer publishes a novel|писатель издаёт роман|жазушы роман шығарады
+`).map(([s2, en, ru, kk]) => ({ s: s2, fact: L(en, ru, kk) }));
+
+export function powersMaker(topic) {
+  return (ctx, d) => {
+    const { rng } = ctx;
+    for (let attempt = 0; attempt < 10; attempt++) {
+      let q;
+      if (rng() < 0.5) {
+        const body = pick(rng, BODIES);
+        const wrong = Object.keys(BRANCHES).filter((k) => k !== body.b).map((k) => BRANCHES[k]);
+        const extra = L('it is not a body of state power', 'это не орган государственной власти', 'бұл мемлекеттік билік органы емес');
+        q = poolQ(topic, d, {
+          kind: 'text',
+          prompt: L(`Which branch of power does ${body.name.en} belong to?`, `К какой ветви власти относится ${body.name.ru}?`, `${body.name.kk} биліктің қай тармағына жатады?`),
+          ex: L(`${body.name.en} — ${BRANCHES[body.b].en}.`, `${body.name.ru} — ${BRANCHES[body.b].ru}.`, `${body.name.kk} — ${BRANCHES[body.b].kk}.`),
+          mc: mcOf(rng, BRANCHES[body.b], [...wrong, extra]),
+        });
+        q.id = `${topic}:b:${body.name.en}`;
+      } else {
+        const f = pick(rng, FACTS);
+        const wrong = Object.keys(SPHERES).filter((k) => k !== f.s).map((k) => SPHERES[k]);
+        q = poolQ(topic, d, {
+          kind: 'text',
+          prompt: L(`Which sphere of society does this illustrate: ${f.fact.en}?`, `Какую сферу общества иллюстрирует пример: ${f.fact.ru}?`, `Мысал қоғамның қай саласын көрсетеді: ${f.fact.kk}?`),
+          ex: L(`This is the ${SPHERES[f.s].en} sphere.`, `Это ${SPHERES[f.s].ru} сфера.`, `Бұл — ${SPHERES[f.s].kk} сала.`),
+          mc: mcOf(rng, SPHERES[f.s], wrong),
+        });
+        q.id = `${topic}:s:${f.fact.en}`;
+      }
       if (!ctx.used?.has(q.id) || attempt === 9) return q;
     }
     return null;

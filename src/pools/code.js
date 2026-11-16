@@ -464,6 +464,45 @@ function funcs(lang, ctx, d) {
       L(`${f(a)} + ${f(b)} = ${f(a) + f(b)}`, `${f(a)} + ${f(b)} = ${f(a) + f(b)}`, `${f(a)} + ${f(b)} = ${f(a) + f(b)}`),
     ], [a * a + b * b + k, f(a + b), 2 * a + 2 * b + 2 * k, f(a) + f(b) + 1]);
   }
+  // Сложность 3: рекурсия — факториал, сумма, числа Фибоначчи или степень.
+  const kind = pick(rng, ['fact', 'sum', 'fib', 'pow']);
+  if (kind === 'sum') {
+    const n = randomInt(rng, 4, 12);
+    const total = (n * (n + 1)) / 2;
+    const program = [
+      func('s', ['n'], [ifChain([[bin('<=', ref('n'), num(0)), [ret(num(0))]]]), ret(bin('+', ref('n'), call('s', bin('-', ref('n'), num(1)))))]),
+      print(call('s', num(n))),
+    ];
+    return codeQ(`${lang}.func`, lang, d, program, [
+      L('The function adds n to the result for n − 1 until n reaches 0 (recursion).', 'Функция прибавляет n к результату для n − 1, пока n не станет 0 (рекурсия).', 'Функция n 0-ге жеткенше n-ді n − 1 нәтижесіне қосады (рекурсия).'),
+      L(`s(${n}) = ${n} + ${n - 1} + … + 1 = ${total}`, `s(${n}) = ${n} + ${n - 1} + … + 1 = ${total}`, `s(${n}) = ${n} + ${n - 1} + … + 1 = ${total}`),
+    ], [total - n, total + n + 1, n * n, total - 1]);
+  }
+  if (kind === 'fib') {
+    const n = randomInt(rng, 5, 11);
+    const fib = [0, 1];
+    for (let i = 2; i <= n + 1; i++) fib.push(fib[i - 1] + fib[i - 2]);
+    const program = [
+      func('f', ['n'], [ifChain([[bin('<=', ref('n'), num(1)), [ret(ref('n'))]]]), ret(bin('+', call('f', bin('-', ref('n'), num(1))), call('f', bin('-', ref('n'), num(2)))))]),
+      print(call('f', num(n))),
+    ];
+    return codeQ(`${lang}.func`, lang, d, program, [
+      L('Each value is the sum of the two previous ones: these are the Fibonacci numbers.', 'Каждое значение — сумма двух предыдущих: это числа Фибоначчи.', 'Әр мән алдыңғы екеуінің қосындысы: бұл Фибоначчи сандары.'),
+      L(`f(0..${n}) = ${fib.slice(0, n + 1).join(', ')}`, `f(0..${n}) = ${fib.slice(0, n + 1).join(', ')}`, `f(0..${n}) = ${fib.slice(0, n + 1).join(', ')}`),
+    ], [fib[n - 1], fib[n + 1], fib[n] + 1, 2 * fib[n - 1]]);
+  }
+  if (kind === 'pow') {
+    const a = randomInt(rng, 2, 4);
+    const b = randomInt(rng, 2, a === 2 ? 7 : 4);
+    const program = [
+      func('p', ['a', 'b'], [ifChain([[bin('==', ref('b'), num(0)), [ret(num(1))]]]), ret(bin('*', ref('a'), call('p', ref('a'), bin('-', ref('b'), num(1)))))]),
+      print(call('p', num(a), num(b))),
+    ];
+    return codeQ(`${lang}.func`, lang, d, program, [
+      L('p(a, b) multiplies a by itself b times: it is a to the power b.', 'p(a, b) умножает a на себя b раз — это a в степени b.', 'p(a, b) a-ны өзіне b рет көбейтеді — бұл a-ның b дәрежесі.'),
+      L(`${a}^${b} = ${a ** b}`, `${a}^${b} = ${a ** b}`, `${a}^${b} = ${a ** b}`),
+    ], [a * b, a ** (b - 1), b ** a === a ** b ? a ** b + a : b ** a, a ** b + 1]);
+  }
   const n = randomInt(rng, 3, 6);
   let fact = 1;
   for (let i = 2; i <= n; i++) fact *= i;

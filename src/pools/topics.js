@@ -17,14 +17,14 @@ import { CODE_THEORY } from './code-theory.js';
 import { languageMaker } from './languages/index.js';
 import { FRENCH, SPANISH } from './languages/romance.js';
 import { CHINESE } from './languages/chinese.js';
-import { wordsMaker } from './languages/vocab.js';
+import { analogyMaker, wordsMaker } from './languages/vocab.js';
 import { verbsMaker } from './languages/verbs.js';
 import { hanziMaker } from './languages/zh.js';
 import { comparisonMaker, grammarMaker, irregularMaker } from './english/gen.js';
 import { kazakhstanMaker, recordsMaker, worldMaker } from './science/geo.js';
 import { compoundsMaker, elementsMaker } from './science/chem-gen.js';
 import { biologyMaker, geneticsMaker } from './science/bio-gen.js';
-import { informaticsFactsMaker, physicsFactsMaker } from './science/facts-gen.js';
+import { codeTermsMaker, informaticsFactsMaker, physicsFactsMaker } from './science/facts-gen.js';
 import { bankMaker } from './bank.js';
 import { PHYSICS_THEORY, dynamics, electricity, energy, heat, kinematics, waves } from './science/physics.js';
 import { CHEMISTRY_THEORY, molarMass, moles } from './science/chemistry.js';
@@ -33,7 +33,7 @@ import { HISTORY_KZ, HISTORY_REGION, HISTORY_RU, HISTORY_WORLD } from './humanit
 import { ANALOGIES, RUSSIAN, SENTENCES, SOCIAL } from './humanities/language.js';
 import { LITERACY } from './humanities/literacy.js';
 import { timelineMaker } from './humanities/history-gen.js';
-import { russianMaker, socialMaker } from './humanities/ru-gen.js';
+import { powersMaker, russianMaker, socialMaker } from './humanities/ru-gen.js';
 import { INFORMATICS_THEORY, algorithms, infoUnits, logic as boolLogic, numberSystems } from './science/informatics.js';
 import { counting, diophantine, divisors, factorials, lastDigit, logic, paths, pigeonhole, remainders, shapes, sums, tournaments } from './olymp.js';
 
@@ -143,6 +143,7 @@ export const TOPICS = {
   'h.by': topic('history', L('History of Belarus', 'История Беларуси', 'Беларусь тарихы'), bankMaker('h.by', HISTORY_REGION.by)),
   'h.md': topic('history', L('History of Moldova', 'История Молдовы', 'Молдова тарихы'), bankMaker('h.md', HISTORY_REGION.md)),
   's.bank': topic('social', L('Social studies', 'Обществознание', 'Қоғамтану'), bankMaker('s.bank', SOCIAL)),
+  's.powers': topic('social', L('Branches of power and spheres of society', 'Ветви власти и сферы общества', 'Билік тармақтары мен қоғам салалары'), powersMaker('s.powers')),
   's.terms': topic('social', L('Terms of social studies', 'Термины обществознания', 'Қоғамтану терминдері'), socialMaker('s.terms')),
   'h.kzt': topic('history', L('Kazakhstan: dates and people', 'Казахстан: даты и личности', 'Қазақстан: даталар мен тұлғалар'), timelineMaker('h.kzt', 'kz')),
   'h.wt': topic('history', L('World history: dates and people', 'Всемирная история: даты и личности', 'Дүниежүзі тарихы: даталар мен тұлғалар'), timelineMaker('h.wt', 'world')),
@@ -152,6 +153,7 @@ export const TOPICS = {
   'l.ru': topic('russian', L('Russian language', 'Русский язык', 'Орыс тілі'), bankMaker('l.ru', RUSSIAN)),
   'l.rugen': topic('russian', L('Stress and spelling', 'Ударения и словарные слова', 'Екпін және сөздік сөздер'), russianMaker('l.rugen')),
   'l.analogy': topic('russian', L('Analogies', 'Аналогии', 'Аналогиялар'), bankMaker('l.analogy', ANALOGIES)),
+  'l.analogy2': topic('russian', L('Word analogies', 'Аналогии слов', 'Сөз аналогиялары'), analogyMaker('l.analogy2')),
   'l.complete': topic('russian', L('Sentence completion', 'Дополнение предложений', 'Сөйлемді толықтыру'), bankMaker('l.complete', SENTENCES)),
   'r.literacy': topic('reading', L('Reading literacy', 'Грамотность чтения', 'Оқу сауаттылығы'), readingMaker('r.literacy', LITERACY)),
 
@@ -171,6 +173,7 @@ export const TOPICS = {
 
   // ----- Программирование -----
   'code.theory': topic('code', L('Programming basics', 'Основы программирования', 'Бағдарламалау негіздері'), bankMaker('code.theory', CODE_THEORY)),
+  'code.terms': topic('code', L('Programming terms', 'Понятия программирования', 'Бағдарламалау ұғымдары'), codeTermsMaker('code.terms')),
   ...Object.fromEntries(
     Object.entries(CODE_LANGS).flatMap(([lang, { name }]) =>
       Object.entries(codeTopics(lang)).map(([id, make]) => {
