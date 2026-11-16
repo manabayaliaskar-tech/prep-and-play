@@ -9,6 +9,7 @@ import { DETECTIVE } from '../src/content/detective.js';
 import { ACHIEVEMENTS, evaluateAchievements } from '../src/content/achievements.js';
 import { DOMAINS, SKILLS, ZONES } from '../src/content/skills.js';
 import { STRINGS } from '../src/i18n/strings.js';
+import { PERIODS, PLANS } from '../src/core/pricing.js';
 import { createRng } from '../src/core/random.js';
 import { buildModule, domainCounts } from '../src/screens/exam.js';
 import { errorIndex } from '../src/screens/detective.js';
@@ -157,13 +158,22 @@ test('переводы: каждый ключ интерфейса есть на
   for (const file of sourceFiles('src')) {
     for (const m of readFileSync(file, 'utf8').matchAll(/\bt\(\s*'([a-zA-Z0-9_.]+)'/g)) used.add(m[1]);
   }
+  // Ключи, которые собираются в коде из частей, — их поиск по тексту не находит.
   const dynamic = [
-    'nav.home', 'nav.practice', 'nav.exams', 'nav.olymp', 'nav.profile', 'nav.premium', 'premium.limitWeek', 'premium.unlimited',
-    'premium.rowMap', 'premium.rowModes', 'premium.rowSolutions', 'premium.rowMini', 'premium.rowFull', 'duel.win', 'duel.lose', 'duel.draw', 'exam.routeHard', 'exam.routeEasy',
+    'nav.home', 'nav.practice', 'nav.exams', 'nav.olymp', 'nav.profile', 'nav.premium',
+    'premium.limitDay', 'premium.unlimited', 'premium.tutorLimit',
+    'premium.rowAll', 'premium.rowSolutions', 'premium.rowTests', 'premium.rowStats', 'premium.rowPlan', 'premium.rowTutor', 'premium.rowClass', 'premium.rowAudio',
+    ...PLANS.flatMap((p) => [`premium.${p.id}`, `premium.${p.id}Desc`]),
+    ...PERIODS.map((p) => `premium.period${p.months}`),
+    'duel.win', 'duel.lose', 'duel.draw', 'exam.routeHard', 'exam.routeEasy',
     ...[1, 2, 3, 4, 5, 6].map((i) => `fb.praise${i}`),
     ...['map', 'exam', 'duel', 'survival', 'blitz', 'det', 'weak', 'daily'].flatMap((k) => [`mode.${k}.title`, `mode.${k}.desc`]),
   ];
   for (const key of [...used, ...dynamic]) {
     for (const l of LANGS) assert.ok(STRINGS[l][key], `нет перевода «${key}» (${l})`);
   }
+  // И наоборот: в словаре не должно оставаться строк, которые нигде не используются.
+  const known = new Set([...used, ...dynamic]);
+  const unused = Object.keys(STRINGS.en).filter((key) => !known.has(key));
+  assert.deepEqual(unused, [], 'неиспользуемые строки');
 });

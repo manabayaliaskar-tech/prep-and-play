@@ -1,12 +1,25 @@
-// Профиль: уровень, статистика, «паутина» навыков по 8 доменам, достижения, история пробников, настройки.
+// Профиль: уровень, общая статистика, прогресс по разделам, точность по темам,
+// «паутина» навыков SAT, достижения, рекорды, настройки.
 
+import { COURSES, courseHref, practiceKey } from '../catalog/index.js';
 import { t, tx } from '../core/i18n.js';
 import { currentStreak, getProfile, levelInfo, resetProgress, saveProfile } from '../core/profile.js';
 import { ACHIEVEMENTS } from '../content/achievements.js';
-import { DOMAINS, SKILLS } from '../content/skills.js';
+import { DOMAINS, LEVELS_PER_ZONE, SKILLS, ZONES } from '../content/skills.js';
+import { TOPICS } from '../pools/topics.js';
 import { esc } from '../ui/dom.js';
 import { mascot } from '../ui/mascot.js';
 import { openModal, toast } from '../ui/overlay.js';
+import { courseBadge } from './hub.js';
+
+/** Сколько тем показывать сразу; остальные открываются по нажатию. */
+const TOPICS_SHOWN = 8;
+const POOLS = {
+  math: { icon: '📐', color: '#22c55e' },
+  english: { icon: '🔤', color: '#3b82f6' },
+  olymp: { icon: '🏆', color: '#f59e0b' },
+  reading: { icon: '📖', color: '#e11d48' },
+};
 
 export function domainMastery(profile) {
   const result = {};
@@ -21,6 +34,42 @@ export function domainMastery(profile) {
     result[d] = a ? c / a : null;
   }
   return result;
+}
+
+/** Курсы каталога, в которых уже есть результаты: звёзды и число начатых уровней или предметов. */
+export function courseProgress(profile) {
+  const rows = [];
+  for (const course of COURSES) {
+    let stars = 0;
+    let done = 0;
+    for (const track of course.tracks) {
+      const rec = profile.practice?.[practiceKey(course, track)];
+      if (!rec) continue;
+      done += 1;
+      stars += rec.best;
+    }
+    if (done) rows.push({ course, stars, max: course.tracks.length * 3, done, total: course.tracks.length });
+  }
+  return rows;
+}
+
+/** Звёзды на карте SAT: набрано и возможно. */
+export function satMapStars(profile) {
+  const stars = Object.values(profile.map?.stars ?? {}).reduce((sum, s) => sum + s, 0);
+  return { stars, max: ZONES.length * LEVELS_PER_ZONE * 3 };
+}
+
+/**
+ * Точность по темам общих банков (математика, английский, олимпиада, чтение).
+ * Сначала идут темы, которые даются труднее. Темы, где ответов меньше minAnswers, не показываются:
+ * по одному-двум ответам о теме судить рано.
+ */
+export function topicAccuracy(profile, minAnswers = 3) {
+  return Object.keys(TOPICS)
+    .map((id) => ({ id, a: profile.skills[id]?.a ?? 0, c: profile.skills[id]?.c ?? 0 }))
+    .filter((s) => s.a >= minAnswers)
+    .map((s) => ({ ...s, pct: Math.round((s.c / s.a) * 100) }))
+    .sort((x, y) => x.pct - y.pct || y.a - x.a);
 }
 
 function radar(values) {
@@ -44,6 +93,59 @@ function radar(values) {
     })
     .join('');
   return `<svg class="radar" viewBox="0 0 300 300" role="img" aria-label="${t('profile.radar')}">${rings}${axes}<polygon class="radar-shape" points="${shape}"/>${labels}</svg>`;
+}
+
+function progressRow(href, badge, name, sub, stars, max, color) {
+  return `
+    <a class="progress-row" href="#${href}" style="--c:${color}">
+      ${badge}
+      <span class="course-text"><b>${name}</b><small>${sub}</small></span>
+      <span class="progress-side"><b>★ ${stars}/${max}</b><span class="bar"><i style="width:${Math.round((stars / max) * 100)}%"></i></span></span>
+    </a>`;
+}
+
+function sectionsPanel(p) {
+  const rows = courseProgress(p).map(({ course, stars, max, done, total }) =>
+    progressRow(courseHref(course), courseBadge(course), esc(tx(course.name)), t('profile.started', { done, total }), stars, max, course.color),
+  );
+  const sat = satMapStars(p);
+  const satCourse = COURSES.find((c) => c.id === 'sat');
+  if (sat.stars > 0 || p.exams.length > 0) {
+    rows.unshift(progressRow('/sat', courseBadge(satCourse), 'SAT', t('map.title'), sat.stars, sat.max, satCourse.color));
+  }
+  return `
+    <div class="panel">
+      <h2>${t('profile.sections')}</h2>
+      ${
+        rows.length
+          ? `<div class="progress-list">${rows.join('')}</div>`
+          : `<div class="empty-note">${mascot('wow', 'mascot-sm')}<p>${t('profile.sectionsEmpty')}</p></div>
+             <a class="btn btn-primary panel-cta" href="#/practice">📅 ${t('profile.startPractice')}</a>`
+      }
+    </div>`;
+}
+
+function topicRow(s) {
+  const topic = TOPICS[s.id];
+  const pool = POOLS[topic.pool];
+  return `<div class="skill-row"><span>${pool.icon} ${esc(tx(topic.name))}</span><div class="bar" style="--c:${pool.color}"><i style="width:${s.pct}%"></i></div><b title="${s.c}/${s.a}">${s.pct}%</b></div>`;
+}
+
+function topicsPanel(p) {
+  const stats = topicAccuracy(p);
+  const first = stats.slice(0, TOPICS_SHOWN);
+  const rest = stats.slice(TOPICS_SHOWN);
+  return `
+    <div class="panel">
+      <h2>${t('profile.topics')}</h2>
+      ${
+        stats.length
+          ? `<p class="muted small panel-hint">${t('profile.topicsHint')}</p>
+             <div class="topic-rows">${first.map(topicRow).join('')}</div>
+             ${rest.length ? `<details class="more-topics"><summary>${t('profile.showAll')} (${stats.length})</summary><div class="topic-rows">${rest.map(topicRow).join('')}</div></details>` : ''}`
+          : `<div class="empty-note">${mascot('happy', 'mascot-sm')}<p>${t('profile.topicsEmpty')}</p></div>`
+      }
+    </div>`;
 }
 
 export function profileScreen(app) {
@@ -71,6 +173,21 @@ export function profileScreen(app) {
         </div>
 
         <div class="two-col">
+          ${sectionsPanel(p)}
+          ${topicsPanel(p)}
+        </div>
+
+        <div class="panel">
+          <h2>${t('profile.achievements')}</h2>
+          <div class="ach-grid">
+            ${ACHIEVEMENTS.map(
+              (a) => `<div class="ach ${p.achievements[a.id] ? 'earned' : ''}" title="${esc(tx(a.desc))}"><span class="ach-icon">${a.icon}</span><b>${esc(tx(a.name))}</b><small>${esc(tx(a.desc))}</small></div>`,
+            ).join('')}
+          </div>
+        </div>
+
+        <h2 class="section-title">SAT</h2>
+        <div class="two-col">
           <div class="panel">
             <h2>${t('profile.radar')}</h2>
             ${radar(values)}
@@ -96,15 +213,6 @@ export function profileScreen(app) {
           </div>
         </div>
 
-        <div class="panel">
-          <h2>${t('profile.achievements')}</h2>
-          <div class="ach-grid">
-            ${ACHIEVEMENTS.map(
-              (a) => `<div class="ach ${p.achievements[a.id] ? 'earned' : ''}" title="${esc(tx(a.desc))}"><span class="ach-icon">${a.icon}</span><b>${esc(tx(a.name))}</b><small>${esc(tx(a.desc))}</small></div>`,
-            ).join('')}
-          </div>
-        </div>
-
         <div class="two-col">
           <div class="panel">
             <h2>${t('profile.records')}</h2>
@@ -112,7 +220,7 @@ export function profileScreen(app) {
               <div><span>🛡️ ${t('mode.survival.title')}</span><b>${p.records.survival}</b></div>
               <div><span>⚡ ${t('mode.blitz.title')}</span><b>${p.records.blitz}</b></div>
               <div><span>🕵️ ${t('mode.det.title')}</span><b>${p.records.detective}</b></div>
-              <div><span>⚔️ ${t('profile.bosses')}</span><b>${Object.keys(p.map.bosses).length}/8</b></div>
+              <div><span>⚔️ ${t('profile.bosses')}</span><b>${Object.keys(p.map.bosses).length}/${ZONES.length}</b></div>
             </div>
           </div>
           <div class="panel">

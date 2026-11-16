@@ -64,7 +64,25 @@ export const ACHIEVEMENTS = [
   a('century', '💯', 'Century', 'Сотня', 'Жүздік',
     'Answer 100 questions', 'Ответь на 100 вопросов', '100 сұраққа жауап бер',
     (p) => p.counters.answered >= 100),
+  // Уровни и экзамены из каталога (ключ записи — «курс:дорожка», например «math:l3»).
+  a('practice1', '🎒', 'Getting started', 'Начало положено', 'Бастамасы жасалды',
+    'Finish a practice in any level or exam subject', 'Заверши тренировку по любому уровню или предмету экзамена', 'Кез келген деңгей немесе емтихан пәні бойынша жаттығуды аяқта',
+    (p) => practiced(p).length >= 1),
+  a('flawless', '🏅', 'Flawless', 'Без единой ошибки', 'Бірде-бір қатесіз',
+    'Get 3 stars in a practice or a timed test', 'Получи 3 звезды в тренировке или тесте на время', 'Жаттығуда немесе уақытқа тестте 3 жұлдыз ал',
+    (p) => practiced(p).some(([, rec]) => rec.best >= 3)),
+  a('explorer', '🧭', 'Explorer', 'Исследователь', 'Зерттеуші',
+    'Practise in 5 different levels or subjects', 'Позанимайся на 5 разных уровнях или предметах', '5 түрлі деңгейде немесе пәнде жаттық',
+    (p) => practiced(p).length >= 5),
+  a('olympian', '🏆', 'Olympian', 'Олимпиец', 'Олимпиадашы',
+    'Get 2 stars on any level of olympiad math', 'Получи 2 звезды на любом уровне олимпиадной математики', 'Олимпиадалық математиканың кез келген деңгейінде 2 жұлдыз ал',
+    (p) => practiced(p).some(([key, rec]) => key.startsWith('olymp:') && rec.best >= 2)),
 ];
+
+/** Записи о тренировках из каталога: [[ключ, { best, runs, pct }], …]. */
+function practiced(profile) {
+  return Object.entries(profile.practice ?? {});
+}
 
 export function evaluateAchievements(profile) {
   return ACHIEVEMENTS.filter((ach) => ach.test(profile)).map((ach) => ach.id);

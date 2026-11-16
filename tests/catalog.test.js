@@ -5,8 +5,10 @@ import { TOPICS } from '../src/pools/topics.js';
 import { TopicStream, buildTopicSet, cells } from '../src/pools/stream.js';
 import { READING } from '../src/pools/reading.js';
 import { createRng } from '../src/core/random.js';
-import { _setProfileForTests } from '../src/core/profile.js';
+import { _setProfileForTests, getProfile, recordAnswer } from '../src/core/profile.js';
+import { evaluateAchievements } from '../src/content/achievements.js';
 import { saveTrackResult } from '../src/screens/practice.js';
+import { courseProgress, satMapStars, topicAccuracy } from '../src/screens/profile.js';
 
 const LANGS = ['en', 'ru', 'kk'];
 const full = (obj, label) => {
@@ -143,4 +145,57 @@ test('ссылки, разделы меню и сохранение резуль
   rec = saveTrackResult(ent, mathlit, { correct: 10, total: 10 }, '2026-11-17');
   assert.equal(rec.best, 3);
   assert.equal(courseStars(ent).stars, 3);
+});
+
+test('профиль: прогресс по разделам и точность по темам', () => {
+  _setProfileForTests({});
+  assert.deepEqual(courseProgress(getProfile()), [], 'у нового игрока прогресса нет');
+  assert.deepEqual(topicAccuracy(getProfile()), []);
+  assert.deepEqual(satMapStars(getProfile()), { stars: 0, max: 96 });
+
+  const math = courseById('math');
+  const olymp = courseById('olymp');
+  saveTrackResult(math, math.tracks[0], { correct: 10, total: 10 });
+  saveTrackResult(math, math.tracks[1], { correct: 6, total: 10 });
+  saveTrackResult(olymp, olymp.tracks[2], { correct: 8, total: 10 });
+  const rows = courseProgress(getProfile());
+  // Курсы идут в порядке каталога: олимпиада раньше ежедневной математики.
+  assert.deepEqual(rows.map((r) => [r.course.id, r.stars, r.max, r.done, r.total]), [
+    ['olymp', 2, 9, 1, 3],
+    ['math', 4, 27, 2, 9],
+  ]);
+
+  // Точность: слабые темы идут первыми, темы с одним-двумя ответами не показываются.
+  const answer = (topic, results) => results.forEach((ok) => recordAnswer(topic, ok));
+  answer('m.frac', [true, false, false, false]);
+  answer('m.add', [true, true, true]);
+  answer('e.tenses', [true, false]);
+  answer('o.digit', [true, false, true, false]);
+  answer('lin-eq', [false, false, false]);
+  const stats = topicAccuracy(getProfile());
+  assert.deepEqual(stats.map((s) => [s.id, s.pct]), [['m.frac', 25], ['o.digit', 50], ['m.add', 100]]);
+  assert.ok(stats.every((s) => TOPICS[s.id]), 'навыки SAT сюда не попадают');
+
+  const profile = getProfile();
+  profile.map.stars = { 'rw1-1': 3, 'm1-1': 2 };
+  assert.equal(satMapStars(profile).stars, 5);
+});
+
+test('достижения за уровни и экзамены из каталога', () => {
+  const base = {
+    counters: { answered: 0, bestCombo: 0, detectiveFound: 0, duelsSent: 0, langSwitch: 0, dailyDone: 0 },
+    map: { stars: {}, bosses: {} },
+    records: { survival: 0, blitz: 0 },
+    streak: { best: 0 },
+    exams: [],
+  };
+  const got = (practice) => new Set(evaluateAchievements({ ...base, practice }));
+  assert.equal(got(undefined).size, 0, 'старый профиль без записей о тренировках не ломает проверку');
+  assert.deepEqual([...got({ 'math:l1': { best: 1, runs: 1, pct: 60 } })], ['practice1']);
+  assert.ok(got({ 'math:l1': { best: 3, runs: 1, pct: 100 } }).has('flawless'));
+  const five = Object.fromEntries(['math:l1', 'math:l2', 'english:a1', 'ent:mathlit', 'ielts:reading'].map((k) => [k, { best: 0, runs: 1, pct: 30 }]));
+  assert.ok(got(five).has('explorer'));
+  assert.ok(!got(five).has('olympian') && !got(five).has('flawless'));
+  assert.ok(got({ 'olymp:l2': { best: 2, runs: 1, pct: 80 } }).has('olympian'));
+  assert.ok(!got({ 'olymp:l2': { best: 1, runs: 1, pct: 60 } }).has('olympian'));
 });
