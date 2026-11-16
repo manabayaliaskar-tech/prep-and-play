@@ -55,7 +55,7 @@ jobs:
       - name: Собираем папку сайта
         run: |
           mkdir _site
-          cp -r index.html styles src _site/
+          cp -r index.html styles src icons manifest.webmanifest sw.js _site/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

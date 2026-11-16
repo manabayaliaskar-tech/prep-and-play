@@ -7565,3 +7565,95 @@ body {
     animation: none;
   }
 }
+
+/* ---------- Серия под угрозой и установка приложения ---------- */
+.streak-risk {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 16px 0;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  color: #fff;
+  text-decoration: none;
+  background: linear-gradient(135deg, #f97316, #ef4444);
+  box-shadow: 0 10px 24px rgba(239, 68, 68, 0.3);
+  animation: risk-pulse 2s ease-in-out infinite;
+}
+@keyframes risk-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.01); }
+}
+.streak-risk-fire {
+  font-size: 2rem;
+  animation: fire-flicker 0.9s ease-in-out infinite alternate;
+}
+@keyframes fire-flicker {
+  from { transform: scale(1) rotate(-4deg); }
+  to { transform: scale(1.12) rotate(4deg); }
+}
+.streak-risk-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.streak-risk-text small {
+  opacity: 0.92;
+}
+.streak-risk-go {
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 900;
+  color: #b91c1c;
+  background: rgba(255, 255, 255, 0.95);
+  white-space: nowrap;
+}
+.install-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent, #7c3aed) 12%, var(--card)), var(--card));
+  border: 1px solid color-mix(in srgb, var(--accent, #7c3aed) 35%, var(--line));
+  box-shadow: var(--shadow);
+}
+.install-icon {
+  font-size: 1.8rem;
+}
+.install-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.install-text small {
+  color: var(--muted);
+}
+.ios-steps {
+  margin: 0;
+  padding-left: 22px;
+  display: grid;
+  gap: 10px;
+  line-height: 1.45;
+}
+@media (max-width: 720px) {
+  .streak-risk-go {
+    display: none;
+  }
+  .install-card {
+    flex-wrap: wrap;
+  }
+  .install-card .install-go {
+    order: 3;
+    width: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .streak-risk,
+  .streak-risk-fire {
+    animation: none;
+  }
+}

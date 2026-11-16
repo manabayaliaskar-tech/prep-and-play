@@ -274,3 +274,16 @@ test('гардероб: вещи по слотам открываются за �
   assert.equal(getOutfit(fresh).face, 'glasses');
   assert.equal(getOutfit(fresh).head, 'cap');
 });
+
+test('приложение (PWA): манифест, иконки и сервис-воркер на месте и попадают на сайт', async () => {
+  const { readFileSync, existsSync } = await import('node:fs');
+  const manifest = JSON.parse(readFileSync('manifest.webmanifest', 'utf8'));
+  assert.equal(manifest.display, 'standalone');
+  assert.ok(manifest.icons.some((i) => i.sizes === '512x512') && manifest.icons.some((i) => i.purpose === 'maskable'));
+  for (const icon of manifest.icons) assert.ok(existsSync(icon.src), icon.src);
+  assert.ok(existsSync('icons/apple-touch-icon.png') && existsSync('sw.js'));
+  const html = readFileSync('index.html', 'utf8');
+  assert.ok(html.includes('rel="manifest"') && html.includes('apple-touch-icon'));
+  const ci = readFileSync('.github/workflows/ci.yml', 'utf8');
+  for (const f of ['icons', 'manifest.webmanifest', 'sw.js']) assert.ok(ci.includes(f), `CI не копирует ${f}`);
+});

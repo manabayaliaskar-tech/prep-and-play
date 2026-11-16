@@ -14,6 +14,8 @@ import { weekStart, weekSummary } from '../core/rewards.js';
 import { dayKey } from '../core/dates.js';
 import { courseWeakTopics } from './review.js';
 import { openWardrobe } from '../ui/wardrobe-ui.js';
+import { canInstall } from '../core/pwa.js';
+import { startInstall } from './hub.js';
 import { getVolume, setVolume, sfx } from '../core/sound.js';
 import { mascot } from '../ui/mascot.js';
 import { esc } from '../ui/dom.js';
@@ -404,6 +406,7 @@ export function profileScreen(app) {
           <h2>${t('profile.settings')}</h2>
           <label class="toggle"><input type="checkbox" class="sound-input" ${p.sound ? 'checked' : ''}/><span>${t('profile.sound')}</span></label>
           <label class="volume"><span>🔊 ${t('profile.volume')}</span><input type="range" class="volume-input" min="0" max="100" step="5" value="${Math.round(getVolume() * 100)}" ${p.sound ? '' : 'disabled'}/></label>
+          ${canInstall() ? `<button type="button" class="btn btn-soft install-btn">📲 ${t('pwa.install')}</button>` : ''}
           <button type="button" class="btn btn-danger-soft reset-btn">🗑 ${t('profile.reset')}</button>
         </div>
       </section>`;
@@ -419,6 +422,7 @@ export function profileScreen(app) {
       app.querySelector('.volume-input').disabled = !p.sound;
     });
     app.querySelector('.prepi-dress').addEventListener('click', () => openWardrobe(render));
+    app.querySelector('.install-btn')?.addEventListener('click', startInstall);
     app.querySelector('.volume-input').addEventListener('change', (e) => {
       setVolume(Number(e.target.value) / 100);
       sfx.correct(1);

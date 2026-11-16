@@ -1,0 +1,23 @@
+{
+  "name": "Prep&Play — подготовка к экзаменам в виде игры",
+  "short_name": "Prep&Play",
+  "description": "SAT, IELTS, TOEFL, ЕНТ, ЕГЭ, олимпиадная математика, языки и программирование — играя. RU / KZ / EN.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f5f3ff",
+  "theme_color": "#6c4cf5",
+  "lang": "ru",
+  "categories": ["education", "games"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Квиз", "url": "./#/quiz/classic", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Работа над ошибками", "url": "./#/mistakes", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "План подготовки", "url": "./#/plan", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

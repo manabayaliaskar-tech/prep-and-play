@@ -2,7 +2,9 @@
 // экзамены, олимпиадная математика, ежедневная практика.
 
 import { COURSES, GROUPS, courseById, courseHref, courseStars, coursesIn, trackById, trackHref, trackRecord } from '../catalog/index.js';
-import { dayKey } from '../core/dates.js';
+import { dayKey, msUntilMidnight } from '../core/dates.js';
+import { canInstall, dismissInstall, install, installDismissed } from '../core/pwa.js';
+import { openModal } from '../ui/overlay.js';
 import { t, tx } from '../core/i18n.js';
 import { questState } from '../core/quests.js';
 import { DAILY_GOAL, currentStreak, getProfile, levelInfo, todayXp } from '../core/profile.js';
@@ -113,6 +115,41 @@ export function quizHero(p = getProfile(), day = dayKey()) {
     </section>`;
 }
 
+/** Баннер «серия сгорит»: серия есть, а сегодня ещё ни одного очка опыта. */
+export function streakRiskHtml(streak, xpToday) {
+  if (!streak || xpToday > 0) return '';
+  const hours = Math.max(1, Math.ceil(msUntilMidnight() / 3600000));
+  return `
+    <a class="streak-risk" href="#/quiz/daily">
+      <span class="streak-risk-fire" aria-hidden="true">🔥</span>
+      <span class="streak-risk-text"><b>${t('risk.title', { n: streak })}</b><small>${t('risk.desc', { h: hours })}</small></span>
+      <span class="streak-risk-go">${t('risk.go')}</span>
+    </a>`;
+}
+
+/** Карточка «Установи на экран» — пока приложение не установлено и её не закрыли. */
+function installCardHtml() {
+  if (!canInstall() || installDismissed()) return '';
+  return `
+    <div class="install-card">
+      <span class="install-icon" aria-hidden="true">📲</span>
+      <span class="install-text"><b>${t('pwa.title')}</b><small>${t('pwa.desc')}</small></span>
+      <button type="button" class="btn btn-primary btn-sm install-go">${t('pwa.install')}</button>
+      <button type="button" class="icon-btn install-close" aria-label="${t('common.close')}">✕</button>
+    </div>`;
+}
+
+/** Установка: окно браузера или инструкция для iPhone и iPad. */
+export async function startInstall() {
+  const result = await install();
+  if (result === 'ios') {
+    openModal({
+      title: `📲 ${t('pwa.title')}`,
+      body: `<ol class="ios-steps"><li>${t('pwa.ios1')}</li><li>${t('pwa.ios2')}</li><li>${t('pwa.ios3')}</li></ol>`,
+    });
+  }
+}
+
 function continueCard() {
   const last = getProfile().last;
   if (!last) return '';
@@ -175,9 +212,13 @@ export function hubScreen(app) {
           </div>
         </div>
 
+        ${streakRiskHtml(streak, xpToday)}
+
         ${quizHero(p)}
 
         ${continueCard() ? `<div class="continue-row single">${continueCard()}</div>` : ''}
+
+        ${installCardHtml()}
 
         ${rewardCardsHtml()}
 
@@ -226,8 +267,16 @@ export function hubScreen(app) {
         </div>
       </section>`;
     app.querySelector('.hero-mascot.prepi-dress')?.addEventListener('click', () => openWardrobe(render));
+    app.querySelector('.install-go')?.addEventListener('click', startInstall);
+    app.querySelector('.install-close')?.addEventListener('click', () => {
+      dismissInstall();
+      render();
+    });
     app.querySelectorAll('[data-open-chest]').forEach((b) => b.addEventListener('click', () => openChestModal(Number(b.dataset.openChest), render)));
   };
   render();
-  return { relabel: render };
+  // Браузер может сообщить о возможности установки уже после отрисовки.
+  const onReady = () => render();
+  document.addEventListener('installready', onReady);
+  return { relabel: render, cleanup: () => document.removeEventListener('installready', onReady) };
 }
