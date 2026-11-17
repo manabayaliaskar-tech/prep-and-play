@@ -1,6 +1,7 @@
 // Программирование: вопросы на понимание основ — общие для всех языков.
 
 import { T } from './bank.js';
+import { CODE_THEORY_MORE } from './code-more.js';
 
 export const CODE_THEORY = [
   [1, T('Что такое переменная в программе?', 'Бағдарламадағы айнымалы дегеніміз не?', 'What is a variable in a program?'),
@@ -40,3 +41,4 @@ export const CODE_THEORY = [
     'O(n²)', ['O(n)', 'O(log n)', 'O(1)'],
     T('Пар примерно n·n/2 — время растёт как квадрат n, это O(n²).', 'Жұптар шамамен n·n/2 — уақыт n-нің квадратындай өседі, бұл O(n²).', 'There are about n·n/2 pairs — the time grows like n squared, which is O(n²).')],
 ];
+CODE_THEORY.push(...CODE_THEORY_MORE);

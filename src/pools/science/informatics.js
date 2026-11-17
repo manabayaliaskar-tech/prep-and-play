@@ -2,6 +2,7 @@
 
 import { pick, randomInt } from '../../core/random.js';
 import { T } from '../bank.js';
+import { INFORMATICS_MORE } from '../code-more.js';
 import { L, ask, mcText, n, plural, poolQ, same, steps } from '../gen.js';
 
 const TIMES = '×';
@@ -332,3 +333,4 @@ export const INFORMATICS_THEORY = [
     '24', ['8', '16', '32'],
     T('255 — это восемь единиц (11111111). Три таких числа дают 3 × 8 = 24 единицы.', '255 — сегіз бір цифры (11111111). Осындай үш сан 3 × 8 = 24 бірлік береді.', '255 is eight ones (11111111). Three such numbers give 3 × 8 = 24 ones.')],
 ];
+INFORMATICS_THEORY.push(...INFORMATICS_MORE);
