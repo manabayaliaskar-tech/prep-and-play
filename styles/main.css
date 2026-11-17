@@ -2391,7 +2391,10 @@ button {
 }
 
 .pal.marked::after {
-  content: '🔖';
+  content: '';
+  width: 1.1em;
+  height: 1.1em;
+  background: url('../icons/emoji/1f516.webp') center / contain no-repeat;
   position: absolute;
   top: -8px;
   right: -6px;
@@ -5274,7 +5277,10 @@ body {
 }
 
 .level-chip.has-crown::after {
-  content: '👑';
+  content: '';
+  width: 1.1em;
+  height: 1.1em;
+  background: url('../icons/emoji/1f451.webp') center / contain no-repeat;
   position: absolute;
   top: -11px;
   right: -6px;
@@ -10434,7 +10440,10 @@ svg.mascot {
 }
 
 .know-cell.st-master::after {
-  content: '⭐';
+  content: '';
+  width: 1.1em;
+  height: 1.1em;
+  background: url('../icons/emoji/2b50.webp') center / contain no-repeat;
   position: absolute;
   top: 8px;
   right: 8px;
@@ -12078,4 +12087,29 @@ svg.mascot {
   width: max-content;
   max-width: min(270px, 92%);
   white-space: normal;
+}
+
+/* =====================================================================
+   Эмодзи картинками (Fluent Emoji 3D): одинаково на всех устройствах, без «квадратиков».
+   Размер — от размера шрифта, поэтому значок такой же, каким был символ.
+   ===================================================================== */
+
+img.emo {
+  display: inline-block;
+  width: 1.2em;
+  height: 1.2em;
+  margin: 0 0.04em;
+  vertical-align: -0.24em;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.emo-svg {
+  pointer-events: none;
+}
+
+/* Тёмно-серые картинки (силуэт профиля) в тёмных темах подсвечиваем, чтобы не терялись. */
+:root[data-dark] img.emo[alt='👤'] {
+  filter: brightness(2.4) saturate(0.6);
 }

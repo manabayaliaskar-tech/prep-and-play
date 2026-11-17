@@ -330,3 +330,32 @@ test('ведущий квиза: колесо останавливается р�
   const svg = mascot('happy', '', { head: 'host-hat', neck: 'host-suit' });
   assert.ok(svg.includes('host-hat') && svg.includes('host-mic'), 'Препи в цилиндре и с микрофоном');
 });
+
+test('эмодзи картинками: у каждого эмодзи на сайте есть картинка Fluent 3D, «квадратиков» не будет', async () => {
+  const { readdirSync, statSync, existsSync } = await import('node:fs');
+  const { join } = await import('node:path');
+  const { EMOJI_RE, emojiCode, emojiSrc } = await import('../src/ui/emoji.js');
+  const { EMOJI_CODES } = await import('../src/ui/emoji-list.js');
+  const files = [];
+  const walk = (d) => {
+    for (const f of readdirSync(d)) {
+      const p = join(d, f);
+      if (statSync(p).isDirectory()) walk(p);
+      else if (/\.(js|html)$/.test(f)) files.push(p);
+    }
+  };
+  walk('src');
+  files.push('index.html');
+  const missing = new Set();
+  for (const f of files) {
+    for (const m of readFileSync(f, 'utf8').matchAll(EMOJI_RE)) {
+      if (m[0] === '🪙') continue;
+      if (!emojiSrc(m[0])) missing.add(m[0]);
+    }
+  }
+  assert.deepEqual([...missing], [], 'нет картинки — запусти python3 tools/emoji-images.py');
+  for (const code of EMOJI_CODES) assert.ok(existsSync(`icons/emoji/${code}.webp`), code);
+  assert.equal(emojiCode('⚛️'), '269b');
+  assert.equal(emojiSrc('🪙'), null, 'монета рисуется отдельно');
+  assert.ok(existsSync('icons/emoji/LICENSE'), 'лицензия MIT рядом с картинками');
+});
