@@ -19,7 +19,7 @@ export function listenHtml(q) {
     <div class="listen-head"><span class="listen-icon">🎧</span><b>${esc(L.title)}</b><span class="listen-who">${speakers.map((s) => `<i class="who-${s}">${s}</i>`).join('')}</span></div>
     <div class="listen-body">
       <button type="button" class="listen-play" aria-label="${t('listen.play')}"><span class="lp-icon">▶</span></button>
-      <div class="listen-wave" aria-hidden="true">${Array.from({ length: 28 }, (_, i) => `<i style="--i:${i}"></i>`).join('')}</div>
+      <div class="listen-wave" aria-hidden="true">${Array.from({ length: 28 }, (_, i) => `<i style="--i:${i};height:${22 + ((i * 37) % 61)}%"></i>`).join('')}</div>
       <button type="button" class="listen-rate" title="${t('listen.rate')}">1×</button>
     </div>
     <div class="listen-progress"><i></i></div>

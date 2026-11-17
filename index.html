@@ -33,6 +33,7 @@
       try {
         var theme = JSON.parse(localStorage.getItem('prepplay:theme'));
         if (theme) document.documentElement.dataset.theme = theme;
+        if (['night', 'cosmos', 'neon', 'midnight', 'lava'].indexOf(theme) >= 0) document.documentElement.dataset.dark = '1';
       } catch (e) {}
     </script>
     <script type="module" src="src/main.js"></script>
