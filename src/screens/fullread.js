@@ -8,7 +8,7 @@ import { t } from '../core/i18n.js';
 import { addXp, checkAchievements, getProfile, recordAnswer, saveProfile } from '../core/profile.js';
 import { navigate, setLeaveGuard } from '../core/router.js';
 import { sfx } from '../core/sound.js';
-import { FULL_MINUTES, IELTS_FULL, TFNG, YNNG, fullQuestions } from '../pools/ielts-full.js';
+import { FULL_MINUTES, IELTS_TESTS, TFNG, YNNG, fullQuestions } from '../pools/ielts-full.js';
 import { esc, formatTime } from '../ui/dom.js';
 import { mascot } from '../ui/mascot.js';
 import { celebrate } from './play.js';
@@ -44,9 +44,18 @@ function questionLabel(q) {
   return q.item.statement;
 }
 
+/** Попытки по тесту: старые записи без номера теста относятся к тесту 1. */
+const attemptsOf = (history, id) => history.filter((x) => (x.test ?? IELTS_TESTS[0].id) === id);
+/** Тест, который стоит пройти следующим: первый ещё не пройденный, иначе тот, где лучший результат ниже. */
+export function nextTest(history) {
+  const fresh = IELTS_TESTS.find((tt) => !attemptsOf(history, tt.id).length);
+  if (fresh) return fresh;
+  return [...IELTS_TESTS].sort((a, b) => Math.max(...attemptsOf(history, a.id).map((x) => x.band)) - Math.max(...attemptsOf(history, b.id).map((x) => x.band)))[0];
+}
+
 export function fullReadRoute(app) {
-  const test = IELTS_FULL;
-  const questions = fullQuestions(test);
+  let test = IELTS_TESTS[0];
+  let questions = fullQuestions(test);
   let state = null;
   let timer = null;
 
@@ -54,6 +63,7 @@ export function fullReadRoute(app) {
     const p = getProfile();
     const history = p.fullReading ?? [];
     const best = history.reduce((m, x) => Math.max(m, x.band), 0);
+    const suggested = nextTest(history);
     app.innerHTML = `
       <section class="page setup">
         <a class="crumb" href="#/c/ielts">← IELTS</a>
@@ -69,14 +79,25 @@ export function fullReadRoute(app) {
             <li>📊 ${t('full.f4')}</li>
           </ul>
           ${history.length ? `<p class="diag-last">${t('full.history', { n: history.length, best })}</p>` : ''}
-          <button type="button" class="btn btn-primary btn-xl full-start">▶ ${t('full.start')}</button>
+          <h2 class="section-title">${t('full.pick', { n: IELTS_TESTS.length })}</h2>
+          <div class="full-tests">${IELTS_TESTS.map((tt, i) => {
+            const tries = attemptsOf(history, tt.id);
+            const top = tries.length ? Math.max(...tries.map((x) => x.band)) : null;
+            return `<button type="button" class="full-test ${tt === suggested ? 'is-suggested' : ''} ${top !== null ? 'is-done' : ''}" data-test="${tt.id}" style="--i:${i}">
+              <span class="ft-num">${i + 1}</span>
+              <span class="ft-text"><b>${t('full.testN', { n: i + 1 })}</b><small>${tt.passages.map((ps) => esc(ps.title)).join(' · ')}</small></span>
+              <span class="ft-band">${top !== null ? `<b>${top}</b><small>band</small>` : tt === suggested ? `<em>${t('full.next')}</em>` : ''}</span>
+            </button>`;
+          }).join('')}</div>
           <p class="muted small">${t('full.tip')}</p>
         </div>
       </section>`;
-    app.querySelector('.full-start').addEventListener('click', start);
+    app.querySelectorAll('[data-test]').forEach((b) => b.addEventListener('click', () => start(b.dataset.test)));
   }
 
-  function start() {
+  function start(id = test.id) {
+    test = IELTS_TESTS.find((tt) => tt.id === id) ?? IELTS_TESTS[0];
+    questions = fullQuestions(test);
     state = { answers: {}, passage: 0, view: 'text', left: FULL_MINUTES * 60, startedAt: Date.now(), done: false };
     setLeaveGuard(() => state.done || !Object.keys(state.answers).length || confirm(t('session.leave')));
     document.body.classList.add('in-session');
@@ -217,7 +238,7 @@ export function fullReadRoute(app) {
     const band = bandFor(correct);
     const p = getProfile();
     for (const r of review) if (r.v !== undefined) recordAnswer(TOPIC, r.ok);
-    (p.fullReading ??= []).push({ date: dayKey(), correct, band, minutes: Math.round((Date.now() - state.startedAt) / 60000) });
+    (p.fullReading ??= []).push({ test: test.id, date: dayKey(), correct, band, minutes: Math.round((Date.now() - state.startedAt) / 60000) });
     addXp(correct * 3);
     checkAchievements();
     saveProfile();
@@ -230,6 +251,7 @@ export function fullReadRoute(app) {
       <section class="results page">
         <div class="results-hero mood-${band >= 6.5 ? 'win' : 'neutral'}">
           ${mascot(band >= 6.5 ? 'win' : 'happy', 'mascot-lg bounce-in')}
+          <p class="hero-kicker">${t('full.testN', { n: IELTS_TESTS.indexOf(test) + 1 })}</p>
           <h1>${t('full.done')}</h1>
           <div class="band-badge"><small>${t('full.band')}</small><b>${band}</b></div>
           <p class="results-sub">${t('full.score', { c: correct })}</p>
@@ -238,7 +260,9 @@ export function fullReadRoute(app) {
         <div class="result-stats">${perPassage.map((x, i) => `<div class="result-stat"><span class="rs-icon">📖</span><b>${x.c}/${x.n}</b><span>${t('full.passage')} ${i + 1}</span></div>`).join('')}</div>
         <p class="muted small center">${t('full.scaleNote')}</p>
         <div class="result-actions">
-          <button type="button" class="btn btn-primary full-again">↻ ${t('full.again')}</button>
+          ${IELTS_TESTS.indexOf(test) < IELTS_TESTS.length - 1 ? `<button type="button" class="btn btn-primary full-next-test">${t('full.testN', { n: IELTS_TESTS.indexOf(test) + 2 })} →</button>` : ''}
+          <button type="button" class="btn btn-soft full-again">↻ ${t('full.again')}</button>
+          <button type="button" class="btn btn-soft full-list">📄 ${t('full.allTests')}</button>
           <a class="btn btn-soft" href="#/c/ielts">← IELTS</a>
         </div>
         <h2 class="section-title">${t('full.review')}</h2>
@@ -255,7 +279,13 @@ export function fullReadRoute(app) {
           )
           .join('')}</div>
       </section>`;
-    app.querySelector('.full-again').addEventListener('click', start);
+    app.querySelector('.full-again').addEventListener('click', () => start(test.id));
+    app.querySelector('.full-next-test')?.addEventListener('click', () => start(IELTS_TESTS[IELTS_TESTS.indexOf(test) + 1].id));
+    app.querySelector('.full-list').addEventListener('click', () => {
+      state = null;
+      intro();
+      window.scrollTo(0, 0);
+    });
     window.scrollTo(0, 0);
   }
 

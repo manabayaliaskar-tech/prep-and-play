@@ -1,7 +1,17 @@
-// Полный тест IELTS Academic Reading: три длинных текста (≈700–800 слов), 40 вопросов, 60 минут.
+// Полные тесты IELTS Academic Reading: в каждом три длинных текста (≈650–700 слов), 40 вопросов, 60 минут.
+// Тест 1 — в этом файле, тесты 2–8 — в папке ielts/ (по файлу на тест).
 // Типы вопросов как на экзамене: True / False / Not Given, Yes / No / Not Given, выбор ответа,
 // подбор заголовков к абзацам и заполнение пропусков словами из списка.
 // Объяснение к каждому ответу — абзац и цитата из текста.
+
+import { createRng, hashString, shuffle } from '../core/random.js';
+import { TEST_2 } from './ielts/t2.js';
+import { TEST_3 } from './ielts/t3.js';
+import { TEST_4 } from './ielts/t4.js';
+import { TEST_5 } from './ielts/t5.js';
+import { TEST_6 } from './ielts/t6.js';
+import { TEST_7 } from './ielts/t7.js';
+import { TEST_8 } from './ielts/t8.js';
 
 const tf = (statement, answer, para, quote) => ({ statement, answer, para, quote });
 const choice = (question, choices, answer, para, quote) => ({ question, choices, answer, para, quote });
@@ -34,7 +44,7 @@ export const IELTS_FULL = {
           items: [
             tf('The saiga’s nose helps the animal to cope with both dust and cold air.', 0, 'A', 'it filters the dust kicked up by the herd during dry summer migrations and warms the freezing air the animal breathes in winter'),
             tf('Protection in the Soviet period failed to increase saiga numbers.', 1, 'B', 'strict protection introduced in the Soviet period allowed numbers to recover'),
-            tf('Altyn Dala is the largest protected area in Kazakhstan.', 2, 'C', 'Several large protected areas were created, among them Altyn Dala (its size compared with others is not stated)'),
+            tf('Altyn Dala is the largest protected area in Kazakhstan.', 2, 'C', 'The passage names Altyn Dala as one of several large protected areas but does not compare their sizes.'),
             tf('Satellite collars showed that saiga can cover over 100 kilometres in a day.', 0, 'C', 'the animals could travel more than a hundred kilometres in a single day'),
             tf('The deaths in 2015 were caused by a disease spread by livestock.', 1, 'D', 'At first, poisoning or a disease spread by livestock was suspected. Investigations later concluded that a bacterium normally carried harmlessly by the animals…'),
             tf('Saiga in Mongolia were also affected by the events of 2015.', 2, 'D', 'The passage mentions only central Kazakhstan.'),
@@ -167,6 +177,30 @@ export const IELTS_FULL = {
     },
   ],
 };
+
+/**
+ * Равномерно раскладывает правильные ответы по буквам A–D: варианты переставляются один раз при загрузке,
+ * одинаково при каждом открытии (зерно — номер теста). Иначе верный ответ слишком часто оказывался бы под одной буквой.
+ */
+function balanceLetters(test) {
+  const rng = createRng(hashString(test.id));
+  const items = test.passages.flatMap((p) => p.groups.filter((g) => g.type === 'mc').flatMap((g) => g.items));
+  let targets = [];
+  for (const item of items) {
+    if (!targets.length) targets = shuffle([0, 1, 2, 3], rng);
+    const target = targets.pop();
+    const right = item.choices[item.answer];
+    const others = item.choices.filter((_, i) => i !== item.answer);
+    others.splice(target, 0, right);
+    item.choices = others;
+    item.answer = target;
+  }
+  return test;
+}
+
+/** Все полные тесты по порядку. */
+export const IELTS_TESTS = [IELTS_FULL, TEST_2, TEST_3, TEST_4, TEST_5, TEST_6, TEST_7, TEST_8].map(balanceLetters);
+export const testById = (id) => IELTS_TESTS.find((t) => t.id === id) ?? IELTS_TESTS[0];
 
 /** Все вопросы теста по порядку с номерами 1–40: { n, passage, group, item }. */
 export function fullQuestions(test = IELTS_FULL) {

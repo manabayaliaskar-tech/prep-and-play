@@ -189,25 +189,47 @@ test('аудирование: записи с репликами, вопросы
   assert.ok(courseById('toefl').tracks.some((tr) => tr.id === 'listening'));
 });
 
-test('полный IELTS Reading: 3 текста по 650+ слов, ровно 40 вопросов, ответы в пределах вариантов, шкала band', async () => {
-  const { IELTS_FULL, fullQuestions, passageWords } = await import('../src/pools/ielts-full.js');
-  const { bandFor } = await import('../src/screens/fullread.js');
-  assert.equal(IELTS_FULL.passages.length, 3);
-  for (const p of IELTS_FULL.passages) assert.ok(passageWords(p) >= 650, `${p.title}: ${passageWords(p)}`);
-  const qs = fullQuestions();
-  assert.equal(qs.length, 40);
-  assert.deepEqual(qs.map((q) => q.n), Array.from({ length: 40 }, (_, i) => i + 1));
-  for (const q of qs) {
-    const n = q.type === 'mc' ? q.item.choices.length : q.type === 'tfng' || q.type === 'ynng' ? 3 : q.options.length;
-    assert.ok(q.item.answer >= 0 && q.item.answer < n, `вопрос ${q.n}`);
-    const letters = IELTS_FULL.passages[q.passage].paras.map(([l]) => l);
-    assert.ok(letters.includes(q.item.para), `вопрос ${q.n}: абзац ${q.item.para}`);
+test('полные IELTS Reading: 8 тестов по 3 текста (650+ слов) и 40 вопросов, цитаты стоят в своих абзацах, шкала band', async () => {
+  const { IELTS_TESTS, fullQuestions, passageWords } = await import('../src/pools/ielts-full.js');
+  const { bandFor, nextTest } = await import('../src/screens/fullread.js');
+  assert.ok(IELTS_TESTS.length >= 8);
+  assert.equal(new Set(IELTS_TESTS.map((x) => x.id)).size, IELTS_TESTS.length);
+  const titles = IELTS_TESTS.flatMap((x) => x.passages.map((p) => p.title));
+  assert.equal(new Set(titles).size, titles.length, 'тексты не повторяются');
+  for (const test of IELTS_TESTS) {
+    assert.equal(test.passages.length, 3, test.id);
+    for (const p of test.passages) assert.ok(passageWords(p) >= 650, `${test.id} · ${p.title}: ${passageWords(p)}`);
+    const qs = fullQuestions(test);
+    assert.equal(qs.length, 40, test.id);
+    assert.deepEqual(qs.map((q) => q.n), Array.from({ length: 40 }, (_, i) => i + 1));
+    for (const q of qs) {
+      const where = `${test.id} · вопрос ${q.n}`;
+      const n = q.type === 'mc' ? q.item.choices.length : q.type === 'tfng' || q.type === 'ynng' ? 3 : q.options.length;
+      assert.ok(q.item.answer >= 0 && q.item.answer < n, where);
+      if (q.type === 'mc') assert.equal(new Set(q.item.choices).size, 4, where);
+      const para = test.passages[q.passage].paras.find(([l]) => l === q.item.para);
+      assert.ok(para, `${where}: абзац ${q.item.para}`);
+      const quote = q.item.quote;
+      if (!quote.includes('…') && !/^The (passage|writer)/.test(quote)) assert.ok(para[1].includes(quote), `${where}: цитата не найдена в абзаце`);
+    }
+    // В вопросах на заголовки каждый абзац получает свой заголовок.
+    for (const p of test.passages) {
+      for (const g of p.groups.filter((x) => x.type === 'heading')) {
+        assert.equal(new Set(g.items.map((it) => it.answer)).size, g.items.length, `${test.id}: заголовки не повторяются`);
+        assert.ok(g.options.length > g.items.length, 'есть лишние заголовки');
+      }
+    }
+    assert.ok(qs.some((q) => q.type === 'heading') && qs.some((q) => q.type === 'ynng') && qs.some((q) => q.type === 'bank'), test.id);
+    const letters = [0, 0, 0, 0];
+    for (const q of qs) if (q.type === 'mc') letters[q.item.answer] += 1;
+    assert.ok(letters.every((x) => x >= 2), `${test.id}: правильные ответы равномерно по буквам A–D (${letters})`);
   }
-  assert.ok(qs.some((q) => q.type === 'heading') && qs.some((q) => q.type === 'ynng') && qs.some((q) => q.type === 'bank'));
   assert.equal(bandFor(40), 9);
   assert.equal(bandFor(30), 7);
   assert.equal(bandFor(23), 6);
   assert.ok(bandFor(0) >= 1);
+  assert.equal(nextTest([]).id, IELTS_TESTS[0].id);
+  assert.equal(nextTest([{ band: 6 }]).id, IELTS_TESTS[1].id, 'старые попытки без номера — это тест 1');
 });
 
 test('анимации тем: каждая привязана к существующим темам и есть на странице', async () => {
