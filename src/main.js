@@ -27,12 +27,16 @@ import { bindThemePicker } from './ui/theme-picker.js';
 import { bindPins } from './core/pins.js';
 import { takeNewItems } from './core/wardrobe.js';
 import { initPwa, isStandalone } from './core/pwa.js';
+import { bindSayButtons } from './core/voice.js';
 import { mistakesRoute, weakCourseRoute } from './screens/review.js';
 import { planRoute } from './screens/plan.js';
 import { reportRoute } from './screens/report.js';
 import { cardsRoute } from './screens/cards.js';
 import { achievementsRoute } from './screens/achievements.js';
 import { shopRoute } from './screens/shop.js';
+import { mockRoute } from './screens/mock.js';
+import { seasonName, seasonRoute } from './screens/season.js';
+import { seasonId, themeOf } from './core/season.js';
 import { bindLangSwitches, renderTopbar } from './ui/topbar.js';
 
 const app = document.getElementById('app');
@@ -67,6 +71,8 @@ route('/detective', () => detectiveRoute(app));
 route('/profile', () => profileScreen(app));
 route('/achievements', () => achievementsRoute(app));
 route('/shop', () => shopRoute(app));
+route('/mock/:exam', (params) => mockRoute(app, params));
+route('/season', () => seasonRoute(app));
 route('/premium', () => premiumScreen(app));
 
 on('profile', () => {
@@ -119,6 +125,17 @@ on('streakRescued', (count) => {
   toast(`<span class="toast-icon">🔥</span><span><small>${t('rescue.done')}</small><b>${t('home.streak', { n: count })}</b></span>`, { kind: 'level', duration: 5200 });
 });
 
+// Новая ступень сезона — короткое ненавязчивое уведомление.
+on('seasonTier', (tier) => {
+  const id = seasonId();
+  toast(`<span class="toast-icon">${themeOf(id).icon}</span><span><small>${t('season.title', { name: seasonName(id) })}</small><b>${t('season.tierUp', { n: tier })}</b></span>`, { kind: 'achievement', duration: 3200 });
+});
+
+on('seasonEnd', ({ coins, items }) => {
+  if (!coins && !items.length) return;
+  toast(`<span class="toast-icon">🎁</span><span><small>${t('season.endTitle')}</small><b>${coins ? `+${coins} 🪙` : ''}${items.length ? ` +${items.length} 🎁` : ''}</b></span>`, { kind: 'achievement', duration: 6000 });
+});
+
 on('levelup', (level) => {
   sfx.levelUp();
   confetti({ y: 0.2, count: 140 });
@@ -139,6 +156,7 @@ bindLangSwitches();
 bindThemePicker();
 bindPins(refreshRoute);
 initPwa();
+bindSayButtons();
 // Открыли как приложение с экрана «Домой» — для достижения «Всегда под рукой».
 if (isStandalone() && !getProfile().counters.app) getProfile().counters.app = 1;
 syncAchievements();

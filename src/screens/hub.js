@@ -16,6 +16,7 @@ import { planCardHtml } from './plan.js';
 import { nextChestBadge, openChestModal, rewardCardsHtml } from './report.js';
 import { openWardrobe } from '../ui/wardrobe-ui.js';
 import { flameSvg } from '../core/economy.js';
+import { seasonCardHtml } from './season.js';
 import { bindLife, flameBadgeHtml, giftCardHtml, moodHtml, moodOf, rescueCardHtml, shopCardHtml } from './prepi-life.js';
 
 export function ring(value, max) {
@@ -224,7 +225,10 @@ export function hubScreen(app) {
 
         ${quizHero(p)}
 
-        ${shopCardHtml(p)}
+        <div class="life-row">
+          ${seasonCardHtml(p)}
+          ${shopCardHtml(p)}
+        </div>
 
         ${continueCard() ? `<div class="continue-row single">${continueCard()}</div>` : ''}
 

@@ -39,7 +39,7 @@ export function groupOfPath(path) {
   // Слабые темы курса — раздел этого курса (а /weak без курса — тренировка слабых навыков SAT).
   const weak = path.match(/^\/weak\/([^/]+)/);
   if (weak) return courseById(weak[1])?.group ?? null;
-  if (path === '/exams' || /^\/(sat|map|level|boss|exam|survival|blitz|weak|daily|duel|detective)(\/|$)/.test(path)) return 'exams';
+  if (path === '/exams' || /^\/(sat|map|level|boss|exam|survival|blitz|weak|daily|duel|detective|mock)(\/|$)/.test(path)) return 'exams';
   if (path === '/practice') return 'daily';
   if (path === '/code') return 'code';
   const match = path.match(/^\/c\/([^/]+)/);

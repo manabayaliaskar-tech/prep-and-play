@@ -110,6 +110,7 @@ function tenseTask(ctx, topic, level, tense) {
   const ex = L(`${t.rule.en} Answer: ${correct}.`, `${t.rule.ru} Ответ: ${correct}.`, `${t.rule.kk} Жауабы: ${correct}.`);
   const prompt = L('Choose the correct form of the verb.', 'Выбери правильную форму глагола.', 'Етістіктің дұрыс түрін таңда.');
   const q = poolQ(topic, 1, { kind: 'text', passage: sentence, prompt, ex, mc: choicesOf(ctx.rng, correct, wrong.slice(0, 3)) });
+  q.voice = { lang: 'en' };
   return finish(q, `${topic}:t:${hashString(sentence)}`, level);
 }
 
@@ -152,6 +153,7 @@ function irregTask(ctx, topic, level, v) {
     const sentence = `${subj.s} ______ (${v.base}) ${v.obj} ${pick(ctx.rng, PAST_FRAMES)}.`;
     const ex = L(`Past Simple of an irregular verb is the second form: ${tr.en}.`, `В Past Simple у неправильного глагола вторая форма: ${tr.ru}.`, `Past Simple-де бұрыс етістіктің екінші түрі қолданылады: ${tr.kk}.`);
     q = poolQ(topic, 1, { kind: 'text', passage: sentence, prompt, ex, mc: choicesOf(ctx.rng, v.past, wrong) });
+    q.voice = { lang: 'en' };
   } else if (mode === 'pp') {
     const [adv] = pick(ctx.rng, PP_FRAMES);
     const aux = has(subj.p);
@@ -160,6 +162,7 @@ function irregTask(ctx, topic, level, v) {
     const sentence = `${subj.s} ${aux} ${adv} ______ (${v.base}) ${v.obj}.`;
     const ex = L(`After have / has we use the third form (past participle): ${tr.en}.`, `После have / has нужна третья форма глагола: ${tr.ru}.`, `Have / has-тан кейін етістіктің үшінші түрі керек: ${tr.kk}.`);
     q = poolQ(topic, 1, { kind: 'text', passage: sentence, prompt, ex, mc: choicesOf(ctx.rng, v.pp, wrong) });
+    q.voice = { lang: 'en' };
   } else {
     const correct = `${v.base} – ${v.past} – ${v.pp}`;
     const variants = [
@@ -177,6 +180,7 @@ function irregTask(ctx, topic, level, v) {
     const p3 = L(`Choose the three forms of the verb "${v.base}".`, `Выбери три формы глагола «${v.base}» (${v.ru}).`, `«${v.base}» (${v.kk}) етістігінің үш түрін таңда.`);
     const ex = L(`The three forms: ${tr.en}.`, `Три формы: ${tr.ru}.`, `Үш түрі: ${tr.kk}.`);
     q = poolQ(topic, 1, { kind: 'text', prompt: p3, ex, mc: choicesOf(ctx.rng, correct, wrong) });
+    q.voice = { lang: 'en' };
     return finish(q, `${topic}:3:${v.base}`, level);
   }
   return finish(q, `${topic}:${mode}:${hashString(q.passage)}`, level);
@@ -256,6 +260,7 @@ function compTask(ctx, topic, level, a) {
     : L(`Comparative + than: ${a.comp} than. ${a.adj} — ${a.comp} — ${a.sup}.`, `Сравнительная степень + than: ${a.comp} than. ${a.adj} (${a.ru}) — ${a.comp} — ${a.sup}.`, `Салыстырмалы шырай + than: ${a.comp} than. ${a.adj} (${a.kk}) — ${a.comp} — ${a.sup}.`);
   const prompt = L('Choose the correct form of the adjective.', 'Выбери правильную форму прилагательного.', 'Сын есімнің дұрыс түрін таңда.');
   const q = poolQ(topic, 1, { kind: 'text', passage: sentence, prompt, ex, mc: choicesOf(ctx.rng, correct, wrong) });
+  q.voice = { lang: 'en' };
   return finish(q, `${topic}:${sup ? 's' : 'c'}:${a.adj}`, level);
 }
 

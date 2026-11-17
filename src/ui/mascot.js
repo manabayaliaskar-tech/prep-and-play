@@ -145,10 +145,12 @@ const AURA_BACK = {
     .map((c, i) => `<circle cx="70" cy="80" r="${66 - i * 4}" stroke="${c}"/>`)
     .join('')}</g>`,
 };
-const auraFront = (id) =>
-  AURA[id]
-    ? `<g class="aura aura-${id}">${AURA_POINTS.map(([x, y], i) => `<text class="aura-p" x="${x}" y="${y}" font-size="${i % 2 ? 13 : 16}" text-anchor="middle" style="animation-delay:${(i * 0.45).toFixed(2)}s">${AURA[id]}</text>`).join('')}</g>`
+const auraFront = (id) => {
+  const icon = AURA[id] ?? itemById(id)?.icon;
+  return icon
+    ? `<g class="aura aura-${id}">${AURA_POINTS.map(([x, y], i) => `<text class="aura-p" x="${x}" y="${y}" font-size="${i % 2 ? 13 : 16}" text-anchor="middle" style="animation-delay:${(i * 0.45).toFixed(2)}s">${icon}</text>`).join('')}</g>`
     : '';
+};
 
 /** Питомец — эмодзи вещи из гардероба, сидит справа внизу. */
 const petHtml = (id, icon) => (icon ? `<g class="pet pet-${id}"><text x="122" y="146" font-size="30" text-anchor="middle">${icon}</text></g>` : '');

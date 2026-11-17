@@ -421,3 +421,72 @@ test('магазин: товары дня, покупка, сундук удач
   assert.equal(new Set(getProfile().owned).size, 12, 'без повторов');
   assert.ok(BOXES.every((b) => Object.values(b.odds).reduce((a, x) => a + x, 0) === 100), 'шансы в сумме 100%');
 });
+
+test('сезоны: очки из опыта, 30 ступеней, эксклюзивы месяца и выдача наград при смене сезона', async () => {
+  const { TIERS, TIER_PTS, THEMES, addSeasonPts, claimTier, seasonState, tierReward } = await import('../src/core/season.js');
+  const { ITEMS, itemById, isUnlocked } = await import('../src/core/wardrobe.js');
+  assert.equal(THEMES.length, 12);
+  for (const th of THEMES) for (const id of th.items) assert.equal(itemById(id)?.unlock?.type, 'season', id);
+  assert.equal(new Set(ITEMS.map((x) => x.id)).size, ITEMS.length, 'id вещей не повторяются');
+  assert.deepEqual(tierReward('2026-11', 30), { type: 'item', id: 'hedgehog' });
+  assert.equal(tierReward('2026-11', 5).type, 'box');
+  const p = { coins: 0 };
+  addSeasonPts(p, TIER_PTS * 3 + 10, '2026-11-17');
+  let st = seasonState(p, '2026-11-20');
+  assert.equal(st.tier, 3);
+  assert.deepEqual(st.claimable, [1, 2, 3]);
+  assert.equal(claimTier(p, 4, '2026-11-20'), null, 'нельзя взять недостигнутую ступень');
+  const r = claimTier(p, 1, '2026-11-20');
+  assert.equal(p.coins, r.n);
+  assert.equal(claimTier(p, 1, '2026-11-20'), null, 'дважды не выдаётся');
+  // До 10-й ступени — эксклюзив сезона.
+  addSeasonPts(p, TIER_PTS * 7, '2026-11-21');
+  claimTier(p, 10, '2026-11-21');
+  assert.ok(isUnlocked(itemById('maple'), p));
+  assert.ok(!isUnlocked(itemById('hedgehog'), p));
+  assert.equal(seasonState(p, '2026-11-21').tier, Math.min(TIERS, 10));
+  // Новый месяц: невзятые монеты прошлого сезона выдаются, очки начинаются заново.
+  const before = p.coins;
+  const res = addSeasonPts(p, 50, '2026-12-01');
+  assert.ok(res.rollover.coins > 0);
+  assert.equal(p.coins, before + res.rollover.coins);
+  assert.equal(seasonState(p, '2026-12-02').pts, 50);
+});
+
+test('пробные экзамены: формат, выбор предметов, короткая версия и шкалы', async () => {
+  const { MOCKS, mockPlan, mockScore, picksComplete } = await import('../src/catalog/mocks.js');
+  const { courseById } = await import('../src/catalog/index.js');
+  for (const [id, mock] of Object.entries(MOCKS)) {
+    const course = courseById(id);
+    const ids = [...(mock.compulsory ?? []).map((s) => s.track), ...(mock.electives ?? []).flatMap((g) => g.from)];
+    for (const tr of ids) assert.ok(course.tracks.some((x) => x.id === tr), `${id}: ${tr}`);
+  }
+  const ent = mockPlan('ent', [['math', 'physics']]);
+  assert.equal(ent.length, 5);
+  assert.equal(ent.reduce((s, x) => s + x.points, 0), 140);
+  assert.ok(!picksComplete('ent', [['math']]));
+  assert.ok(picksComplete('ent', [['math', 'physics']]));
+  const short = mockPlan('ent', [['math', 'physics']], true);
+  assert.equal(short[0].count, 10);
+  const full = ent.map((s) => ({ ...s, correct: s.count }));
+  assert.deepEqual([mockScore('ent', full).score, mockScore('ent', full).max], [140, 140]);
+  const dtm = mockPlan('dtm', [['math', 'english']]);
+  assert.equal(dtm.reduce((s, x) => s + x.points, 0), 178);
+  const ielts = mockPlan('ielts').map((s) => ({ ...s, correct: Math.round(s.count * 0.8) }));
+  assert.equal(mockScore('ielts', ielts).unit, 'band');
+  assert.ok(mockScore('ielts', ielts).score >= 7);
+  const oge = mockPlan('oge', [['english', 'social']]).map((s) => ({ ...s, correct: s.count }));
+  assert.equal(mockScore('oge', oge).score, 5);
+  const ort = mockPlan('ort').map((s) => ({ ...s, correct: 0 }));
+  assert.equal(mockScore('ort', ort).score, 55);
+});
+
+test('озвучка: текст очищается, после ответа читается предложение с правильным ответом', async () => {
+  const { speakable, answerSpeech } = await import('../src/core/voice.js');
+  assert.equal(speakable('一 ______ 书 (shū)'), '一 书');
+  assert.equal(speakable('«la ciudad»'), 'la ciudad');
+  const q = { voice: { lang: 'es' }, passage: 'Yo ______ (hablar) español.', choices: ['hablo', 'hablas'], answer: 0 };
+  assert.equal(speakable(answerSpeech(q)), 'Yo hablo español.');
+  assert.equal(answerSpeech({ voice: { lang: 'zh', after: '书' }, choices: ['shū'], answer: 0 }), '书');
+  assert.equal(answerSpeech({ choices: ['a'], answer: 0 }), null);
+});

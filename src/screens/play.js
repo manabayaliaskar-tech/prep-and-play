@@ -5,6 +5,7 @@ import { confetti } from '../core/confetti.js';
 import { t, tx } from '../core/i18n.js';
 import { addXp, checkAchievements, currentStreak, getProfile, recordAnswer, saveProfile, todayStats } from '../core/profile.js';
 import { flameSvg, streakMultiplier } from '../core/economy.js';
+import { answerSpeech, sayButton } from '../core/voice.js';
 import { navigate, setLeaveGuard } from '../core/router.js';
 import { sfx, vibrate } from '../core/sound.js';
 import { checkAnswer } from '../engine/answer.js';
@@ -152,6 +153,8 @@ export function runSession(app, config) {
     const q = state.q;
     el.area.innerHTML = questionHtml(q);
     el.area.firstElementChild.classList.add('slide-in');
+    // Слово на иностранном языке можно послушать (кнопка 🔊 рядом с ним).
+    if (q.voice?.now) el.area.querySelector('.passage p')?.insertAdjacentHTML('beforeend', ` ${sayButton(q.voice.now, q.voice.lang)}`);
     el.ref.hidden = q.section !== 'math' || Boolean(q.local);
     state.binder = bindQuestion(el.area, q, {
       onChange: (r) => {
@@ -333,6 +336,7 @@ export function runSession(app, config) {
                 : `${t('fb.correctAnswer')}: ${correctAnswerHtml(state.q)}`
             }</div>
           </div>
+          ${!silent && answerSpeech(state.q) ? sayButton(answerSpeech(state.q), state.q.voice.lang, 'sheet-say') : ''}
         </div>
         <div class="sheet-solution"></div>
         <div class="sheet-actions">

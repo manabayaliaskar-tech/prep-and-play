@@ -1,5 +1,6 @@
 // Экран карточек слов: выбор уровня, переворот карточки, «Знал» / «Не знал», итог.
 
+import { sayButton } from '../core/voice.js';
 import { DECK_COURSE, DECK_LANGS, deckStats, rateCard, sessionCards } from '../core/cards.js';
 import { courseById, courseHref } from '../catalog/index.js';
 import { confetti } from '../core/confetti.js';
@@ -96,8 +97,8 @@ export function cardsRoute(app, { lang }) {
         </div>
         <button type="button" class="flashcard" aria-label="${t('cards.flip')}">
           <span class="flashcard-inner">
-            <span class="flashcard-face front"><b lang="${lang === 'zh' ? 'zh' : lang}">${esc(card.front)}</b><small>${t('cards.tap')}</small></span>
-            <span class="flashcard-face back"><b>${esc(card.front)}</b>${card.sub ? `<em>${esc(card.sub)}</em>` : ''}<span class="flashcard-meaning">${esc(tx(card.back))}</span></span>
+            <span class="flashcard-face front"><b lang="${lang === 'zh' ? 'zh' : lang}">${esc(card.front)}</b>${sayButton(card.front, lang, 'card-say', true)}<small>${t('cards.tap')}</small></span>
+            <span class="flashcard-face back"><b>${esc(card.front)}</b>${sayButton(card.front, lang, 'card-say', true)}${card.sub ? `<em>${esc(card.sub)}</em>` : ''}<span class="flashcard-meaning">${esc(tx(card.back))}</span></span>
           </span>
         </button>
         <div class="cards-actions" hidden>

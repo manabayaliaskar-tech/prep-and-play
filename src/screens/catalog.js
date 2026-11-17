@@ -1,5 +1,6 @@
 // Каталог: список экзаменов, страница курса (экзамен или набор уровней), раздел «Ежедневная практика».
 
+import { mockCardHtml } from './mock.js';
 import { courseById, courseHref, coursesIn, groupById, levelLabel, trackHref, trackRecord } from '../catalog/index.js';
 import { t, tx } from '../core/i18n.js';
 import { navigate } from '../core/router.js';
@@ -127,6 +128,7 @@ export function courseScreen(app, { course: id }) {
       <section class="page catalog">
         <a class="crumb" href="#${group.id === 'olymp' ? '/' : group.href}">← ${group.id === 'olymp' ? t('nav.home') : esc(tx(group.name))}</a>
         ${courseHero(course)}
+        ${mockCardHtml(course)}
         ${cardsCardHtml(course)}
         ${weakCardHtml(course)}
         <h2 class="section-title">${course.leveled ? t('cat.levels') : t('cat.subjects')}</h2>

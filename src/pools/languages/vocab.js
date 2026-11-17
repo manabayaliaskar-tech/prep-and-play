@@ -117,6 +117,7 @@ function meaningTask(ctx, topic, lang, w) {
     `«${word}» — «${w.kk}»${lang === 'en' ? '' : ` (ағылшынша ${w.en})`}.`,
   );
   const q = poolQ(topic, 1, { kind: 'text', passage: word, prompt, ex, mc: { choices: order.map((k) => meaningOf(all[k], lang)), answer: order.indexOf(0) } });
+  q.voice = { lang, now: word };
   return finish(q, `${topic}:m:${w.i}`, w.level);
 }
 
@@ -131,6 +132,7 @@ function reverseTask(ctx, topic, lang, w) {
   );
   const ex = L(`"${w.en}" — ${w[lang]}.`, `«${w.ru}» — ${w[lang]}.`, `«${w.kk}» — ${w[lang]}.`);
   const q = poolQ(topic, 2, { kind: 'text', prompt, ex, mc: { choices: order.map((k) => all[k][lang]), answer: order.indexOf(0) } });
+  q.voice = { lang };
   return finish(q, `${topic}:r:${w.i}`, w.level);
 }
 
@@ -192,6 +194,7 @@ function articleTask(ctx, topic, lang, w) {
   );
   const prompt = L('Choose the correct article.', 'Выбери правильный артикль.', 'Дұрыс артикльді таңда.');
   const q = poolQ(topic, 1, { kind: 'text', passage: `______ ${noun}`, prompt, ex, mc: { choices: order.map((k) => all[k]), answer: order.indexOf(0) } });
+  q.voice = { lang };
   return finish(q, `${topic}:a:${w.i}`, w.level);
 }
 

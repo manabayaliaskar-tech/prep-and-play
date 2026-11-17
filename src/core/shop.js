@@ -95,13 +95,21 @@ export function boxPool(box, profile = getProfile()) {
  * Открывает сундук: списывает монеты и выдаёт случайную вещь, которой ещё нет.
  * Шансы редкостей берутся из box.odds; если вещей какой-то редкости уже не осталось, её шанс делится между остальными.
  */
-export function openBox(boxId, rng = Math.random) {
+export function openBox(boxId, rng = Math.random, { free = false } = {}) {
   const box = boxById(boxId);
   const p = getProfile();
   if (!box) return { ok: false, reason: 'notForSale' };
   const pool = boxPool(box, p);
-  if (!pool.length) return { ok: false, reason: 'empty' };
-  if (!addCoins(-box.price)) return { ok: false, reason: 'coins' };
+  if (!pool.length) {
+    // Бесплатный сундук (награда сезона), когда собрано всё, превращается в монеты.
+    if (free) {
+      addCoins(Math.round(box.price / 2));
+      saveProfile();
+      return { ok: true, item: null, coins: Math.round(box.price / 2), sets: [] };
+    }
+    return { ok: false, reason: 'empty' };
+  }
+  if (!free && !addCoins(-box.price)) return { ok: false, reason: 'coins' };
   const rarities = RARITIES.filter((r) => box.odds[r] && pool.some((it) => it.rarity === r));
   const total = rarities.reduce((sum, r) => sum + box.odds[r], 0);
   let roll = rng() * total;

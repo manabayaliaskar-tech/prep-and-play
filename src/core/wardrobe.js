@@ -6,6 +6,7 @@ import { ACHIEVEMENTS } from '../content/achievements.js';
 import { getProfile, levelInfo } from './profile.js';
 import { openedChests } from './rewards.js';
 import { storage } from './storage.js';
+import { THEMES } from './season.js';
 
 export const SLOTS = ['head', 'face', 'neck', 'back', 'color', 'aura', 'pet'];
 
@@ -136,6 +137,21 @@ export const ITEMS = [
   shop('dragon', 'pet', '🐲', 'legendary'),
 ];
 
+// Сезонные эксклюзивы: по три вещи на каждый месяц (аура, цвет, питомец) — только за ступени сезона.
+const SEASON_ICONS = {
+  frost: '🌨️', aurora: '🌌', snowman: '⛄', valentine: '💘', rose: '🌹', teddy: '🧸',
+  tulips: '🌷', spring: '🌱', bee: '🐝', planets: '🪐', nebula: '🔭', alien: '👽',
+  daisies: '🌼', meadow: '🍀', ladybug: '🐞', suns: '☀️', lemonade: '🍋', crab: '🦀',
+  shells: '🐚', lagoon: '🏝️', dolphin: '🐬', fireworks: '🎆', neon: '💜', lion: '🦁',
+  pencils: '✏️', chalk: '🖍️', bookworm: '🐛', ghosts: '👻', pumpkin: '🎃', batpet: '🦇',
+  maple: '🍁', autumn: '🍂', hedgehog: '🦔', gifts: '🎁', xmas: '🎄', reindeer: '🦌',
+};
+THEMES.forEach((theme, month) =>
+  theme.items.forEach((id, k) =>
+    ITEMS.push(item(id, ['aura', 'color', 'pet'][k], SEASON_ICONS[id], { type: 'season', value: month }, k === 2 ? 'legendary' : 'epic')),
+  ),
+);
+
 /** Коллекции: собери все вещи набора — получи монеты (один раз). */
 export const SETS = [
   { id: 'pirate', icon: '🏴‍☠️', items: ['pirate', 'eyepatch', 'parrot', 'pearls'], coins: 400 },
@@ -160,6 +176,7 @@ export function isUnlocked(it, profile = getProfile(), chests = openedChests()) 
   if (u.type === 'ach') return Boolean(profile.achievements?.[u.value]);
   if (u.type === 'level') return levelInfo(profile.xp ?? 0).level >= u.value;
   if (u.type === 'shop') return (profile.owned ?? []).includes(it.id);
+  if (u.type === 'season') return (profile.seasonItems ?? []).includes(it.id);
   return false;
 }
 
@@ -172,6 +189,7 @@ export function unlockHint(it) {
   if (u.type === 'chest') return { key: 'wear.byChest', params: { n: u.value } };
   if (u.type === 'level') return { key: 'wear.byLevel', params: { n: u.value } };
   if (u.type === 'shop') return { key: 'wear.byShop', params: { n: u.value } };
+  if (u.type === 'season') return { key: 'wear.bySeason', params: { name: THEMES[u.value].name } };
   const a = ACHIEVEMENTS.find((x) => x.id === u.value);
   return { key: 'wear.byAch', params: { name: a?.name } };
 }
@@ -214,8 +232,8 @@ export function takeNewItems(profile = getProfile()) {
   }
   const fresh = unlocked.filter((id) => !known.includes(id));
   if (fresh.length) storage.set('wearKnown', [...known, ...fresh]);
-  // О покупках и выигрышах в сундуке сообщает сам магазин.
-  return fresh.map(itemById).filter((it) => it.unlock?.type !== 'shop');
+  // О покупках, выигрышах в сундуке и наградах сезона сообщают магазин и страница сезона.
+  return fresh.map(itemById).filter((it) => it.unlock?.type !== 'shop' && it.unlock?.type !== 'season');
 }
 
 /** Цвета шара для слота «цвет». */
@@ -237,4 +255,17 @@ export const COLORS = {
   shadow: ['#71717a', '#27272a', '#09090b'],
   galaxy: ['#c4b5fd', '#4c1d95', '#020617'],
   diamond: ['#ffffff', '#67e8f9', '#6366f1'],
+  // Сезонные цвета.
+  aurora: ['#a7f3d0', '#818cf8', '#312e81'],
+  rose: ['#ffe4e6', '#fb7185', '#9f1239'],
+  spring: ['#ecfccb', '#86efac', '#15803d'],
+  nebula: ['#f5d0fe', '#7c3aed', '#0f172a'],
+  meadow: ['#fef9c3', '#84cc16', '#365314'],
+  lemonade: ['#fefce8', '#fde047', '#ca8a04'],
+  lagoon: ['#ccfbf1', '#2dd4bf', '#115e59'],
+  neon: ['#fae8ff', '#e879f9', '#6b21a8'],
+  chalk: ['#f8fafc', '#cbd5e1', '#334155'],
+  pumpkin: ['#ffedd5', '#fb923c', '#7c2d12'],
+  autumn: ['#fef3c7', '#d97706', '#78350f'],
+  xmas: ['#dcfce7', '#ef4444', '#14532d'],
 };

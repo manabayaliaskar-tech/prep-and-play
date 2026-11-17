@@ -45,6 +45,8 @@ function task(ctx, topic, w, mode) {
     p: { passage: w.hz, prompt: L('How is this word read (pinyin)?', 'Как читается это слово (пиньинь)?', 'Бұл сөз қалай оқылады (пиньинь)?'), choice: (x) => x.py },
   }[mode];
   const q = poolQ(topic, 1, { kind: 'text', passage: view.passage, prompt: view.prompt, ex, mc: { choices: order.map((k) => view.choice(all[k])), answer: order.indexOf(0) } });
+  // Слово можно послушать сразу (значение) или после ответа (перевод и чтение — иначе это подсказка).
+  q.voice = mode === 'm' ? { lang: 'zh', now: w.hz } : { lang: 'zh', after: w.hz };
   return finish(q, `${topic}:${mode}:${w.i}`, w.level);
 }
 
@@ -66,6 +68,7 @@ function measureTask(ctx, topic, row, level) {
   );
   const prompt = L('Choose the correct measure word.', 'Выбери правильное счётное слово.', 'Дұрыс мөлшер сөзді таңда.');
   const q = poolQ(topic, 2, { kind: 'text', passage: `一 ______ ${noun} (${py})`, prompt, ex, mc: { choices: order.map((k) => all[k]), answer: order.indexOf(0) } });
+  q.voice = { lang: 'zh' };
   return finish(q, `${topic}:c:${noun}`, level);
 }
 

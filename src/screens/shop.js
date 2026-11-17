@@ -235,26 +235,33 @@ function announceSets(sets) {
 }
 
 /** Окно сундука удачи: сундук трясётся, раскрывается и показывает вещь её редкости. */
-function openBoxModal(boxId, onDone) {
+export function openBoxModal(boxId, onDone, { free = false } = {}) {
   const box = boxById(boxId);
   if (!box) return;
   const close = openModal({
     title: `${box.icon} ${t(`box.${box.id}`)}`,
     body: `<div class="lootbox-stage">
       <button type="button" class="lootbox" aria-label="${t('shop.open')}"><span>${box.icon}</span></button>
-      <p class="muted">${t('shop.boxTap', { n: box.price })}</p>
+      <p class="muted">${free ? t('season.boxFree') : t('shop.boxTap', { n: box.price })}</p>
     </div>`,
   });
   const stage = document.querySelector('.lootbox-stage');
   const btn = stage?.querySelector('.lootbox');
   btn?.addEventListener('click', () => {
     if (btn.classList.contains('is-opening')) return;
-    const res = openBox(boxId);
+    const res = openBox(boxId, Math.random, { free });
     if (!res.ok) return close();
     btn.classList.add('is-opening');
     sfx.tap();
     setTimeout(() => {
       const it = res.item;
+      if (!it) {
+        stage.innerHTML = `<div class="loot-reveal r-rare"><div class="loot-rays"></div><span class="loot-icon">🪙</span><b class="loot-name">+${res.coins} 🪙</b><p class="muted small">${t('season.allOwned')}</p><div class="loot-actions"><button type="button" class="btn btn-primary loot-close">${t('shop.great')}</button></div></div>`;
+        sfx.coin();
+        onDone?.();
+        stage.querySelector('.loot-close')?.addEventListener('click', close);
+        return;
+      }
       const outfit = { ...getOutfit(), [it.slot]: it.id };
       stage.innerHTML = `
         <div class="loot-reveal r-${it.rarity}">
@@ -265,7 +272,7 @@ function openBoxModal(boxId, onDone) {
           ${rarityLabel(it.rarity)}
           <p class="muted small">${t('shop.boxWorn')}</p>
           <div class="loot-actions">
-            ${getProfile().coins >= box.price && boxPool(box).length ? `<button type="button" class="btn btn-primary loot-again">${t('shop.again')} ${coin(box.price)}</button>` : ''}
+            ${!free && getProfile().coins >= box.price && boxPool(box).length ? `<button type="button" class="btn btn-primary loot-again">${t('shop.again')} ${coin(box.price)}</button>` : ''}
             <button type="button" class="btn btn-soft loot-close">${t('shop.great')}</button>
           </div>
         </div>`;

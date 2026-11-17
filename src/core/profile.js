@@ -4,6 +4,7 @@
 
 import { evaluateAchievements } from '../content/achievements.js';
 import { ACH_COINS, RESCUE_XP, XP_PER_COIN, levelCoins, streakMultiplier } from './economy.js';
+import { addSeasonPts } from './season.js';
 import { dayKey, daysBetween } from './dates.js';
 import { emit } from './events.js';
 import { storage } from './storage.js';
@@ -60,6 +61,7 @@ function load() {
   // Монеты появились позже опыта: старым игрокам начисляем их за весь накопленный опыт и достижения.
   if (saved.coins === undefined) merged.coins = Math.floor((saved.xp ?? 0) / XP_PER_COIN) + ACH_COINS * Object.keys(saved.achievements ?? {}).length;
   merged.sets = Array.isArray(saved.sets) ? [...saved.sets] : [];
+  merged.seasonItems = Array.isArray(saved.seasonItems) ? [...saved.seasonItems] : [];
   return merged;
 }
 
@@ -153,6 +155,10 @@ export function addXp(amount) {
   addCoins(Math.floor(dust / XP_PER_COIN));
   profile.coinDust = dust % XP_PER_COIN;
   maybeRescue(today, day.xp);
+  // Очки сезона = опыт этого месяца.
+  const season = addSeasonPts(profile, gained, today);
+  if (season.rollover) emit('seasonEnd', season.rollover);
+  if (season.tierUp) emit('seasonTier', season.tierUp);
   const after = levelInfo(profile.xp).level;
   for (let l = before + 1; l <= after; l += 1) addCoins(levelCoins(l));
   if (after > before) emit('levelup', after);

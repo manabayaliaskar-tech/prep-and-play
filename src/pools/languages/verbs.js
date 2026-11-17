@@ -283,6 +283,7 @@ function personTask(ctx, topic, lang, tense, verb) {
   const prompt = L('Choose the correct form of the verb.', 'Выбери правильную форму глагола.', 'Етістіктің дұрыс түрін таңда.');
   const shown = lang === 'fr' ? withPronoun(subject, correct) : `${subject} ${correct}`;
   const q = poolQ(topic, 1, { kind: 'text', passage, prompt, ex: explain(lang, verb, tense, shown), mc: { choices: order.map((k) => all[k]), answer: order.indexOf(0) } });
+  q.voice = { lang };
   q.id = `${topic}:p:${verb.inf}:${tense}:${p}`;
   return q;
 }
@@ -315,6 +316,7 @@ function tenseTask(ctx, topic, lang, tense, verb) {
   const all = [correct, ...wrong];
   const prompt = L('Which tense fits the sentence? Choose the form.', 'Какое время нужно по смыслу? Выбери форму.', 'Мағынасы бойынша қай шақ керек? Түрін таңда.');
   const q = poolQ(topic, 2, { kind: 'text', passage, prompt, ex: explain(lang, verb, tense, lang === 'es' ? `${subject} ${correct}` : correct), mc: { choices: order.map((k) => all[k]), answer: order.indexOf(0) } });
+  q.voice = { lang };
   q.id = `${topic}:t:${verb.inf}:${tense}:${p}`;
   return q;
 }
