@@ -58,7 +58,38 @@ const CAP = `
         <path d="M70 15 L102 26 L70 22 L38 26 Z" fill="#fff" opacity=".14"/>
         <g class="tassel"><path d="M70 26 L101 28 L102 44" stroke="#facc15" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="102" cy="47" r="4.4" fill="#facc15"/></g>
       </g>`;
+// Костюм ведущего квиза (не продаётся в магазине): смокинг с бабочкой и ручка с микрофоном.
+const HOST_SUIT = `<g class="host-suit">
+    <path d="M30.7 107.5 L56 105 L70 123 L84 105 L109.3 107.5 A48 48 0 0 1 30.7 107.5 Z" fill="#1e1b4b"/>
+    <path d="M56 105 L70 123 L84 105 Z" fill="#fff"/>
+    <path d="M56 105 L63 105 L70 119 L67 121 Z M84 105 L77 105 L70 119 L73 121 Z" fill="#3730a3"/>
+    <path d="M38 113 L46 111 L44 118 Z" fill="#fff"/>
+    <path d="M70 109 L59 103 L59 115 Z M70 109 L81 103 L81 115 Z" fill="#e11d48"/>
+    <circle cx="70" cy="109" r="3.6" fill="#9f1239"/>
+    <circle cx="70" cy="121" r="1.6" fill="#1e1b4b"/>
+    <g class="host-arm">
+      <path d="M112 100 Q128 104 122 118" stroke="var(--mascot-2)" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <g class="host-mic" transform="rotate(-38 117 112)">
+        <rect x="114" y="92" width="6" height="22" rx="3" fill="#1f2937"/>
+        <rect x="113.5" y="92" width="7" height="3.5" rx="1.5" fill="#e11d48"/>
+        <circle cx="117" cy="86" r="7.5" fill="#9ca3af"/>
+        <circle cx="117" cy="86" r="7.5" fill="none" stroke="#4b5563" stroke-width="1.2"/>
+        <path d="M111 83 H123 M110.5 87 H123.5 M112 91 H122 M114 80 V92 M117 79 V93 M120 80 V92" stroke="#6b7280" stroke-width=".7"/>
+        <circle cx="114.5" cy="83" r="2" fill="#fff" opacity=".6"/>
+      </g>
+      <circle cx="121" cy="117" r="6" fill="#fff" stroke="#e5e7eb" stroke-width="1.2"/>
+    </g>
+  </g>`;
+const HOST_HAT = `<g class="host-hat" transform="rotate(-9 70 36)">
+    <ellipse cx="70" cy="37" rx="27" ry="6.5" fill="#111827"/>
+    <path d="M54 37 L56 6 Q70 2 84 6 L86 37 Z" fill="#1f2937"/>
+    <path d="M55.2 27 Q70 30 84.8 27 L85.4 33 Q70 36 54.6 33 Z" fill="#e11d48"/>
+    <path d="M60 9 L61.5 30" stroke="#fff" stroke-opacity=".22" stroke-width="3" stroke-linecap="round"/>
+    <path d="M78 15 l1.4 3 l3.2 .3 l-2.4 2.1 l.8 3.2 l-3 -1.8 l-3 1.8 l.8 -3.2 l-2.4 -2.1 l3.2 -.3 Z" fill="#facc15"/>
+  </g>`;
+
 const HEAD = {
+  'host-hat': HOST_HAT,
   crown: `<g class="wear-crown"><path d="M44 42 L47 16 L58 29 L70 10 L82 29 L93 16 L96 42 Z" fill="#facc15" stroke="#f59e0b" stroke-width="2.5" stroke-linejoin="round"/><circle cx="70" cy="33" r="4" fill="#ef4444"/><circle cx="55" cy="36" r="3" fill="#3b82f6"/><circle cx="85" cy="36" r="3" fill="#22c55e"/></g>`,
   bow: `<g class="wear-bow" transform="rotate(14 98 38)"><path d="M98 38 L80 26 Q76 38 80 50 Z" fill="#ec4899"/><path d="M98 38 L116 26 Q120 38 116 50 Z" fill="#ec4899"/><circle cx="98" cy="38" r="6" fill="#be185d"/></g>`,
   headphones: `<g class="wear-headphones"><path d="M24 80 Q24 24 70 24 Q116 24 116 80" stroke="#1e293b" stroke-width="7" fill="none" stroke-linecap="round"/><rect x="14" y="66" width="18" height="30" rx="8" fill="#7c3aed"/><rect x="108" y="66" width="18" height="30" rx="8" fill="#7c3aed"/></g>`,
@@ -105,6 +136,7 @@ const FACE = {
   mustache: `<path class="wear-mustache" d="M54 93 Q62 85 70 91 Q78 85 86 93 Q80 99 70 95 Q60 99 54 93 Z" fill="#22164f"/>`,
 };
 const NECK = {
+  'host-suit': HOST_SUIT,
   scarf: `<g class="wear-scarf"><path d="M32 106 Q70 128 108 106 L106 118 Q70 140 34 118 Z" fill="#ef4444"/><path d="M88 120 L96 142 L85 144 L80 123 Z" fill="#dc2626"/><path d="M40 112 Q70 130 100 112" stroke="#fff" stroke-width="2" stroke-dasharray="4 5" fill="none" opacity=".6"/></g>`,
   bowtie: `<g class="wear-bowtie"><path d="M70 122 L54 113 L54 131 Z" fill="#ef4444"/><path d="M70 122 L86 113 L86 131 Z" fill="#ef4444"/><circle cx="70" cy="122" r="4.5" fill="#b91c1c"/></g>`,
   medal: `<g class="wear-medal"><path d="M58 100 L70 122 L82 100" stroke="#3b82f6" stroke-width="5" fill="none"/><circle cx="70" cy="128" r="9" fill="#facc15" stroke="#f59e0b" stroke-width="2"/><text x="70" y="132" text-anchor="middle" font-size="10" font-weight="900" fill="#92400e">1</text></g>`,

@@ -311,3 +311,20 @@ test('монета: картинки P&P на месте, стили на них
   assert.ok(coinHtml('coin-lg').includes('class="coin coin-lg"'));
   assert.equal(COIN, '🪙');
 });
+
+test('ведущий квиза: колесо останавливается ровно на выбранном предмете', async () => {
+  const { WHEEL, angleFor, sectorAt } = await import('../src/ui/quiz-host.js');
+  assert.equal(WHEEL.length, 8);
+  let angle = 0;
+  for (let k = 0; k < 40; k++) {
+    const i = k % WHEEL.length;
+    const jitter = ((k * 7) % 13) - 6;
+    const next = angleFor(i, angle, 4, jitter);
+    assert.ok(next - angle >= 4 * 360 && next - angle < 5 * 360, 'не меньше четырёх оборотов вперёд');
+    assert.equal(sectorAt(next), i, `сектор ${i}`);
+    angle = next;
+  }
+  const { mascot } = await import('../src/ui/mascot.js');
+  const svg = mascot('happy', '', { head: 'host-hat', neck: 'host-suit' });
+  assert.ok(svg.includes('host-hat') && svg.includes('host-mic'), 'Препи в цилиндре и с микрофоном');
+});

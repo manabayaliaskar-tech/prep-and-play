@@ -9484,7 +9484,8 @@ svg.mascot {
   border-radius: inherit;
   background: var(--gloss);
   pointer-events: none;
-  z-index: 0;
+  /* Под содержимым, но над фоном карточки (у карточки свой контекст наложения — isolation: isolate). */
+  z-index: -1;
 }
 
 /* Блик пробегает по карточке при наведении. */
@@ -11786,4 +11787,249 @@ svg.mascot {
 
 .coin-balance .coin-big.coin-spend {
   animation: coin-spend 0.7s ease-in-out;
+}
+
+/* =====================================================================
+   Ведущий квиза: Препи в смокинге с микрофоном и колесо фортуны.
+   Крупный, может немного выходить за края карточки квиза.
+   ===================================================================== */
+
+.quiz-hero {
+  overflow: visible;
+  grid-template-columns: 300px 1fr;
+}
+
+.quiz-hero::before {
+  display: none;
+}
+
+/* Подложка со светом — внутри карточки, чтобы свет не выходил за скругления. */
+.qh-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.qh-bg::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -10%;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.25), transparent 65%);
+  animation: qh-glow 6s ease-in-out infinite;
+}
+
+.quiz-host {
+  position: relative;
+  width: 300px;
+  height: 270px;
+  margin: -46px 0 -40px -34px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.quiz-host:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.7);
+  outline-offset: 4px;
+  border-radius: 24px;
+}
+
+.host-glow {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  width: 210px;
+  height: 210px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 236, 160, 0.55), transparent 68%);
+  filter: blur(6px);
+  transition: opacity 0.4s;
+  opacity: 0.5;
+}
+
+.is-spinning .host-glow {
+  opacity: 1;
+}
+
+.host-wheel {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 220px;
+  height: 250px;
+  overflow: visible;
+  filter: drop-shadow(0 14px 22px rgba(40, 10, 60, 0.38));
+  transition: transform 0.4s var(--ease-spring);
+}
+
+.quiz-host:hover .host-wheel {
+  transform: rotate(-2deg) scale(1.02);
+}
+
+.host-wheel text {
+  pointer-events: none;
+}
+
+/* Лампочки по ободу: мягко мерцают, а пока колесо крутится — бегут. */
+.bulb {
+  fill: #fff7cc;
+  filter: drop-shadow(0 0 3px #fde047);
+  animation: bulb-blink 1.6s ease-in-out infinite;
+}
+
+.bulb.b1 {
+  animation-delay: -0.8s;
+}
+
+.is-spinning .bulb {
+  animation-duration: 0.28s;
+}
+
+@keyframes bulb-blink {
+  0%,
+  100% {
+    fill: #fff7cc;
+    opacity: 1;
+  }
+  50% {
+    fill: #f59e0b;
+    opacity: 0.55;
+  }
+}
+
+.wheel-pointer {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+}
+
+.is-spinning .wheel-pointer {
+  animation: pointer-tick 0.14s ease-in-out infinite alternate;
+}
+
+@keyframes pointer-tick {
+  to {
+    transform: rotate(-14deg);
+  }
+}
+
+.host-prepi-wrap {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 168px;
+  height: 180px;
+  z-index: 2;
+  filter: drop-shadow(0 12px 18px rgba(40, 10, 60, 0.35));
+}
+
+.host-prepi {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  animation: host-bob 3.2s ease-in-out infinite;
+  transform-origin: 50% 90%;
+}
+
+@keyframes host-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    transform: translateY(-4px) rotate(-1.5deg);
+  }
+}
+
+/* Препи «дёргает» колесо: наклоняется и подпрыгивает. */
+.is-spinning .host-prepi {
+  animation: host-pull 0.9s var(--ease-spring);
+}
+
+@keyframes host-pull {
+  0% {
+    transform: rotate(0) translateY(0);
+  }
+  30% {
+    transform: rotate(10deg) translateY(-10px) scale(1.04);
+  }
+  60% {
+    transform: rotate(-6deg) translateY(0);
+  }
+  100% {
+    transform: rotate(0) translateY(0);
+  }
+}
+
+.host-bubble {
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  z-index: 3;
+  max-width: 190px;
+  padding: 8px 14px;
+  border-radius: 18px 18px 18px 4px;
+  background: rgba(255, 255, 255, 0.97);
+  color: #1e1b4b;
+  font-weight: 900;
+  font-size: 0.98rem;
+  line-height: 1.25;
+  box-shadow: 0 10px 24px rgba(30, 10, 60, 0.28);
+  white-space: nowrap;
+}
+
+.host-bubble::after {
+  content: '';
+  position: absolute;
+  left: 18px;
+  bottom: -8px;
+  border: 8px solid transparent;
+  border-top-color: #fff;
+  border-bottom: 0;
+}
+
+.host-bubble.is-in {
+  animation: bubble-pop 0.45s var(--ease-spring);
+}
+
+@keyframes bubble-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.7);
+  }
+}
+
+/* На странице квиза: по центру над заголовком, немного выходит за верх карточки. */
+.quiz-host.in-setup {
+  margin: -36px auto -6px;
+}
+
+@media (max-width: 720px) {
+  .quiz-hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .quiz-host.in-hero {
+    margin: -54px auto -12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .quiz-host {
+    transform: scale(0.88);
+    transform-origin: 50% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .host-prepi,
+  .bulb {
+    animation: none;
+  }
 }

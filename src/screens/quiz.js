@@ -3,6 +3,7 @@
 // свой квиз (выбранные предметы) и квиз дня (одинаковый для всех).
 // Вопросы, которые игрок уже видел, запоминаются и не выдаются снова, пока есть новые.
 
+import { bindQuizHost, quizHostHtml } from '../ui/quiz-host.js';
 import { dayKey } from '../core/dates.js';
 import { t, tx } from '../core/i18n.js';
 import { addXp, getProfile, saveProfile, todayStats } from '../core/profile.js';
@@ -16,7 +17,6 @@ import { POOLS } from '../pools/topics.js';
 import { baseStats, celebrate, runSession } from './play.js';
 import { esc } from '../ui/dom.js';
 
-const SUBJECT_ICONS = ['📐', '⚛️', '⚗️', '🧬', '🌍', '📜', '🔤', '💻', '⚖️', '🏆'];
 
 export const QUIZ_MODES = [
   { id: 'classic', icon: '🎯' },
@@ -315,7 +315,7 @@ export function quizRoute(app, params = {}) {
     app.innerHTML = `
       <section class="page setup quiz-page">
         <div class="setup-card wide quiz-setup">
-          <div class="quiz-orbit" aria-hidden="true">${SUBJECT_ICONS.map((icon, i) => `<span style="--i:${i};--n:${SUBJECT_ICONS.length}">${icon}</span>`).join('')}<b>🎲</b></div>
+          ${quizHostHtml('in-setup')}
           <h1>${t('quiz.title')}</h1>
           <p class="muted">${t('quiz.desc2')}</p>
           <div class="quiz-modes" role="radiogroup" aria-label="${t('quiz.pickMode')}">
@@ -336,6 +336,7 @@ export function quizRoute(app, params = {}) {
           <button type="button" class="btn btn-primary btn-xl start-btn" ${mode === 'custom' && !pools.length ? 'disabled' : ''}>▶ ${t(`quiz.go.${mode}`)}</button>
         </div>
       </section>`;
+    bindQuizHost(app);
     app.querySelectorAll('[data-mode]').forEach((b) =>
       b.addEventListener('click', () => {
         mode = b.dataset.mode;

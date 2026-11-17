@@ -1,6 +1,7 @@
 // Главная: приветствие, цель дня, «продолжить» и три раздела сайта —
 // экзамены, олимпиадная математика, ежедневная практика.
 
+import { bindQuizHost, quizHostHtml } from '../ui/quiz-host.js';
 import { COURSES, GROUPS, courseById, courseHref, courseStars, coursesIn, trackById, trackHref, trackRecord } from '../catalog/index.js';
 import { dayKey, msUntilMidnight } from '../core/dates.js';
 import { canInstall, dismissInstall, install, installDismissed } from '../core/pwa.js';
@@ -101,7 +102,7 @@ export function questsCard(profile = getProfile(), day = dayKey()) {
     </section>`;
 }
 
-/** Большая карточка квиза: кубик, рекорды и кнопки режимов. */
+/** Большая карточка квиза: Препи-ведущий с колесом фортуны, рекорды и кнопки режимов. */
 export function quizHero(p = getProfile(), day = dayKey()) {
   const r = p.records ?? {};
   const classic = Object.values(r.quiz ?? {});
@@ -109,10 +110,8 @@ export function quizHero(p = getProfile(), day = dayKey()) {
   const chip = (icon, label, value) => `<span class="qh-chip"><span aria-hidden="true">${icon}</span>${label}: <b>${value}</b></span>`;
   return `
     <section class="quiz-hero" aria-label="${t('quiz.title')}">
-      <div class="qh-dice" aria-hidden="true">
-        <div class="qh-cube"><span>🎲</span></div>
-        ${['📐', '🌍', '⚛️', '🧬', '📜', '🔤', '💻', '🏆'].map((icon, i) => `<i style="--i:${i}">${icon}</i>`).join('')}
-      </div>
+      <div class="qh-bg" aria-hidden="true"></div>
+      ${quizHostHtml('in-hero')}
       <div class="qh-body">
         <h2>${t('quiz.title')}</h2>
         <p>${t('hub.quizHero')}</p>
@@ -299,6 +298,7 @@ export function hubScreen(app) {
       </section>`;
     app.querySelector('.hero-mascot.prepi-dress')?.addEventListener('click', () => openWardrobe(render));
     bindLife(app, render);
+    bindQuizHost(app);
     app.querySelector('.install-go')?.addEventListener('click', startInstall);
     app.querySelector('.install-close')?.addEventListener('click', () => {
       dismissInstall();
