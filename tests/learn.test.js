@@ -277,3 +277,22 @@ test('оформление: 12+ тем, тёмные темы помечены �
   assert.ok(css.includes('prefers-reduced-motion'));
   assert.ok(COURSES.length > 0);
 });
+
+test('даты и личности по 7 странам: таблицы фактов дают сотни разных вопросов и подключены к экзаменам', async () => {
+  const pairs = { uz: 'dtm', kg: 'ort', tj: 'tj', az: 'dim', am: 'arm', by: 'ct', md: 'bac' };
+  for (const [country, exam] of Object.entries(pairs)) {
+    const topic = `h.${country}t`;
+    assert.ok(TOPICS[topic], topic);
+    const rng = createRng(9);
+    const seen = new Set();
+    for (let i = 0; i < 300; i++) {
+      const q = TOPICS[topic].make({ rng, used: new Set(), state: {} }, 1 + (i % 3));
+      assert.equal(new Set(q.choices.map((c) => c.ru ?? c)).size, 4, `${topic}: ${q.prompt.ru}`);
+      assert.ok(q.choices[q.answer], topic);
+      seen.add(q.id);
+    }
+    assert.ok(seen.size >= 100, `${topic}: ${seen.size} разных заданий`);
+    const course = courseById(exam);
+    assert.ok(course.tracks.some((tr) => tr.spec.some(([id]) => id === topic)), `${exam} включает ${topic}`);
+  }
+});

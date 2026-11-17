@@ -4,6 +4,7 @@
 import { hashString, pick, shuffle } from '../../core/random.js';
 import { L, poolQ } from '../gen.js';
 import { KZ_EVENTS, KZ_PEOPLE, RU_EVENTS, WORLD_EVENTS, WORLD_PEOPLE } from './timeline.js';
+import { AM_EVENTS, AM_PEOPLE, AZ_EVENTS, AZ_PEOPLE, BY_EVENTS, BY_PEOPLE, KG_EVENTS, KG_PEOPLE, MD_EVENTS, MD_PEOPLE, TJ_EVENTS, TJ_PEOPLE, UZ_EVENTS, UZ_PEOPLE } from './timeline-region.js';
 
 const rows = (text) => text.trim().split('\n').map((line) => line.split('|'));
 const events = (text) => rows(text).map(([y, en, ru, kk]) => ({ year: Number(y), name: L(en, ru, kk) }));
@@ -13,6 +14,13 @@ const SETS = {
   kz: { events: events(KZ_EVENTS), people: people(KZ_PEOPLE) },
   world: { events: events(WORLD_EVENTS), people: people(WORLD_PEOPLE) },
   ru: { events: events(RU_EVENTS), people: null },
+  uz: { events: events(UZ_EVENTS), people: people(UZ_PEOPLE) },
+  kg: { events: events(KG_EVENTS), people: people(KG_PEOPLE) },
+  tj: { events: events(TJ_EVENTS), people: people(TJ_PEOPLE) },
+  az: { events: events(AZ_EVENTS), people: people(AZ_PEOPLE) },
+  am: { events: events(AM_EVENTS), people: people(AM_PEOPLE) },
+  by: { events: events(BY_EVENTS), people: people(BY_PEOPLE) },
+  md: { events: events(MD_EVENTS), people: people(MD_PEOPLE) },
 };
 
 export const TIMELINE_SIZE = Object.values(SETS).reduce((s, x) => s + x.events.length + (x.people?.length ?? 0), 0);
@@ -38,6 +46,11 @@ function yearTask(ctx, topic, d, set) {
   for (const x of shuffle(set.events, rng).slice(0, 3)) cands.add(x.year);
   cands.delete(e.year);
   const wrong = shuffle([...cands].filter((y) => y !== 0 && y <= 2025), rng).slice(0, 3);
+  // У недавних событий «будущие» годы отбрасываются — добираем варианты годами раньше события.
+  for (let k = 1; wrong.length < 3; k++) {
+    const y = e.year - k * (d === 1 ? 10 : d === 2 ? 3 : 1);
+    if (y !== 0 && !wrong.includes(y)) wrong.push(y);
+  }
   const q = poolQ(topic, d, {
     kind: 'text',
     prompt: L(`In which year did this happen: ${e.name.en}?`, `В каком году произошло событие: ${e.name.ru}?`, `Бұл оқиға қай жылы болды: ${e.name.kk}?`),
@@ -107,7 +120,7 @@ function personTask(ctx, topic, d, set) {
   return q;
 }
 
-/** Генератор по истории региона: kz — Казахстан, world — всемирная, ru — Россия. */
+/** Генератор по истории региона: kz — Казахстан, world — всемирная, ru — Россия; uz, kg, tj, az, am, by, md — страны региона. */
 export function timelineMaker(topic, region) {
   const set = SETS[region];
   return (ctx, d) => {

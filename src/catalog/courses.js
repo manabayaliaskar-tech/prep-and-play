@@ -151,7 +151,7 @@ const englishTrack = (levels, test) =>
 
 const ALL = [1, 2, 3];
 /** Генераторы по хронологии к банкам истории. */
-const HISTORY_GEN = { 'h.kz': 'h.kzt', 'h.world': 'h.wt', 'h.ru': 'h.rut' };
+const HISTORY_GEN = { 'h.kz': 'h.kzt', 'h.world': 'h.wt', 'h.ru': 'h.rut', 'h.uz': 'h.uzt', 'h.kg': 'h.kgt', 'h.tj': 'h.tjt', 'h.az': 'h.azt', 'h.am': 'h.amt', 'h.by': 'h.byt', 'h.md': 'h.mdt' };
 const SUBJECT = {
   physics: () =>
     track('physics', '⚛️', N.physics, L('Mechanics, electricity, heat, optics', 'Механика, электричество, тепло, оптика', 'Механика, электр, жылу, оптика'),

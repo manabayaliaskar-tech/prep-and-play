@@ -153,6 +153,13 @@ export const TOPICS = {
   'h.kzt': topic('history', L('Kazakhstan: dates and people', 'Казахстан: даты и личности', 'Қазақстан: даталар мен тұлғалар'), timelineMaker('h.kzt', 'kz')),
   'h.wt': topic('history', L('World history: dates and people', 'Всемирная история: даты и личности', 'Дүниежүзі тарихы: даталар мен тұлғалар'), timelineMaker('h.wt', 'world')),
   'h.rut': topic('history', L('Russia: dates', 'Россия: даты', 'Ресей: даталар'), timelineMaker('h.rut', 'ru')),
+  'h.uzt': topic('history', L('Uzbekistan: dates and people', 'Узбекистан: даты и личности', 'Өзбекстан: даталар мен тұлғалар'), timelineMaker('h.uzt', 'uz')),
+  'h.kgt': topic('history', L('Kyrgyzstan: dates and people', 'Кыргызстан: даты и личности', 'Қырғызстан: даталар мен тұлғалар'), timelineMaker('h.kgt', 'kg')),
+  'h.tjt': topic('history', L('Tajikistan: dates and people', 'Таджикистан: даты и личности', 'Тәжікстан: даталар мен тұлғалар'), timelineMaker('h.tjt', 'tj')),
+  'h.azt': topic('history', L('Azerbaijan: dates and people', 'Азербайджан: даты и личности', 'Әзербайжан: даталар мен тұлғалар'), timelineMaker('h.azt', 'az')),
+  'h.amt': topic('history', L('Armenia: dates and people', 'Армения: даты и личности', 'Армения: даталар мен тұлғалар'), timelineMaker('h.amt', 'am')),
+  'h.byt': topic('history', L('Belarus: dates and people', 'Беларусь: даты и личности', 'Беларусь: даталар мен тұлғалар'), timelineMaker('h.byt', 'by')),
+  'h.mdt': topic('history', L('Moldova: dates and people', 'Молдова: даты и личности', 'Молдова: даталар мен тұлғалар'), timelineMaker('h.mdt', 'md')),
 
   // ----- Русский язык, логика и чтение на языке интерфейса -----
   'l.ru': topic('russian', L('Russian language', 'Русский язык', 'Орыс тілі'), bankMaker('l.ru', RUSSIAN)),
