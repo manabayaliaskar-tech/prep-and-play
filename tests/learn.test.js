@@ -314,7 +314,9 @@ test('монета: картинки P&P на месте, стили на них
 
 test('ведущий квиза: колесо останавливается ровно на выбранном предмете', async () => {
   const { WHEEL, angleFor, sectorAt } = await import('../src/ui/quiz-host.js');
+  const { QUIZ_POOLS } = await import('../src/pools/quiz.js');
   assert.equal(WHEEL.length, 8);
+  for (const [key] of WHEEL) assert.ok(QUIZ_POOLS.includes(key), `облачко «${key}» ведёт в квиз по существующему предмету`);
   let angle = 0;
   for (let k = 0; k < 40; k++) {
     const i = k % WHEEL.length;

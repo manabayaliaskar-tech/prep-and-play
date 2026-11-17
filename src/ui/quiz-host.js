@@ -1,6 +1,7 @@
 // Ведущий квиза: Препи в смокинге и цилиндре с микрофоном и колесо фортуны с предметами.
 // Колесо крутится, когда заходишь на экран, потом раз в минуту и по нажатию; лампочки бегут, пока оно крутится,
-// а Препи объявляет, что выпало. Если в системе включено «уменьшить движение» — само не крутится.
+// а Препи объявляет, что выпало; облачко с предметом — кнопка, которая сразу запускает квиз по этому предмету.
+// Если в системе включено «уменьшить движение» — само не крутится.
 
 import { t } from '../core/i18n.js';
 import { getOutfit } from '../core/wardrobe.js';
@@ -110,9 +111,10 @@ export function bindQuizHost(root) {
   let hideBubble = 0;
   wheel.style.transform = `rotate(${angle}deg)`;
 
-  const say = (text, ms = 2600) => {
+  const say = (text, ms = 2600, html = null) => {
     clearTimeout(hideBubble);
-    bubble.textContent = text;
+    if (html) bubble.innerHTML = html;
+    else bubble.textContent = text;
     bubble.hidden = false;
     bubble.classList.remove('is-in');
     void bubble.offsetWidth;
@@ -137,14 +139,18 @@ export function bindQuizHost(root) {
         host.classList.remove('is-spinning');
         const [key, icon] = WHEEL[sectorAt(angle)];
         prepi.innerHTML = hostPrepi('win');
-        say(`${icon} ${t(`subj.${key}`)}!`);
+        say('', 9000, `<a class="host-go" href="#/quiz/subject/${key}"><span>${icon} ${t(`subj.${key}`)}!</span><small>▶ ${t('host.play')}</small></a>`);
         setTimeout(() => host.isConnected && (prepi.innerHTML = hostPrepi()), 2600);
       },
       reduced ? 50 : SPIN_MS,
     );
   }
 
-  host.addEventListener('click', spin);
+  host.addEventListener('click', (e) => {
+    // Нажатие на облачко с предметом — переход к квизу, а не новое вращение.
+    if (e.target.closest?.('.host-go')) return;
+    spin();
+  });
   host.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();

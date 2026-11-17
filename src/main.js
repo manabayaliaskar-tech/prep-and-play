@@ -54,6 +54,7 @@ route('/practice', () => practiceHubScreen(app));
 route('/code', () => practiceHubScreen(app, 'code'));
 route('/quiz', () => quizRoute(app));
 route('/quiz/:mode', (params) => quizRoute(app, params));
+route('/quiz/subject/:pool', (params) => quizRoute(app, { subject: params.pool }));
 route('/mistakes', () => mistakesRoute(app));
 route('/plan', () => planRoute(app));
 route('/report', () => reportRoute(app));

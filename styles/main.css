@@ -12033,3 +12033,49 @@ svg.mascot {
     animation: none;
   }
 }
+
+/* Облачко с выпавшим предметом — кнопка: ведёт в квиз по этому предмету. */
+.host-go {
+  display: grid;
+  gap: 3px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.host-go small {
+  justify-self: start;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  color: #fff;
+  background: linear-gradient(135deg, #ec4899, #7c3aed);
+  box-shadow: 0 4px 10px rgba(124, 58, 237, 0.35);
+  animation: go-pulse 1.4s ease-in-out infinite;
+}
+
+.host-go:hover small {
+  filter: brightness(1.1);
+}
+
+@keyframes go-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+.host-bubble:has(.host-go) {
+  cursor: pointer;
+}
+
+.host-bubble {
+  top: 34px;
+  left: 0;
+  width: max-content;
+  max-width: min(270px, 92%);
+  white-space: normal;
+}

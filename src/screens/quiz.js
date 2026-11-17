@@ -3,7 +3,7 @@
 // свой квиз (выбранные предметы) и квиз дня (одинаковый для всех).
 // Вопросы, которые игрок уже видел, запоминаются и не выдаются снова, пока есть новые.
 
-import { bindQuizHost, quizHostHtml } from '../ui/quiz-host.js';
+import { WHEEL, bindQuizHost, quizHostHtml } from '../ui/quiz-host.js';
 import { dayKey } from '../core/dates.js';
 import { t, tx } from '../core/i18n.js';
 import { addXp, getProfile, saveProfile, todayStats } from '../core/profile.js';
@@ -130,6 +130,8 @@ function subjectsHtml(log) {
 }
 
 export function quizRoute(app, params = {}) {
+  // Квиз по одному предмету — из облачка ведущего: запускается сразу, сохранённый набор «Своего квиза» не меняется.
+  const subject = params.subject && QUIZ_POOLS.includes(params.subject) ? params.subject : null;
   let mode = QUIZ_MODES.some((m) => m.id === params.mode) ? params.mode : storage.get('quizMode', 'classic');
   if (!QUIZ_MODES.some((m) => m.id === mode)) mode = 'classic';
   let level = storage.get('quizLevel', 3);
@@ -137,9 +139,13 @@ export function quizRoute(app, params = {}) {
   let pools = storage.get('quizPools', QUIZ_POOLS);
   if (!Array.isArray(pools) || !pools.some((p) => QUIZ_POOLS.includes(p))) pools = [...QUIZ_POOLS];
   pools = pools.filter((p) => QUIZ_POOLS.includes(p));
+  if (subject) {
+    mode = 'custom';
+    pools = [subject];
+  }
   let session = null;
 
-  const again = () => navigate(`/quiz/${mode}`);
+  const again = () => navigate(subject ? `/quiz/subject/${subject}` : `/quiz/${mode}`);
   const finishStats = (run) => {
     rememberSeen(run.log.map((e) => e.question.id));
     return subjectsHtml(run.log);
@@ -148,7 +154,8 @@ export function quizRoute(app, params = {}) {
   function startClassic(custom = false) {
     const questions = buildQuiz({ rng: createRng(newSeed()), level, seen: seenSet(), pools: custom ? pools : null });
     session = runSession(app, {
-      title: () => `${custom ? '🧩' : '🎲'} ${t(custom ? 'quiz.mode.custom' : 'quiz.title')} · ${level}/10`,
+      title: () =>
+        subject ? `${WHEEL.find(([k]) => k === subject)?.[1] ?? POOLS[subject]?.icon ?? '🎯'} ${tx(POOL_NAMES[subject])} · ${level}/10` : `${custom ? '🧩' : '🎲'} ${t(custom ? 'quiz.mode.custom' : 'quiz.title')} · ${level}/10`,
       questions,
       catalog: true,
       exitTo: '/quiz',
@@ -362,6 +369,7 @@ export function quizRoute(app, params = {}) {
     );
     app.querySelector('.start-btn').addEventListener('click', start);
   };
-  render();
+  if (subject) startClassic(true);
+  else render();
   return { cleanup: () => session?.cleanup(), relabel: () => (session ? session.relabel() : render()) };
 }
