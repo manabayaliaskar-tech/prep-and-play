@@ -11658,3 +11658,132 @@ svg.mascot {
   font-weight: 900;
   color: var(--primary);
 }
+
+/* =====================================================================
+   Монета Prep&Play: золотая, с лавровой ветвью и P&P в центре.
+   Мелкая монета — icons/coin-sm.svg (P&P читается даже в панели), крупная — icons/coin.svg с бликом.
+   ===================================================================== */
+
+.coin {
+  display: inline-block;
+  flex: none;
+  width: 1.15em;
+  height: 1.15em;
+  margin: 0 0.12em;
+  vertical-align: -0.24em;
+  border-radius: 50%;
+  background: url('../icons/coin-sm.svg') center / contain no-repeat;
+  filter: drop-shadow(0 1px 1px rgba(122, 76, 2, 0.35));
+  font-style: normal;
+}
+
+.coin-lg,
+.coin-big .coin,
+.loot-icon .coin,
+.tier-icon .coin,
+.shop-card-coins .coin,
+.gift-go .coin {
+  background-image: url('../icons/coin.svg');
+}
+
+/* Крупная монета: по поверхности иногда пробегает блик. */
+.coin-lg {
+  position: relative;
+  overflow: hidden;
+  filter: drop-shadow(0 3px 6px rgba(122, 76, 2, 0.4));
+}
+
+.coin-lg::after {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.75) 50%, transparent 62%);
+  transform: translateX(-120%);
+  animation: coin-shine 5s ease-in-out 1.2s infinite;
+  pointer-events: none;
+}
+
+@keyframes coin-shine {
+  0%,
+  70% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+.coin-big {
+  width: 2.4rem;
+  height: 2.4rem;
+  margin: 0;
+}
+
+.loot-icon .coin {
+  width: 1em;
+  height: 1em;
+  margin: 0;
+  vertical-align: middle;
+}
+
+.tier-icon .coin {
+  width: 1.1em;
+  height: 1.1em;
+  margin: 0;
+}
+
+.stat-chip.coins .coin {
+  margin: 0 0.1em 0 0;
+}
+
+/* Получили монеты — монета подпрыгивает и поворачивается; потратили — переворачивается. */
+.coin-gain {
+  animation: coin-gain 0.9s var(--ease-spring);
+}
+
+.coin-spend {
+  animation: coin-spend 0.7s ease-in-out;
+}
+
+@keyframes coin-gain {
+  0% {
+    transform: translateY(0) rotateY(0) scale(1);
+  }
+  40% {
+    transform: translateY(-7px) rotateY(180deg) scale(1.25);
+  }
+  100% {
+    transform: translateY(0) rotateY(360deg) scale(1);
+  }
+}
+
+@keyframes coin-spend {
+  0% {
+    transform: rotateY(0) scale(1);
+  }
+  50% {
+    transform: rotateY(180deg) scale(0.85);
+  }
+  100% {
+    transform: rotateY(360deg) scale(1);
+  }
+}
+
+/* Монета в магазине чуть покачивается, как будто лежит на ладони. */
+.coin-balance .coin-big {
+  animation: coin-idle 4s ease-in-out infinite;
+}
+
+@keyframes coin-idle {
+  0%,
+  100% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(4deg) translateY(-1px);
+  }
+}
+
+.coin-balance .coin-big.coin-spend {
+  animation: coin-spend 0.7s ease-in-out;
+}

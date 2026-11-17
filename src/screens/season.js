@@ -1,6 +1,7 @@
 // Страница сезона: тема месяца, дорожка из 30 ступеней с наградами, эксклюзивы и отсчёт до конца.
 // Анимации мягкие: медленные частицы темы, плавный скролл к своей ступени, пульс у готовых наград.
 
+import { coinHtml } from '../ui/coin.js';
 import { confetti } from '../core/confetti.js';
 import { t, tx } from '../core/i18n.js';
 import { getProfile, saveProfile, syncAchievements } from '../core/profile.js';
@@ -16,7 +17,7 @@ const BOX_ICON = { basic: '📦', super: '🎁', mega: '💎' };
 export const seasonName = (id) => tx(themeOf(id).name);
 
 function rewardIcon(r) {
-  if (r.type === 'coins') return '🪙';
+  if (r.type === 'coins') return coinHtml('coin-lg');
   if (r.type === 'box') return BOX_ICON[r.box];
   return itemById(r.id)?.icon ?? '🎁';
 }

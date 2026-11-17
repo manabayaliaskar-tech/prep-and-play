@@ -1,6 +1,7 @@
 // Магазин Препи: примерка на большом Препи, покупки за монеты, товары дня со скидкой,
 // сундуки удачи с шансами, коллекции с наградой и эксклюзивы за достижения.
 
+import { animateCoin, coinHtml } from '../ui/coin.js';
 import { confetti } from '../core/confetti.js';
 import { dayKey, msUntilMidnight } from '../core/dates.js';
 import { ACH_COINS, XP_PER_COIN, flameSvg, streakMultiplier } from '../core/economy.js';
@@ -104,7 +105,7 @@ export function shopRoute(app) {
                 <h1>🛍️ ${t('shop.title')}</h1>
                 <p class="muted">${t('shop.sub')}</p>
               </div>
-              <div class="coin-balance" title="${t('shop.balance')}"><span class="coin-big">🪙</span><b>${p.coins}</b></div>
+              <div class="coin-balance" title="${t('shop.balance')}">${coinHtml('coin-lg coin-big')}<b>${p.coins}</b></div>
             </header>
 
             <div class="earn-row">
@@ -218,6 +219,7 @@ export function shopRoute(app) {
       tryId = null;
       render();
       app.querySelector('.stage-prepi')?.classList.add('is-celebrating');
+      animateCoin(app.querySelector('.coin-balance .coin'), 'spend');
     });
     app.querySelectorAll('.box-open').forEach((b) => b.addEventListener('click', () => openBoxModal(b.dataset.box, render)));
   }
@@ -256,7 +258,7 @@ export function openBoxModal(boxId, onDone, { free = false } = {}) {
     setTimeout(() => {
       const it = res.item;
       if (!it) {
-        stage.innerHTML = `<div class="loot-reveal r-rare"><div class="loot-rays"></div><span class="loot-icon">🪙</span><b class="loot-name">+${res.coins} 🪙</b><p class="muted small">${t('season.allOwned')}</p><div class="loot-actions"><button type="button" class="btn btn-primary loot-close">${t('shop.great')}</button></div></div>`;
+        stage.innerHTML = `<div class="loot-reveal r-rare"><div class="loot-rays"></div><span class="loot-icon">${coinHtml('coin-lg')}</span><b class="loot-name">+${res.coins} 🪙</b><p class="muted small">${t('season.allOwned')}</p><div class="loot-actions"><button type="button" class="btn btn-primary loot-close">${t('shop.great')}</button></div></div>`;
         sfx.coin();
         onDone?.();
         stage.querySelector('.loot-close')?.addEventListener('click', close);

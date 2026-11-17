@@ -296,3 +296,18 @@ test('даты и личности по 7 странам: таблицы фак�
     assert.ok(course.tracks.some((tr) => tr.spec.some(([id]) => id === topic)), `${exam} включает ${topic}`);
   }
 });
+
+test('монета: картинки P&P на месте, стили на них ссылаются, значок подставляется вместо 🪙', async () => {
+  const big = readFileSync('icons/coin.svg', 'utf8');
+  const small = readFileSync('icons/coin-sm.svg', 'utf8');
+  for (const svg of [big, small]) {
+    assert.ok(svg.startsWith('<svg') && svg.includes('P&amp;P'), 'в центре P&P');
+  }
+  assert.ok(big.includes('url(#leaf)'), 'на крупной монете — лавровая ветвь');
+  const css = readFileSync('styles/main.css', 'utf8');
+  assert.ok(css.includes("url('../icons/coin.svg')") && css.includes("url('../icons/coin-sm.svg')"));
+  assert.ok(readFileSync('.github/workflows/ci.yml', 'utf8').includes('icons'), 'папка icons попадает на сайт');
+  const { coinHtml, COIN } = await import('../src/ui/coin.js');
+  assert.ok(coinHtml('coin-lg').includes('class="coin coin-lg"'));
+  assert.equal(COIN, '🪙');
+});

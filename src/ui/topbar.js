@@ -1,5 +1,6 @@
 // Верхняя панель: логотип, разделы сайта, серия дней, уровень, язык, звук.
 
+import { animateCoin, coinHtml } from './coin.js';
 import { LANGS, getLang, setLang, t } from '../core/i18n.js';
 import { currentStreak, getProfile, levelInfo, saveProfile } from '../core/profile.js';
 import { flameSvg, streakMultiplier } from '../core/economy.js';
@@ -22,10 +23,16 @@ export function bindLangSwitches() {
   });
 }
 
+/** Сколько монет было при прошлой отрисовке: если стало больше — монета в панели подпрыгивает. */
+let shownCoins = null;
+
 export function renderTopbar() {
   const el = document.getElementById('topbar');
   if (!el) return;
   const p = getProfile();
+  const coinsNow = p.coins ?? 0;
+  const coinMove = shownCoins === null || coinsNow === shownCoins ? null : coinsNow > shownCoins ? 'gain' : 'spend';
+  shownCoins = coinsNow;
   const lvl = levelInfo(p.xp);
   const streak = currentStreak();
   const path = currentPath();
@@ -45,7 +52,7 @@ export function renderTopbar() {
       </nav>
       <div class="top-stats">
         <span class="stat-chip streak ${streak ? 'is-on' : ''}" title="${t('top.streak')}${streakMultiplier(streak) > 1 ? ` · ×${streakMultiplier(streak)} XP` : ''}">${flameSvg(streak)} <b>${streak}</b></span>
-        <a class="stat-chip coins ${path.startsWith('/shop') ? 'is-active' : ''}" href="#/shop" title="${t('shop.title')}">🪙 <b>${p.coins ?? 0}</b></a>
+        <a class="stat-chip coins ${path.startsWith('/shop') ? 'is-active' : ''}" href="#/shop" title="${t('shop.title')}">${coinHtml()}<b>${p.coins ?? 0}</b></a>
         <span class="stat-chip level" title="${t('top.level')}">
           <span class="lvl-badge">${lvl.level}</span>
           <span class="lvl-bar" aria-hidden="true"><i style="width:${Math.round((lvl.into / lvl.need) * 100)}%"></i></span>
@@ -59,6 +66,7 @@ export function renderTopbar() {
       </div>
       <button type="button" class="icon-btn sound-toggle" aria-label="${t('top.sound')}" title="${t('top.sound')}">${p.sound ? '🔊' : '🔇'}</button>
     </div>`;
+  if (coinMove) animateCoin(el.querySelector('.stat-chip.coins .coin'), coinMove);
   el.querySelector('.sound-toggle').addEventListener('click', () => {
     p.sound = !p.sound;
     saveProfile();

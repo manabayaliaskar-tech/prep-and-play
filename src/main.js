@@ -28,6 +28,7 @@ import { bindPins } from './core/pins.js';
 import { takeNewItems } from './core/wardrobe.js';
 import { initPwa, isStandalone } from './core/pwa.js';
 import { bindSayButtons, stopSpeech } from './core/voice.js';
+import { startCoinify } from './ui/coin.js';
 import { mistakesRoute, weakCourseRoute } from './screens/review.js';
 import { planRoute } from './screens/plan.js';
 import { reportRoute } from './screens/report.js';
@@ -170,6 +171,7 @@ bindThemePicker();
 bindPins(refreshRoute);
 initPwa();
 bindSayButtons();
+startCoinify(document.body);
 document.addEventListener('routechange', () => stopSpeech());
 // Открыли как приложение с экрана «Домой» — для достижения «Всегда под рукой».
 if (isStandalone() && !getProfile().counters.app) getProfile().counters.app = 1;
