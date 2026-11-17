@@ -192,6 +192,9 @@ test('переводы: каждый ключ интерфейса есть на
     'duel.win', 'duel.lose', 'duel.draw', 'exam.routeHard', 'exam.routeEasy',
     ...[1, 2, 3, 4, 5, 6].map((i) => `fb.praise${i}`),
     ...['map', 'exam', 'duel', 'survival', 'blitz', 'det', 'weak', 'daily'].flatMap((k) => [`mode.${k}.title`, `mode.${k}.desc`]),
+    ...[0, 1, 2, 3, 4].map((i) => `adapt.tier${i}`),
+    ...['new', 'weak', 'learning', 'strong', 'master'].flatMap((s) => [`know.st.${s}`, `know.tip.${s}`]),
+    'diag.recLevel', 'diag.recSubject',
   ];
   for (const key of [...used, ...dynamic]) {
     for (const l of LANGS) assert.ok(STRINGS[l][key], `нет перевода «${key}» (${l})`);

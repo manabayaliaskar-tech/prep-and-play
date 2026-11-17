@@ -4,7 +4,7 @@
 
 import { MINUS, gcd } from '../../core/format.js';
 import { pick, randomInt, shuffle } from '../../core/random.js';
-import { L, W, ask, loc, mc, n, par, poolQ, same, steps } from '../gen.js';
+import { ask, L, loc, mc, n, par, poolQ, same, steps, val, W, why } from '../gen.js';
 
 const calc = (expr) => loc((l) => `${W.calc[l]}: ${expr}`);
 const TIMES = '×';
@@ -90,7 +90,7 @@ export function mul(ctx, d) {
         ex: steps(
           L(`From the multiplication table: ${a} ${TIMES} ${b} = ${a * b}.`, `По таблице умножения: ${a} ${TIMES} ${b} = ${a * b}.`, `Көбейту кестесі бойынша: ${a} ${TIMES} ${b} = ${a * b}.`),
         ),
-        ...ask(ctx, a * b, [a * (b + 1), a * (b - 1), a * b + 2, a + b]),
+        ...ask(ctx, a * b, [a * (b + 1), a * (b - 1), why(a + b, L('You added the numbers instead of multiplying.', 'Ты сложил числа вместо того, чтобы умножить.', 'Сандарды көбейтудің орнына қостың.')), a * b + 2]),
       });
     }
     return poolQ('m.mul', d, {
@@ -173,7 +173,7 @@ export function order(ctx, d) {
     return poolQ('m.order', d, {
       prompt: calc(`${a} + ${b} ${TIMES} ${c}`),
       ex: steps(FIRST_MUL, same(`${b} ${TIMES} ${c} = ${b * c}`), same(`${a} + ${b * c} = ${ans}`)),
-      ...ask(ctx, ans, [(a + b) * c, a + b + c, ans + c, a * b + c]),
+      ...ask(ctx, ans, [why((a + b) * c, L('You added first. Multiplication comes before addition.', 'Ты сначала сложил. Умножение выполняется раньше сложения.', 'Алдымен қостың. Көбейту қосудан бұрын орындалады.')), a + b + c, ans + c, a * b + c]),
     });
   }
   if (d === 2) {
@@ -229,7 +229,7 @@ export function neg(ctx, d) {
           ),
           same(`${a} ${MINUS} ${b} = ${MINUS}(${b} ${MINUS} ${a}) = ${n(ans)}`),
         ),
-        ...ask(ctx, ans, [b - a, -(a + b), ans - 1, ans + 2]),
+        ...ask(ctx, ans, [why(b - a, L('The difference is right, but the sign is lost: the subtrahend is larger, so the answer is negative.', 'Разность верная, но потерян знак: вычитаемое больше, поэтому ответ отрицательный.', 'Айырма дұрыс, бірақ таңба жоғалды: азайтқыш үлкен, сондықтан жауап теріс.')), why(-(a + b), L('You added the numbers. Here you subtract them and keep the minus.', 'Ты сложил числа. Здесь их нужно вычесть и оставить минус.', 'Сандарды қостың. Мұнда оларды азайтып, минусты қалдыру керек.')), ans - 1, ans + 2]),
       });
     }
     const ans = -a + b;
@@ -239,7 +239,7 @@ export function neg(ctx, d) {
         L('Swap the terms: it is the same as subtracting.', 'Переставим слагаемые: это то же, что вычитание.', 'Қосылғыштардың орнын ауыстырамыз: бұл азайтумен бірдей.'),
         same(`${MINUS}${a} + ${b} = ${b} ${MINUS} ${a} = ${n(ans)}`),
       ),
-      ...ask(ctx, ans, [-(a + b), a + b, -ans, ans + 1]),
+      ...ask(ctx, ans, [why(-(a + b), L('A minus and a plus are different signs: subtract the smaller number from the larger one.', 'У чисел разные знаки: из большего модуля вычитают меньший, а не складывают.', 'Сандардың таңбасы әртүрлі: үлкен модульден кішісін азайтады, қоспайды.')), a + b, why(-ans, L('The sign is wrong: the positive number is larger, so the answer is positive.', 'Ошибка в знаке: положительное число больше по модулю, поэтому ответ положительный.', 'Таңба қате: оң сан модулі бойынша үлкен, сондықтан жауап оң.')), ans + 1]),
     });
   }
   if (d === 2) {

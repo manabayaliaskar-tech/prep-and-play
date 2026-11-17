@@ -2,7 +2,7 @@
 
 import { MINUS } from '../../core/format.js';
 import { pick, randomInt } from '../../core/random.js';
-import { L, ask, n, par, poolQ, same, steps } from '../gen.js';
+import { ask, L, n, par, poolQ, same, steps, val, why } from '../gen.js';
 import { frac } from './fractions.js';
 
 const TIMES = '×';
@@ -39,7 +39,7 @@ export function area(ctx, d) {
           L('The perimeter is the sum of all four sides.', 'Периметр — сумма длин всех четырёх сторон.', 'Периметр — төрт қабырғаның ұзындықтарының қосындысы.'),
           same(`2 ${TIMES} (${a} + ${b}) = ${ans}`),
         ),
-        ...ask(ctx, ans, [a * b, a + b, ans + 2, 2 * a + b].filter((v) => v !== ans)),
+        ...ask(ctx, ans, [why(a * b, L('That is the area. The perimeter is the sum of all sides.', 'Это площадь. Периметр — сумма всех сторон.', 'Бұл — аудан. Периметр — барлық қабырғалардың қосындысы.')), why(a + b, L('You added only two sides. A rectangle has four.', 'Ты сложил только две стороны. У прямоугольника их четыре.', 'Тек екі қабырғаны қостың. Тіктөртбұрышта олар төртеу.')), ans + 2, 2 * a + b].filter((v) => val(v) !== ans)),
       });
     }
     const ans = a * b;
@@ -53,7 +53,7 @@ export function area(ctx, d) {
         L('The area of a rectangle is length times width.', 'Площадь прямоугольника — произведение длины на ширину.', 'Тіктөртбұрыштың ауданы — ұзындығы мен енінің көбейтіндісі.'),
         same(`${a} ${TIMES} ${b} = ${ans}`),
       ),
-      ...ask(ctx, ans, [2 * (a + b), a + b, ans + a, ans - b].filter((v) => v !== ans)),
+      ...ask(ctx, ans, [why(2 * (a + b), L('That is the perimeter. The area is length × width.', 'Это периметр. Площадь — длина × ширина.', 'Бұл — периметр. Аудан — ұзындық × ен.')), a + b, ans + a, ans - b].filter((v) => val(v) !== ans)),
     });
   }
   if (d === 2) {
@@ -134,7 +134,7 @@ export function pythagoras(ctx, d) {
         same(`<i>c</i><sup>2</sup> = <i>a</i><sup>2</sup> + <i>b</i><sup>2</sup> = ${a * a} + ${b * b} = ${c * c}`),
         same(`<i>c</i> = √${c * c} = ${c}`),
       ),
-      ...ask(ctx, c, [a + b, c + 1, c - 1, Math.abs(a - b) + c].filter((v) => v !== c)),
+      ...ask(ctx, c, [why(a + b, L('You added the legs. Add their squares and take the square root.', 'Ты сложил катеты. Нужно сложить их квадраты и извлечь корень.', 'Катеттерді қостың. Олардың квадраттарын қосып, түбір табу керек.')), c + 1, c - 1, Math.abs(a - b) + c].filter((v) => val(v) !== c)),
     });
   }
   if (d === 2) {
@@ -148,7 +148,7 @@ export function pythagoras(ctx, d) {
         same(`<i>b</i><sup>2</sup> = <i>c</i><sup>2</sup> ${MINUS} <i>a</i><sup>2</sup> = ${c * c} ${MINUS} ${a * a} = ${b * b}`),
         same(`<i>b</i> = √${b * b} = ${b}`),
       ),
-      ...ask(ctx, b, [c - a, c + a, b + 1, b - 1].filter((v) => v !== b && v > 0)),
+      ...ask(ctx, b, [why(c - a, L('You subtracted the lengths. Subtract the squares: b² = c² − a².', 'Ты вычел длины. Вычитать нужно квадраты: b² = c² − a².', 'Ұзындықтарды азайттың. Квадраттарды азайту керек: b² = c² − a².')), c + a, b + 1, b - 1].filter((v) => val(v) !== b && val(v) > 0)),
     });
   }
   const kind = randomInt(rng, 0, 2);
@@ -218,7 +218,7 @@ export function angles(ctx, d) {
         L('The angles of a triangle add up to 180°.', 'Сумма углов треугольника равна 180°.', 'Үшбұрыш бұрыштарының қосындысы 180°.'),
         same(`180 ${MINUS} ${a} ${MINUS} ${b} = ${ans}`),
       ),
-      ...ask(ctx, ans, [a + b, 360 - a - b, ans + 10, 90 - a].filter((v) => v !== ans && v > 0)),
+      ...ask(ctx, ans, [why(a + b, L('That is the sum of the two angles. The third one is 180° minus this sum.', 'Это сумма двух углов. Третий угол — 180° минус эта сумма.', 'Бұл — екі бұрыштың қосындысы. Үшінші бұрыш — 180° минус осы қосынды.')), why(360 - a - b, L('The angles of a triangle add up to 180°, not 360°.', 'Сумма углов треугольника — 180°, а не 360°.', 'Үшбұрыш бұрыштарының қосындысы — 360° емес, 180°.')), ans + 10, 90 - a].filter((v) => val(v) !== ans && val(v) > 0)),
     });
   }
   if (d === 2) {
@@ -233,7 +233,7 @@ export function angles(ctx, d) {
           `Дөңес ${sides}-бұрыштың ішкі бұрыштарының қосындысын тап (градуспен).`,
         ),
         ex: steps(same(`180° ${TIMES} (<i>n</i> ${MINUS} 2) = 180° ${TIMES} ${sides - 2} = ${ans}°`)),
-        ...ask(ctx, ans, [sides * 180, (sides - 1) * 180, 360, ans - 180].filter((v) => v !== ans)),
+        ...ask(ctx, ans, [why(sides * 180, L('The formula is (n − 2) × 180°, not n × 180°.', 'Формула — (n − 2) × 180°, а не n × 180°.', 'Формула — n × 180° емес, (n − 2) × 180°.')), (sides - 1) * 180, why(360, L('360° is the sum of the exterior angles, not the interior ones.', '360° — сумма внешних углов, а не внутренних.', '360° — ішкі емес, сыртқы бұрыштардың қосындысы.')), ans - 180].filter((v) => val(v) !== ans)),
       });
     }
     if (kind === 1) {

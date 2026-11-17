@@ -27,7 +27,7 @@ import { bindThemePicker } from './ui/theme-picker.js';
 import { bindPins } from './core/pins.js';
 import { takeNewItems } from './core/wardrobe.js';
 import { initPwa, isStandalone } from './core/pwa.js';
-import { bindSayButtons } from './core/voice.js';
+import { bindSayButtons, stopSpeech } from './core/voice.js';
 import { mistakesRoute, weakCourseRoute } from './screens/review.js';
 import { planRoute } from './screens/plan.js';
 import { reportRoute } from './screens/report.js';
@@ -36,6 +36,9 @@ import { achievementsRoute } from './screens/achievements.js';
 import { shopRoute } from './screens/shop.js';
 import { mockRoute } from './screens/mock.js';
 import { todayRoute } from './screens/today.js';
+import { adaptRoute, diagRoute, knowRoute } from './screens/learn.js';
+import { savedRoute } from './screens/saved.js';
+import { fullReadRoute } from './screens/fullread.js';
 import { seasonName, seasonRoute } from './screens/season.js';
 import { seasonId, themeOf } from './core/season.js';
 import { bindLangSwitches, renderTopbar } from './ui/topbar.js';
@@ -75,6 +78,11 @@ route('/shop', () => shopRoute(app));
 route('/mock/:exam', (params) => mockRoute(app, params));
 route('/season', () => seasonRoute(app));
 route('/today', () => todayRoute(app));
+route('/diag/:course', (params) => diagRoute(app, params));
+route('/know/:course', (params) => knowRoute(app, params));
+route('/adapt/:course', (params) => adaptRoute(app, params));
+route('/saved', () => savedRoute(app));
+route('/ielts-full', () => fullReadRoute(app));
 route('/premium', () => premiumScreen(app));
 
 on('profile', () => {
@@ -159,6 +167,7 @@ bindThemePicker();
 bindPins(refreshRoute);
 initPwa();
 bindSayButtons();
+document.addEventListener('routechange', () => stopSpeech());
 // Открыли как приложение с экрана «Домой» — для достижения «Всегда под рукой».
 if (isStandalone() && !getProfile().counters.app) getProfile().counters.app = 1;
 syncAchievements();

@@ -45,6 +45,14 @@ export const par = (x) => (x < 0 ? `(${n(x)})` : n(x));
 /** « + 5» или « − 5» — для записи выражений. */
 export const signed = (x) => `${x < 0 ? MINUS : '+'} ${n(Math.abs(x))}`;
 
+/**
+ * «Ловушка» с объяснением: why(12, L('…', '…', '…')). Если ученик выберет (или введёт) это значение,
+ * под ответом появится «Почему не 12: …» — типичная ошибка, которая к нему приводит.
+ */
+export const why = (v, reason) => ({ __why: true, v, reason });
+/** Значение варианта: у «ловушки» с объяснением — её v. */
+export const val = (d) => (d && d.__why ? d.v : d);
+
 /** Шаги решения → { en: [...], ru: [...], kk: [...] }. */
 export function steps(...items) {
   const flat = items.filter(Boolean);
@@ -69,13 +77,16 @@ export function mc(rng, correct, distractors, fmt = n) {
   const key = (x) => textOf(fmt(x));
   const seen = new Set([key(correct)]);
   const wrong = [];
-  for (const d of distractors) {
+  const reasons = new Map();
+  for (const raw of distractors) {
     if (wrong.length === 3) break;
+    const d = val(raw);
     if (d === undefined || d === null || (typeof d === 'number' && !Number.isFinite(d))) continue;
     const k = key(d);
     if (!seen.has(k)) {
       seen.add(k);
       wrong.push(d);
+      if (raw?.__why) reasons.set(k, raw.reason);
     }
   }
   let step = 1;
@@ -90,7 +101,13 @@ export function mc(rng, correct, distractors, fmt = n) {
     }
     step += 1;
   }
-  return shuffled([correct, ...wrong].map(fmt), rng);
+  return withWhys(shuffled([correct, ...wrong].map(fmt), rng), reasons);
+}
+
+/** Добавляет к вариантам объяснения «ловушек» (по тексту варианта). */
+function withWhys(result, reasons) {
+  if (reasons.size) result.whys = result.choices.map((c) => reasons.get(textOf(c)) ?? null);
+  return result;
 }
 
 /** Варианты-дроби. Значения — пары [числитель, знаменатель]. */
@@ -99,12 +116,15 @@ export function mcFrac(rng, correct, distractors) {
   const key = (p) => norm(p).join('/');
   const seen = new Set([key(correct)]);
   const wrong = [];
-  const push = (p) => {
+  const reasons = new Map();
+  const push = (raw) => {
+    const p = val(raw);
     if (wrong.length === 3 || !p || !Number.isFinite(p[0]) || !Number.isFinite(p[1]) || p[1] === 0) return;
     const k = key(p);
     if (!seen.has(k)) {
       seen.add(k);
       wrong.push(p);
+      if (raw?.__why) reasons.set(fracHtml(...p), raw.reason);
     }
   };
   distractors.forEach(push);
@@ -114,9 +134,12 @@ export function mcFrac(rng, correct, distractors) {
     push([a, b + step]);
     push([Math.abs(a - step) || 1, b]);
   }
-  return shuffled(
-    [correct, ...wrong].map(([x, y]) => fracHtml(x, y)),
-    rng,
+  return withWhys(
+    shuffled(
+      [correct, ...wrong].map(([x, y]) => fracHtml(x, y)),
+      rng,
+    ),
+    reasons,
   );
 }
 
@@ -134,15 +157,21 @@ const plain = (x) => String(Math.round(x * 1000) / 1000);
  * Тип задания: с вариантами или с вводом ответа (примерно 30% — с вводом).
  * ctx.mcOnly — только варианты (для быстрых режимов).
  */
+/** «Ловушки» для ответа с вводом: если ученик введёт такое число, покажем, откуда оно берётся. */
+function trapsOf(distractors, toNumber = (v) => v) {
+  const traps = distractors.filter((d) => d?.__why).map((d) => ({ v: toNumber(d.v), why: d.reason }));
+  return traps.filter((x) => Number.isFinite(x.v));
+}
+
 export function ask(ctx, answer, distractors, { fmt = n, display, spr = 0.3 } = {}) {
-  if (!ctx.mcOnly && ctx.rng() < spr) return { spr: { value: answer, display: display ?? plain(answer) } };
+  if (!ctx.mcOnly && ctx.rng() < spr) return { spr: { value: answer, display: display ?? plain(answer), traps: trapsOf(distractors) } };
   return { mc: mc(ctx.rng, answer, distractors, fmt) };
 }
 
 /** То же для ответа-дроби [числитель, знаменатель]. */
 export function askFrac(ctx, answer, distractors, { spr = 0.3 } = {}) {
   const [a, b] = simplify(answer[0], answer[1]);
-  if (!ctx.mcOnly && ctx.rng() < spr) return { spr: { value: a / b, display: fracText(a, b) } };
+  if (!ctx.mcOnly && ctx.rng() < spr) return { spr: { value: a / b, display: fracText(a, b), traps: trapsOf(distractors, ([x, y]) => x / y) } };
   return { mc: mcFrac(ctx.rng, [a, b], distractors) };
 }
 
@@ -154,10 +183,12 @@ export function poolQ(topic, d, { prompt, ex, mc: choices = null, spr = null, fi
     q.type = 'spr';
     q.value = spr.value;
     q.display = spr.display;
+    if (spr.traps?.length) q.traps = spr.traps;
   } else {
     q.type = 'mc';
     q.choices = choices.choices;
     q.answer = choices.answer;
+    if (choices.whys) q.whys = choices.whys;
   }
   const body = [textOf(prompt), textOf(passage ?? ''), ...(q.choices ?? []).map((c) => textOf(c))].join('|');
   q.id = `${topic}:${hashString(body)}`;

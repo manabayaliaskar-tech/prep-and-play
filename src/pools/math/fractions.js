@@ -2,7 +2,7 @@
 
 import { MINUS, fracHtml, gcd, simplify } from '../../core/format.js';
 import { pick, randomInt } from '../../core/random.js';
-import { L, W, ask, askFrac, dec, loc, n, poolQ, same, steps } from '../gen.js';
+import { ask, askFrac, dec, L, loc, n, poolQ, same, steps, val, W, why } from '../gen.js';
 
 const TIMES = '×';
 const DIV = '÷';
@@ -32,7 +32,7 @@ export function fractions(ctx, d) {
         same(`${frac(`${x} ${plus ? '+' : MINUS} ${y}`, den)} = ${frac(top, den)}${sd !== den ? ` = ${fracHtml(sn, sd)}` : ''}`),
       ),
       ...askFrac(ctx, [top, den], [
-        [top, den * 2],
+        why([top, den * 2], L('You added the denominators too. With equal denominators, the denominator stays the same.', 'Ты сложил и знаменатели. При одинаковых знаменателях знаменатель не меняется.', 'Бөлімдерін де қостың. Бөлімдері бірдей болса, бөлім өзгермейді.')),
         [plus ? Math.abs(x - y) || 1 : x + y, den],
         [top + 1, den],
         [top, den + 1],
@@ -192,7 +192,7 @@ export function percent(ctx, d) {
         L(`1% of ${N} is ${N} ${DIV} 100.`, `1% от ${N} — это ${N} ${DIV} 100.`, `${N} санының 1%-ы — ${N} ${DIV} 100.`),
         loc((l) => `${N} ${DIV} 100 ${TIMES} ${p} = ${dec(ans)[l]}`),
       ),
-      ...ask(ctx, ans, [N / p, ans * 10, N - ans, ans + p].filter((v) => v !== ans && Number.isInteger(v))),
+      ...ask(ctx, ans, [N / p, why(ans * 10, L('The decimal point is in the wrong place: 1% is one hundredth, divide by 100.', 'Ошибка в 10 раз: 1% — это сотая часть, делить нужно на 100.', '10 есе қате: 1% — жүзден бір бөлік, 100-ге бөлу керек.')), why(N - ans, L('That is what remains after taking the percentage. The question asks for the percentage itself.', 'Это остаток после вычитания процентов. А спрашивают сами проценты.', 'Бұл — пайызды алып тастағаннан кейінгі қалдық. Ал сұрақ пайыздың өзі туралы.')), ans + p].filter((v) => val(v) !== ans && Number.isInteger(val(v)))),
     });
   }
   if (d === 2) {
@@ -221,7 +221,7 @@ export function percent(ctx, d) {
         L(`${p}% of ${N} is ${(N * p) / 100}.`, `${p}% от ${N} — это ${(N * p) / 100}.`, `${N} санының ${p}%-ы — ${(N * p) / 100}.`),
         same(`${N} ${up ? '+' : MINUS} ${(N * p) / 100} = ${ans}`),
       ),
-      ...ask(ctx, ans, [(N * p) / 100, N + (up ? -1 : 1) * ((N * p) / 100), N + p, ans + 10].filter((v) => v !== ans)),
+      ...ask(ctx, ans, [why((N * p) / 100, L('That is only the change. Add it to (or subtract it from) the old price.', 'Это только изменение цены. Его нужно прибавить к старой цене или вычесть из неё.', 'Бұл — тек бағаның өзгерісі. Оны ескі бағаға қосу немесе одан азайту керек.')), N + (up ? -1 : 1) * ((N * p) / 100), why(N + p, L('You added the percentage as a number. First find what p% of the price is.', 'Ты прибавил проценты как обычное число. Сначала найди, сколько это от цены.', 'Пайызды қарапайым сан ретінде қостың. Алдымен оның бағадан қанша екенін тап.')), ans + 10].filter((v) => val(v) !== ans)),
     });
   }
   if (rng() < 0.5) {
@@ -238,7 +238,7 @@ export function percent(ctx, d) {
         L(`The new price is ${100 - p}% of the old one.`, `Новая цена — это ${100 - p}% от старой.`, `Жаңа баға — ескі бағаның ${100 - p}%-ы.`),
         same(`${n(now)} ${DIV} ${100 - p} ${TIMES} 100 = ${n(orig)}`),
       ),
-      ...ask(ctx, orig, [(now * (100 + p)) / 100, now + p, orig + 20, orig - 20].filter((v) => v !== orig && Number.isInteger(v))),
+      ...ask(ctx, orig, [why((now * (100 + p)) / 100, L('A common trap: adding p% back to the new price. The discount was taken from the old price, so divide by (100 − p)%.', 'Частая ловушка: прибавить p% к новой цене. Скидку считали от старой цены, поэтому делим на (100 − p)%.', 'Жиі тұзақ: жаңа бағаға p% қосу. Жеңілдік ескі бағадан есептелген, сондықтан (100 − p)%-ға бөлеміз.')), now + p, orig + 20, orig - 20].filter((v) => val(v) !== orig && Number.isInteger(val(v)))),
     });
   }
   const p = pick(rng, [10, 20, 30, 50]);

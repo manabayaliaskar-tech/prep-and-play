@@ -2,8 +2,10 @@
 // Тренировка дня собирается из самых слабых предметов экзамена.
 
 import { COURSES, practiceKey } from '../catalog/index.js';
+import { hasMock } from '../catalog/mocks.js';
 import { SKILLS } from '../content/skills.js';
 import { dayKey, daysBetween } from './dates.js';
+import { addDays as addDaysKey } from './review.js';
 import { getProfile } from './profile.js';
 import { storage } from './storage.js';
 
@@ -18,8 +20,16 @@ export function getPlan() {
   return COURSES.some((c) => c.id === plan.course) ? plan : null;
 }
 
-export function setPlan(course, date) {
-  storage.set('plan', { course, date, created: dayKey() });
+/** tracks — выбранные предметы (id дорожек); пусто — все предметы экзамена. */
+export function setPlan(course, date, tracks = null) {
+  storage.set('plan', { course, date, created: dayKey(), ...(tracks?.length ? { tracks } : {}) });
+}
+
+/** Предметы, к которым готовится ученик: выбранные в плане или все. */
+export function planTracks(course, plan = getPlan()) {
+  const ids = plan?.course === course.id && Array.isArray(plan.tracks) && plan.tracks.length ? plan.tracks : null;
+  const list = ids ? course.tracks.filter((tr) => ids.includes(tr.id)) : course.tracks;
+  return list.length ? list : course.tracks;
 }
 
 export function clearPlan() {
@@ -53,8 +63,8 @@ function topicScore(stat) {
 }
 
 /** Готовность по каждому предмету экзамена: [{ track, score 0…1 }]. */
-export function trackScores(course, profile = getProfile()) {
-  return course.tracks.map((track) => {
+export function trackScores(course, profile = getProfile(), plan = getPlan()) {
+  return planTracks(course, plan).map((track) => {
     const topics = [...new Set(track.spec.map(([id]) => id))];
     const fromTopics = topics.reduce((s, id) => s + topicScore(profile.skills[id]), 0) / Math.max(1, topics.length);
     const fromRuns = (profile.practice[practiceKey(course, track)]?.pct ?? 0) / 100;
@@ -79,4 +89,58 @@ export function planSpec(course, profile = getProfile()) {
     .sort((a, b) => a.score - b.score)
     .slice(0, 2);
   return weakest.flatMap(({ track }) => track.spec);
+}
+
+// ---------- Режим «экзамен через N дней» ----------
+
+/** Последняя неделя перед экзаменом — финиш: пробники и повтор ошибок, без новых тем. */
+export const FINAL_DAYS = 7;
+/** Сколько ответов по теме нужно, чтобы считать её отработанной. */
+export const READY_ANSWERS = 25;
+
+/** Сколько заданий осталось решить до готовности: недобор ответов по темам плюс доработка слабых тем. */
+export function planNeed(course, profile = getProfile(), plan = getPlan()) {
+  const topics = [...new Set(planTracks(course, plan).flatMap((tr) => tr.spec.map(([id]) => id)))];
+  return topics.reduce((sum, id) => {
+    const s = profile.skills[id];
+    const a = s?.a ?? 0;
+    const weak = a >= 5 && s.c / a < 0.7 ? 10 : 0;
+    return sum + Math.max(0, READY_ANSWERS - a) + weak;
+  }, 0);
+}
+
+/**
+ * Норма на сегодня, которая «ужимается» к дате: всё, что осталось, делится на оставшиеся дни до финиша.
+ * Пропустил день — норма на следующие дни подрастает. В финишную неделю — ровно 20 (повтор, без перегруза).
+ */
+export function planTarget(course, plan = getPlan(), profile = getProfile(), today = dayKey()) {
+  const days = daysLeft(plan, today);
+  if (course.id === 'sat' || !course.tracks.length) return dailyTarget(days);
+  if (days <= FINAL_DAYS) return 20;
+  const need = planNeed(course, profile, plan);
+  return Math.max(10, Math.min(60, Math.ceil(need / (days - FINAL_DAYS))));
+}
+
+/**
+ * Расписание по неделям до экзамена: в каждой неделе — предметы в фокусе (сначала самые слабые),
+ * пробник раз в неделю (если для экзамена он есть), последняя неделя — финиш.
+ * [{ index, start, end, focus: [track], mock, final, current }]
+ */
+export function planWeeks(course, plan = getPlan(), profile = getProfile(), today = dayKey(), limit = 26) {
+  const days = daysLeft(plan, today);
+  if (!days) return [];
+  const weeks = Math.ceil(days / 7);
+  const order = trackScores(course, profile, plan)
+    .sort((a, b) => a.score - b.score)
+    .map((x) => x.track);
+  const work = Math.max(1, weeks - 1);
+  const perWeek = order.length ? Math.max(1, Math.min(3, Math.ceil(order.length / work))) : 0;
+  const mock = hasMock(course.id);
+  return Array.from({ length: Math.min(weeks, limit) }, (_, i) => {
+    const final = weeks > 1 && i === weeks - 1;
+    const start = addDaysKey(today, i * 7);
+    const end = i === weeks - 1 ? plan.date : addDaysKey(today, i * 7 + 6);
+    const focus = final || !order.length ? [] : Array.from({ length: Math.min(perWeek, order.length) }, (_, j) => order[(i * perWeek + j) % order.length]);
+    return { index: i, start, end, focus, mock: mock && (final || i >= 1), final, current: i === 0 };
+  });
 }

@@ -5,15 +5,18 @@ import { confetti } from '../core/confetti.js';
 import { t, tx } from '../core/i18n.js';
 import { addXp, checkAchievements, currentStreak, getProfile, recordAnswer, saveProfile, todayStats } from '../core/profile.js';
 import { flameSvg, streakMultiplier } from '../core/economy.js';
-import { answerSpeech, sayButton } from '../core/voice.js';
+import { answerSpeech, sayButton, stopSpeech } from '../core/voice.js';
+import { transcriptHtml } from '../ui/listen.js';
 import { navigate, setLeaveGuard } from '../core/router.js';
 import { sfx, vibrate } from '../core/sound.js';
 import { checkAnswer } from '../engine/answer.js';
 import { applyAnswer, createRun } from '../engine/session.js';
 import { addMistake } from '../core/review.js';
+import { getPaceMode, paceFor, recordSpeed, runSpeed, setPaceMode } from '../core/pace.js';
+import { isSaved, savedItem, setNote, toggleSaved } from '../core/saved.js';
 import { esc, formatTime } from '../ui/dom.js';
 import { mascot } from '../ui/mascot.js';
-import { bindQuestion, correctAnswerHtml, questionHtml } from '../ui/question.js';
+import { bindQuestion, correctAnswerHtml, questionHtml, responseHtml, wrongReason } from '../ui/question.js';
 import { openReference } from '../ui/reference.js';
 import { renderResults } from '../ui/results.js';
 import { mountSolution } from '../ui/solution.js';
@@ -28,6 +31,9 @@ const PRAISE_KEYS = ['fb.praise1', 'fb.praise2', 'fb.praise3', 'fb.praise4', 'fb
  *  silent (тест: без подсказки «верно/неверно», разбор только в конце),
  *  catalog (сессия из каталога сама запоминает, что продолжать), review (повтор ошибок — не записывать их заново),
  *  hints (кнопка подсказки; по умолчанию — кроме теста и быстрых режимов),
+ *  limit (сколько заданий в режиме stream), onAnswer(q, correct) → 'up' | 'down' | null (адаптивная сложность),
+ *  badge() → html значка в шапке (например, текущий уровень сложности),
+ *  pace (кнопка «темп экзамена»: время на каждый вопрос; по умолчанию — в обычных тренировках),
  *  exitTo, onFinish(run, { reason }) → функция build для экрана результатов.
  */
 export function runSession(app, config) {
@@ -45,9 +51,13 @@ export function runSession(app, config) {
     review = false,
     hints = !silent && !quick,
     exitTo = '/',
+    limit = null,
+    onAnswer = null,
+    badge = null,
+    pace = !silent && !quick && !timeLimit,
     onFinish,
   } = config;
-  const total = questions ? questions.length : null;
+  const total = questions ? questions.length : limit;
   // Заголовок может быть функцией — тогда он переводится заново при смене языка.
   const titleText = () => (typeof title === 'function' ? title() : title);
   const run = createRun({ lives, bossHp: boss ? 100 : null });
@@ -64,6 +74,9 @@ export function runSession(app, config) {
     build: null,
     timer: null,
     hint: false,
+    paceTimer: null,
+    paceOn: pace && getPaceMode(),
+    timedOut: false,
   };
 
   setLeaveGuard(() => state.finished || run.answered === 0 || confirm(t('session.leave')));
@@ -81,6 +94,8 @@ export function runSession(app, config) {
           <div class="hud-right">
             ${lives !== null ? '<span class="hearts" aria-label="lives"></span>' : ''}
             ${timeLimit ? '<span class="hud-timer"></span>' : ''}
+            ${badge ? '<span class="badge-chip"></span>' : ''}
+            ${pace ? `<button type="button" class="pace-chip" aria-pressed="${state.paceOn}" title="${t('pace.toggle')}">⏱<b></b></button>` : ''}
             <span class="combo-chip" hidden></span>
             ${streakMultiplier(currentStreak()) > 1 ? `<span class="mult-chip" title="${t('mult.title', { n: currentStreak() })}">${flameSvg(currentStreak())}×${streakMultiplier(currentStreak())}</span>` : ''}
             <span class="xp-chip">⚡<b>0</b></span>
@@ -94,7 +109,8 @@ export function runSession(app, config) {
               </div>`
             : ''
         }
-        <div class="session-title"><span>${esc(titleText())}</span><span class="q-counter"></span><button type="button" class="link-btn ref-btn" hidden>📏 ${t('ref.short')}</button>${hints ? `<button type="button" class="link-btn hint-btn" title="${t('hint.btn')}" aria-label="${t('hint.btn')}">💡<span class="hint-label"> ${t('hint.btn')}</span></button>` : ''}${langSwitchHtml('mini')}</div>
+        <div class="session-title"><span>${esc(titleText())}</span><span class="q-counter"></span><button type="button" class="link-btn ref-btn" hidden>📏 ${t('ref.short')}</button><button type="button" class="link-btn save-btn" aria-pressed="false" title="${t('saved.add')}" aria-label="${t('saved.add')}">🔖</button>${hints ? `<button type="button" class="link-btn hint-btn" title="${t('hint.btn')}" aria-label="${t('hint.btn')}">💡<span class="hint-label"> ${t('hint.btn')}</span></button>` : ''}${langSwitchHtml('mini')}</div>
+        ${pace ? '<div class="pace-bar" hidden><i></i></div>' : ''}
         <main class="q-area"></main>
         <footer class="answer-bar"><div class="answer-bar-inner"><span class="hud-prepi" aria-hidden="true">${mascot(silent ? 'think' : 'happy', 'mascot-xs')}</span><button type="button" class="btn btn-primary btn-lg btn-check" disabled>${checkLabel()}</button></div></footer>
         <div class="sheet" hidden></div>
@@ -116,6 +132,24 @@ export function runSession(app, config) {
     el.prepi = app.querySelector('.hud-prepi');
     el.hint = app.querySelector('.hint-btn');
     el.hint?.addEventListener('click', useHint);
+    el.badge = app.querySelector('.badge-chip');
+    el.pace = app.querySelector('.pace-chip');
+    el.paceBar = app.querySelector('.pace-bar');
+    el.save = app.querySelector('.save-btn');
+    el.save.addEventListener('click', () => {
+      const on = toggleSaved(state.q);
+      syncSave();
+      floatXp(on ? `🔖 ${t('saved.added')}` : t('saved.removed'), on ? 'xp' : 'dmg');
+      sfx.tap();
+    });
+    el.pace?.addEventListener('click', () => {
+      state.paceOn = !state.paceOn;
+      setPaceMode(state.paceOn);
+      el.pace.setAttribute('aria-pressed', String(state.paceOn));
+      if (state.phase === 'answer') startPace();
+      else stopPace();
+      floatXp(state.paceOn ? `⏱ ${t('pace.on')}` : t('pace.off'), 'xp');
+    });
     app.querySelector('.hud-close').addEventListener('click', () => navigate(exitTo));
     el.check.addEventListener('click', () => (state.phase === 'answer' ? check() : proceed()));
     el.ref.addEventListener('click', openReference);
@@ -140,6 +174,7 @@ export function runSession(app, config) {
     el.combo.hidden = run.combo < 2;
     el.combo.textContent = `🔥 ×${run.combo}`;
     el.xp.textContent = run.xp;
+    if (el.badge) el.badge.innerHTML = badge();
     if (el.bossHp) {
       el.bossHp.style.width = `${run.bossHp}%`;
       el.bossHpText.textContent = `${run.bossHp} HP`;
@@ -156,6 +191,7 @@ export function runSession(app, config) {
     // Слово на иностранном языке можно послушать (кнопка 🔊 рядом с ним).
     if (q.voice?.now) el.area.querySelector('.passage p')?.insertAdjacentHTML('beforeend', ` ${sayButton(q.voice.now, q.voice.lang)}`);
     el.ref.hidden = q.section !== 'math' || Boolean(q.local);
+    syncSave();
     state.binder = bindQuestion(el.area, q, {
       onChange: (r) => {
         if (state.phase === 'answer') {
@@ -218,6 +254,43 @@ export function runSession(app, config) {
     }
   }
 
+  function syncSave() {
+    if (!el.save || !state.q) return;
+    const on = isSaved(state.q.id);
+    el.save.setAttribute('aria-pressed', String(on));
+    el.save.classList.toggle('is-on', on);
+    el.save.title = on ? t('saved.remove') : t('saved.add');
+  }
+
+  /** Темп экзамена: полоска времени на текущий вопрос. Когда время вышло — ответ засчитывается как неверный. */
+  function startPace() {
+    stopPace();
+    if (!el.paceBar) return;
+    const limitS = paceFor(state.q);
+    el.pace.querySelector('b').textContent = state.paceOn ? ` ${limitS}${t('pace.s')}` : '';
+    el.paceBar.hidden = !state.paceOn;
+    if (!state.paceOn) return;
+    const bar = el.paceBar.firstElementChild;
+    const tick = () => {
+      const left = Math.max(0, limitS - (performance.now() - state.qStart) / 1000);
+      bar.style.width = `${(left / limitS) * 100}%`;
+      el.paceBar.classList.toggle('is-low', left <= Math.min(10, limitS * 0.2));
+      el.pace.querySelector('b').textContent = ` ${Math.ceil(left)}${t('pace.s')}`;
+      if (left <= 0 && state.phase === 'answer') {
+        stopPace();
+        state.timedOut = true;
+        check(true);
+      }
+    };
+    tick();
+    state.paceTimer = setInterval(tick, 250);
+  }
+
+  function stopPace() {
+    clearInterval(state.paceTimer);
+    state.paceTimer = null;
+  }
+
   function useHint() {
     if (state.phase !== 'answer' || state.hint) return;
     state.hint = true;
@@ -229,6 +302,7 @@ export function runSession(app, config) {
   }
 
   function showQuestion() {
+    stopSpeech();
     state.phase = 'answer';
     state.last = null;
     state.hint = false;
@@ -236,7 +310,9 @@ export function runSession(app, config) {
     if (!silent && state.index > 0) setPrepi(run.combo >= 3 ? 'wow' : 'happy');
     state.q = questions ? questions[state.index] : stream.next(difficultyAt(run.answered));
     state.qStart = performance.now();
+    state.timedOut = false;
     renderCurrent();
+    if (pace) startPace();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -248,11 +324,12 @@ export function runSession(app, config) {
     setTimeout(() => f.remove(), 1100);
   }
 
-  function check() {
-    if (state.phase !== 'answer' || state.binder.response === null) return;
+  function check(timeout = false) {
+    if (state.phase !== 'answer' || (state.binder.response === null && !timeout)) return;
+    stopPace();
     const q = state.q;
-    const response = state.binder.response;
-    const correct = checkAnswer(q, response);
+    const response = timeout ? null : state.binder.response;
+    const correct = !timeout && checkAnswer(q, response);
     const timeMs = performance.now() - state.qStart;
     const result = applyAnswer(run, { question: q, correct, response, timeMs });
     if (state.hint && result.xp > 0) {
@@ -261,6 +338,8 @@ export function runSession(app, config) {
       run.xp -= cut;
     }
     recordAnswer(q.skill, correct);
+    if (!timeout) recordSpeed(q, timeMs);
+    const move = onAnswer ? onAnswer(q, correct) : null;
     // Ошибка попадает в «Работу над ошибками» (в самом повторе расписание ведёт экран повтора).
     if (!correct && !review) addMistake(q);
     // Множитель за серию: на экран и в итог идёт то, что начислено на самом деле.
@@ -295,6 +374,7 @@ export function runSession(app, config) {
       sfx.correct(run.combo);
       floatXp(`+${result.xp} XP`);
       if (run.combo >= 3 && run.combo % 5 === 0) confetti({ y: 0.25, count: 60 });
+      burstFrom(card.querySelector('.choice.is-correct') ?? card.querySelector('.spr-input'));
       if (boss) {
         sfx.hit();
         el.bossAvatar.classList.remove('hit');
@@ -310,6 +390,7 @@ export function runSession(app, config) {
       void el.session.offsetWidth;
       el.session.classList.add('flash-bad');
     }
+    if (move) setTimeout(() => floatXp(move === 'up' ? `📈 ${t('adapt.up')}` : `📉 ${t('adapt.down')}`, move === 'up' ? 'xp' : 'dmg'), 450);
     updateHud();
     if (quick) {
       el.check.disabled = true;
@@ -329,7 +410,7 @@ export function runSession(app, config) {
         <div class="sheet-head">
           ${mascot(correct ? 'win' : 'sad', 'mascot-sm')}
           <div>
-            <div class="sheet-title">${correct ? praise : t('fb.wrong')}</div>
+            <div class="sheet-title">${correct ? praise : state.timedOut ? `⏰ ${t('pace.timeout')}` : t('fb.wrong')}</div>
             <div class="sheet-sub">${
               correct
                 ? `+${result.xp} XP${run.combo >= 3 ? ` · 🔥 ${t('fb.combo', { n: run.combo })}` : ''}`
@@ -338,23 +419,65 @@ export function runSession(app, config) {
           </div>
           ${!silent && answerSpeech(state.q) ? sayButton(answerSpeech(state.q), state.q.voice.lang, 'sheet-say') : ''}
         </div>
+        ${correct ? '' : whyHtml(state.q, state.last.response)}
+        ${state.q.listen ? transcriptHtml(state.q) : ''}
         <div class="sheet-solution"></div>
+        <div class="sheet-note" hidden></div>
         <div class="sheet-actions">
           <button type="button" class="btn btn-soft btn-sol">${correct ? t('fb.showSolution') : t('fb.howToSolve')}</button>
+          <button type="button" class="btn btn-soft btn-note">📝 ${savedItem(state.q.id)?.note ? t('note.edit') : t('note.add')}</button>
         </div>
       </div>`;
     el.sheet.querySelector('.btn-sol').addEventListener('click', (e) => {
       mountSolution(el.sheet.querySelector('.sheet-solution'), state.q);
       e.currentTarget.remove();
     });
+    el.sheet.querySelector('.btn-note').addEventListener('click', (e) => {
+      e.currentTarget.remove();
+      openNote(el.sheet.querySelector('.sheet-note'));
+    });
     if (!correct) {
-      mountSolution(el.sheet.querySelector('.sheet-solution'), state.q);
+      mountSolution(el.sheet.querySelector('.sheet-solution'), state.q, { stepwise: true });
       el.sheet.querySelector('.btn-sol').remove();
     }
     el.check.disabled = false;
     el.check.textContent = state.end ? t('session.finish') : t('session.continue');
     el.check.className = `btn btn-lg btn-check ${correct ? 'btn-success' : 'btn-danger'}`;
     el.check.focus({ preventScroll: true });
+  }
+
+  /** Заметка к заданию прямо в окне разбора. Сохранение заметки добавляет задание в закладки. */
+  function openNote(box) {
+    const q = state.q;
+    box.hidden = false;
+    box.innerHTML = `<label class="note-label" for="note-text">📝 ${t('note.title')}</label>
+      <textarea id="note-text" class="note-text" maxlength="1000" rows="3" placeholder="${t('note.placeholder')}">${esc(savedItem(q.id)?.note ?? '')}</textarea>
+      <div class="note-actions"><button type="button" class="btn btn-primary btn-sm note-save">${t('note.save')}</button><span class="note-status muted small" aria-live="polite"></span></div>`;
+    const area = box.querySelector('textarea');
+    area.focus({ preventScroll: true });
+    area.addEventListener('keydown', (e) => e.stopPropagation());
+    box.querySelector('.note-save').addEventListener('click', () => {
+      const item = setNote(q, area.value);
+      syncSave();
+      box.querySelector('.note-status').textContent = item ? `✓ ${t('note.saved')}` : t('note.cleared');
+    });
+  }
+
+  /** Искры от правильного ответа. */
+  function burstFrom(target) {
+    if (!target || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const r = target.getBoundingClientRect();
+    const host = document.createElement('div');
+    host.className = 'spark-burst';
+    host.style.left = `${r.left + r.width / 2}px`;
+    host.style.top = `${r.top + r.height / 2}px`;
+    host.innerHTML = Array.from({ length: 14 }, (_, i) => {
+      const a = (i / 14) * Math.PI * 2;
+      const d = 46 + (i % 3) * 18;
+      return `<i style="--dx:${Math.cos(a) * d}px;--dy:${Math.sin(a) * d}px;--d:${(i % 4) * 40}ms"></i>`;
+    }).join('');
+    document.body.append(host);
+    setTimeout(() => host.remove(), 900);
   }
 
   function proceed() {
@@ -364,9 +487,11 @@ export function runSession(app, config) {
   }
 
   function finish(reason) {
+    stopSpeech();
     state.finished = true;
     state.phase = 'done';
     clearInterval(state.timer);
+    stopPace();
     document.body.classList.remove('in-session');
     if (!catalog) getProfile().last = { course: 'sat' };
     state.build = onFinish(run, { reason });
@@ -387,7 +512,7 @@ export function runSession(app, config) {
         return;
       }
     }
-    if (e.key === 'Enter' && !e.target.matches?.('input, button, a, summary')) {
+    if (e.key === 'Enter' && !e.target.matches?.('input, textarea, button, a, summary')) {
       e.preventDefault();
       if (state.phase === 'answer') check();
       else if (!quick) proceed();
@@ -419,6 +544,8 @@ export function runSession(app, config) {
     cleanup() {
       document.removeEventListener('keydown', onKey);
       clearInterval(state.timer);
+      stopPace();
+      stopSpeech();
       document.body.classList.remove('in-session');
     },
     relabel() {
@@ -429,6 +556,7 @@ export function runSession(app, config) {
       const response = state.binder?.response;
       shell();
       renderCurrent();
+      if (pace && state.phase === 'answer') startPace();
       if (state.phase === 'answer' && response !== null && response !== undefined) {
         state.binder.setResponse(response);
         el.check.disabled = false;
@@ -437,12 +565,25 @@ export function runSession(app, config) {
   };
 }
 
+/** «Твой ответ» и, если ошибка типичная, — откуда она берётся. */
+export function whyHtml(q, response) {
+  const yours = responseHtml(q, response);
+  if (!yours) return '';
+  const reason = wrongReason(q, response);
+  return `<div class="why-box ${reason ? 'has-reason' : ''}">
+    <div class="why-yours"><span>${t('why.yours')}:</span> ${yours}</div>
+    ${reason ? `<p class="why-reason"><b>🔍 ${t('why.title')}</b> ${esc(tx(reason))}</p>` : q.section === 'math' && q.ex ? `<p class="why-reason muted small">${t('why.generic')}</p>` : ''}
+  </div>`;
+}
+
 /** Общие кнопки и статистика для экранов результатов. */
 export function baseStats(run) {
+  const speed = runSpeed(run.log);
   return [
     { icon: '✅', label: t('res.correct'), value: `${run.correct}/${run.answered}` },
     { icon: '🎯', label: t('res.accuracy'), value: `${run.answered ? Math.round((run.correct / run.answered) * 100) : 0}%` },
     { icon: '🔥', label: t('res.bestCombo'), value: run.bestCombo },
+    ...(speed ? [{ icon: '⏱', label: t('speed.avg'), value: `${speed.avg} ${t('pace.s')}` }, { icon: '⚡', label: t('speed.inPace'), value: `${speed.fast}/${speed.n}` }] : []),
   ];
 }
 

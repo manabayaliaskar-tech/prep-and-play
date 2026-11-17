@@ -99,3 +99,34 @@ export function bindSayButtons(doc = document) {
     }
   }, true);
 }
+
+/** Останавливает любую озвучку (при переходе к следующему заданию или уходе со страницы). */
+export function stopSpeech() {
+  synth()?.cancel();
+}
+
+const FEMALE = /female|samantha|victoria|karen|moira|tessa|zira|jenny|aria|libby|sonia|serena|kate|susan|fiona|hazel|emma|olivia|natasha/;
+const MALE = /\bmale|daniel|alex\b|fred|david|guy|ryan|george|arthur|oliver|thomas|james|mark|rishi|tom\b/;
+
+/**
+ * Голоса для говорящих записи: { A: voice, B: voice }. Стараемся дать разным людям разные голоса
+ * и подобрать пол по подсказке ('f' / 'm'). Если голос один — у всех он.
+ */
+export function voicesFor(lang, speakers) {
+  const s = synth();
+  const locale = LOCALE[lang];
+  if (!s || !locale) return {};
+  const prefix = locale.slice(0, 2);
+  const all = s.getVoices().filter((v) => v.lang?.replace('_', '-').toLowerCase().startsWith(prefix)).sort((a, b) => score(b, locale) - score(a, locale));
+  const out = {};
+  const used = new Set();
+  for (const [who, sex] of Object.entries(speakers)) {
+    const want = sex === 'm' ? MALE : FEMALE;
+    const v = all.find((x) => !used.has(x.name) && want.test(x.name.toLowerCase())) ?? all.find((x) => !used.has(x.name)) ?? all[0] ?? null;
+    if (v) {
+      out[who] = v;
+      used.add(v.name);
+    }
+  }
+  return out;
+}

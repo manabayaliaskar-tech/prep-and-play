@@ -17,8 +17,8 @@ function distinct(spec, n) {
   return seen.size;
 }
 
-// Тексты для чтения пишутся вручную, их число проверяется отдельно.
-const HANDWRITTEN = new Set(['reading']);
+// Тексты для чтения и записи для аудирования пишутся вручную, их число проверяется отдельно.
+const HANDWRITTEN = new Set(['reading', 'listening']);
 
 test('объём: в каждом уровне каждого курса — не меньше сотни разных заданий', () => {
   const small = [];

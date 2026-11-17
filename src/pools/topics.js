@@ -12,6 +12,7 @@ import { early } from './math/early.js';
 import { complexNumbers, integrals, limits, matrices, vectors } from './math/higher.js';
 import { englishMaker } from './english/index.js';
 import { readingMaker } from './reading.js';
+import { listeningMaker } from './listening.js';
 import { CODE_LANGS, CODE_TOPIC_NAMES, codeTopics } from './code.js';
 import { CODE_THEORY } from './code-theory.js';
 import { languageMaker } from './languages/index.js';
@@ -164,6 +165,8 @@ export const TOPICS = {
   // ----- Чтение -----
   'r.ielts': topic('reading', L('IELTS Reading', 'IELTS: чтение', 'IELTS: оқылым'), readingMaker('r.ielts', 'ielts')),
   'r.toefl': topic('reading', L('TOEFL Reading', 'TOEFL: чтение', 'TOEFL: оқылым'), readingMaker('r.toefl', 'toefl')),
+  'li.ielts': topic('english', L('IELTS Listening', 'IELTS: аудирование', 'IELTS: тыңдалым'), listeningMaker('li.ielts', 'ielts')),
+  'li.toefl': topic('english', L('TOEFL Listening', 'TOEFL: аудирование', 'TOEFL: тыңдалым'), listeningMaker('li.toefl', 'toefl')),
 
   // ----- Другие иностранные языки -----
   'es.bank': topic('spanish', L('Spanish grammar and vocabulary', 'Испанский: грамматика и лексика', 'Испан тілі: грамматика және лексика'), languageMaker('es.bank', SPANISH)),

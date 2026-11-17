@@ -42,11 +42,11 @@ export const MOCKS = {
   },
   ielts: {
     scale: 'ielts',
-    compulsory: [sec('reading', 40, 60, 0), sec('grammar', 30, 30, 0)],
+    compulsory: [sec('listening', 26, 30, 0), sec('reading', 40, 60, 0), sec('grammar', 30, 30, 0)],
   },
   toefl: {
     scale: 'sum',
-    compulsory: [sec('reading', 20, 35, 30), sec('grammar', 20, 15, 30)],
+    compulsory: [sec('reading', 20, 35, 30), sec('listening', 22, 25, 30), sec('grammar', 20, 15, 30)],
   },
   hsk: {
     scale: 'sum',
@@ -99,7 +99,7 @@ export function mockPlan(examId, picks = [], short = false) {
 export const picksComplete = (examId, picks) => (MOCKS[examId]?.electives ?? []).every((g, gi) => (picks[gi] ?? []).length === g.choose);
 
 // Шкала IELTS Academic Reading: число верных из 40 → балл.
-const IELTS_BANDS = [[39, 9], [37, 8.5], [35, 8], [33, 7.5], [30, 7], [27, 6.5], [23, 6], [19, 5.5], [15, 5], [13, 4.5], [10, 4], [8, 3.5], [6, 3], [4, 2.5]];
+export const IELTS_BANDS = [[39, 9], [37, 8.5], [35, 8], [33, 7.5], [30, 7], [27, 6.5], [23, 6], [19, 5.5], [15, 5], [13, 4.5], [10, 4], [8, 3.5], [6, 3], [4, 2.5]];
 const ogeGrade = (pct) => (pct >= 0.8 ? 5 : pct >= 0.55 ? 4 : pct >= 0.3 ? 3 : 2);
 const round1 = (x) => Math.round(x * 10) / 10;
 

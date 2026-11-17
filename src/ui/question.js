@@ -4,7 +4,9 @@ import { t, tx } from '../core/i18n.js';
 import { NOTES_INTRO } from '../content/rw/prompts.js';
 import { skillName } from '../content/labels.js';
 import { POOLS, TOPICS } from '../pools/topics.js';
+import { parseSpr } from '../engine/answer.js';
 import { esc, isFinePointer } from './dom.js';
+import { bindListen, listenHtml } from './listen.js';
 
 export const LETTERS = ['A', 'B', 'C', 'D'];
 
@@ -31,6 +33,7 @@ export function questionHtml(q) {
   const parts = [
     `<div class="q-meta"><span class="q-tag q-tag-${q.section}">${POOLS[TOPICS[q.skill]?.pool]?.icon ?? (q.section === 'rw' ? '📖' : '📐')} ${esc(tx(skillName(q.skill)))}</span>${difficultyDots(q.d)}</div>`,
   ];
+  if (q.listen) parts.push(listenHtml(q));
   if (q.section === 'rw') {
     if (q.passages) {
       parts.push(
@@ -43,6 +46,7 @@ export function questionHtml(q) {
     if (q.passage) parts.push(`<div class="passage">${q.passageLabel ? `<div class="passage-label">${esc(tx(q.passageLabel))}</div>` : ''}<p>${passageText(tx(q.passage))}</p></div>`);
     if (q.table) parts.push(tableHtml(q.table));
     parts.push(`<p class="q-prompt">${esc(tx(q.prompt))}</p>`);
+    if (q.hint) parts.push(`<p class="q-hint muted small">${esc(tx(q.hint))}</p>`);
   } else {
     if (q.figure) parts.push(`<div class="figure">${q.figure}</div>`);
     if (q.table) parts.push(tableHtml(q.table));
@@ -74,6 +78,7 @@ export function questionHtml(q) {
 export function bindQuestion(root, q, { onChange = () => {}, onSubmit = () => {}, autofocus = true } = {}) {
   let response = null;
   let locked = false;
+  if (q.listen) bindListen(root, q);
   const input = root.querySelector('.spr-input');
   const buttons = [...root.querySelectorAll('[data-choice]')];
 
@@ -147,4 +152,22 @@ export function correctAnswerHtml(q) {
   if (q.type === 'spr') return `<b>${esc(tx(q.display))}</b>`;
   const text = q.section === 'math' ? tx(q.choices[q.answer]) : esc(tx(q.choices[q.answer]));
   return `<b>${LETTERS[q.answer]}</b> — ${text}`;
+}
+
+/** Ответ ученика в виде текста (для «Твой ответ: …»). */
+export function responseHtml(q, response) {
+  if (response === null || response === undefined) return '';
+  if (q.type === 'spr') return `<b>${esc(String(response))}</b>`;
+  const c = q.choices[response];
+  if (c === undefined) return '';
+  return `<b>${LETTERS[response]}</b> — ${q.section === 'math' ? tx(c) : esc(tx(c))}`;
+}
+
+/** Типичная ошибка, к которой ведёт выбранный (или введённый) неверный ответ, если она известна. */
+export function wrongReason(q, response) {
+  if (response === null || response === undefined) return null;
+  if (q.type === 'mc') return q.whys?.[response] ?? null;
+  const v = parseSpr(response);
+  if (!Number.isFinite(v)) return null;
+  return (q.traps ?? []).find((x) => Math.abs(x.v - v) < 1e-9)?.why ?? null;
 }

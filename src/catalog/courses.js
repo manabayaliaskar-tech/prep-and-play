@@ -285,9 +285,10 @@ export const COURSES = [
     official: { label: 'ielts.org', url: 'https://www.ielts.org/' },
     tracks: [
       track('reading', '📖', L('Reading', 'Reading (чтение)', 'Reading (оқылым)'), L('Texts with True / False / Not Given and multiple-choice questions', 'Тексты с вопросами True / False / Not Given и с выбором ответа', 'True / False / Not Given және жауап таңдау сұрақтары бар мәтіндер'), [['r.ielts', [1]]], { count: 15, minutes: 25 }),
+      track('listening', '🎧', N.listening, L('Forms, tours, discussions and lectures read aloud', 'Анкеты, экскурсии, обсуждения и лекции — на слух', 'Сауалнамалар, экскурсиялар, талқылаулар мен дәрістер — тыңдап'), [['li.ielts', [1]]], { count: 13, minutes: 20 }),
       track('grammar', 'B2', L('Grammar and vocabulary, B2–C1', 'Грамматика и лексика, B2–C1', 'Грамматика және лексика, B2–C1'), L('The level needed for band 6.5–7.5', 'Уровень, который нужен для оценки 6.5–7.5', '6.5–7.5 бағасына қажет деңгей'), englishSpec([4, 5]), { count: 20, minutes: 15 }),
     ],
-    soon: [N.listening, N.speaking, N.writing],
+    soon: [N.speaking, N.writing],
   },
   {
     id: 'toefl',
@@ -305,9 +306,10 @@ export const COURSES = [
     official: { label: 'ets.org/toefl', url: 'https://www.ets.org/toefl.html' },
     tracks: [
       track('reading', '📖', L('Reading', 'Reading (чтение)', 'Reading (оқылым)'), L('Academic texts: facts, words in context, inference', 'Академические тексты: факты, слова в контексте, выводы', 'Академиялық мәтіндер: фактілер, контекстегі сөздер, қорытындылар'), [['r.toefl', [1]]], { count: 10, minutes: 18 }),
+      track('listening', '🎧', N.listening, L('Campus conversations and academic lectures', 'Разговоры в университете и академические лекции', 'Университеттегі әңгімелер және академиялық дәрістер'), [['li.toefl', [1]]], { count: 11, minutes: 15 }),
       track('grammar', 'B2', L('Grammar and vocabulary, B2–C1', 'Грамматика и лексика, B2–C1', 'Грамматика және лексика, B2–C1'), L('Structures and words of academic English', 'Конструкции и слова академического английского', 'Академиялық ағылшын тілінің құрылымдары мен сөздері'), englishSpec([4, 5]), { count: 20, minutes: 15 }),
     ],
-    soon: [N.listening, N.speaking, N.writing],
+    soon: [N.speaking, N.writing],
   },
   {
     id: 'hsk',

@@ -3,7 +3,7 @@
 
 import { MINUS, linear, polyStr, terms } from '../../core/format.js';
 import { pick, randomInt } from '../../core/random.js';
-import { L, W, ask, askFrac, loc, mcText, n, par, poolQ, same, signed, steps } from '../gen.js';
+import { ask, askFrac, L, loc, mcText, n, par, poolQ, same, signed, steps, val, W, why } from '../gen.js';
 import { frac } from './fractions.js';
 
 const X = '<i>x</i>';
@@ -35,7 +35,7 @@ export function linearEq(ctx, d) {
         same(`${a}${X} = ${n(c)} ${signed(-b)} = ${n(c - b)}`),
         same(`${X} = ${n(c - b)} ${DIV} ${a} = ${n(x)}`),
       ),
-      ...ask(ctx, x, [(c + b) / a, c - b, -x, x + 2].filter(Number.isInteger)),
+      ...ask(ctx, x, [why((c + b) / a, L('When a number moves to the other side, its sign changes. Here you kept it.', 'При переносе в другую часть знак числа меняется. Здесь он остался прежним.', 'Сан екінші жаққа өткенде таңбасы өзгереді. Мұнда ол өзгермеді.')), why(c - b, L('You moved the number but forgot to divide by the coefficient of x.', 'Число перенесено верно, но ты забыл разделить на коэффициент при x.', 'Сан дұрыс көшірілді, бірақ x коэффициентіне бөлуді ұмыттың.')), -x, x + 2].filter((v) => Number.isInteger(val(v)))),
     });
   }
   if (d === 2) {
@@ -181,7 +181,7 @@ export function powers(ctx, d) {
         L(`A power is a product of equal factors: here there are ${k} of them.`, `Степень — это произведение одинаковых множителей: здесь их ${k}.`, `Дәреже — бірдей көбейткіштердің көбейтіндісі: мұнда олар ${k}.`),
         same(`${Array(k).fill(a).join(` ${TIMES} `)} = ${n(ans)}`),
       ),
-      ...ask(ctx, ans, [a * k, a ** (k - 1), a ** (k + 1), ans + a]),
+      ...ask(ctx, ans, [why(a * k, L('You multiplied the base by the exponent. A power means multiplying the base by itself.', 'Ты умножил основание на показатель. Степень — это умножение основания само на себя.', 'Негізді көрсеткішке көбейттің. Дәреже — негізді өзіне-өзі көбейту.')), why(a ** (k - 1), L('One factor too few: count the multipliers again.', 'Одного множителя не хватает: пересчитай множители.', 'Бір көбейткіш жетпейді: көбейткіштерді қайта сана.')), a ** (k + 1), ans + a]),
     });
   }
   if (d === 2) {
@@ -205,7 +205,7 @@ export function powers(ctx, d) {
           ),
           same(`${X} = ${m} + ${k} ${MINUS} ${j} = ${ans}`),
         ),
-        ...ask(ctx, ans, [m * k - j, m + k + j, m * k, ans + 1].filter((v) => v !== ans)),
+        ...ask(ctx, ans, [why(m * k - j, L('When multiplying powers with the same base, exponents are added, not multiplied.', 'При умножении степеней с одинаковым основанием показатели складываются, а не умножаются.', 'Негіздері бірдей дәрежелерді көбейткенде көрсеткіштер көбейтілмейді, қосылады.')), why(m + k + j, L('When dividing, the exponent is subtracted.', 'При делении показатель вычитается.', 'Бөлгенде көрсеткіш азайтылады.')), m * k, ans + 1].filter((v) => val(v) !== ans)),
       });
     }
     const ans = m * k;
