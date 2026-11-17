@@ -34,7 +34,7 @@ export function maybeStartTour() {
   if (autoTried || tourDone() || active) return;
   autoTried = true;
   setTimeout(() => {
-    if (!document.querySelector('.hub') || document.body.classList.contains('in-session')) return;
+    if (tourDone() || !document.querySelector('.hub') || document.body.classList.contains('in-session')) return;
     startTour();
   }, 1100);
 }
@@ -148,6 +148,7 @@ export function startTour() {
     document.removeEventListener('keydown', onKey, true);
     removeEventListener('resize', place);
     removeEventListener('scroll', place, true);
+    removeEventListener('hashchange', close);
     root.classList.add('is-leaving');
     document.body.classList.remove('touring');
     setTimeout(() => root.remove(), reduced ? 0 : 350);
@@ -170,6 +171,8 @@ export function startTour() {
   document.addEventListener('keydown', onKey, true);
   addEventListener('resize', place);
   addEventListener('scroll', place, true);
+  // Ушли с главной (например, кнопкой «назад») — экскурсия закрывается.
+  addEventListener('hashchange', close);
   requestAnimationFrame(() => {
     root.classList.add('is-in');
     show(0);

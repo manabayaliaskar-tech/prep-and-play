@@ -39,10 +39,14 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Собираем папку сайта
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Собираем сайт (один сжатый файл кода вместо сотен — быстрее загрузка)
         run: |
-          mkdir _site
-          cp -r index.html styles src icons manifest.webmanifest sw.js _site/
+          npm ci
+          npm run build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

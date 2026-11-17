@@ -284,8 +284,9 @@ test('приложение (PWA): манифест, иконки и сервис
   assert.ok(existsSync('icons/apple-touch-icon.png') && existsSync('sw.js'));
   const html = readFileSync('index.html', 'utf8');
   assert.ok(html.includes('rel="manifest"') && html.includes('apple-touch-icon'));
-  const ci = readFileSync('.github/workflows/ci.yml', 'utf8');
-  for (const f of ['icons', 'manifest.webmanifest', 'sw.js']) assert.ok(ci.includes(f), `CI не копирует ${f}`);
+  assert.ok(readFileSync('.github/workflows/ci.yml', 'utf8').includes('npm run build'), 'CI собирает сайт');
+  const build = readFileSync('tools/build.mjs', 'utf8');
+  for (const f of ['icons', 'manifest.webmanifest', 'sw.js', 'index.html']) assert.ok(build.includes(`'${f}'`), `сборка не копирует ${f}`);
 });
 
 test('достижения: 50 разных, у каждого раздел, три языка и честный прогресс', async () => {

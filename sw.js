@@ -2,7 +2,7 @@
 // Свои файлы — «сначала сеть»: при интернете всегда свежая версия, без него — из кеша.
 // Шрифты Google — «сначала кеш»: они не меняются.
 
-const CACHE = 'prepplay-v1';
+const CACHE = 'prepplay-v2';
 const SHELL = ['./', 'index.html', 'styles/main.css', 'src/main.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
 
 self.addEventListener('install', (event) => {

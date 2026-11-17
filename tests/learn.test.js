@@ -306,7 +306,7 @@ test('монета: картинки P&P на месте, стили на них
   assert.ok(big.includes('url(#leaf)'), 'на крупной монете — лавровая ветвь');
   const css = readFileSync('styles/main.css', 'utf8');
   assert.ok(css.includes("url('../icons/coin.svg')") && css.includes("url('../icons/coin-sm.svg')"));
-  assert.ok(readFileSync('.github/workflows/ci.yml', 'utf8').includes('icons'), 'папка icons попадает на сайт');
+  assert.ok(readFileSync('tools/build.mjs', 'utf8').includes("'icons'"), 'папка icons попадает на сайт');
   const { coinHtml, COIN } = await import('../src/ui/coin.js');
   assert.ok(coinHtml('coin-lg').includes('class="coin coin-lg"'));
   assert.equal(COIN, '🪙');
