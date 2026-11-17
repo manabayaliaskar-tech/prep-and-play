@@ -2,6 +2,7 @@
 
 import { pick, randomInt } from '../../core/random.js';
 import { T } from '../bank.js';
+import { CHEMISTRY_MORE } from './science-more.js';
 import { L, ask, dec, n, poolQ, same, steps } from '../gen.js';
 
 const TIMES = '×';
@@ -213,3 +214,6 @@ export const CHEMISTRY_THEORY = [
     T('кислая', 'қышқыл', 'acidic'), [T('щелочная', 'сілтілік', 'alkaline'), T('нейтральная', 'бейтарап', 'neutral'), T('слабощелочная', 'әлсіз сілтілік', 'slightly alkaline')],
     T('pH меньше 7 — кислая среда, pH = 7 — нейтральная, pH больше 7 — щелочная.', 'pH 7-ден кіші — қышқыл орта, pH = 7 — бейтарап, pH 7-ден үлкен — сілтілік.', 'pH below 7 is acidic, pH = 7 is neutral, pH above 7 is alkaline.')],
 ];
+
+// Дополнительные вопросы — в science-more.js.
+CHEMISTRY_THEORY.push(...CHEMISTRY_MORE);

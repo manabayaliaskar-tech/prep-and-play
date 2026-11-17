@@ -2,6 +2,7 @@
 // Только устоявшиеся факты, без спорных датировок.
 
 import { T } from '../bank.js';
+import { REGION_MORE } from './history-region-more.js';
 
 export const HISTORY_KZ = [
   [1, T('В каком году Казахстан провозгласил независимость?', 'Қазақстан тәуелсіздігін қай жылы жариялады?', 'In which year did Kazakhstan declare independence?'),
@@ -188,3 +189,6 @@ export const HISTORY_REGION = {
       T('Штефан чел Маре правил с 1457 по 1504 год и разбил османов при Васлуе в 1475 году.', 'Штефан чел Маре 1457–1504 жылдары билеп, 1475 жылы Васлуйде османдарды жеңді.', 'Stephen the Great ruled from 1457 to 1504 and defeated the Ottomans at Vaslui in 1475.')],
   ],
 };
+
+// Дополнительные вопросы по странам региона — в отдельном файле.
+for (const [country, rows] of Object.entries(REGION_MORE)) HISTORY_REGION[country].push(...rows);

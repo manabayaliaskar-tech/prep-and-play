@@ -3,6 +3,7 @@
 
 import { pick, randomInt } from '../../core/random.js';
 import { T } from '../bank.js';
+import { PHYSICS_MORE } from './science-more.js';
 import { L, ask, dec, n, poolQ, same, steps } from '../gen.js';
 import { frac } from '../math/fractions.js';
 
@@ -575,3 +576,6 @@ export const PHYSICS_THEORY = [
     T('интерференция', 'интерференция', 'interference'), [T('фотоэффект', 'фотоэффект', 'the photoelectric effect'), T('прямолинейное распространение', 'түзу сызықты таралу', 'travelling in straight lines'), T('образование тени', 'көлеңкенің пайда болуы', 'the formation of a shadow')],
     T('Интерференция и дифракция — волновые явления. Фотоэффект, наоборот, показывает, что свет ведёт себя как поток частиц.', 'Интерференция мен дифракция — толқындық құбылыстар. Фотоэффект, керісінше, жарықтың бөлшектер ағыны сияқты әрекет ететінін көрсетеді.', 'Interference and diffraction are wave phenomena. The photoelectric effect, on the contrary, shows light behaving as a stream of particles.')],
 ];
+
+// Дополнительные вопросы — в science-more.js.
+PHYSICS_THEORY.push(...PHYSICS_MORE);

@@ -2,6 +2,7 @@
 // Запись: [сложность, вопрос, правильный ответ, [три неправильных], разбор].
 
 import { T } from '../bank.js';
+import { BIOLOGY_MORE, GEOGRAPHY_MORE } from './science-more.js';
 
 export const BIOLOGY = [
   [1, T('Какой органоид клетки отвечает за фотосинтез?', 'Жасушаның қай органоиды фотосинтезге жауап береді?', 'Which cell organelle carries out photosynthesis?'),
@@ -195,3 +196,7 @@ GEOGRAPHY.push(
     T('Индия', 'Үндістан', 'India'), [T('Китай', 'Қытай', 'China'), T('США', 'АҚШ', 'the USA'), T('Индонезия', 'Индонезия', 'Indonesia')],
     T('По оценкам ООН, в 2023 году Индия обогнала Китай по численности населения.', 'БҰҰ бағалауы бойынша 2023 жылы Үндістан халық саны жағынан Қытайды басып озды.', 'According to UN estimates, India overtook China in population in 2023.')],
 );
+
+// Дополнительные вопросы — в science-more.js.
+BIOLOGY.push(...BIOLOGY_MORE);
+GEOGRAPHY.push(...GEOGRAPHY_MORE);
