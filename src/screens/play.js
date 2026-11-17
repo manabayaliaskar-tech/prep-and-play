@@ -3,7 +3,8 @@
 
 import { confetti } from '../core/confetti.js';
 import { t, tx } from '../core/i18n.js';
-import { addXp, checkAchievements, getProfile, recordAnswer, saveProfile, todayStats } from '../core/profile.js';
+import { addXp, checkAchievements, currentStreak, getProfile, recordAnswer, saveProfile, todayStats } from '../core/profile.js';
+import { flameSvg, streakMultiplier } from '../core/economy.js';
 import { navigate, setLeaveGuard } from '../core/router.js';
 import { sfx, vibrate } from '../core/sound.js';
 import { checkAnswer } from '../engine/answer.js';
@@ -80,6 +81,7 @@ export function runSession(app, config) {
             ${lives !== null ? '<span class="hearts" aria-label="lives"></span>' : ''}
             ${timeLimit ? '<span class="hud-timer"></span>' : ''}
             <span class="combo-chip" hidden></span>
+            ${streakMultiplier(currentStreak()) > 1 ? `<span class="mult-chip" title="${t('mult.title', { n: currentStreak() })}">${flameSvg(currentStreak())}×${streakMultiplier(currentStreak())}</span>` : ''}
             <span class="xp-chip">⚡<b>0</b></span>
           </div>
         </header>
@@ -258,7 +260,10 @@ export function runSession(app, config) {
     recordAnswer(q.skill, correct);
     // Ошибка попадает в «Работу над ошибками» (в самом повторе расписание ведёт экран повтора).
     if (!correct && !review) addMistake(q);
-    addXp(result.xp);
+    // Множитель за серию: на экран и в итог идёт то, что начислено на самом деле.
+    const gained = addXp(result.xp);
+    run.xp += gained - result.xp;
+    result.xp = gained;
     const p = getProfile();
     p.counters.bestCombo = Math.max(p.counters.bestCombo, run.bestCombo);
     const day = todayStats();

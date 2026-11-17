@@ -327,8 +327,7 @@ export function examRoute(app) {
     }
     const total = st.plan.length === 2 ? scores.rw + scores.math : null;
     const correct = log.filter((e) => e.correct).length;
-    const xp = correct * 6;
-    addXp(xp);
+    const xp = addXp(correct * 6);
     const p = getProfile();
     p.exams.push({ date: dayKey(), length: st.length, rw: scores.rw ?? null, math: scores.math ?? null, total });
     if (p.exams.length > 30) p.exams.shift();

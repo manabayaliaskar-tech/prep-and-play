@@ -15,6 +15,8 @@ import { reviewCardHtml } from './review.js';
 import { planCardHtml } from './plan.js';
 import { nextChestBadge, openChestModal, rewardCardsHtml } from './report.js';
 import { openWardrobe } from '../ui/wardrobe-ui.js';
+import { flameSvg } from '../core/economy.js';
+import { bindLife, flameBadgeHtml, giftCardHtml, moodHtml, moodOf, rescueCardHtml, shopCardHtml } from './prepi-life.js';
 
 export function ring(value, max) {
   const r = 34;
@@ -121,7 +123,7 @@ export function streakRiskHtml(streak, xpToday) {
   const hours = Math.max(1, Math.ceil(msUntilMidnight() / 3600000));
   return `
     <a class="streak-risk" href="#/quiz/daily">
-      <span class="streak-risk-fire" aria-hidden="true">🔥</span>
+      <span class="streak-risk-fire" aria-hidden="true">${flameSvg(streak)}</span>
       <span class="streak-risk-text"><b>${t('risk.title', { n: streak })}</b><small>${t('risk.desc', { h: hours })}</small></span>
       <span class="streak-risk-go">${t('risk.go')}</span>
     </a>`;
@@ -194,14 +196,16 @@ export function hubScreen(app) {
     app.innerHTML = `
       <section class="page home hub">
         <div class="hero-card">
-          <button type="button" class="hero-mascot prepi-dress" aria-label="${t('wear.title')}">${mascot(xpToday >= DAILY_GOAL ? 'win' : 'happy', 'mascot-xl float')}<span class="prepi-dress-btn">👗</span></button>
+          <button type="button" class="hero-mascot prepi-dress" aria-label="${t('wear.title')}">${mascot(moodOf(p).mascot, 'mascot-xl float')}<span class="prepi-dress-btn">👗</span></button>
           <div class="hero-text">
             <p class="hero-kicker">${name ? t('home.helloName', { name }) : t('home.hello')}</p>
             <h1>${t('hub.title')}</h1>
             <p class="muted">${t('hub.subtitle')}</p>
+            ${moodHtml(p)}
             <div class="hero-badges">
               <span class="badge">⭐ ${t('home.level', { n: lvl.level })}</span>
-              <span class="badge ${streak ? 'fire' : ''}">🔥 ${t('home.streak', { n: streak })}</span>
+              ${flameBadgeHtml(streak)}
+              <a class="badge coin-badge" href="#/shop">🪙 ${p.coins ?? 0}</a>
               <span class="badge">⚡ ${p.xp} XP</span>
               ${nextChestBadge()}
             </div>
@@ -212,9 +216,15 @@ export function hubScreen(app) {
           </div>
         </div>
 
+        ${rescueCardHtml(p)}
+
         ${streakRiskHtml(streak, xpToday)}
 
+        ${giftCardHtml(p)}
+
         ${quizHero(p)}
+
+        ${shopCardHtml(p)}
 
         ${continueCard() ? `<div class="continue-row single">${continueCard()}</div>` : ''}
 
@@ -267,6 +277,7 @@ export function hubScreen(app) {
         </div>
       </section>`;
     app.querySelector('.hero-mascot.prepi-dress')?.addEventListener('click', () => openWardrobe(render));
+    bindLife(app, render);
     app.querySelector('.install-go')?.addEventListener('click', startInstall);
     app.querySelector('.install-close')?.addEventListener('click', () => {
       dismissInstall();

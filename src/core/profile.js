@@ -3,6 +3,7 @@
 // Хранится в localStorage этого браузера.
 
 import { evaluateAchievements } from '../content/achievements.js';
+import { ACH_COINS, RESCUE_XP, XP_PER_COIN, levelCoins, streakMultiplier } from './economy.js';
 import { dayKey, daysBetween } from './dates.js';
 import { emit } from './events.js';
 import { storage } from './storage.js';
@@ -16,6 +17,15 @@ function defaults() {
     name: '',
     sound: true,
     xp: 0,
+    // Монеты для магазина Препи; coinDust — остаток XP, ещё не превращённый в монету.
+    coins: 0,
+    coinDust: 0,
+    // Купленные вещи, полученные награды за коллекции и день последнего подарка Препи.
+    owned: [],
+    sets: [],
+    gift: null,
+    // Погасшая серия, которую можно спасти сегодня: { count, day }.
+    streakLost: null,
     streak: { count: 0, last: null, best: 0 },
     // Счётчики сегодняшнего дня: цель по опыту и ежедневные задания (quests — уже выданные награды).
     today: { date: null, xp: 0, answered: 0, correct: 0, combo: 0, stars2: 0, bosses: 0, quizzes: 0, quests: {} },
@@ -46,6 +56,10 @@ function load() {
   merged.map.stars = { ...(saved.map?.stars ?? {}) };
   merged.map.bosses = { ...(saved.map?.bosses ?? {}) };
   merged.practice = { ...(saved.practice ?? {}) };
+  merged.owned = Array.isArray(saved.owned) ? [...saved.owned] : [];
+  // Монеты появились позже опыта: старым игрокам начисляем их за весь накопленный опыт и достижения.
+  if (saved.coins === undefined) merged.coins = Math.floor((saved.xp ?? 0) / XP_PER_COIN) + ACH_COINS * Object.keys(saved.achievements ?? {}).length;
+  merged.sets = Array.isArray(saved.sets) ? [...saved.sets] : [];
   return merged;
 }
 
@@ -78,6 +92,8 @@ function touchStreak(today) {
   if (s.last === today) return;
   // Вернулся после перерыва в неделю и больше — достижение «Возвращение».
   if (s.last && daysBetween(s.last, today) >= 8) profile.counters.comeback = (profile.counters.comeback ?? 0) + 1;
+  // Пропущен ровно один день — серию ещё можно спасти сегодня двойной нормой.
+  profile.streakLost = s.last && s.count >= 2 && daysBetween(s.last, today) === 2 ? { count: s.count, day: today } : null;
   s.count = s.last && daysBetween(s.last, today) === 1 ? s.count + 1 : 1;
   s.last = today;
   s.best = Math.max(s.best, s.count);
@@ -120,15 +136,49 @@ export function dayRecord(day) {
   return profile.history?.[day] ?? null;
 }
 
+/**
+ * Начисляет опыт с множителем за серию и монеты (1 монета за XP_PER_COIN XP).
+ * Возвращает, сколько XP начислено на самом деле.
+ */
 export function addXp(amount) {
-  if (!(amount > 0)) return;
-  const before = levelInfo(profile.xp).level;
-  profile.xp += amount;
+  if (!(amount > 0)) return 0;
   const today = dayKey();
-  todayStats(today).xp += amount;
   touchStreak(today);
+  const gained = Math.round(amount * streakMultiplier(profile.streak.count));
+  const before = levelInfo(profile.xp).level;
+  profile.xp += gained;
+  const day = todayStats(today);
+  day.xp += gained;
+  const dust = (profile.coinDust ?? 0) + gained;
+  addCoins(Math.floor(dust / XP_PER_COIN));
+  profile.coinDust = dust % XP_PER_COIN;
+  maybeRescue(today, day.xp);
   const after = levelInfo(profile.xp).level;
+  for (let l = before + 1; l <= after; l += 1) addCoins(levelCoins(l));
   if (after > before) emit('levelup', after);
+  return gained;
+}
+
+/** Монеты: добавить (amount > 0) или потратить (amount < 0). Возвращает false, если не хватает. */
+export function addCoins(amount) {
+  if (!amount) return true;
+  const now = profile.coins ?? 0;
+  if (now + amount < 0) return false;
+  profile.coins = now + amount;
+  if (amount > 0) profile.coinsEarned = (profile.coinsEarned ?? 0) + amount;
+  return true;
+}
+
+/** Серия возвращается, если в день возвращения набрано RESCUE_XP опыта. */
+function maybeRescue(today, xpToday) {
+  const lost = profile.streakLost;
+  if (lost?.day !== today || xpToday < RESCUE_XP) return;
+  const s = profile.streak;
+  s.count = lost.count + 1;
+  s.best = Math.max(s.best, s.count);
+  profile.streakLost = null;
+  profile.counters.rescued = (profile.counters.rescued ?? 0) + 1;
+  emit('streakRescued', s.count);
 }
 
 export function recordAnswer(skill, correct) {
@@ -156,6 +206,7 @@ export function checkAchievements() {
   const fresh = evaluateAchievements(profile).filter((id) => !profile.achievements[id]);
   for (const id of fresh) {
     profile.achievements[id] = dayKey();
+    addCoins(ACH_COINS);
     emit('achievement', id);
   }
   return fresh;

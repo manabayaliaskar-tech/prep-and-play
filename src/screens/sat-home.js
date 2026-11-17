@@ -1,5 +1,6 @@
 // Главная страница SAT: «продолжить путь», задание дня, все игровые режимы, прогноз балла.
 
+import { flameBadgeHtml } from './prepi-life.js';
 import { dayKey } from '../core/dates.js';
 import { t, tx } from '../core/i18n.js';
 import { DAILY_GOAL, currentStreak, getProfile, levelInfo, todayXp } from '../core/profile.js';
@@ -60,7 +61,7 @@ export function satHomeScreen(app) {
             <p class="muted">${t('home.subtitle')}</p>
             <div class="hero-badges">
               <span class="badge">⭐ ${t('home.level', { n: lvl.level })}</span>
-              <span class="badge ${streak ? 'fire' : ''}">🔥 ${t('home.streak', { n: streak })}</span>
+              ${flameBadgeHtml(streak)}
               <span class="badge">⚡ ${p.xp} XP</span>
             </div>
           </div>

@@ -5,6 +5,7 @@ import { COURSES, courseHref, practiceKey } from '../catalog/index.js';
 import { t, tx } from '../core/i18n.js';
 import { currentStreak, getProfile, levelInfo, resetProgress, saveProfile } from '../core/profile.js';
 import { ACHIEVEMENTS } from '../content/achievements.js';
+import { flameSvg } from '../core/economy.js';
 import { achievementsPanel } from './achievements.js';
 import { DOMAINS, LEVELS_PER_ZONE, SKILLS, ZONES } from '../content/skills.js';
 import { POOLS, TOPICS } from '../pools/topics.js';
@@ -370,7 +371,7 @@ export function profileScreen(app) {
         <div class="stat-grid">
           <div class="stat-tile"><b>${p.counters.answered}</b><span>${t('profile.answered')}</span></div>
           <div class="stat-tile"><b>${acc}%</b><span>${t('res.accuracy')}</span></div>
-          <div class="stat-tile"><b>🔥 ${currentStreak()}</b><span>${t('profile.streak', { best: p.streak.best })}</span></div>
+          <div class="stat-tile"><b>${flameSvg(currentStreak())} ${currentStreak()}</b><span>${t('profile.streak', { best: p.streak.best })}</span></div>
           <div class="stat-tile"><b>${earned}/${ACHIEVEMENTS.length}</b><span>${t('profile.achievements')}</span></div>
         </div>
 

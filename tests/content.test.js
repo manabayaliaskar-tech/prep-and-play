@@ -10,7 +10,9 @@ import { ACH_CATS, ACHIEVEMENTS, evaluateAchievements } from '../src/content/ach
 import { DOMAINS, SKILLS, ZONES } from '../src/content/skills.js';
 import { STRINGS } from '../src/i18n/strings.js';
 import { PERIODS, PLANS } from '../src/core/pricing.js';
-import { ITEMS, SLOTS } from '../src/core/wardrobe.js';
+import { ITEMS, RARITIES, SETS, SLOTS } from '../src/core/wardrobe.js';
+import { FLAMES, MOODS } from '../src/core/economy.js';
+import { BOXES } from '../src/core/shop.js';
 import { QUESTS } from '../src/core/quests.js';
 import { createRng } from '../src/core/random.js';
 import { buildModule, domainCounts } from '../src/screens/exam.js';
@@ -172,9 +174,14 @@ test('переводы: каждый ключ интерфейса есть на
     ...['math', 'english', 'langs', 'physics', 'chemistry', 'biology', 'geography', 'history', 'informatics', 'code', 'olymp'].map((k) => `subj.${k}`),
     ...ITEMS.map((w) => `wear.${w.id}`),
     ...SLOTS.map((sl) => `wear.slot.${sl}`),
-    'wear.byChest', 'wear.byLevel', 'wear.byAch',
+    'wear.byChest', 'wear.byLevel', 'wear.byAch', 'wear.byShop',
     ...ACH_CATS.map((c) => `ach.cat.${c}`),
     'ach.fAll', 'ach.fEarned', 'ach.fLocked',
+    ...FLAMES.map((f) => `flame.${f.id}`),
+    ...Object.keys(MOODS).map((m) => `mood.${m}`),
+    ...RARITIES.map((r) => `rar.${r}`),
+    ...BOXES.map((b) => `box.${b.id}`),
+    ...SETS.map((st) => `set.${st.id}`),
     'rv.stage0', 'rv.stage1', 'rv.stage2', 'rv.stage3',
     'quiz.level', 'quiz.startLevel', 'quiz.dailyInfo', 'quiz.dailyAgain',
     ...['classic', 'blitz', 'survival', 'custom', 'daily'].flatMap((m) => [`quiz.mode.${m}`, `quiz.mode.${m}Desc`, `quiz.go.${m}`]),

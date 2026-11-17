@@ -271,10 +271,11 @@ export function dailyRoute(app) {
         exitTo: '/sat',
         onFinish: (run) => {
           const p = getProfile();
+          let bonus = 0;
           if (!p.daily[today]) {
             p.daily[today] = { c: run.correct };
             p.counters.dailyDone += 1;
-            addXp(DAILY_BONUS);
+            bonus = addXp(DAILY_BONUS);
           }
           saveProfile();
           celebrate(run.correct >= 3);
@@ -282,7 +283,7 @@ export function dailyRoute(app) {
             mood: run.correct >= 3 ? 'win' : 'neutral',
             title: t('daily.complete'),
             subtitle: t('daily.result', { c: run.correct, n: DAILY_COUNT }),
-            xp: run.xp + DAILY_BONUS,
+            xp: run.xp + bonus,
             stats: baseStats(run),
             log: run.log,
             actions: [{ label: `🏠 ${t('res.home')}`, href: '/sat', primary: true }],

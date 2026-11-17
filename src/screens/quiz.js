@@ -251,7 +251,7 @@ export function quizRoute(app, params = {}) {
       onFinish: (run) => {
         const extra = finishStats(run);
         const first = saveDailyQuiz(day, run.correct);
-        if (first) addXp(DAILY_BONUS);
+        const bonus = first ? addXp(DAILY_BONUS) : 0;
         saveProfile();
         celebrate(run.correct >= 7);
         return () => ({
@@ -259,7 +259,7 @@ export function quizRoute(app, params = {}) {
           title: run.correct === QUIZ_COUNT ? t('quiz.perfect') : t('quiz.dailyDone'),
           subtitle: t('quiz.result', { c: run.correct, n: QUIZ_COUNT, level: DAILY_QUIZ_LEVEL }),
           stars: starsFor(run.correct, QUIZ_COUNT),
-          xp: run.xp + (first ? DAILY_BONUS : 0),
+          xp: run.xp + bonus,
           stats: [...baseStats(run), { icon: '🎁', label: t('quiz.dailyBonus'), value: first ? `+${DAILY_BONUS} XP` : '—' }],
           extraHtml: `${extra}<p class="muted small quiz-daily-note">${t('quiz.dailyNote')}</p>`,
           log: run.log,

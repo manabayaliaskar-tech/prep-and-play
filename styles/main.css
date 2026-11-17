@@ -7814,3 +7814,716 @@ body {
   .ach.earned .ach-icon,
   .wear-jetpack .jet-flame { animation: none; }
 }
+
+/* ---------- Новые вещи Препи: ауры, питомцы, анимации ---------- */
+svg.mascot {
+  overflow: visible;
+}
+.mascot .wing {
+  transform-box: fill-box;
+  transform-origin: right center;
+  animation: wing-flap 1.4s ease-in-out infinite;
+}
+.wear-butterfly .wing {
+  animation-duration: 0.9s;
+}
+.mascot .aura-p {
+  animation: aura-float 3.2s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes aura-float {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.95; }
+  50% { transform: translateY(-7px) scale(1.15); opacity: 0.6; }
+}
+.aura-snow .aura-p,
+.aura-sakura .aura-p,
+.aura-leaves .aura-p,
+.aura-money .aura-p {
+  animation-name: aura-fall;
+}
+@keyframes aura-fall {
+  0% { transform: translateY(-6px) rotate(0); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(12px) rotate(40deg); opacity: 0; }
+}
+.aura-glow {
+  filter: blur(8px);
+  animation: glow-pulse 2.6s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.25; transform: scale(0.96); }
+  50% { opacity: 0.5; transform: scale(1.04); }
+}
+.aura-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ring-spin 9s linear infinite;
+}
+@keyframes ring-spin {
+  to { transform: rotate(360deg); }
+}
+.mascot .pet {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: pet-hop 2.2s ease-in-out infinite;
+}
+@keyframes pet-hop {
+  0%, 70%, 100% { transform: translateY(0) scale(1, 1); }
+  80% { transform: translateY(-8px) scale(0.95, 1.05); }
+  90% { transform: translateY(0) scale(1.05, 0.95); }
+}
+.propeller-blades {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: propeller 0.5s linear infinite;
+}
+@keyframes propeller {
+  0% { transform: scaleX(1); }
+  50% { transform: scaleX(-1); }
+  100% { transform: scaleX(1); }
+}
+.balloon-bob {
+  animation: halo-bob 2.8s ease-in-out infinite;
+}
+.wear-flamecrown,
+.wear-jetpack .jet-flame {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+}
+.wear-flamecrown {
+  animation: jet-flicker 0.5s ease-in-out infinite alternate;
+}
+.visor-scan {
+  animation: visor 1.8s ease-in-out infinite;
+}
+@keyframes visor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.ninja-tail {
+  animation: halo-bob 1.6s ease-in-out infinite;
+}
+.mascot-sleep .mascot-body {
+  filter: saturate(0.45) brightness(0.92);
+}
+.mascot .zzz text {
+  fill: var(--muted);
+  font-weight: 900;
+  animation: zzz 2.4s ease-in-out infinite;
+  transform-box: fill-box;
+}
+.mascot .zzz text:nth-child(2) { animation-delay: 0.4s; }
+.mascot .zzz text:nth-child(3) { animation-delay: 0.8s; }
+@keyframes zzz {
+  0%, 100% { opacity: 0.2; transform: translateY(2px); }
+  50% { opacity: 1; transform: translateY(-3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mascot .wing, .mascot .aura-p, .aura-glow, .aura-ring, .mascot .pet, .propeller-blades, .balloon-bob,
+  .wear-flamecrown, .visor-scan, .ninja-tail, .mascot .zzz text { animation: none; }
+}
+
+/* ---------- Огонёк серии ---------- */
+.flame {
+  width: 1.05em;
+  height: 1.3em;
+  flex: 0 0 auto;
+  vertical-align: -0.2em;
+  overflow: visible;
+}
+.flame:not(.flame-out) .flame-outer {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: flame-flicker 1.2s ease-in-out infinite alternate;
+}
+@keyframes flame-flicker {
+  0% { transform: scale(1, 1) skewX(0); }
+  50% { transform: scale(0.96, 1.05) skewX(-2deg); }
+  100% { transform: scale(1.03, 0.97) skewX(2deg); }
+}
+.flame-rainbow {
+  animation: rainbow-hue 3s linear infinite;
+}
+@keyframes rainbow-hue {
+  to { filter: hue-rotate(360deg); }
+}
+.flame-blue,
+.flame-purple,
+.flame-rainbow {
+  filter: drop-shadow(0 0 4px color-mix(in srgb, #60a5fa 60%, transparent));
+}
+.stat-chip.streak {
+  filter: none;
+}
+.stat-chip.streak:not(.is-on) {
+  opacity: 0.7;
+}
+.stat-chip.coins {
+  color: #92400e;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border-color: #fcd34d;
+  text-decoration: none;
+  transition: transform 0.15s;
+}
+.stat-chip.coins:hover,
+.stat-chip.coins.is-active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+.badge.flame-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--orange-ink);
+  background: var(--orange-l);
+}
+.badge.flame-badge.f-out { color: var(--muted); background: var(--surface); }
+.badge.flame-badge.f-red { color: #991b1b; background: #fee2e2; }
+.badge.flame-badge.f-blue { color: #1e3a8a; background: #dbeafe; }
+.badge.flame-badge.f-purple { color: #5b21b6; background: #ede9fe; }
+.badge.flame-badge.f-rainbow { color: #831843; background: linear-gradient(90deg, #fef9c3, #fce7f3, #e0e7ff); }
+.mult-tag {
+  margin-left: 4px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: #fff;
+  background: linear-gradient(135deg, #f97316, #ef4444);
+}
+.badge.coin-badge {
+  color: #92400e;
+  background: #fef3c7;
+  text-decoration: none;
+}
+.mult-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 900;
+  color: var(--orange-ink);
+  background: var(--orange-l);
+}
+
+/* ---------- Настроение Препи ---------- */
+.prepi-mood {
+  margin: 10px 0 4px;
+  display: grid;
+  gap: 8px;
+}
+.mood-bubble {
+  position: relative;
+  margin: 0;
+  padding: 9px 14px;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  background: var(--card);
+  border: 2px solid var(--line);
+  width: fit-content;
+  max-width: 100%;
+  animation: bubble-in 0.5s ease-out both;
+}
+@keyframes bubble-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.96); }
+}
+.m-sad .mood-bubble,
+.m-sleep .mood-bubble { border-color: color-mix(in srgb, #60a5fa 45%, var(--line)); }
+.m-joy .mood-bubble { border-color: color-mix(in srgb, var(--yellow) 60%, var(--line)); }
+.energy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+.energy-bar {
+  flex: 1;
+  max-width: 220px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+.energy-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #a78bfa, #ec4899);
+  transition: width 0.6s;
+}
+.m-sad .energy-bar i,
+.m-sleep .energy-bar i { background: linear-gradient(90deg, #94a3b8, #60a5fa); }
+
+/* ---------- Спасение серии, подарок, витрина магазина ---------- */
+.rescue-card,
+.gift-card,
+.shop-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 20px;
+  color: inherit;
+  text-decoration: none;
+  font: inherit;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.rescue-card:hover,
+.gift-card:hover,
+.shop-card:hover {
+  transform: translateY(-2px);
+}
+.rescue-card {
+  background: linear-gradient(135deg, #e0f2fe, #ede9fe);
+  border: 2px solid #93c5fd;
+}
+.rescue-flame {
+  position: relative;
+  font-size: 2.3rem;
+  display: inline-flex;
+}
+.rescue-spark {
+  position: absolute;
+  inset: 0;
+  animation: rescue-pulse 1.8s ease-in-out infinite;
+}
+@keyframes rescue-pulse {
+  0%, 100% { opacity: 0; transform: scale(0.7); }
+  50% { opacity: 1; transform: scale(1); }
+}
+.rescue-text,
+.gift-text,
+.shop-card-text {
+  display: grid;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+.rescue-text small,
+.gift-text small,
+.shop-card-text small { color: var(--muted); }
+.rescue-bar { height: 8px; margin-top: 3px; }
+.rescue-count { font-weight: 800; }
+.rescue-go,
+.gift-go {
+  padding: 9px 14px;
+  border-radius: 12px;
+  font-weight: 900;
+  color: #fff;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  white-space: nowrap;
+}
+.gift-card {
+  border: 2px solid #fcd34d;
+  background: linear-gradient(135deg, #fef9c3, #fce7f3);
+}
+.gift-box {
+  font-size: 2.4rem;
+  animation: gift-wiggle 1.6s ease-in-out infinite;
+}
+@keyframes gift-wiggle {
+  0%, 60%, 100% { transform: rotate(0); }
+  70% { transform: rotate(-12deg) scale(1.08); }
+  80% { transform: rotate(10deg) scale(1.08); }
+  90% { transform: rotate(-6deg); }
+}
+.gift-go { background: linear-gradient(135deg, #f59e0b, #ec4899); }
+.shop-card {
+  flex-wrap: wrap;
+  border: 2px solid color-mix(in srgb, #a855f7 35%, var(--line));
+  background: linear-gradient(135deg, color-mix(in srgb, #a855f7 12%, var(--card)), color-mix(in srgb, #f59e0b 12%, var(--card)));
+}
+.shop-card-icon { font-size: 2.2rem; }
+.shop-card-deals { display: flex; gap: 6px; }
+.mini-deal {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  font-size: 1.5rem;
+  border-radius: 12px;
+  background: var(--card);
+  border: 2px solid var(--line);
+}
+.mini-deal i {
+  position: absolute;
+  bottom: -8px;
+  font-style: normal;
+  font-size: 0.62rem;
+  font-weight: 900;
+  padding: 0 4px;
+  border-radius: 6px;
+  color: #fff;
+  background: #ef4444;
+}
+.shop-card-coins {
+  font-weight: 900;
+  color: #92400e;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #fef3c7;
+}
+
+/* ---------- Магазин ---------- */
+.r-common { --rc: #94a3b8; }
+.r-rare { --rc: #3b82f6; }
+.r-epic { --rc: #a855f7; }
+.r-legendary { --rc: #f59e0b; }
+.r-none { --rc: var(--line); }
+.rarity {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #fff;
+  background: var(--rc);
+}
+.shop-layout {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+.shop-stage {
+  position: sticky;
+  top: 84px;
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 26px;
+  background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--rc) 22%, var(--card)), var(--card) 70%);
+  border: 3px solid color-mix(in srgb, var(--rc) 55%, var(--line));
+  transition: border-color 0.3s, background 0.3s;
+}
+.stage-prepi {
+  display: grid;
+  place-items: center;
+  min-height: 210px;
+}
+.stage-prepi .mascot {
+  width: 190px;
+  height: auto;
+}
+.stage-prepi.is-trying .mascot { animation: try-pop 0.4s ease-out; }
+.stage-prepi.is-celebrating .mascot { animation: celebrate 0.8s ease-out; }
+@keyframes try-pop {
+  0% { transform: scale(0.9); }
+  60% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+@keyframes celebrate {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  30% { transform: translateY(-22px) rotate(-6deg); }
+  60% { transform: translateY(0) rotate(4deg); }
+}
+.stage-info { display: grid; gap: 10px; text-align: center; }
+.stage-item { display: flex; align-items: center; justify-content: center; gap: 10px; text-align: left; }
+.stage-item b { display: block; }
+.stage-icon { font-size: 2rem; }
+.stage-actions { display: grid; gap: 6px; }
+.coin-amt { white-space: nowrap; font-weight: 900; }
+.shop-main { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; min-width: 0; }
+.shop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.shop-head h1 { margin: 0 0 4px; }
+.shop-head p { margin: 0; }
+.coin-balance {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-size: 1.6rem;
+  color: #92400e;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 2px solid #fcd34d;
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.25);
+}
+.coin-big { animation: coin-spin 3s ease-in-out infinite; display: inline-block; }
+@keyframes coin-spin {
+  0%, 80%, 100% { transform: rotateY(0); }
+  90% { transform: rotateY(180deg); }
+}
+.earn-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.earn-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+}
+.earn-chip.is-hot { color: var(--orange-ink); background: var(--orange-l); border-color: transparent; }
+.shop-block {
+  padding: 18px;
+  border-radius: 24px;
+  background: var(--card);
+  border: 2px solid var(--line);
+}
+.shop-block.deals {
+  background: linear-gradient(135deg, color-mix(in srgb, #ef4444 10%, var(--card)), color-mix(in srgb, #f59e0b 12%, var(--card)));
+  border-color: color-mix(in srgb, #f97316 35%, var(--line));
+}
+.shop-block-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-bottom: 12px;
+}
+.shop-block-head h2 { margin: 0; }
+.deal-timer { font-weight: 800; font-size: 0.85rem; color: #b91c1c; }
+.deal-grid,
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: 10px;
+}
+.shop-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 8px 12px;
+  border-radius: 18px;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--rc) 14%, var(--card)), var(--card));
+  border: 2.5px solid color-mix(in srgb, var(--rc) 55%, var(--card));
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.shop-item:hover { transform: translateY(-3px); box-shadow: 0 8px 20px color-mix(in srgb, var(--rc) 30%, transparent); }
+.shop-item.is-tried { outline: 3px solid var(--rc); outline-offset: 2px; transform: translateY(-3px); }
+.shop-item.r-legendary { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5); animation: legend-glow 2.4s ease-in-out infinite; }
+@keyframes legend-glow {
+  50% { box-shadow: 0 0 18px 2px rgba(245, 158, 11, 0.45); }
+}
+.shop-item.is-exclusive .si-icon { filter: grayscale(0.7); opacity: 0.7; }
+.shop-item.is-worn { border-style: solid; background: linear-gradient(180deg, color-mix(in srgb, #22c55e 18%, var(--card)), var(--card)); }
+.si-icon { font-size: 2.2rem; line-height: 1.1; }
+.si-name { font-weight: 800; font-size: 0.84rem; text-align: center; line-height: 1.2; }
+.si-price { font-size: 0.85rem; color: #92400e; }
+.si-price.is-short { color: var(--muted); }
+.si-price s { color: var(--muted); font-weight: 600; }
+.si-state { font-size: 0.78rem; font-weight: 800; color: var(--muted); }
+.si-state.is-worn { color: #16a34a; }
+.si-lock { margin: 0; font-size: 0.7rem; color: var(--muted); text-align: center; line-height: 1.25; }
+.si-deal {
+  position: absolute;
+  top: -9px;
+  right: -6px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: #fff;
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  transform: rotate(8deg);
+}
+.box-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.box-card {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 16px 10px;
+  border-radius: 20px;
+  text-align: center;
+  background: var(--surface);
+  border: 2px solid var(--line);
+}
+.box-super { background: linear-gradient(180deg, color-mix(in srgb, #a855f7 14%, var(--card)), var(--card)); border-color: color-mix(in srgb, #a855f7 40%, var(--line)); }
+.box-mega { background: linear-gradient(180deg, color-mix(in srgb, #f59e0b 18%, var(--card)), var(--card)); border-color: color-mix(in srgb, #f59e0b 50%, var(--line)); }
+.box-icon { font-size: 2.8rem; animation: gift-wiggle 2.4s ease-in-out infinite; }
+.box-odds { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
+.shop-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 8px; scrollbar-width: thin; }
+.shop-tab,
+.rf {
+  flex: 0 0 auto;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 800;
+  font-size: 0.86rem;
+  cursor: pointer;
+  color: var(--ink);
+  background: var(--surface);
+  border: 2px solid var(--line);
+}
+.shop-tab.is-active { color: #fff; border-color: transparent; background: linear-gradient(135deg, var(--accent, #7c3aed), #ec4899); }
+.rarity-filter { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.rf { padding: 4px 11px; font-size: 0.76rem; }
+.rf.is-active { color: #fff; background: var(--rc, var(--ink)); border-color: transparent; }
+.rf:not([class*='r-']).is-active { background: var(--ink); color: var(--card); }
+.set-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.set-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 18px;
+  background: var(--surface);
+  border: 2px solid var(--line);
+}
+.set-card.is-done { border-color: #86efac; background: linear-gradient(180deg, color-mix(in srgb, #22c55e 12%, var(--card)), var(--card)); }
+.set-top { display: flex; align-items: center; gap: 10px; }
+.set-top b { display: block; }
+.set-top small { color: var(--muted); font-weight: 700; }
+.set-top > div { flex: 1; }
+.set-icon { font-size: 1.8rem; }
+.set-count { font-weight: 900; color: var(--muted); }
+.set-items { display: flex; flex-wrap: wrap; gap: 6px; }
+.set-item {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  font-size: 1.3rem;
+  border-radius: 12px;
+  cursor: pointer;
+  background: var(--card);
+  border: 2px solid color-mix(in srgb, var(--rc) 50%, var(--card));
+  filter: grayscale(1);
+  opacity: 0.55;
+}
+.set-item.is-owned { filter: none; opacity: 1; }
+.wm-shop { margin-top: 8px; }
+
+/* Сундук удачи */
+.lootbox-stage { display: grid; justify-items: center; gap: 12px; padding: 10px 0; text-align: center; }
+.lootbox {
+  font-size: 5rem;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  animation: gift-wiggle 1.4s ease-in-out infinite;
+}
+.lootbox.is-opening { animation: box-shake 0.12s linear infinite; }
+@keyframes box-shake {
+  0% { transform: rotate(-8deg) scale(1.05); }
+  50% { transform: rotate(8deg) scale(1.12); }
+  100% { transform: rotate(-8deg) scale(1.05); }
+}
+.loot-reveal {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 10px 20px 4px;
+  animation: loot-in 0.6s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+@keyframes loot-in {
+  from { opacity: 0; transform: scale(0.4); }
+}
+.loot-rays {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 280px;
+  height: 280px;
+  margin-left: -140px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(color-mix(in srgb, var(--rc) 45%, transparent) 0 10deg, transparent 10deg 20deg);
+  mask: radial-gradient(circle, #000 30%, transparent 70%);
+  -webkit-mask: radial-gradient(circle, #000 30%, transparent 70%);
+  animation: ring-spin 8s linear infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+.loot-reveal > *:not(.loot-rays) { position: relative; z-index: 1; }
+.loot-prepi .mascot { width: 150px; height: auto; }
+.loot-icon { font-size: 2rem; }
+.loot-name { font-size: 1.25rem; }
+.loot-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 8px; }
+
+@media (max-width: 860px) {
+  .shop-layout { grid-template-columns: 1fr; }
+  .shop-stage {
+    top: 62px;
+    z-index: 5;
+    grid-template-columns: 120px minmax(0, 1fr);
+    align-items: center;
+    padding: 10px 12px;
+    gap: 10px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+  }
+  .stage-prepi { min-height: 0; }
+  .stage-prepi .mascot { width: 104px; }
+  .stage-info { text-align: left; }
+  .stage-item { justify-content: flex-start; }
+  .box-grid { grid-template-columns: 1fr; }
+  .box-card { grid-template-columns: auto 1fr; justify-items: start; text-align: left; align-items: center; }
+  .box-card .box-icon { grid-row: span 3; font-size: 2.4rem; }
+  .box-card .btn { grid-column: 2; }
+  .coin-balance { font-size: 1.25rem; padding: 8px 14px; }
+  .deal-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .shop-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .deal-grid { gap: 8px; }
+  .deal-grid .shop-item { padding: 12px 4px 10px; }
+  .deal-grid .si-icon { font-size: 1.8rem; }
+  .deal-grid .rarity { font-size: 0.58rem; padding: 1px 5px; }
+  .shop-card-deals { order: 3; width: 100%; justify-content: flex-start; }
+  .rescue-card, .gift-card { flex-wrap: wrap; }
+  .rescue-go, .gift-go { width: 100%; text-align: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flame .flame-outer, .flame-rainbow, .rescue-spark, .gift-box, .coin-big, .box-icon, .lootbox, .loot-rays,
+  .shop-item.r-legendary, .mood-bubble { animation: none; }
+}
+@media (max-width: 860px) {
+  .shop-layout { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  .top-stats .stat-chip.level { display: none; }
+  .top-stats { gap: 5px; }
+  .top-stats .stat-chip { padding: 5px 8px; font-size: 0.88rem; }
+}
+.shop-card-text b, .gift-text b, .rescue-text b { font-weight: 800; }
+.lootbox-stage { overflow: hidden; }
+@media (max-width: 460px) {
+  /* Монеты важнее: «Премиум» на телефоне открывается с главной. */
+  #topbar .premium-link { display: none; }
+}
+@media (max-width: 400px) {
+  .top-stats .stat-chip { padding: 4px 6px; font-size: 0.8rem; gap: 3px; }
+  .lang-switch button { padding-left: 6px; padding-right: 6px; }
+}
+@media (max-width: 340px) {
+  #topbar .logo { display: none; }
+}
+@media (min-width: 721px) and (max-width: 1040px) {
+  /* Планшет и узкий ноутбук: в верхней панели остаются серия и монеты, уровень виден на главной и в профиле. */
+  .top-stats .stat-chip.level { display: none; }
+}
+@media (min-width: 721px) and (max-width: 900px) {
+  #topbar .premium-link { display: none; }
+  .top-stats { gap: 5px; }
+  .top-stats .stat-chip { padding: 5px 8px; font-size: 0.88rem; }
+}

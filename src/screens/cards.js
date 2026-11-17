@@ -143,8 +143,7 @@ export function cardsRoute(app, { lang }) {
   }
 
   function finish() {
-    const xp = result.knew * 2 + result.didnt;
-    addXp(xp);
+    const xp = addXp(result.knew * 2 + result.didnt);
     saveProfile();
     if (result.knew >= result.didnt) {
       sfx.win();

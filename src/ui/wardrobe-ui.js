@@ -23,7 +23,7 @@ function body(slot) {
   const opened = ITEMS.filter((it) => isUnlocked(it)).length;
   return `
     <div class="wardrobe-modal">
-      <div class="wm-preview">${mascot('happy', 'mascot-lg float')}<p class="muted small">${t('wear.count', { c: opened, n: ITEMS.length })}</p></div>
+      <div class="wm-preview">${mascot('happy', 'mascot-lg float')}<p class="muted small">${t('wear.count', { c: opened, n: ITEMS.length })}</p><a class="btn btn-primary btn-sm wm-shop" href="#/shop">🛍️ ${t('shop.title')}</a></div>
       <div class="wm-side">
         <div class="wm-tabs" role="tablist">
           ${SLOTS.map((s) => `<button type="button" role="tab" class="wm-tab" data-slot="${s}" aria-selected="${s === slot}">${t(`wear.slot.${s}`)}</button>`).join('')}
@@ -56,6 +56,9 @@ export function openWardrobe(onChange) {
     bind();
   };
   function bind() {
+    root.querySelector('.wm-shop')?.addEventListener('click', () => {
+      root.innerHTML = '';
+    });
     root.querySelectorAll('[data-slot]').forEach((b) =>
       b.addEventListener('click', () => {
         lastSlot = b.dataset.slot;

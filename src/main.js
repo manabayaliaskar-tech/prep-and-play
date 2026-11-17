@@ -32,6 +32,7 @@ import { planRoute } from './screens/plan.js';
 import { reportRoute } from './screens/report.js';
 import { cardsRoute } from './screens/cards.js';
 import { achievementsRoute } from './screens/achievements.js';
+import { shopRoute } from './screens/shop.js';
 import { bindLangSwitches, renderTopbar } from './ui/topbar.js';
 
 const app = document.getElementById('app');
@@ -65,14 +66,15 @@ route('/duel/:code', (params) => duelAcceptRoute(app, params));
 route('/detective', () => detectiveRoute(app));
 route('/profile', () => profileScreen(app));
 route('/achievements', () => achievementsRoute(app));
+route('/shop', () => shopRoute(app));
 route('/premium', () => premiumScreen(app));
 
 on('profile', () => {
   // Ежедневные задания: за каждое выполненное — опыт и уведомление (один раз).
   const fresh = claimQuests(getProfile(), dayKey());
   for (const quest of fresh) {
-    addXp(quest.reward);
-    toast(`<span class="toast-icon">${quest.icon}</span><span><small>${t('toast.quest')}</small><b>+${quest.reward} XP</b></span>`, {
+    const gained = addXp(quest.reward);
+    toast(`<span class="toast-icon">${quest.icon}</span><span><small>${t('toast.quest')}</small><b>+${gained} XP</b></span>`, {
       kind: 'achievement',
       duration: 4200,
     });
@@ -109,6 +111,12 @@ on('achievement', (id) => {
       duration: 5200,
     });
   });
+});
+
+on('streakRescued', (count) => {
+  sfx.win();
+  confetti({ y: 0.3, count: 180 });
+  toast(`<span class="toast-icon">🔥</span><span><small>${t('rescue.done')}</small><b>${t('home.streak', { n: count })}</b></span>`, { kind: 'level', duration: 5200 });
 });
 
 on('levelup', (level) => {

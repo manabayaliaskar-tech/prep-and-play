@@ -2,6 +2,7 @@
 
 import { LANGS, getLang, setLang, t } from '../core/i18n.js';
 import { currentStreak, getProfile, levelInfo, saveProfile } from '../core/profile.js';
+import { flameSvg, streakMultiplier } from '../core/economy.js';
 import { currentPath } from '../core/router.js';
 import { groupOfPath } from '../catalog/index.js';
 import { LOGO } from './mascot.js';
@@ -43,7 +44,8 @@ export function renderTopbar() {
         ${item('/profile', 'nav.profile', '👤', path.startsWith('/profile') || path.startsWith('/achievements'))}
       </nav>
       <div class="top-stats">
-        <span class="stat-chip streak ${streak ? 'is-on' : ''}" title="${t('top.streak')}">🔥 <b>${streak}</b></span>
+        <span class="stat-chip streak ${streak ? 'is-on' : ''}" title="${t('top.streak')}${streakMultiplier(streak) > 1 ? ` · ×${streakMultiplier(streak)} XP` : ''}">${flameSvg(streak)} <b>${streak}</b></span>
+        <a class="stat-chip coins ${path.startsWith('/shop') ? 'is-active' : ''}" href="#/shop" title="${t('shop.title')}">🪙 <b>${p.coins ?? 0}</b></a>
         <span class="stat-chip level" title="${t('top.level')}">
           <span class="lvl-badge">${lvl.level}</span>
           <span class="lvl-bar" aria-hidden="true"><i style="width:${Math.round((lvl.into / lvl.need) * 100)}%"></i></span>

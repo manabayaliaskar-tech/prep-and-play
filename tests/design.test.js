@@ -329,3 +329,95 @@ test('достижения: 50 разных, у каждого раздел, т�
   globalThis.localStorage.removeItem('prepplay:chests');
   globalThis.localStorage.removeItem('prepplay:outfit');
 });
+
+test('экономика: множитель серии, цвет огонька, настроение Препи и спасение серии', async () => {
+  const { streakMultiplier, flameOf, nextFlame, prepiMood, rescueState, giftCoins } = await import('../src/core/economy.js');
+  assert.equal(streakMultiplier(0), 1);
+  assert.equal(streakMultiplier(7), 1.2);
+  assert.equal(streakMultiplier(30), 1.5);
+  assert.equal(streakMultiplier(150), 2);
+  assert.deepEqual([0, 1, 7, 30, 100, 365].map((n) => flameOf(n).id), ['out', 'orange', 'red', 'blue', 'purple', 'rainbow']);
+  assert.equal(nextFlame(25).left, 5);
+  assert.equal(nextFlame(400), null);
+  assert.ok(giftCoins(100) > giftCoins(1));
+  const mood = (last, xp) => prepiMood({ streak: { last } }, '2026-11-17', xp, 60).id;
+  assert.equal(mood(null, 0), 'hello');
+  assert.equal(mood('2026-11-17', 70), 'joy');
+  assert.equal(mood('2026-11-17', 20), 'happy');
+  assert.equal(mood('2026-11-16', 0), 'wait');
+  assert.equal(mood('2026-11-15', 0), 'sad');
+  assert.equal(mood('2026-11-01', 0), 'sleep');
+  assert.equal(rescueState({ streak: { last: '2026-11-15', count: 9 } }, '2026-11-17', 0).state, 'pending');
+  assert.equal(rescueState({ streak: { last: '2026-11-14', count: 9 } }, '2026-11-17', 0), null);
+  assert.equal(rescueState({ streakLost: { count: 9, day: '2026-11-17' }, streak: {} }, '2026-11-17', 50).xp, 50);
+});
+
+test('профиль: опыт с множителем даёт монеты, пропуск одного дня можно спасти', async () => {
+  const mem = new Map();
+  globalThis.localStorage ??= { getItem: (k) => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, String(v)), removeItem: (k) => mem.delete(k), clear: () => mem.clear() };
+  const { _setProfileForTests, addXp, getProfile } = await import('../src/core/profile.js');
+  const { dayKey } = await import('../src/core/dates.js');
+  const { addDays } = await import('../src/core/review.js');
+  const today = dayKey();
+  // Серия 10 дней, вчера занимались: ×1.2.
+  _setProfileForTests({ xp: 0, coins: 0, coinDust: 0, streak: { count: 10, last: addDays(today, -1), best: 10 } });
+  assert.equal(addXp(100), 120);
+  assert.equal(getProfile().streak.count, 11);
+  // 120 XP → 30 монет, плюс награда за новый 2-й уровень.
+  assert.equal(getProfile().coins, 30 + 35);
+  // Пропущен один день: серия сначала начинается заново, а после 120 XP возвращается.
+  _setProfileForTests({ xp: 0, coins: 0, coinDust: 0, streak: { count: 10, last: addDays(today, -2), best: 10 } });
+  addXp(50);
+  assert.equal(getProfile().streak.count, 1);
+  assert.equal(getProfile().streakLost.count, 10);
+  addXp(80);
+  assert.equal(getProfile().streak.count, 11);
+  assert.equal(getProfile().streakLost, null);
+});
+
+test('магазин: товары дня, покупка, сундук удачи и коллекции', async () => {
+  const mem = new Map();
+  globalThis.localStorage ??= { getItem: (k) => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, String(v)), removeItem: (k) => mem.delete(k), clear: () => mem.clear() };
+  globalThis.localStorage.removeItem('prepplay:outfit');
+  const { _setProfileForTests, getProfile } = await import('../src/core/profile.js');
+  const { BOXES, buyItem, dailyDeals, openBox, priceOf, setProgress, shopItems } = await import('../src/core/shop.js');
+  const { ITEMS, SETS, getOutfit, itemById } = await import('../src/core/wardrobe.js');
+  const { createRng } = await import('../src/core/random.js');
+  assert.ok(shopItems().length >= 70, 'в магазине больше 70 вещей');
+  for (const slot of ['aura', 'pet']) assert.ok(ITEMS.filter((it) => it.slot === slot).length >= 10, slot);
+  for (const set of SETS) for (const id of set.items) assert.equal(itemById(id)?.unlock?.type, 'shop', `${set.id}: ${id}`);
+  // Товары дня одинаковые весь день, со скидкой, и первый — эпический или легендарный.
+  const deals = dailyDeals('2026-11-17');
+  assert.deepEqual(deals, dailyDeals('2026-11-17'));
+  assert.equal(new Set(deals.map((d) => d.id)).size, 3);
+  assert.ok(['epic', 'legendary'].includes(itemById(deals[0].id).rarity));
+  const dealItem = itemById(deals[0].id);
+  assert.ok(priceOf(dealItem, '2026-11-17') < dealItem.unlock.value);
+  // Покупка: не хватает монет → отказ; хватает → вещь куплена и надета.
+  _setProfileForTests({ coins: 100, owned: [], sets: [], achievements: {} });
+  assert.equal(buyItem('cowboy').reason, 'coins');
+  getProfile().coins = 5000;
+  const res = buyItem('cowboy');
+  assert.ok(res.ok);
+  assert.ok(getProfile().owned.includes('cowboy'));
+  assert.equal(getOutfit().head, 'cowboy');
+  assert.equal(buyItem('cowboy').reason, 'owned');
+  // Коллекция: последняя вещь набора даёт бонус монет один раз.
+  const set = SETS.find((s) => s.id === 'pirate');
+  _setProfileForTests({ coins: 10000, owned: set.items.slice(0, -1), sets: [], achievements: {} });
+  const before = getProfile().coins;
+  const last = buyItem(set.items.at(-1));
+  assert.deepEqual(last.sets.map((s) => s.id), ['pirate']);
+  assert.ok(setProgress(set).claimed);
+  assert.equal(getProfile().coins, before - last.price + set.coins);
+  // Сундук: выдаёт вещь нужной редкости, которой ещё нет; мега-сундук — только эпик и легенду.
+  _setProfileForTests({ coins: 100000, owned: [], sets: [], achievements: {} });
+  const rng = createRng(42);
+  for (let i = 0; i < 12; i++) {
+    const r = openBox('mega', rng);
+    assert.ok(r.ok);
+    assert.ok(['epic', 'legendary'].includes(r.item.rarity));
+  }
+  assert.equal(new Set(getProfile().owned).size, 12, 'без повторов');
+  assert.ok(BOXES.every((b) => Object.values(b.odds).reduce((a, x) => a + x, 0) === 100), 'шансы в сумме 100%');
+});
