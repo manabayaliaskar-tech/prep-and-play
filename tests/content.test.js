@@ -195,6 +195,7 @@ test('переводы: каждый ключ интерфейса есть на
     ...[0, 1, 2, 3, 4].map((i) => `adapt.tier${i}`),
     ...['new', 'weak', 'learning', 'strong', 'master'].flatMap((s) => [`know.st.${s}`, `know.tip.${s}`]),
     'diag.recLevel', 'diag.recSubject',
+    ...['hello', 'stats', 'hero', 'today', 'quiz', 'life', 'learn', 'plan', 'quests', 'courses', 'nav', 'look', 'bye'].flatMap((id) => [`tour.${id}.title`, `tour.${id}.text`]),
   ];
   for (const key of [...used, ...dynamic]) {
     for (const l of LANGS) assert.ok(STRINGS[l][key], `нет перевода «${key}» (${l})`);

@@ -1,6 +1,8 @@
 // Профиль: уровень, общая статистика, прогресс по разделам, точность по темам,
 // карта навыков по всем предметам, активность за неделю, рекорды, экзамены (каждый свёрнут), настройки.
 
+import { navigate } from '../core/router.js';
+import { startTour } from '../ui/tour.js';
 import { COURSES, courseHref, practiceKey } from '../catalog/index.js';
 import { t, tx } from '../core/i18n.js';
 import { currentStreak, getProfile, levelInfo, resetProgress, saveProfile } from '../core/profile.js';
@@ -406,6 +408,7 @@ ${achievementsPanel(p)}
           <h2>${t('profile.settings')}</h2>
           <label class="toggle"><input type="checkbox" class="sound-input" ${p.sound ? 'checked' : ''}/><span>${t('profile.sound')}</span></label>
           <label class="volume"><span>🔊 ${t('profile.volume')}</span><input type="range" class="volume-input" min="0" max="100" step="5" value="${Math.round(getVolume() * 100)}" ${p.sound ? '' : 'disabled'}/></label>
+          <button type="button" class="btn btn-soft tour-btn">🎓 ${t('tour.replay')}</button>
           ${canInstall() ? `<button type="button" class="btn btn-soft install-btn">📲 ${t('pwa.install')}</button>` : ''}
           <button type="button" class="btn btn-danger-soft reset-btn">🗑 ${t('profile.reset')}</button>
         </div>
@@ -427,6 +430,10 @@ ${achievementsPanel(p)}
     app.querySelector('.volume-input').addEventListener('change', (e) => {
       setVolume(Number(e.target.value) / 100);
       sfx.correct(1);
+    });
+    app.querySelector('.tour-btn')?.addEventListener('click', () => {
+      navigate('/');
+      setTimeout(startTour, 500);
     });
     app.querySelector('.reset-btn').addEventListener('click', () =>
       openModal({

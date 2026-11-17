@@ -1,6 +1,7 @@
 // Главная: приветствие, цель дня, «продолжить» и три раздела сайта —
 // экзамены, олимпиадная математика, ежедневная практика.
 
+import { maybeStartTour } from '../ui/tour.js';
 import { bindQuizHost, quizHostHtml } from '../ui/quiz-host.js';
 import { COURSES, GROUPS, courseById, courseHref, courseStars, coursesIn, trackById, trackHref, trackRecord } from '../catalog/index.js';
 import { dayKey, msUntilMidnight } from '../core/dates.js';
@@ -299,6 +300,7 @@ export function hubScreen(app) {
     app.querySelector('.hero-mascot.prepi-dress')?.addEventListener('click', () => openWardrobe(render));
     bindLife(app, render);
     bindQuizHost(app);
+    maybeStartTour();
     app.querySelector('.install-go')?.addEventListener('click', startInstall);
     app.querySelector('.install-close')?.addEventListener('click', () => {
       dismissInstall();
