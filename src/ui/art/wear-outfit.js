@@ -443,3 +443,6 @@ export const BACK_MORE = {
     <path d="M6 22 L10 50 L30 88 M-10 68 L10 84" stroke="#0e7490" stroke-width=".8" opacity=".5" fill="none"/></g>`)}
     ${spark(4, 18, 3.4, '#fff', 'of-twinkle')}${spark(138, 30, 3, '#e0f2fe', 'of-twinkle', 0.6)}${spark(-6, 104, 2.6, '#fff', 'of-twinkle', 1.1)}${spark(144, 110, 2.4, '#cffafe', 'of-twinkle', 1.6)}</g>`,
 };
+
+// Убираем переносы строк и отступы из разметки (их много — Препи бывает на странице десятками).
+for (const dict of [BODY_ART, FEET_ART, BACK_MORE]) for (const k of Object.keys(dict)) dict[k] = dict[k].replace(/\s*\n\s*/g, ' ').trim();

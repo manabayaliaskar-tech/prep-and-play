@@ -164,19 +164,35 @@ for (const m of [...OUTFIT_META, ...EXTRA_META, ...PA_META]) {
   ITEMS.push(it);
 }
 
-/** Коллекции: собери все вещи набора — получи монеты (один раз). */
-export const SETS = [
-  { id: 'pirate', icon: '🏴‍☠️', items: ['pirate', 'eyepatch', 'parrot', 'pearls'], coins: 400 },
-  { id: 'winter', icon: '❄️', items: ['santa', 'winterscarf', 'snow', 'penguin', 'ice'], coins: 500 },
-  { id: 'cute', icon: '🐰', items: ['bunny', 'blush', 'hearts', 'hamster', 'bell'], coins: 300 },
-  { id: 'nature', icon: '🌿', items: ['flowers', 'leaves', 'frog', 'turtle', 'emerald'], coins: 300 },
-  { id: 'rock', icon: '🎸', items: ['glasses3d', 'tie', 'guitar', 'notes'], coins: 400 },
-  { id: 'ninja', icon: '🥷', items: ['ninja', 'katana', 'sakura', 'shadow'], coins: 600 },
-  { id: 'royal', icon: '👑', items: ['tiara', 'amulet', 'shield', 'ruby', 'goldglow'], coins: 900 },
-  { id: 'cyber', icon: '🤖', items: ['cyber', 'vr', 'robot', 'lightning', 'toxic'], coins: 1000 },
-  { id: 'magic', icon: '🦄', items: ['unicorn', 'butterfly', 'rainbowring', 'unicornpet', 'candy'], coins: 1500 },
-  { id: 'dragon', icon: '🐲', items: ['flamecrown', 'dragonwings', 'fire', 'dragon', 'lava'], coins: 2000 },
+/**
+ * Наборы: вещи одной темы из разных слотов (каждый слот — не больше одной вещи, чтобы набор можно было надеть целиком).
+ * Собери набор — получишь монеты (четверть его цены, один раз); надень целиком — монеты за учёбу +10 %.
+ */
+const SET_LIST = [
+  { id: 'pirate', icon: '🏴‍☠️', items: ['pirate', 'eyepatch', 'piratecoat', 'pearls', 'parrot'] },
+  { id: 'winter', icon: '❄️', items: ['santa', 'winterscarf', 'sweater', 'iceskates', 'snow', 'penguin', 'ice'] },
+  { id: 'cute', icon: '🐰', items: ['bunny', 'blush', 'bell', 'pyjamas', 'bunnyslippers', 'hearts', 'hamster'] },
+  { id: 'nature', icon: '🌿', items: ['flowers', 'freckles', 'overalls', 'rainboots', 'leaves', 'frog', 'emerald'] },
+  { id: 'rock', icon: '🎸', items: ['spikyhair', 'roundshades', 'neckphones', 'hoodie', 'guitar', 'notes'] },
+  { id: 'ninja', icon: '🥷', items: ['ninja', 'ninjagi', 'katana', 'sakura', 'shadow'] },
+  { id: 'royal', icon: '👑', items: ['tiara', 'amulet', 'princessdress', 'balletshoes', 'scepter', 'goldglow', 'ruby'] },
+  { id: 'cyber', icon: '🤖', items: ['cyber', 'rollerskates', 'lasersword', 'lightning', 'robot', 'toxic'] },
+  { id: 'magic', icon: '🦄', items: ['unicorn', 'wand', 'butterfly', 'rainbowring', 'unicornpet', 'candy'] },
+  { id: 'dragon', icon: '🐲', items: ['flamecrown', 'knightarmor', 'dragonwings', 'fire', 'dragon', 'lava'] },
+  { id: 'space', icon: '🚀', items: ['aviator', 'spacesuit', 'rocketboots', 'telescope', 'comets', 'galaxy'] },
+  { id: 'scholar', icon: '📚', items: ['nerdglasses', 'schooluniform', 'sneakers', 'book', 'books', 'owl'] },
+  { id: 'detective', icon: '🕵️', items: ['deerstalker', 'trenchcoat', 'pocketwatch', 'hikingboots', 'magnifier', 'dog'] },
+  { id: 'chef', icon: '👨‍🍳', items: ['chef', 'neckerchief', 'chefcoat', 'baguette', 'capybara'] },
+  { id: 'beach', icon: '🏖️', items: ['sombrero', 'scuba', 'hawaiian', 'flipflops', 'surfboard', 'bubbletea', 'seal'] },
+  { id: 'hero', icon: '🦸', items: ['masquerade', 'superhero', 'goldsneakers', 'trophy', 'stars', 'phoenix'] },
+  { id: 'sport', icon: '⚽', items: ['ballcap', 'whistle', 'jersey', 'stripesocks', 'pennant', 'cat'] },
+  { id: 'samurai', icon: '⛩️', items: ['kabuto', 'warpaint', 'kimono', 'sabatons', 'fox'] },
+  { id: 'circus', icon: '🎪', items: ['jester', 'clownnose', 'clownshoes', 'balloondog', 'bubbles', 'octopus'] },
 ];
+export const SETS = SET_LIST.filter((set) => set.items.every((id) => ITEMS.some((it) => it.id === id))).map((set) => ({
+  ...set,
+  coins: Math.round((set.items.reduce((sum, id) => sum + (ITEMS.find((it) => it.id === id).unlock?.value ?? 0), 0) * 0.25) / 50) * 50,
+}));
 
 export const itemById = (id) => ITEMS.find((x) => x.id === id) ?? null;
 

@@ -330,9 +330,9 @@ export function mascot(mood = 'happy', cls = '', outfit = getOutfit(), opts = {}
       <g class="face">${eyes(id, m.eyes)}${browsHtml(m.brows)}${mouthHtml(id, m.mouth)}</g>
       ${form === 'sick' ? '<circle class="sick-tint" cx="70" cy="80" r="48" fill="#a3e635" opacity=".26"/>' : ''}
       ${form === 'sick' && !outfit.face ? BANDAGE : ''}
+      <g transform="rotate(-9 70 112)"><path class="ring-front" d="M6 112 A64 13 0 0 0 134 112" fill="none" stroke="url(#${id}r)" stroke-width="4.5"/></g>
       ${NECK[outfit.neck] ?? ''}
       ${FACE[outfit.face] ?? ''}
-      <g transform="rotate(-9 70 112)"><path class="ring-front" d="M6 112 A64 13 0 0 0 134 112" fill="none" stroke="url(#${id}r)" stroke-width="4.5"/></g>
       ${head}${formHead}
       ${armsFront}
       ${extras.map((e) => EXTRAS[e] ?? '').join('')}

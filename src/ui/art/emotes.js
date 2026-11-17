@@ -208,12 +208,12 @@ function confetti(x, y, dir, seed) {
     const c = CONFETTI[Math.floor(R() * CONFETTI.length)];
     const kind = i % 3;
     const shape = kind === 0
-      ? `<rect x="${x - 2.6}" y="${y - 1.6}" width="5.2" height="3.2" rx=".6" fill="${c}" stroke="${darker[c]}" stroke-width=".6"/>`
+      ? `<rect x="${x - 3}" y="${y - 1.8}" width="6" height="3.6" rx=".6" fill="${c}" stroke="${darker[c]}" stroke-width=".6"/>`
       : kind === 1
-        ? `<circle cx="${x}" cy="${y}" r="2" fill="${c}" stroke="${darker[c]}" stroke-width=".6"/>`
+        ? `<circle cx="${x}" cy="${y}" r="2.3" fill="${c}" stroke="${darker[c]}" stroke-width=".6"/>`
         : `<path d="M${x - 3.5} ${y} q1.75 -2.4 3.5 0 t3.5 0" stroke="${c}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`;
-    const vx = dir * (4 + R() * 62);
-    const vy = -(72 + R() * 46);
+    const vx = dir * (6 + R() * 84);
+    const vy = -(88 + R() * 44);
     const style = `--x:${f1(vx)}px;--y:${f1(vy)}px;--dx:${f1(dir * (6 + R() * 14))}px;--r:${Math.round((R() < 0.5 ? -1 : 1) * (240 + R() * 400))}deg;--dl:${f1(R() * 0.12)}s;--fl:${f1(0.3 + R() * 0.35)}s`;
     out += fx('emo-conf', style, `<g class="emo-flutter">${shape}</g>`);
   }
@@ -237,7 +237,7 @@ function starBurst(x, y, n, dist, colors, cls = 'emo-burst-star') {
   for (let i = 0; i < n; i++) {
     const a = (i / n) * Math.PI * 2 - Math.PI / 2;
     const c = colors[i % colors.length];
-    out += fx(cls, `--x:${f1(Math.cos(a) * dist)}px;--y:${f1(Math.sin(a) * dist)}px;--r:${i % 2 ? 160 : -160}deg`, star5(x, y, i % 2 ? 3 : 4, c[0], c[1], 0.9));
+    out += fx(cls, `--x:${f1(Math.cos(a) * dist)}px;--y:${f1(Math.sin(a) * dist)}px;--r:${i % 2 ? 160 : -160}deg`, star5(x, y, i % 2 ? 3.6 : 4.8, c[0], c[1], 0.9));
   }
   return out;
 }
@@ -275,7 +275,7 @@ export const EMOTES = {
     mood: 'sleep',
     pose: 'open',
     ms: 3000,
-    props: `${fx('emo-yawn', '', `<ellipse cx="70" cy="102" rx="8.6" ry="11" fill="${OUT}"/><ellipse cx="70" cy="108.4" rx="5.6" ry="3.6" fill="#ff7aa8"/><path d="M64 95 Q70 93 76 95" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".9"/>`)}
+    props: `${fx('emo-yawn', '', `<ellipse cx="70" cy="103" rx="10.5" ry="13.5" fill="${OUT}" stroke="#120b33" stroke-width="1.4"/><ellipse cx="70" cy="111" rx="7" ry="4.4" fill="#ff7aa8"/><path d="M63 94 Q70 91.6 77 94" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".9"/>`)}
       ${fx('emo-tear', '', '<path d="M101 82 Q104.6 87.6 101 90 Q97.4 87.6 101 82 Z" fill="#7dd3fc" stroke="#38bdf8" stroke-width=".9"/>')}`,
   },
 
@@ -330,11 +330,11 @@ export const EMOTES = {
     ms: 2200,
     props: fx('emo-lips', '', '<path d="M62 101 Q66 94.6 70 98.6 Q74 94.6 78 101 Q74 107.6 70 106 Q66 107.6 62 101 Z" fill="#f43f5e" stroke="#9f1239" stroke-width="1.2" stroke-linejoin="round"/><path d="M63.4 101.2 Q70 102.6 76.6 101.2" stroke="#9f1239" stroke-width="1" fill="none"/><ellipse cx="66" cy="99" rx="1.6" ry=".9" fill="#fff" opacity=".8"/>'),
     scene: [
-      ['--x:42px;--y:-60px;--dl:0s', 11],
-      ['--x:56px;--y:-26px;--dl:.1s', 6],
-      ['--x:26px;--y:-80px;--dl:.18s', 5.5],
-      ['--x:14px;--y:-40px;--dl:.26s', 4.5],
-    ].map(([style, s], i) => fx('emo-kiss-heart', style, heart(82, 97, s, i % 2 ? '#fda4af' : '#fb7185'))).join(''),
+      ['--x:30px;--y:-56px;--dl:0s', 11],
+      ['--x:38px;--y:-20px;--dl:.1s', 6],
+      ['--x:14px;--y:-76px;--dl:.18s', 5.5],
+      ['--x:6px;--y:-38px;--dl:.26s', 4.5],
+    ].map(([style, s], i) => fx('emo-kiss-heart', style, heart(98, 90, s, i % 2 ? '#fda4af' : '#fb7185'))).join(''),
   },
 
   // Сальто назад: присед, прыжок с полным оборотом, приземление.
@@ -378,12 +378,12 @@ export const EMOTES = {
     ms: 2000,
     props: WAND,
     scene: `${[[100, 50, 0], [116, 40, -0.15], [108, 60, -0.3]].map(([x, y, d]) => fx('emo-twinkle-fx', `--dl:${d}s`, sparkle(x, y, 3.6, '#fde68a', '#f59e0b'))).join('')}
-      ${fx('emo-flash', '', `<circle cx="125" cy="47" r="9" fill="#fef9c3" opacity=".7"/>${sparkle(125, 47, 14, '#fff', '#facc15')}`)}
-      ${starBurst(125, 47, 8, 22, [['#facc15', '#b45309'], ['#f472b6', '#9d174d'], ['#67e8f9', '#0e7490'], ['#c4b5fd', '#5b21b6']])}
+      ${fx('emo-flash', '', `<circle cx="126" cy="48" r="11" fill="#fef9c3" opacity=".75"/>${sparkle(126, 48, 18, '#fff', '#facc15')}`)}
+      ${starBurst(126, 48, 10, 20, [['#facc15', '#b45309'], ['#f472b6', '#9d174d'], ['#67e8f9', '#0e7490'], ['#c4b5fd', '#5b21b6']])}
       ${[[24, 22, 0], [46, 10, 0.08], [70, 4, 0.16], [94, 12, 0.04], [114, 20, 0.12], [36, 34, 0.2]].map(([x, y, d], i) => fx('emo-glitter', `--dl:${d}s`, sparkle(x, y, i % 2 ? 2.6 : 3.4, i % 3 === 0 ? '#facc15' : i % 3 === 1 ? '#f9a8d4' : '#a5f3fc'))).join('')}`,
   },
 
-  // Брейк-данс: топрок, переворот на голову, вращение, фриз.
+  // Брейк-данс: топрок, падение на спину, вращение (бэкспин), кип-ап и фриз.
   'e-breakdance': {
     mood: 'cool',
     pose: 'open',

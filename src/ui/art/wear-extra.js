@@ -642,8 +642,8 @@ export const NECK_MORE = {
   </g>`,
 
   flowercollar: `<g class="wear-flowercollar">
-    ${collar(11).map(([x, y, a], i) => `<g transform="rotate(${f(a - 90)} ${f(x)} ${f(y)})"><ellipse cx="${f(x)}" cy="${f(y + 5)}" rx="5.6" ry="8.6" fill="${i % 2 ? '#f9a8d4' : '#f472b6'}" ${st('#be185d', 1.3)}/><path d="M${f(x)} ${f(y + 1)} V${f(y + 8)}" stroke="#be185d" stroke-width="1" opacity=".45" stroke-linecap="round"/></g>`).join('')}
-    <g transform="translate(70 119)"><path d="M-9 1 Q-6 -5 0 -1 Q6 -5 9 1 Q4 3 0 1 Q-4 3 -9 1 Z" fill="#4ade80" ${st('#15803d', 1)}/>${Array.from({ length: 5 }, (_, k) => `<ellipse cx="0" cy="-4.4" rx="3.2" ry="4.4" transform="rotate(${k * 72})" fill="#fff" ${st('#f9a8d4', 1)}/>`).join('')}<circle r="2.8" fill="#facc15" ${st('#ca8a04', 1)}/><circle cx="-.9" cy="-.9" r=".9" fill="#fff" opacity=".8"/></g>
+    <g ${st('#be185d', 1.3)}>${collar(11).map(([x, y, a], i) => `<g transform="rotate(${f(a - 90)} ${f(x)} ${f(y)})"><ellipse cx="${f(x)}" cy="${f(y + 5)}" rx="5.6" ry="8.6" fill="${i % 2 ? '#f9a8d4' : '#f472b6'}"/><path d="M${f(x)} ${f(y + 1)}v7" stroke-width="1" opacity=".45"/></g>`).join('')}</g>
+    <g transform="translate(70 119)"><path d="M-9 1 Q-6 -5 0 -1 Q6 -5 9 1 Q4 3 0 1 Q-4 3 -9 1 Z" fill="#4ade80" ${st('#15803d', 1)}/><g fill="#fff" stroke="#f9a8d4">${Array.from({ length: 5 }, (_, k) => `<ellipse cy="-4.4" rx="3.2" ry="4.4" transform="rotate(${k * 72})"/>`).join('')}</g><circle r="2.8" fill="#facc15" ${st('#ca8a04', 1)}/><circle cx="-.9" cy="-.9" r=".9" fill="#fff" opacity=".8"/></g>
   </g>`,
 
   longscarf: `<g class="wear-longscarf">

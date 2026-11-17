@@ -24,6 +24,16 @@ svg.mascot.emote .held {
   display: none;
 }
 
+/* Свои движения рук настроений (win, starstruck, wave) уступают эмоции. */
+svg.mascot.emote :is(.arm, .hand) {
+  animation: none;
+}
+
+/* Сонное настроение обычно приглушает цвета — в эмоции Препи остаётся ярким. */
+svg.mascot.emote .mascot-body {
+  filter: none;
+}
+
 svg.mascot.emote :is(.arm-l, .mascot-body > .hand:not(.hand ~ .hand), .emo-al) {
   transform-box: view-box;
   transform-origin: 27px 91px;
@@ -775,8 +785,8 @@ svg.mascot.emote .emo-popper-r {
 
 @keyframes ejug-y {
   0%, 50%, 100% { transform: translateY(0); animation-timing-function: cubic-bezier(0.5, 1, 0.89, 1); }
-  25% { transform: translateY(-90px); animation-timing-function: cubic-bezier(0.11, 0, 0.5, 0); }
-  75% { transform: translateY(-78px); animation-timing-function: cubic-bezier(0.11, 0, 0.5, 0); }
+  25% { transform: translateY(-106px); animation-timing-function: cubic-bezier(0.11, 0, 0.5, 0); }
+  75% { transform: translateY(-94px); animation-timing-function: cubic-bezier(0.11, 0, 0.5, 0); }
 }
 
 /* ---------- Рок-звезда ---------- */
@@ -809,15 +819,15 @@ svg.mascot.emote .emo-popper-r {
 }
 
 @keyframes emagic-r {
-  0%, 100% { transform: rotate(0deg); }
-  15% { transform: rotate(-122deg); }
-  25% { transform: rotate(-136deg); }
-  35% { transform: rotate(-110deg); }
-  45% { transform: rotate(-136deg); }
-  54% { transform: rotate(-112deg); }
-  60% { transform: rotate(-142deg); animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
-  64% { transform: rotate(-98deg); animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
-  70%, 86% { transform: rotate(-104deg); }
+  0%, 100% { transform: rotate(-80deg); }
+  15% { transform: rotate(-118deg); }
+  25% { transform: rotate(-126deg); }
+  35% { transform: rotate(-102deg); }
+  45% { transform: rotate(-126deg); }
+  54% { transform: rotate(-104deg); }
+  60% { transform: rotate(-130deg); animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  64% { transform: rotate(-94deg); animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+  70%, 86% { transform: rotate(-100deg); }
 }
 
 @keyframes emagic-l {
@@ -866,25 +876,24 @@ svg.mascot.emote .emo-popper-r {
 /* ---------- Брейк-данс ---------- */
 
 @keyframes ebreak-body {
-  0% { transform: translate(0, 0) rotate(0deg) scale(1, 1); animation-timing-function: ease-in-out; }
+  0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1, 1); animation-timing-function: ease-in-out; }
   8% { transform: translate(-4px, 0) rotate(-7deg) scale(1, 1); animation-timing-function: ease-in-out; }
   16% { transform: translate(4px, 0) rotate(7deg) scale(1, 1); animation-timing-function: ease-in-out; }
   24% { transform: translate(0, 6px) rotate(0deg) scale(1.08, 0.88); animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1); }
-  32% { transform: translate(0, -8px) rotate(100deg) scale(0.95, 1.05); animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
-  38% { transform: translate(0, 12px) rotate(180deg) scale(1.04, 0.94); animation-timing-function: ease-out; }
-  42% { transform: translate(0, 11px) rotate(180deg) scale(1, 1); animation-timing-function: cubic-bezier(0.12, 0, 0.39, 0); }
-  46% { transform: translate(0, 11px) rotate(180deg) scale(0.03, 1); animation-timing-function: cubic-bezier(0.61, 1, 0.88, 1); }
-  50% { transform: translate(0, 11px) rotate(180deg) scale(-1, 1); animation-timing-function: cubic-bezier(0.12, 0, 0.39, 0); }
-  54% { transform: translate(0, 11px) rotate(180deg) scale(-0.03, 1); animation-timing-function: cubic-bezier(0.61, 1, 0.88, 1); }
-  58% { transform: translate(0, 11px) rotate(180deg) scale(1, 1); animation-timing-function: cubic-bezier(0.12, 0, 0.39, 0); }
-  62% { transform: translate(0, 11px) rotate(180deg) scale(0.03, 1); animation-timing-function: cubic-bezier(0.61, 1, 0.88, 1); }
-  66% { transform: translate(0, 11px) rotate(180deg) scale(-1, 1); animation-timing-function: cubic-bezier(0.12, 0, 0.39, 0); }
-  70% { transform: translate(0, 11px) rotate(180deg) scale(-0.03, 1); animation-timing-function: cubic-bezier(0.61, 1, 0.88, 1); }
-  74% { transform: translate(0, 11px) rotate(180deg) scale(1, 1); animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1); }
-  82% { transform: translate(0, -16px) rotate(320deg) scale(0.95, 1.05); animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
-  88% { transform: translate(0, 5px) rotate(360deg) scale(1.1, 0.88); animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
-  94%, 99.99% { transform: translate(0, 0) rotate(360deg) scale(1, 1); }
-  100% { transform: translate(0, 0) rotate(0deg) scale(1, 1); }
+  31% { transform: translate(0, -6px) rotate(50deg) scale(0.95, 1.05); animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  37% { transform: translate(0, 10px) rotate(90deg) scale(0.94, 1.04); animation-timing-function: ease-out; }
+  42% { transform: translate(0, 8px) rotate(90deg) scale(1, 1); animation-timing-function: cubic-bezier(0.12, 0, 0.39, 0); }
+  46% { transform: translate(0, 8px) rotate(90deg) scale(1, 0.03); animation-timing-function: cubic-bezier(0.61, 1, 0.88, 1); }
+  50% { transform: translate(0, 8px) rotate(90deg) scale(1, -1); animation-timing-function: cubic-bezier(0.12, 0, 0.39, 0); }
+  54% { transform: translate(0, 8px) rotate(90deg) scale(1, -0.03); animation-timing-function: cubic-bezier(0.61, 1, 0.88, 1); }
+  58% { transform: translate(0, 8px) rotate(90deg) scale(1, 1); animation-timing-function: cubic-bezier(0.12, 0, 0.39, 0); }
+  62% { transform: translate(0, 8px) rotate(90deg) scale(1, 0.03); animation-timing-function: cubic-bezier(0.61, 1, 0.88, 1); }
+  66% { transform: translate(0, 8px) rotate(90deg) scale(1, -1); animation-timing-function: cubic-bezier(0.12, 0, 0.39, 0); }
+  70% { transform: translate(0, 8px) rotate(90deg) scale(1, -0.03); animation-timing-function: cubic-bezier(0.61, 1, 0.88, 1); }
+  74% { transform: translate(0, 8px) rotate(90deg) scale(1, 1); animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1); }
+  82% { transform: translate(0, -16px) rotate(-10deg) scale(0.95, 1.05); animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  88% { transform: translate(0, 5px) rotate(0deg) scale(1.1, 0.88); animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+  94% { transform: translate(0, 0) rotate(0deg) scale(1, 1); }
 }
 
 @keyframes ebreak-l {
@@ -892,10 +901,10 @@ svg.mascot.emote .emo-popper-r {
   8% { transform: rotate(35deg); }
   16% { transform: rotate(-25deg); }
   24% { transform: rotate(-40deg); }
-  38% { transform: rotate(10deg); }
-  46%, 62% { transform: rotate(28deg); }
-  54%, 70% { transform: rotate(-6deg); }
-  74% { transform: rotate(10deg); }
+  37% { transform: rotate(30deg); }
+  42%, 58%, 74% { transform: rotate(45deg); }
+  50%, 66% { transform: rotate(36deg); }
+  82% { transform: rotate(20deg); }
   88%, 96% { transform: rotate(48deg); }
 }
 
@@ -904,17 +913,17 @@ svg.mascot.emote .emo-popper-r {
   8% { transform: rotate(25deg); }
   16% { transform: rotate(-35deg); }
   24% { transform: rotate(40deg); }
-  38% { transform: rotate(-10deg); }
-  46%, 62% { transform: rotate(-28deg); }
-  54%, 70% { transform: rotate(6deg); }
-  74% { transform: rotate(-10deg); }
+  37% { transform: rotate(-30deg); }
+  42%, 58%, 74% { transform: rotate(-45deg); }
+  50%, 66% { transform: rotate(-36deg); }
+  82% { transform: rotate(-20deg); }
   88%, 96% { transform: rotate(-48deg); }
 }
 
 @keyframes ebreak-shadow {
   0%, 100% { transform: scale(1); }
   24%, 88% { transform: scale(1.1); }
-  38%, 74% { transform: scale(0.8); }
+  37%, 74% { transform: scale(1.15, 1); }
   82% { transform: scale(0.55); opacity: 0.07; }
 }
 

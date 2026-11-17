@@ -52,7 +52,35 @@
 
 /* ---------- Анимации ---------- */
 
-:where(.room-scene, .room-thumb) * {
+/* Только у анимированных частей: transform-origin не должен трогать обычные transform="rotate(…)". */
+.room-cloud,
+.room-twinkle,
+.room-glow,
+.room-pulse,
+.room-sparkle,
+.room-neon,
+.room-flicker,
+.room-shimmer,
+.room-sway,
+.room-swing,
+.room-flame,
+.room-steam,
+.room-aurora,
+.room-wave,
+.room-boat,
+.room-comet,
+.room-fish,
+.room-bubbles,
+.room-spores,
+.room-float,
+.room-tentacle,
+.room-lava,
+.room-blink,
+.room-sweep,
+.room-rgb,
+.room-screen,
+.room-hop,
+.room-look {
   transform-box: fill-box;
   transform-origin: center;
 }

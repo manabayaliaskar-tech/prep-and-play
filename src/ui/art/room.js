@@ -22,7 +22,7 @@ const rng = (seed) => {
 const sh = (rx, dx = -4, ry = rx * 0.17) => `<ellipse cx="${dx}" cy="-.5" rx="${rx}" ry="${f1(ry)}" fill="#24123c" opacity=".2"/>`;
 /** Четырёхлучевая искра. */
 const spark = (x, y, r, fill = '#fff', cls = 'room-sparkle') =>
-  `<path class="${cls}" d="M${x} ${y - r}Q${x} ${y} ${x + r} ${y}Q${x} ${y} ${x} ${y + r}Q${x} ${y} ${x - r} ${y}Q${x} ${y} ${x} ${y - r}Z" fill="${fill}"/>`;
+  `<path class="${cls}" d="M${x} ${f1(y - r)}q0 ${r} ${r} ${r}q-${r} 0 -${r} ${r}q0 -${r} -${r} -${r}q${r} 0 ${r} -${r}Z" fill="${fill}"/>`;
 /** Свечение — несколько полупрозрачных кругов (без градиентов). */
 const glow = (x, y, r, c, cls = 'room-glow') =>
   `<g class="${cls}" fill="${c}"><circle cx="${x}" cy="${y}" r="${r}" opacity=".09"/><circle cx="${x}" cy="${y}" r="${f1(r * 0.68)}" opacity=".12"/><circle cx="${x}" cy="${y}" r="${f1(r * 0.4)}" opacity=".16"/></g>`;
@@ -59,12 +59,16 @@ const stripesV = (w, h, step, sw, c, x0 = 0) => {
   for (let x = x0; x < w; x += step) d += `M${x} 0h${sw}v${h}h-${sw}Z`;
   return `<path d="${d}" fill="${c}"/>`;
 };
-const dotGrid = (w, h, step, r, c, seed = 0) => {
+const dotGrid = (w, h, step, r, c) => {
   let d = '';
   for (let y = step / 2, row = 0; y < h; y += step, row++) {
-    for (let x = row % 2 ? step : step / 2; x < w; x += step) d += `M${f1(x - r)} ${f1(y)}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 -${2 * r} 0`;
+    for (let x = row % 2 ? step : step / 2; x < w; x += step) d += `M${f1(x)} ${f1(y)}h0`;
   }
-  return `<path d="${d}" fill="${c}"/>`;
+  return `<path d="${d}" stroke="${c}" stroke-width="${2 * r}" stroke-linecap="round"/>`;
+};
+const rot = (x, y, a, px, py) => {
+  const c = Math.cos(a), s = Math.sin(a);
+  return `${f1(x + px * c - py * s)} ${f1(y + px * s + py * c)}`;
 };
 
 const WALLS = {
@@ -85,22 +89,25 @@ const WALLS = {
       const r = rng(7);
       let out = stripesV(w, h, 36, 18, '#bb7c4b');
       for (let x = 18; x < w; x += 18) out += `<rect x="${x - 0.8}" width="1.6" height="${h}" fill="#94592f"/><rect x="${x + 0.8}" width="1" height="${h}" fill="#d99c69" opacity=".7"/>`;
-      for (let i = 0; i < w / 14; i++) out += `<ellipse cx="${f1(r() * w)}" cy="${f1(r() * h)}" rx="2.4" ry="1.4" fill="none" stroke="#9c6136" stroke-width=".8"/>`;
-      return out;
+      let k = '';
+      for (let i = 0; i < w / 14; i++) k += `M${f1(r() * w)} ${f1(r() * h)}a2.4 1.4 0 1 0 4.8 0a2.4 1.4 0 1 0 -4.8 0`;
+      return out + `<path d="${k}" fill="none" stroke="#9c6136" stroke-width=".8"/>`;
     },
   },
   'r-wall-leaves': {
     base: '#e3f2d4', trim: '#6aa456',
     pat: (w, h) => {
       const r = rng(11);
-      let out = '';
+      const d = ['', ''];
+      let v = '';
       for (let y = 8, row = 0; y < h; y += 20, row++) {
         for (let x = row % 2 ? 4 : 16; x < w; x += 24) {
-          const a = Math.round(r() * 120 - 60), c = r() < 0.5 ? '#b9dc9f' : '#a4cf86';
-          out += `<g transform="translate(${f1(x + r() * 4)} ${y}) rotate(${a})"><path d="M0 -6Q5 0 0 6Q-5 0 0 -6Z" fill="${c}"/><path d="M0 -5V5" stroke="#8cbf6c" stroke-width=".6"/></g>`;
+          const a = ((r() * 120 - 60) * Math.PI) / 180, k = r() < 0.5 ? 0 : 1, cx = x + r() * 4;
+          d[k] += `M${rot(cx, y, a, 0, -6)}Q${rot(cx, y, a, 5, 0)} ${rot(cx, y, a, 0, 6)}Q${rot(cx, y, a, -5, 0)} ${rot(cx, y, a, 0, -6)}Z`;
+          v += `M${rot(cx, y, a, 0, -5)}L${rot(cx, y, a, 0, 5)}`;
         }
       }
-      return out;
+      return `<path d="${d[0]}" fill="#b9dc9f"/><path d="${d[1]}" fill="#a4cf86"/><path d="${v}" stroke="#8cbf6c" stroke-width=".6"/>`;
     },
   },
   'r-wall-waves': {
@@ -118,14 +125,14 @@ const WALLS = {
     base: '#e7f0fb', trim: '#8fb0d6',
     pat: (w, h) => {
       const r = rng(5);
-      let out = '';
+      let d = '';
       for (let y = 12, row = 0; y < h; y += 26, row++) {
         for (let x = row % 2 ? 6 : 19; x < w; x += 26) {
-          const s = f1(3 + r() * 2);
-          out += `<path transform="translate(${x} ${y})" d="M0 -${s}V${s}M-${f1(s * 0.87)} -${f1(s / 2)}L${f1(s * 0.87)} ${f1(s / 2)}M-${f1(s * 0.87)} ${f1(s / 2)}L${f1(s * 0.87)} -${f1(s / 2)}" stroke="#c9dbf0" stroke-width="1.1" stroke-linecap="round"/>`;
+          const s = 3 + r() * 2, a = s * 0.87, b = s / 2;
+          d += `M${x} ${f1(y - s)}V${f1(y + s)}M${f1(x - a)} ${f1(y - b)}L${f1(x + a)} ${f1(y + b)}M${f1(x - a)} ${f1(y + b)}L${f1(x + a)} ${f1(y - b)}`;
         }
       }
-      return out + dotGrid(w, h, 13, 0.8, '#fff');
+      return `<path d="${d}" stroke="#c9dbf0" stroke-width="1.1" stroke-linecap="round"/>` + dotGrid(w, h, 13, 0.8, '#fff');
     },
   },
   'r-wall-neon': {
@@ -142,7 +149,7 @@ const WALLS = {
     pat: (w, h) => `<ellipse cx="${f1(w * 0.3)}" cy="40" rx="60" ry="22" fill="#3b2a85" opacity=".45"/><ellipse cx="${f1(w * 0.75)}" cy="90" rx="70" ry="20" fill="#5b2a8a" opacity=".3"/>${stars(w + 3, Math.round(w / 4.5), w, h - 8)}${w > 100 ? '<circle cx="250" cy="104" r="6" fill="#f472b6"/><path d="M243 102 Q250 100 257 106" stroke="#fbcfe8" stroke-width="1" fill="none" opacity=".7"/><circle cx="20" cy="18" r="3.5" fill="#7dd3fc"/>' : ''}`,
   },
   'r-wall-royal': {
-    base: '#6b1d3a', trim: '#c8962a', dark: true,
+    base: '#6b1d3a', trim: '#c8962a', dark: true, side: false,
     rails: [[86, 4, '#d4a531']],
     pat: (w, h) => {
       let d = '', g = '';
@@ -207,7 +214,14 @@ const FLOORS = {
   'r-floor-oak': ['#c98d57', planks(18, ['#c98d57', '#c28450', '#cf9560', '#c5894f'], '#9a6236', 3)],
   'r-floor-tiles': ['#eef2f8', checker(24, '#d3dcea', '#c2cddf')],
   'r-floor-pink': ['#fff0f6', checker(22, '#ffc9de', '#f9b4cf', 0.5)],
-  'r-floor-grass': ['#8fcf6a', `<path d="${quad(34, 330, 132, 205)}" fill="#8fcf6a"/>${floorDots(4, 70, (x, y, k, r) => `<path d="M${x} ${y}l${f1(-1.5 * k)} ${f1(-4 * k)}M${x} ${y}l0 ${f1(-5 * k)}M${x} ${y}l${f1(1.5 * k)} ${f1(-4 * k)}" stroke="${r() < 0.5 ? '#6bb54b' : '#a8de85'}" stroke-width="${f1(0.8 * k)}" stroke-linecap="round"/>`)}${floorDots(9, 14, (x, y, k, r) => `<circle cx="${x}" cy="${y}" r="${f1(1.3 * k)}" fill="${r() < 0.5 ? '#fff' : '#fde047'}"/>`)}`],
+  'r-floor-grass': ['#8fcf6a', `<path d="${quad(34, 330, 132, 205)}" fill="#8fcf6a"/>${(() => {
+    const t = ['', ''];
+    floorDots(4, 70, (x, y, k, r) => {
+      t[r() < 0.5 ? 0 : 1] += `M${x} ${y}l${f1(-1.5 * k)} ${f1(-4 * k)}M${x} ${y}l0 ${f1(-5 * k)}M${x} ${y}l${f1(1.5 * k)} ${f1(-4 * k)}`;
+      return '';
+    });
+    return `<path d="${t[0]}" stroke="#6bb54b" stroke-width="1.1" stroke-linecap="round"/><path d="${t[1]}" stroke="#a8de85" stroke-width="1.1" stroke-linecap="round"/>`;
+  })()}${floorDots(9, 14, (x, y, k, r) => `<circle cx="${x}" cy="${y}" r="${f1(1.3 * k)}" fill="${r() < 0.5 ? '#fff' : '#fde047'}"/>`)}`],
   'r-floor-sand': ['#f3dca6', `${floorDots(2, 26, (x, y, k) => `<path d="M${f1(x - 9 * k)} ${y}q${f1(4.5 * k)} -${f1(2 * k)} ${f1(9 * k)} 0t${f1(9 * k)} 0" stroke="#e2c587" stroke-width="${f1(0.9 * k)}" fill="none"/>`)}${floorDots(6, 6, (x, y, k, r) => (r() < 0.5 ? `<path d="M${x} ${f1(y - 3 * k)}l${f1(1 * k)} ${f1(2 * k)}h${f1(2 * k)}l${f1(-1.6 * k)} ${f1(1.4 * k)}l${f1(0.8 * k)} ${f1(2.2 * k)}l${f1(-2.2 * k)} ${f1(-1.2 * k)}l${f1(-2.2 * k)} ${f1(1.2 * k)}l${f1(0.8 * k)} ${f1(-2.2 * k)}l${f1(-1.6 * k)} ${f1(-1.4 * k)}h${f1(2 * k)}Z" fill="#fb923c"/>` : `<path d="M${f1(x - 2.5 * k)} ${y}a${f1(2.5 * k)} ${f1(2.5 * k)} 0 0 1 ${f1(5 * k)} 0Z" fill="#fde2e4" stroke="#f9a8b8" stroke-width=".5"/>`))}`],
   'r-floor-ice': ['#d8eefa', `${checker(46, '#cbe6f6', '#b3d8ef', 0.9)}${floorDots(12, 8, (x, y, k) => `<path d="M${x} ${y}l${f1(6 * k)} ${f1(-1.4 * k)}l${f1(3 * k)} ${f1(1.5 * k)}" stroke="#fff" stroke-width=".7" fill="none"/>`)}${floorDots(3, 10, (x, y, k) => spark(x, y, f1(1.8 * k), '#fff', 'room-twinkle'))}`],
   'r-floor-marble': ['#f5f2ed', `${checker(30, '#e3ddd4', '#cfc6b8', 0.7)}${floorDots(8, 12, (x, y, k) => `<path d="M${x} ${y}q${f1(4 * k)} ${f1(-2 * k)} ${f1(7 * k)} 0t${f1(8 * k)} ${f1(-1 * k)}" stroke="#b9b0a3" stroke-width=".5" fill="none" opacity=".7"/>`)}`],
@@ -249,9 +263,9 @@ const snowfall = (seed) => {
   let d = '';
   for (let i = 0; i < 26; i++) {
     const x = f1(r() * 72), y = f1(r() * 64), s = f1(0.6 + r() * 0.7);
-    for (const yy of [y, y - 64]) d += `M${f1(x - s)} ${f1(yy)}a${s} ${s} 0 1 0 ${f1(2 * s)} 0a${s} ${s} 0 1 0 -${f1(2 * s)} 0`;
+    for (const yy of [y, y - 64]) d += `M${x} ${f1(yy)}h0`;
   }
-  return `<path class="room-snowfall" d="${d}" fill="#fff" opacity=".9"/>`;
+  return `<path class="room-snowfall" d="${d}" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".9"/>`;
 };
 
 const VIEWS = {
@@ -404,14 +418,14 @@ const flame = (x, y, s = 1) =>
 const LAMP = {
   'r-lamp-floor': `${sh(12, -3)}<ellipse cx="0" cy="-1.6" rx="9" ry="2.4" fill="#475569"/><rect x="-1.2" y="-76" width="2.4" height="75" fill="#64748b"/><rect x="-.2" y="-76" width="1" height="74" fill="#cbd5e1" opacity=".6"/><path d="M-12 -72L-8 -92H8L12 -72Z" fill="#fdf2d0" stroke="#d9c08a" stroke-width="1"/><path d="M3 -92H8L12 -72H7Z" fill="#fff" opacity=".5"/><path d="M-12 -72H12" stroke="#e8c97a" stroke-width="1.6"/><ellipse cx="0" cy="-71" rx="8" ry="1.4" fill="#fff6c8"/>`,
   'r-lamp-lantern': `${sh(12, -3)}<path d="M-8 0L0 -6L8 0" stroke="#7a5a2a" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M0 -6V-84Q0 -88 -6 -88H-8" stroke="#8a6a3a" stroke-width="2.2" fill="none"/><path d="M0 -20v-4M0 -40v-4M0 -60v-4" stroke="#6b4f22" stroke-width="2.6"/><path d="M-8 -88V-78" stroke="#475569" stroke-width=".8"/><g class="room-swing"><rect x="-12" y="-79" width="8" height="3" rx="1" fill="#1f2937"/><ellipse cx="-8" cy="-62" rx="12" ry="14" fill="#ef4444" stroke="#b91c1c" stroke-width="1"/><path d="M-8 -76Q-16 -62 -8 -48M-8 -76Q0 -62 -8 -48M-8 -76V-48" stroke="#b91c1c" stroke-width=".8" fill="none"/><path d="M-3 -72Q2 -64 -1 -54" stroke="#fecaca" stroke-width="1.6" fill="none" opacity=".7"/><rect x="-12" y="-49" width="8" height="3" rx="1" fill="#1f2937"/><path d="M-9 -46v6M-7 -46v6" stroke="#facc15" stroke-width="1"/></g>`,
-  'r-lamp-candle': `${sh(14, -3)}<rect x="-13" y="-24" width="9" height="24" rx="2" fill="#fef3c7" stroke="#e7d3a3" stroke-width=".8"/><rect x="-1" y="-34" width="9" height="34" rx="2" fill="#fffbeb" stroke="#e7d3a3" stroke-width=".8"/><rect x="9" y="-16" width="8" height="16" rx="2" fill="#fde68a" stroke="#e0c57a" stroke-width=".8"/><path d="M-11 -24q0 4 1.4 6M1 -34q0 5 1.6 7M11 -16q0 3 1.2 4" stroke="#fff" stroke-width="1.2" fill="none" opacity=".8"/><path d="M-8.5 -24v-2M3.5 -34v-2M13 -16v-2" stroke="#374151" stroke-width=".8"/>${flame(-8.5, -27)}${flame(3.5, -37, 1.1)}${flame(13, -19, 0.9)}<path d="M-16 -2h34" stroke="#94a3b8" stroke-width="2.4" stroke-linecap="round"/>`,
+  'r-lamp-candle': `${sh(14, -3)}<g transform="translate(-3 0)"><rect x="-13" y="-24" width="9" height="24" rx="2" fill="#fef3c7" stroke="#e7d3a3" stroke-width=".8"/><rect x="-1" y="-34" width="9" height="34" rx="2" fill="#fffbeb" stroke="#e7d3a3" stroke-width=".8"/><rect x="9" y="-16" width="8" height="16" rx="2" fill="#fde68a" stroke="#e0c57a" stroke-width=".8"/><path d="M-11 -24q0 4 1.4 6M1 -34q0 5 1.6 7M11 -16q0 3 1.2 4" stroke="#fff" stroke-width="1.2" fill="none" opacity=".8"/><path d="M-8.5 -24v-2M3.5 -34v-2M13 -16v-2" stroke="#374151" stroke-width=".8"/>${flame(-8.5, -27)}${flame(3.5, -37, 1.1)}${flame(13, -19, 0.9)}<path d="M-16 -2h34" stroke="#94a3b8" stroke-width="2.4" stroke-linecap="round"/></g>`,
   'r-lamp-mushroom': `${sh(14, -3)}<path d="M-5 0Q-6 -12 -4 -22H4Q6 -12 5 0Z" fill="#fef3c7" stroke="#e0c57a" stroke-width="1"/><path d="M-16 -22Q-16 -40 0 -40Q16 -40 16 -22Q0 -18 -16 -22Z" fill="#ef4444" stroke="#b91c1c" stroke-width="1"/><g fill="#fff"><circle cx="-8" cy="-30" r="2.6"/><circle cx="4" cy="-35" r="2"/><circle cx="9" cy="-26" r="2.2"/><circle cx="-2" cy="-25" r="1.4"/></g><path d="M6 -38q6 3 8 10" stroke="#fecaca" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M-14 -21.4Q0 -18 14 -21.4" stroke="#fde68a" stroke-width="1.6" fill="none" class="room-pulse"/>`,
   'r-lamp-lava': `${sh(14, -3)}<path d="M-10 0L-7 -24M10 0L7 -24" stroke="#8a5530" stroke-width="2.4" stroke-linecap="round"/><rect x="-11" y="-28" width="22" height="4" rx="1" fill="#b7794a" stroke="#8a5530" stroke-width=".8"/><path d="M-6 -28L-4 -34H4L6 -28Z" fill="#7c3aed"/><path d="M-4 -34L-6.6 -66H6.6L4 -34Z" fill="#fbcfe8" stroke="#c084fc" stroke-width=".8"/><g fill="#ec4899"><ellipse class="room-lava" cx="0" cy="-40" rx="3.2" ry="4"/><ellipse class="room-lava" cx="-1.4" cy="-54" rx="2.6" ry="3.4" style="animation-delay:-2s"/><ellipse class="room-lava" cx="1.6" cy="-62" rx="2" ry="2.4" style="animation-delay:-4s"/></g><path d="M3.4 -62L2.6 -38" stroke="#fff" stroke-width="1" opacity=".6"/><path d="M-6.6 -66L-4 -74H4L6.6 -66Z" fill="#7c3aed"/>`,
   'r-lamp-neon': `${sh(12, -3)}<rect x="-9" y="-4" width="18" height="4" rx="1.6" fill="#1f2937"/><g class="room-neon"><path d="M-4 -4V-70Q-4 -82 6 -84" stroke="#f0abfc" stroke-width="5" fill="none" stroke-linecap="round" opacity=".35"/><path d="M-4 -4V-70Q-4 -82 6 -84" stroke="#fdf4ff" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M-4 -40H4V-88" stroke="#67e8f9" stroke-width="5" fill="none" stroke-linecap="round" opacity=".3"/><path d="M4 -4V-88" stroke="#ecfeff" stroke-width="1.8" stroke-linecap="round"/><circle cx="4" cy="-90" r="3" fill="#ecfeff"/></g>`,
   'r-lamp-moon': `${sh(13, -3)}<path d="M-9 0L0 -40L9 0M0 -40V0" stroke="#7a5a2a" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M0 -40V-50" stroke="#94a3b8" stroke-width="2"/><circle cx="0" cy="-64" r="15" fill="#fef3c7" stroke="#e7d3a3" stroke-width="1"/><g fill="#eedfae"><circle cx="-6" cy="-68" r="3.4"/><circle cx="5" cy="-58" r="2.6"/><circle cx="4" cy="-72" r="1.8"/><circle cx="-4" cy="-56" r="1.4"/></g><path d="M6 -76q6 4 7 12" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity=".7"/>${spark(-14, -84, 2.4, '#fef3c7', 'room-twinkle')}`,
   'r-lamp-jelly': `${sh(13, -3)}<rect x="-11" y="-6" width="22" height="6" rx="2" fill="#334155"/><rect x="-10" y="-84" width="20" height="78" rx="4" fill="#bae6fd" opacity=".3" stroke="#7dd3fc" stroke-width="1"/><g class="room-bubbles" fill="#e0f2fe"><circle cx="-5" cy="-20" r="1"/><circle cx="4" cy="-34" r=".8"/></g><g class="room-float"><path d="M-8 -58Q-8 -72 0 -72Q8 -72 8 -58Q4 -56 0 -58Q-4 -56 -8 -58Z" fill="#f9a8d4" stroke="#ec4899" stroke-width=".8"/><path d="M-4 -66q3 -3 7 -1" stroke="#fff" stroke-width="1.2" fill="none" opacity=".8"/><g class="room-tentacle" stroke="#f9a8d4" stroke-width="1.2" fill="none" stroke-linecap="round"><path d="M-5 -57q-2 6 1 12t-1 10"/><path d="M0 -57q2 7 -1 13t1 8"/><path d="M5 -57q2 6 -1 12t1 9"/></g></g><rect x="-11" y="-88" width="22" height="5" rx="2" fill="#334155"/><path d="M5 -82V-12" stroke="#fff" stroke-width="1.2" opacity=".5"/>`,
-  'r-lamp-candelabra': `${sh(14, -3)}<path d="M-10 0Q0 -6 10 0Z" fill="#d4a531" stroke="#a8741a" stroke-width=".8"/><path d="M0 -4V-56" stroke="#d4a531" stroke-width="3"/><circle cx="0" cy="-30" r="3" fill="#e9b73f"/><path d="M0 -50Q-14 -50 -14 -62M0 -50Q14 -50 14 -62M0 -44Q-22 -44 -22 -58M0 -44Q22 -44 22 -58" stroke="#d4a531" stroke-width="2.2" fill="none"/>${[-22, -14, 0, 14, 22].map((x) => {
-    const top = x === 0 ? -72 : Math.abs(x) === 14 ? -70 : -66;
+  'r-lamp-candelabra': `${sh(14, -3)}<path d="M-10 0Q0 -6 10 0Z" fill="#d4a531" stroke="#a8741a" stroke-width=".8"/><path d="M0 -4V-56" stroke="#d4a531" stroke-width="3"/><circle cx="0" cy="-30" r="3" fill="#e9b73f"/><path d="M0 -50Q-10 -50 -10 -62M0 -50Q10 -50 10 -62M0 -44Q-19 -44 -19 -58M0 -44Q19 -44 19 -58" stroke="#d4a531" stroke-width="2.2" fill="none"/>${[-19, -10, 0, 10, 19].map((x) => {
+    const top = x === 0 ? -72 : Math.abs(x) === 10 ? -70 : -66;
     return `<rect x="${x - 3}" y="${top + 6}" width="6" height="2" rx="1" fill="#e9b73f"/><rect x="${x - 1.8}" y="${top}" width="3.6" height="6" fill="#fffbeb"/>${flame(x, top - 1, 0.9)}`;
   }).join('')}<path d="M0 -56V-66" stroke="#d4a531" stroke-width="3"/>${spark(18, -82, 3)}${spark(-20, -76, 2.4, '#fff3c4')}`,
 };
@@ -462,7 +476,7 @@ const POSTER = {
 /* ------------------------------------------------------------------ игрушки */
 
 const TOY = {
-  'r-toy-ball': `${sh(12, -3)}<circle cx="0" cy="-13" r="13" fill="#fff" stroke="#cbd5e1" stroke-width="1"/><path d="M0 -26A13 13 0 0 0 -11.3 -6.6Q-6 -16 0 -26Z" fill="#ef4444"/><path d="M0 -26Q-2 -14 -4 -0.6A13 13 0 0 0 4 -0.6Q2 -14 0 -26Z" fill="#facc15"/><path d="M0 -26A13 13 0 0 1 11.3 -6.6Q6 -16 0 -26Z" fill="#3b82f6"/><circle cx="0" cy="-26" r="2.4" fill="#e2e8f0"/><path d="M5 -22q4 2 5 7" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity=".8"/>`,
+  'r-toy-ball': `${sh(12, -3)}<circle cx="0" cy="-13" r="13" fill="#ef4444"/><path d="M0 -26A13 13 0 0 1 0 0Q8 -13 0 -26Z" fill="#3b82f6"/><path d="M0 -26Q-8 -13 0 0Q8 -13 0 -26Z" fill="#facc15"/><path d="M0 -26Q-3 -13 0 0Q3 -13 0 -26Z" fill="#fff"/><circle cx="0" cy="-13" r="13" fill="none" stroke="#9f1d2b" stroke-width=".9" stroke-opacity=".6"/><ellipse cx="0" cy="-25.4" rx="2.6" ry="1.4" fill="#f1f5f9"/><path d="M5 -22q4 2 5 7" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity=".7"/><path d="M-11 -8q3 5 8 7" stroke="#7f1d1d" stroke-width="2" fill="none" stroke-linecap="round" opacity=".2"/>`,
   'r-toy-teddy': `${sh(16, -3)}<ellipse cx="-9" cy="-4" rx="6" ry="4.4" fill="#c27b45" stroke="#8f5228" stroke-width="1"/><ellipse cx="9" cy="-4" rx="6" ry="4.4" fill="#c98650" stroke="#8f5228" stroke-width="1"/><ellipse cx="-9" cy="-4" rx="3" ry="2.2" fill="#f2c89c"/><ellipse cx="9" cy="-4" rx="3" ry="2.2" fill="#f2c89c"/><ellipse cx="0" cy="-16" rx="12" ry="13" fill="#c98650" stroke="#8f5228" stroke-width="1"/><ellipse cx="0" cy="-14" rx="7" ry="8" fill="#e8b68a"/><ellipse cx="-10" cy="-19" rx="4" ry="7.4" fill="#c27b45" stroke="#8f5228" stroke-width="1" transform="rotate(30 -10 -19)"/><ellipse cx="10" cy="-19" rx="4" ry="7.4" fill="#cf8f5a" stroke="#8f5228" stroke-width="1" transform="rotate(-30 10 -19)"/><circle cx="-8" cy="-45" r="4.4" fill="#c27b45" stroke="#8f5228" stroke-width="1"/><circle cx="8" cy="-45" r="4.4" fill="#c98650" stroke="#8f5228" stroke-width="1"/><circle cx="-8" cy="-45" r="2" fill="#e8b68a"/><circle cx="8" cy="-45" r="2" fill="#e8b68a"/><circle cx="0" cy="-37" r="10.5" fill="#cf8f5a" stroke="#8f5228" stroke-width="1"/><ellipse cx="0" cy="-33.6" rx="5" ry="3.8" fill="#f2c89c"/><circle cx="-4" cy="-39" r="1.3" fill="#2b1608"/><circle cx="4" cy="-39" r="1.3" fill="#2b1608"/><ellipse cx="0" cy="-35" rx="1.8" ry="1.2" fill="#2b1608"/><path d="M-1.6 -32.6q1.6 1.2 3.2 0" stroke="#2b1608" stroke-width=".7" fill="none"/><path d="M0 -26L-6 -29V-23ZM0 -26L6 -29V-23Z" fill="#ef4444"/><circle cx="0" cy="-26" r="1.6" fill="#b91c1c"/><path d="M4 -45q4 -2 6 2" stroke="#e8b68a" stroke-width="1.2" fill="none"/>`,
   'r-toy-globe': `${sh(13, -3)}<ellipse cx="0" cy="-2" rx="9" ry="2.6" fill="#8a5530"/><rect x="-1.6" y="-10" width="3.2" height="8" fill="#a0673a"/><circle cx="0" cy="-28" r="15" fill="#3b9ede" stroke="#1d6f9c" stroke-width="1"/><path d="M-10 -36Q-4 -40 0 -36Q2 -30 -4 -28Q-8 -24 -12 -28Q-14 -32 -10 -36ZM4 -40Q10 -40 12 -34Q10 -30 6 -32Q2 -34 4 -40ZM2 -24Q8 -26 10 -20Q8 -16 4 -17Q0 -20 2 -24Z" fill="#7cc47a" stroke="#4f9a52" stroke-width=".5"/><path d="M5 -40q6 3 7 10" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity=".5"/><path d="M-13 -40A18 18 0 0 0 10 -12" stroke="#d4a531" stroke-width="2" fill="none"/><path d="M-1.6 -10h3.2" stroke="#d4a531" stroke-width="2"/>`,
   'r-toy-guitar': `${sh(14, -3)}<g transform="rotate(-14 0 0)"><rect x="-1.8" y="-56" width="3.6" height="32" fill="#7c4a1e"/><path d="M-3 -62h6v7h-6Z" fill="#5a3412"/><g fill="#e2e8f0"><circle cx="-4" cy="-60" r=".9"/><circle cx="-4" cy="-57" r=".9"/><circle cx="4" cy="-60" r=".9"/><circle cx="4" cy="-57" r=".9"/></g><path d="M0 -26Q-11 -28 -10 -18Q-14 -12 -12 -6Q-8 1 0 1Q8 1 12 -6Q14 -12 10 -18Q11 -28 0 -26Z" fill="#e0913f" stroke="#a35a1c" stroke-width="1"/><path d="M0 -24Q-7 -24 -7 -18Q-10 -12 -8 -7Q-5 -2 0 -2" stroke="#f5b46c" stroke-width="1.4" fill="none" opacity=".6"/><circle cx="0" cy="-14" r="3.6" fill="#3b2410"/><rect x="-4" y="-6" width="8" height="2" fill="#3b2410"/><path d="M-1 -56V-5M1 -56V-5" stroke="#f1f5f9" stroke-width=".35"/><path d="M-1.8 -50h3.6M-1.8 -44h3.6M-1.8 -38h3.6M-1.8 -32h3.6" stroke="#d4a531" stroke-width=".5"/></g>`,
@@ -471,7 +485,7 @@ const TOY = {
   'r-toy-gifts': `${sh(19, -3)}<rect x="-20" y="-18" width="22" height="18" rx="1.4" fill="#f472b6" stroke="#db2777" stroke-width="1"/><rect x="-10.6" y="-18" width="3.4" height="18" fill="#fde68a"/><rect x="2" y="-14" width="17" height="14" rx="1.4" fill="#38bdf8" stroke="#0284c7" stroke-width="1"/><rect x="2" y="-8.6" width="17" height="3" fill="#fff"/><rect x="-14" y="-32" width="18" height="14" rx="1.4" fill="#a3e635" stroke="#65a30d" stroke-width="1"/><rect x="-6.6" y="-32" width="3.2" height="14" fill="#ef4444"/><path d="M-5 -32Q-12 -40 -10 -32Q-12 -26 -5 -32Q2 -40 0 -32Q2 -26 -5 -32Z" fill="#ef4444" stroke="#b91c1c" stroke-width=".7"/><path d="M10.5 -14q-6 -6 -4 -1q-2 4 4 1q6 -6 4 -1q2 4 -4 1" fill="#fff" stroke="#cbd5e1" stroke-width=".6"/><path d="M-16 -16v12M4 -12v10" stroke="#fff" stroke-width="1.2" opacity=".35"/>${spark(14, -26, 2.4, '#fde68a', 'room-twinkle')}`,
   'r-toy-aquarium': `${sh(26, -3)}<rect x="-24" y="-12" width="48" height="12" rx="1.4" fill="#8a5530" stroke="#5c3a1e" stroke-width="1"/><path d="M-20 -12V0M20 -12V0" stroke="#5c3a1e" stroke-width="1"/><rect x="-25" y="-46" width="50" height="34" rx="2" fill="#7dd3fc" opacity=".55" stroke="#38bdf8" stroke-width="1.2"/><rect x="-24" y="-40" width="48" height="27" fill="#38bdf8" opacity=".35"/><path d="M-24 -16Q-12 -20 0 -16T24 -17V-13H-24Z" fill="#fde68a"/><path d="M-16 -16Q-20 -24 -16 -32M-14 -16Q-10 -24 -13 -30" stroke="#22c55e" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M14 -16Q12 -22 15 -27M17 -16Q19 -21 17 -25" stroke="#16a34a" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M4 -14a3 2.4 0 0 1 6 0Z" fill="#94a3b8"/><g class="room-fish"><path d="M-4 -30Q0 -34 5 -30Q0 -26 -4 -30ZM-4 -30L-8 -33V-27Z" fill="#fb923c"/><circle cx="2.6" cy="-30.6" r=".6" fill="#1e1b3a"/></g><g class="room-fish is-slow"><path d="M6 -22Q10 -25 14 -22Q10 -19 6 -22ZM6 -22L3 -24.4V-19.6Z" fill="#facc15"/><circle cx="12" cy="-22.4" r=".5" fill="#1e1b3a"/></g><g class="room-bubbles" fill="#fff"><circle cx="12" cy="-36" r="1"/><circle cx="14" cy="-40" r=".7"/></g><rect x="-26" y="-48" width="52" height="3" rx="1" fill="#334155"/><path d="M-20 -44V-16" stroke="#fff" stroke-width="1.4" opacity=".4"/>`,
   'r-toy-robot': `${sh(15, -3)}<rect x="-12" y="-6" width="10" height="6" rx="2.4" fill="#475569"/><rect x="2" y="-6" width="10" height="6" rx="2.4" fill="#475569"/><rect x="-11" y="-28" width="22" height="22" rx="4" fill="#cbd5e1" stroke="#64748b" stroke-width="1"/><rect x="-6" y="-22" width="12" height="9" rx="2" fill="#94a3b8"/><circle class="room-blink" cx="-2.6" cy="-17.4" r="1.4" fill="#ef4444"/><circle class="room-blink" cx="2.6" cy="-17.4" r="1.4" fill="#22c55e" style="animation-delay:-.7s"/><path d="M-11 -24Q-18 -22 -18 -14M11 -24Q18 -22 18 -16" stroke="#64748b" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="-18" cy="-13" r="2.4" fill="#94a3b8"/><circle cx="18" cy="-15" r="2.4" fill="#94a3b8"/><rect x="-3" y="-31" width="6" height="3" fill="#64748b"/><rect x="-12" y="-50" width="24" height="19" rx="5" fill="#e2e8f0" stroke="#64748b" stroke-width="1"/><rect x="-9" y="-46" width="18" height="11" rx="3" fill="#0f172a"/><g class="room-look"><rect x="-6" y="-43" width="4" height="5" rx="1.4" fill="#22d3ee"/><rect x="2" y="-43" width="4" height="5" rx="1.4" fill="#22d3ee"/></g><path d="M0 -50V-56" stroke="#64748b" stroke-width="1.2"/><circle class="room-blink" cx="0" cy="-57" r="2" fill="#f43f5e"/><path d="M6 -48q4 2 4 6" stroke="#fff" stroke-width="1.4" fill="none" opacity=".7"/>`,
-  'r-toy-chest': `${sh(22, -3)}${glow(0, -26, 26, '#fde68a', 'room-pulse')}<path d="M-20 -20Q-20 -36 0 -40Q20 -36 20 -20" fill="#6b3a1a" stroke="#4a260f" stroke-width="1" transform="rotate(-18 -20 -20) translate(0 -6)"/><path d="M-22 -18Q-12 -30 -4 -24Q0 -32 6 -26Q14 -32 22 -18Z" fill="#facc15" stroke="#d4a10a" stroke-width=".8"/><g fill="#fde047" stroke="#b8860b" stroke-width=".5"><circle cx="-12" cy="-22" r="3"/><circle cx="-5" cy="-25" r="3"/><circle cx="4" cy="-27" r="3"/><circle cx="11" cy="-23" r="3"/></g><path d="M-6 -28l3 -4l3 4l-3 4Z" fill="#ef4444" stroke="#fff" stroke-width=".4"/><path d="M8 -27l2.4 -3.4l2.4 3.4l-2.4 3.4Z" fill="#22d3ee" stroke="#fff" stroke-width=".4"/><rect x="-22" y="-20" width="44" height="20" rx="2" fill="#8b4a1f" stroke="#4a260f" stroke-width="1"/><path d="M-22 -14H22M-22 -6H22" stroke="#6b3a1a" stroke-width="1"/><rect x="-22" y="-20" width="5" height="20" fill="#d4a531"/><rect x="17" y="-20" width="5" height="20" fill="#d4a531"/><rect x="-4" y="-16" width="8" height="9" rx="1.4" fill="#d4a531" stroke="#a8741a" stroke-width=".7"/><circle cx="0" cy="-12.6" r="1.2" fill="#4a260f"/><g fill="#fde047" stroke="#b8860b" stroke-width=".5"><circle cx="-26" cy="-2" r="2.6"/><circle cx="26" cy="-3" r="2.6"/><circle cx="23" cy="-1" r="2.4"/></g>${spark(-14, -36, 3.4)}${spark(14, -40, 2.8, '#fff3c4')}${spark(2, -46, 2.4)}`,
+  'r-toy-chest': `${sh(22, -3)}${glow(0, -26, 26, '#fde68a', 'room-pulse')}<path d="M-21 -19L-19 -40Q0 -48 19 -40L21 -19Z" fill="#6b3a1a" stroke="#4a260f" stroke-width="1"/><path d="M-19 -36Q0 -44 19 -36" stroke="#d4a531" stroke-width="2.4" fill="none"/><path d="M-16 -40L-17 -20M16 -40L17 -20" stroke="#d4a531" stroke-width="2.4"/><path d="M-17 -30Q0 -36 17 -30" stroke="#4a260f" stroke-width=".8" fill="none"/><path d="M-22 -18Q-12 -30 -4 -24Q0 -32 6 -26Q14 -32 22 -18Z" fill="#facc15" stroke="#d4a10a" stroke-width=".8"/><g fill="#fde047" stroke="#b8860b" stroke-width=".5"><circle cx="-12" cy="-22" r="3"/><circle cx="-5" cy="-25" r="3"/><circle cx="4" cy="-27" r="3"/><circle cx="11" cy="-23" r="3"/></g><path d="M-6 -28l3 -4l3 4l-3 4Z" fill="#ef4444" stroke="#fff" stroke-width=".4"/><path d="M8 -27l2.4 -3.4l2.4 3.4l-2.4 3.4Z" fill="#22d3ee" stroke="#fff" stroke-width=".4"/><rect x="-22" y="-20" width="44" height="20" rx="2" fill="#8b4a1f" stroke="#4a260f" stroke-width="1"/><path d="M-22 -14H22M-22 -6H22" stroke="#6b3a1a" stroke-width="1"/><rect x="-22" y="-20" width="5" height="20" fill="#d4a531"/><rect x="17" y="-20" width="5" height="20" fill="#d4a531"/><rect x="-4" y="-16" width="8" height="9" rx="1.4" fill="#d4a531" stroke="#a8741a" stroke-width=".7"/><circle cx="0" cy="-12.6" r="1.2" fill="#4a260f"/><g fill="#fde047" stroke="#b8860b" stroke-width=".5"><circle cx="-26" cy="-2" r="2.6"/><circle cx="26" cy="-3" r="2.6"/><circle cx="23" cy="-1" r="2.4"/></g>${spark(-14, -36, 3.4)}${spark(14, -40, 2.8, '#fff3c4')}${spark(2, -46, 2.4)}`,
 };
 
 /* ------------------------------------------------------------- сборка сцены */
@@ -484,7 +498,7 @@ const ANCHOR = {
   desk: [118, 140],
   poster: [120, 44],
   seat: [234, 146],
-  lamp: [303, 144],
+  lamp: [300, 144],
   plant: [24, 186],
   toy: [270, 188],
   rug: [166, 176],
@@ -573,8 +587,8 @@ const THUMB_BOX = {
   shelf: '-48 -110 96 114',
   plant: '-40 -86 80 90',
   lamp: '-52 -108 104 112',
-  rug: '-84 -50 168 100',
-  poster: '-30 -30 60 60',
+  rug: '-82 -52 164 104',
+  poster: '-32 -30 64 64',
   toy: '-34 -62 68 66',
 };
 
@@ -586,7 +600,7 @@ export function roomItemThumb(slot, id) {
   if (slot === 'wall') inner = art + ROOM_ART.floor[DEFAULT_ROOM.floor];
   else if (slot === 'floor') inner = ROOM_ART.wall[DEFAULT_ROOM.wall] + art;
   else if (slot === 'window') inner = `<rect x="182" y="8" width="100" height="92" fill="${DEF_WINDOW_WALL.base}"/>${art}`;
-  else if (slot === 'rug') inner = `<g transform="scale(1 .6)">${art}</g>`;
+  else if (slot === 'rug') inner = `<g transform="scale(1 .72)">${art}</g>`;
   else if (slot === 'lamp' && LAMP_GLOW[id]) {
     const [gx, gy, gr, gc] = LAMP_GLOW[id];
     inner = glow(gx, gy, gr, gc) + art;
