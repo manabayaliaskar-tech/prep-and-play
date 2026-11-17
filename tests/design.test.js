@@ -490,3 +490,42 @@ test('озвучка: текст очищается, после ответа ч�
   assert.equal(answerSpeech({ voice: { lang: 'zh', after: '书' }, choices: ['shū'], answer: 0 }), '书');
   assert.equal(answerSpeech({ choices: ['a'], answer: 0 }), null);
 });
+
+test('план на сегодня: тренировка дня из ошибок, слабых тем и плана; шаги без лишнего', async () => {
+  const mem = new Map();
+  globalThis.localStorage ??= { getItem: (k) => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, String(v)), removeItem: (k) => mem.delete(k), clear: () => mem.clear() };
+  for (const k of ['plan', 'cards', 'mistakes']) globalThis.localStorage.removeItem(`prepplay:${k}`);
+  const { todaySteps, MIX_SIZE } = await import('../src/core/today.js');
+  const { buildMix } = await import('../src/screens/today.js');
+  const { createRng } = await import('../src/core/random.js');
+  // Новичок: только тренировка дня (квиз обо всём) и цель дня.
+  const fresh = { skills: {}, practice: {}, counters: {}, achievements: {} };
+  const s0 = todaySteps(fresh, { today: '2026-11-17', xpToday: 0, goal: 60 });
+  assert.deepEqual(s0.map((s) => s.id), ['mix', 'goal']);
+  const mix0 = buildMix(fresh, '2026-11-17', createRng(1));
+  assert.equal(mix0.questions.length, MIX_SIZE);
+  // Готовится к ЕНТ: слабые темы курса попадают в тренировку, а пробник предлагается раз в неделю.
+  globalThis.localStorage.setItem('prepplay:plan', JSON.stringify({ course: 'ent', date: '2027-06-01', created: '2026-11-01' }));
+  const prof = { skills: { 'm.pct': { a: 10, c: 2 } }, practice: {}, counters: {}, achievements: {}, last: { course: 'ent', track: 'mathlit' }, mocks: [{ exam: 'ent', date: '2026-11-14' }] };
+  const mix = buildMix(prof, '2026-11-17', createRng(2));
+  assert.equal(mix.questions.length, MIX_SIZE);
+  assert.ok(mix.questions.some((q) => q.topic === 'm.pct'), 'слабая тема в тренировке');
+  assert.ok(!todaySteps(prof, { today: '2026-11-17' }).some((s) => s.id === 'mock'), 'пробник был 3 дня назад');
+  assert.ok(todaySteps(prof, { today: '2026-11-25' }).some((s) => s.id === 'mock'), 'через неделю — снова пробник');
+  globalThis.localStorage.removeItem('prepplay:plan');
+});
+
+test('грамотность чтения: девять текстов на трёх языках, вопросы с четырьмя разными вариантами', async () => {
+  const { LITERACY } = await import('../src/pools/humanities/literacy.js');
+  const { LITERACY_MORE } = await import('../src/pools/humanities/literacy-more.js');
+  const all = [...LITERACY, ...LITERACY_MORE];
+  assert.ok(all.length >= 9);
+  assert.equal(new Set(all.map((p) => p.id)).size, all.length);
+  for (const p of all) {
+    for (const l of ['ru', 'kk', 'en']) assert.ok(p.text[l].length > 300 && p.title[l], `${p.id} ${l}`);
+    for (const item of p.qs) {
+      assert.equal(item.choices.length, 4, p.id);
+      for (const l of ['ru', 'kk', 'en']) assert.equal(new Set(item.choices.map((c) => c[l])).size, 4, `${p.id} ${l}`);
+    }
+  }
+});

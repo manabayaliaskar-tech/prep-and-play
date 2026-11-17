@@ -14,6 +14,7 @@ import { storage } from '../core/storage.js';
 import { buildTopicSet } from '../pools/stream.js';
 import { esc } from '../ui/dom.js';
 import { mascot } from '../ui/mascot.js';
+import { bindChart, lineChart } from '../ui/chart.js';
 import { courseBadge } from './hub.js';
 import { celebrate, runSession } from './play.js';
 
@@ -34,6 +35,36 @@ export function saveMockResult(examId, entry) {
 }
 
 const historyOf = (examId) => (getProfile().mocks ?? []).filter((m) => m.exam === examId);
+
+const fmtDay = (d) => d.split('-').reverse().slice(0, 2).join('.');
+
+/** Точки графика: все попытки по порядку; короткая версия — полая точка. */
+export const progressPoints = (examId) =>
+  historyOf(examId).map((h) => ({ label: fmtDay(h.date), value: h.score, hollow: h.short, note: h.short ? t('mock.short') : t('mock.full') }));
+
+/**
+ * Панель «Твой прогресс»: график и только факты — лучший, последний, изменение с первой попытки.
+ * Никаких прогнозов: баллы растут постепенно, и обещать их нельзя.
+ */
+export function progressPanelHtml(examId) {
+  const list = historyOf(examId);
+  if (!list.length) return '';
+  const last = list.at(-1);
+  const best = list.reduce((b, h) => Math.max(b, h.score), -Infinity);
+  const sameKind = list.filter((h) => h.short === last.short);
+  const diff = sameKind.length > 1 ? Math.round((last.score - sameKind[0].score) * 10) / 10 : null;
+  return `<div class="panel mock-progress-panel">
+    <h2>📈 ${t('mock.progress')}</h2>
+    <div class="mp-facts">
+      <div><b>${list.length}</b><span>${t('mock.attempts')}</span></div>
+      <div><b>${best}</b><span>${t('mock.bestShort')}</span></div>
+      <div><b>${last.score}</b><span>${t('mock.lastShort')}</span></div>
+      <div><b class="${diff > 0 ? 'is-up' : diff < 0 ? 'is-down' : ''}">${diff === null ? '—' : `${diff > 0 ? '+' : ''}${diff}`}</b><span>${t('mock.sinceFirst')}</span></div>
+    </div>
+    ${list.length >= 2 ? lineChart(progressPoints(examId), { max: last.max, ariaLabel: t('mock.progress') }) : `<p class="muted small">${t('mock.oneMore')}</p>`}
+    <p class="muted tiny">${list.some((h) => h.short) ? `◯ ${t('mock.hollow')} · ` : ''}${t('mock.slow')}</p>
+  </div>`;
+}
 
 export function mockRoute(app, { exam: examId }) {
   const course = courseById(examId);
@@ -124,7 +155,9 @@ export function mockRoute(app, { exam: examId }) {
             }
           </div>
         </div>
+        ${progressPanelHtml(examId)}
       </section>`;
+    bindChart(app, progressPoints(examId));
 
     app.querySelectorAll('[data-track]').forEach((b) =>
       b.addEventListener('click', () => {

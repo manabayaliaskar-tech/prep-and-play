@@ -35,6 +35,7 @@ import { cardsRoute } from './screens/cards.js';
 import { achievementsRoute } from './screens/achievements.js';
 import { shopRoute } from './screens/shop.js';
 import { mockRoute } from './screens/mock.js';
+import { todayRoute } from './screens/today.js';
 import { seasonName, seasonRoute } from './screens/season.js';
 import { seasonId, themeOf } from './core/season.js';
 import { bindLangSwitches, renderTopbar } from './ui/topbar.js';
@@ -73,6 +74,7 @@ route('/achievements', () => achievementsRoute(app));
 route('/shop', () => shopRoute(app));
 route('/mock/:exam', (params) => mockRoute(app, params));
 route('/season', () => seasonRoute(app));
+route('/today', () => todayRoute(app));
 route('/premium', () => premiumScreen(app));
 
 on('profile', () => {

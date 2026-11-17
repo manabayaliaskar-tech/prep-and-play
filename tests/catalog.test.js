@@ -96,10 +96,12 @@ test('чтение: вопросы одного текста идут подря
   for (const exam of ['ielts', 'toefl']) {
     const course = courseById(exam);
     const stream = new TopicStream({ rng: createRng(5), spec: trackById(course, 'reading').spec });
-    const order = Array.from({ length: 20 }, () => stream.next());
+    const order = Array.from({ length: 40 }, () => stream.next());
     const passages = order.map((q) => q.id.split(':')[1]);
-    for (let i = 0; i < 20; i += 5) assert.equal(new Set(passages.slice(i, i + 5)).size, 1, `${exam}: текст должен идти блоком`);
-    assert.equal(new Set(passages).size, 4, `${exam}: все четыре текста`);
+    // Каждый текст идёт одним блоком: число «смен текста» равно числу разных текстов минус один.
+    const runs = passages.filter((id, i) => i === 0 || id !== passages[i - 1]).length;
+    assert.equal(runs, new Set(passages).size, `${exam}: текст должен идти блоком`);
+    assert.ok(new Set(passages).size >= 6, `${exam}: за 40 вопросов — не меньше шести текстов`);
     for (const q of order) {
       assert.ok(q.passage.length > 400 && q.passageLabel);
       assert.ok(q.choices.length === 3 || q.choices.length === 4);
@@ -108,7 +110,7 @@ test('чтение: вопросы одного текста идут подря
   for (const list of Object.values(READING)) {
     for (const passage of list) {
       const words = passage.text.split(/\s+/).length;
-      assert.ok(words >= 120 && words <= 220, `${passage.id}: ${words} слов`);
+      assert.ok(words >= 120 && words <= 480, `${passage.id}: ${words} слов`);
       for (const item of passage.qs) {
         for (const l of LANGS) assert.ok(item.ex[l].length > 20, passage.id);
         if (item.type === 'tfng') assert.ok([0, 1, 2].includes(item.answer));
@@ -116,7 +118,7 @@ test('чтение: вопросы одного текста идут подря
       }
       // В IELTS-текстах есть все три ответа: True, False, Not Given.
       const tf = passage.qs.filter((q) => q.type === 'tfng').map((q) => q.answer);
-      if (tf.length) assert.deepEqual([...tf].sort(), [0, 1, 2], passage.id);
+      if (tf.length) assert.deepEqual([...new Set(tf)].sort(), [0, 1, 2], passage.id);
     }
   }
 });

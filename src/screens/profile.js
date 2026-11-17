@@ -6,6 +6,9 @@ import { t, tx } from '../core/i18n.js';
 import { currentStreak, getProfile, levelInfo, resetProgress, saveProfile } from '../core/profile.js';
 import { ACHIEVEMENTS } from '../content/achievements.js';
 import { flameSvg } from '../core/economy.js';
+import { hasMock } from '../catalog/mocks.js';
+import { progressPanelHtml, progressPoints } from './mock.js';
+import { bindChart } from '../ui/chart.js';
 import { achievementsPanel } from './achievements.js';
 import { DOMAINS, LEVELS_PER_ZONE, SKILLS, ZONES } from '../content/skills.js';
 import { POOLS, TOPICS } from '../pools/topics.js';
@@ -324,7 +327,9 @@ function examFoldBody(p, course) {
     <div class="exam-fold-actions">
       <a class="btn btn-primary btn-sm" href="#${courseHref(course)}">📚 ${t('plan.openExam')}</a>
       ${courseWeakTopics(course).length ? `<a class="btn btn-soft btn-sm" href="#/weak/${course.id}">🎯 ${t('wk.start')}</a>` : ''}
-    </div>`;
+      ${hasMock(course.id) ? `<a class="btn btn-soft btn-sm" href="#/mock/${course.id}">🏁 ${t('mock.title')}</a>` : ''}
+    </div>
+    ${progressPanelHtml(course.id)}`;
 }
 
 function examsSection(p, satValues) {
@@ -338,7 +343,7 @@ function examsSection(p, satValues) {
       ${rows
         .map(
           ({ course, ready }) => `
-        <details class="exam-fold" style="--c:${course.color}">
+        <details class="exam-fold" data-exam="${course.id}" style="--c:${course.color}">
           <summary>
             ${courseBadge(course)}
             <span class="course-text"><b>${esc(tx(course.name))}</b><small>${esc(tx(course.full))}</small></span>
@@ -417,6 +422,7 @@ ${achievementsPanel(p)}
       app.querySelector('.volume-input').disabled = !p.sound;
     });
     app.querySelector('.prepi-dress').addEventListener('click', () => openWardrobe(render));
+    app.querySelectorAll('.exam-fold[data-exam]').forEach((el) => bindChart(el, progressPoints(el.dataset.exam)));
     app.querySelector('.install-btn')?.addEventListener('click', startInstall);
     app.querySelector('.volume-input').addEventListener('change', (e) => {
       setVolume(Number(e.target.value) / 100);

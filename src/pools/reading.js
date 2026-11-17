@@ -5,6 +5,7 @@
 
 import { pick, shuffle } from '../core/random.js';
 import { L, poolQ } from './gen.js';
+import { IELTS_MORE, TOEFL_MORE } from './reading-more.js';
 
 const TFNG = ['True', 'False', 'Not Given'];
 const tf = (statement, answer, ex) => ({ type: 'tfng', statement, answer, ex });
@@ -578,6 +579,10 @@ export const READING = {
     },
   ],
 };
+
+// Длинные тексты ближе к настоящему экзамену — в отдельном файле.
+READING.ielts.push(...IELTS_MORE);
+READING.toefl.push(...TOEFL_MORE);
 
 const TFNG_PROMPT = (statement) =>
   L(

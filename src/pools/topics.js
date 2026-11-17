@@ -32,6 +32,7 @@ import { BIOLOGY, GEOGRAPHY } from './science/bio-geo.js';
 import { HISTORY_KZ, HISTORY_REGION, HISTORY_RU, HISTORY_WORLD } from './humanities/history.js';
 import { ANALOGIES, RUSSIAN, SENTENCES, SOCIAL } from './humanities/language.js';
 import { LITERACY } from './humanities/literacy.js';
+import { LITERACY_MORE } from './humanities/literacy-more.js';
 import { timelineMaker } from './humanities/history-gen.js';
 import { powersMaker, russianMaker, socialMaker } from './humanities/ru-gen.js';
 import { INFORMATICS_THEORY, algorithms, infoUnits, logic as boolLogic, numberSystems } from './science/informatics.js';
@@ -158,7 +159,7 @@ export const TOPICS = {
   'l.analogy': topic('russian', L('Analogies', 'Аналогии', 'Аналогиялар'), bankMaker('l.analogy', ANALOGIES)),
   'l.analogy2': topic('russian', L('Word analogies', 'Аналогии слов', 'Сөз аналогиялары'), analogyMaker('l.analogy2')),
   'l.complete': topic('russian', L('Sentence completion', 'Дополнение предложений', 'Сөйлемді толықтыру'), bankMaker('l.complete', SENTENCES)),
-  'r.literacy': topic('reading', L('Reading literacy', 'Грамотность чтения', 'Оқу сауаттылығы'), readingMaker('r.literacy', LITERACY)),
+  'r.literacy': topic('reading', L('Reading literacy', 'Грамотность чтения', 'Оқу сауаттылығы'), readingMaker('r.literacy', [...LITERACY, ...LITERACY_MORE])),
 
   // ----- Чтение -----
   'r.ielts': topic('reading', L('IELTS Reading', 'IELTS: чтение', 'IELTS: оқылым'), readingMaker('r.ielts', 'ielts')),

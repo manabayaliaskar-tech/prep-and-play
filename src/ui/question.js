@@ -9,7 +9,10 @@ import { esc, isFinePointer } from './dom.js';
 export const LETTERS = ['A', 'B', 'C', 'D'];
 
 function passageText(text) {
-  return esc(text).replace(/_{3,}/g, '<span class="blank" aria-label="blank"></span>');
+  // Длинные тексты разбиты на абзацы пустой строкой.
+  return esc(text)
+    .replace(/_{3,}/g, '<span class="blank" aria-label="blank"></span>')
+    .replace(/\n\s*\n/g, '</p><p>');
 }
 
 function tableHtml(table) {

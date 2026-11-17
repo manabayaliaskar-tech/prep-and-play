@@ -17,6 +17,7 @@ import { nextChestBadge, openChestModal, rewardCardsHtml } from './report.js';
 import { openWardrobe } from '../ui/wardrobe-ui.js';
 import { flameSvg } from '../core/economy.js';
 import { seasonCardHtml } from './season.js';
+import { todayCardHtml } from './today.js';
 import { bindLife, flameBadgeHtml, giftCardHtml, moodHtml, moodOf, rescueCardHtml, shopCardHtml } from './prepi-life.js';
 
 export function ring(value, max) {
@@ -222,6 +223,8 @@ export function hubScreen(app) {
         ${streakRiskHtml(streak, xpToday)}
 
         ${giftCardHtml(p)}
+
+        ${todayCardHtml(p)}
 
         ${quizHero(p)}
 

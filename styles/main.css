@@ -8964,3 +8964,143 @@ svg.mascot {
   .season-mini-bar i::after, .season-bar i::after, .season-claim-badge { animation: none; }
   .season-particles { display: none; }
 }
+
+/* ---------- График прогресса пробников ---------- */
+.chart { --chart-line: var(--primary, #7c3aed); }
+.chart { position: relative; margin: 6px 0 8px; }
+.chart svg { display: block; max-width: 100%; height: auto; overflow: visible; }
+.chart-grid { stroke: var(--line); stroke-width: 1; }
+.chart-axis { fill: var(--muted); font-size: 13px; font-weight: 600; }
+.chart-line { stroke: var(--chart-line); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.chart-dot { fill: var(--chart-line); stroke: var(--card); stroke-width: 2.5; transition: r 0.15s; }
+.chart-dot.is-hollow { fill: var(--card); stroke: var(--chart-line); stroke-width: 2.5; }
+.chart-hit { fill: transparent; cursor: pointer; }
+.chart-pt:hover .chart-dot, .chart-pt:focus .chart-dot { r: 7; }
+.chart-pt:focus { outline: none; }
+.chart-val { fill: var(--ink); font-size: 14px; font-weight: 800; }
+.chart-tip {
+  position: absolute;
+  z-index: 3;
+  transform: translate(-50%, calc(-100% - 12px));
+  display: grid;
+  gap: 1px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+  color: var(--ink);
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.14);
+}
+.chart-tip b { font-size: 1rem; }
+.chart-tip span, .chart-tip small { color: var(--muted); }
+.mock-progress-panel h2 { margin-top: 0; }
+.mp-facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 8px; }
+.mp-facts div { display: grid; padding: 10px 6px; border-radius: 14px; text-align: center; background: var(--surface); }
+.mp-facts b { font-size: 1.3rem; }
+.mp-facts b.is-up { color: #16a34a; }
+.mp-facts b.is-down { color: #dc2626; }
+.mp-facts span { font-size: 0.72rem; color: var(--muted); font-weight: 700; }
+.exam-fold-body .mock-progress-panel { margin-top: 12px; padding: 12px; box-shadow: none; }
+@media (max-width: 560px) {
+  .mp-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ---------- «Что мне сегодня делать?» ---------- */
+.today-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 22px;
+  color: inherit;
+  text-decoration: none;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--primary, #7c3aed) 16%, var(--card)), color-mix(in srgb, #22c55e 10%, var(--card)));
+  border: 2px solid color-mix(in srgb, var(--primary, #7c3aed) 35%, var(--line));
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.today-card:hover { transform: translateY(-2px); box-shadow: 0 10px 24px color-mix(in srgb, var(--primary, #7c3aed) 20%, transparent); }
+.today-card.is-done { background: linear-gradient(135deg, color-mix(in srgb, #22c55e 14%, var(--card)), var(--card)); border-color: #86efac; }
+.today-icon { font-size: 2.2rem; }
+.today-card:not(.is-done) .today-icon { animation: compass 4s ease-in-out infinite; display: inline-block; }
+@keyframes compass {
+  0%, 70%, 100% { transform: rotate(0); }
+  80% { transform: rotate(-18deg); }
+  90% { transform: rotate(12deg); }
+}
+.today-text { display: grid; gap: 2px; flex: 1; min-width: 0; }
+.today-text b { font-size: 1.1rem; font-weight: 800; }
+.today-text small { color: var(--muted); }
+.today-steps { display: flex; gap: 4px; }
+.today-steps i {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  font-style: normal;
+  font-size: 0.95rem;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+}
+.today-steps i.is-done { background: #dcfce7; border-color: #86efac; }
+.today-page { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.today-hero {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 22px;
+  border-radius: 26px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--primary, #7c3aed) 16%, var(--card)), var(--card));
+  border: 2px solid color-mix(in srgb, var(--primary, #7c3aed) 30%, var(--line));
+}
+.today-hero h1 { margin: 4px 0 6px; }
+.today-hero p { margin: 0; }
+.today-hero .mascot { flex: 0 0 auto; width: 120px; height: auto; }
+.today-progress { display: flex; align-items: center; gap: 10px; margin-top: 12px; max-width: 360px; }
+.today-progress .bar { flex: 1; }
+.today-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.today-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--card);
+  border: 2px solid var(--line);
+  animation: bubble-in 0.4s ease-out both;
+}
+.today-step:nth-child(2) { animation-delay: 60ms; }
+.today-step:nth-child(3) { animation-delay: 120ms; }
+.today-step:nth-child(4) { animation-delay: 180ms; }
+.today-step:nth-child(5) { animation-delay: 240ms; }
+.today-step.is-done { opacity: 0.75; background: color-mix(in srgb, #22c55e 8%, var(--card)); }
+.ts-check {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  font-size: 1.3rem;
+  background: var(--surface);
+}
+.today-step.is-done .ts-check { color: #fff; font-weight: 900; background: #22c55e; }
+.ts-text { display: grid; gap: 2px; flex: 1; min-width: 0; }
+.ts-text small { color: var(--muted); }
+.today-step:first-child { border-color: color-mix(in srgb, var(--primary, #7c3aed) 40%, var(--line)); }
+.today-why h2 { margin-top: 0; }
+@media (max-width: 560px) {
+  .today-steps { display: none; }
+  .today-hero .mascot { width: 84px; }
+  .today-step { flex-wrap: wrap; }
+  .today-step .ts-text { flex: 1 1 calc(100% - 60px); }
+  .today-step .btn { margin-left: 54px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .today-card .today-icon, .today-step { animation: none; }
+}
+.passage p + p { margin-top: 0.75em; }
