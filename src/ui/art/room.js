@@ -29,12 +29,13 @@ const glow = (x, y, r, c, cls = 'room-glow') =>
 /** Звёзды в прямоугольнике: точки, часть мерцает. */
 const stars = (seed, n, w, h, x0 = 0, y0 = 0, fill = '#fff') => {
   const r = rng(seed);
-  let out = '';
+  let out = '', d = ['', ''];
   for (let i = 0; i < n; i++) {
-    const x = f1(x0 + r() * w), y = f1(y0 + r() * h), s = f1(0.35 + r() * 0.7);
-    out += i % 3 === 0 ? spark(x, y, f1(s * 2.2), fill, 'room-twinkle') : `<circle cx="${x}" cy="${y}" r="${s}" fill="${fill}" opacity="${f1(0.5 + r() * 0.5)}"/>`;
+    const x = f1(x0 + r() * w), y = f1(y0 + r() * h), s = r();
+    if (i % 3 === 0) out += spark(x, y, f1(0.8 + s * 1.5), fill, 'room-twinkle');
+    else d[s < 0.5 ? 0 : 1] += `M${x} ${y}h0`;
   }
-  return out;
+  return `<path d="${d[0]}" stroke="${fill}" stroke-width=".9" stroke-linecap="round" opacity=".6"/><path d="${d[1]}" stroke="${fill}" stroke-width="1.5" stroke-linecap="round" opacity=".9"/>${out}`;
 };
 
 /* ------------------------------------------------------------------ стены */
@@ -146,7 +147,7 @@ const WALLS = {
   },
   'r-wall-galaxy': {
     base: '#1a1446', trim: '#0f0b2e', dark: true,
-    pat: (w, h) => `<ellipse cx="${f1(w * 0.3)}" cy="40" rx="60" ry="22" fill="#3b2a85" opacity=".45"/><ellipse cx="${f1(w * 0.75)}" cy="90" rx="70" ry="20" fill="#5b2a8a" opacity=".3"/>${stars(w + 3, Math.round(w / 4.5), w, h - 8)}${w > 100 ? '<circle cx="250" cy="104" r="6" fill="#f472b6"/><path d="M243 102 Q250 100 257 106" stroke="#fbcfe8" stroke-width="1" fill="none" opacity=".7"/><circle cx="20" cy="18" r="3.5" fill="#7dd3fc"/>' : ''}`,
+    pat: (w, h) => `<ellipse cx="${f1(w * 0.3)}" cy="40" rx="60" ry="22" fill="#3b2a85" opacity=".45"/><ellipse cx="${f1(w * 0.75)}" cy="90" rx="70" ry="20" fill="#5b2a8a" opacity=".3"/>${stars(w + 3, Math.round(w / 5.5), w, h - 8)}${w > 100 ? '<circle cx="250" cy="104" r="6" fill="#f472b6"/><path d="M243 102 Q250 100 257 106" stroke="#fbcfe8" stroke-width="1" fill="none" opacity=".7"/><circle cx="20" cy="18" r="3.5" fill="#7dd3fc"/>' : ''}`,
   },
   'r-wall-royal': {
     base: '#6b1d3a', trim: '#c8962a', dark: true, side: false,

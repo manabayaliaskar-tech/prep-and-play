@@ -94,10 +94,10 @@ function pompom(cx, cy, [base, shade, hi, line]) {
 
 /** Мячик для жонглирования. */
 function ball(x, y, [base, shade, hi, line]) {
-  return `<circle cx="${x}" cy="${y}" r="6" fill="${base}" stroke="${line}" stroke-width="1.3"/>
-    <path d="M${x + 5.5} ${y + 1} A5.6 5.6 0 0 1 ${x - 1} ${y + 5.6} Q${x + 4} ${y + 4} ${x + 5.5} ${y + 1} Z" fill="${shade}"/>
-    <path d="M${x - 5.6} ${y + 0.6} Q${x} ${y - 3.2} ${x + 5.6} ${y + 0.6}" stroke="${line}" stroke-width=".9" fill="none" opacity=".45"/>
-    <ellipse cx="${x - 2.2}" cy="${y - 2.6}" rx="2" ry="1.3" transform="rotate(-30 ${x - 2.2} ${y - 2.6})" fill="${hi}"/>`;
+  return `<circle cx="${x}" cy="${y}" r="7.5" fill="${base}" stroke="${line}" stroke-width="1.4"/>
+    <path d="M${x + 6.9} ${y + 1.2} A7 7 0 0 1 ${x - 1.2} ${y + 7} Q${x + 5} ${y + 5} ${x + 6.9} ${y + 1.2} Z" fill="${shade}"/>
+    <path d="M${x - 7} ${y + 0.8} Q${x} ${y - 4} ${x + 7} ${y + 0.8}" stroke="${line}" stroke-width="1" fill="none" opacity=".45"/>
+    <ellipse cx="${x - 2.8}" cy="${y - 3.2}" rx="2.4" ry="1.5" transform="rotate(-30 ${x - 2.8} ${y - 3.2})" fill="${hi}"/>`;
 }
 
 /** Электрогитара: корпус в (30, 116), гриф уходит вправо-вверх к правой руке. */
@@ -334,7 +334,7 @@ export const EMOTES = {
       ['--x:38px;--y:-20px;--dl:.1s', 6],
       ['--x:14px;--y:-76px;--dl:.18s', 5.5],
       ['--x:6px;--y:-38px;--dl:.26s', 4.5],
-    ].map(([style, s], i) => fx('emo-kiss-heart', style, heart(98, 90, s, i % 2 ? '#fda4af' : '#fb7185'))).join(''),
+    ].map(([style, s], i) => fx('emo-kiss-heart', style, heart(106, 100, s, i % 2 ? '#fda4af' : '#fb7185'))).join(''),
   },
 
   // Сальто назад: присед, прыжок с полным оборотом, приземление.
@@ -355,7 +355,7 @@ export const EMOTES = {
       ['#ef4444', '#b91c1c', '#fecaca', '#7f1d1d'],
       ['#facc15', '#ca8a04', '#fef9c3', '#854d0e'],
       ['#38bdf8', '#0284c7', '#e0f2fe', '#075985'],
-    ].map((c, i) => `<g class="emo-jx emo-jx${i + 1}"><g class="emo-jy">${ball(24, 104, c)}</g></g>`).join(''),
+    ].map((c, i) => `<g class="emo-jx emo-jx${i + 1}"><g class="emo-jy">${ball(21, 102, c)}</g></g>`).join(''),
   },
 
   // Рок-звезда: соло на электрогитаре, качает головой, вылетают ноты.

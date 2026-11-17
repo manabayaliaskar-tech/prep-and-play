@@ -82,7 +82,12 @@ function setOutfit(set, base) {
 const roomSlots = () => (roomArt.ROOM_SLOTS?.length ? roomArt.ROOM_SLOTS : [...new Set(shopGoods('room').map((g) => g.slot))]);
 const scene = (room, prepi, opts) => (roomArt.roomScene ? roomArt.roomScene(room, prepi, opts) : `<div class="room-scene">${prepi}</div>`);
 
+let routeSeq = 0;
+
 export function shopRoute(app, params = {}) {
+  const me = ++routeSeq;
+  // Таймеры (праздник после покупки) не должны перерисовывать магазин, если уже открыт другой экран или вкладка.
+  const alive = () => me === routeSeq && app.querySelector('.shop3');
   let tab = SHOP_TABS.includes(params.tab) ? params.tab : storage.get('shopTab3', 'home');
   if (!SHOP_TABS.includes(tab)) tab = 'home';
   let wearSlot = storage.get('shopSlot', 'head');
@@ -371,7 +376,7 @@ export function shopRoute(app, params = {}) {
       render();
       setTimeout(() => {
         celebrate = false;
-        if (app.querySelector('.shop3')) render();
+        if (alive()) render();
       }, 3600);
     });
     app.querySelector('.act-buy')?.addEventListener('click', () => purchase(buyItem(tryId)));
@@ -415,7 +420,7 @@ export function shopRoute(app, params = {}) {
     animateCoin(app.querySelector('.coin-balance .coin'), 'spend');
     setTimeout(() => {
       celebrate = false;
-      if (app.querySelector('.shop3')) render();
+      if (alive()) render();
     }, 2600);
   }
 

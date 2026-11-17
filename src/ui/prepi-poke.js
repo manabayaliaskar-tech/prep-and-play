@@ -4,6 +4,7 @@
 import { t } from '../core/i18n.js';
 import { sfx } from '../core/sound.js';
 import { ownedEmotes } from '../core/shop.js';
+import { EMOTES } from './art/emotes.js';
 import { mascot } from './mascot.js';
 
 const REACTIONS = ['laugh', 'wow', 'love', 'wink', 'starstruck', 'proud', 'cool', 'shy'];
@@ -68,7 +69,7 @@ export function bindPoke(holder, base) {
     const emotes = ownedEmotes();
     if (emotes.length && Math.random() < 0.35) {
       const emote = emotes[Math.floor(Math.random() * emotes.length)];
-      play({ emote, form: null }, 3200);
+      play({ emote, form: null }, Math.max(2400, EMOTES[emote]?.ms ?? 3200));
       return;
     }
     const mood = REACTIONS[Math.floor(Math.random() * REACTIONS.length)];

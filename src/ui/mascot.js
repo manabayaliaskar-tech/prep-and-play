@@ -194,7 +194,7 @@ function arms(poseId, { buff = false, holding = null } = {}) {
     back += `<g class="arm arm-${side.toLowerCase()} ${isR && pose.wave ? 'is-waving' : ''}">${armPath(a, thick)}${pose.flex || buff ? `<circle cx="${(a[0] + a[2]) / 2 + (isR ? 2 : -2)}" cy="${(a[1] + a[3]) / 2 - 3}" r="${buff ? 9.5 : 6}" fill="var(--mascot-1)" stroke="var(--mascot-2)" stroke-width="1.6"/>` : ''}</g>`;
     const [hx, hy] = [a[4], a[5]];
     if (isR && holding) front += `<g class="held" transform="translate(${hx} ${hy})">${holding}</g>`;
-    front += hand(hx, hy, isR && pose.wave ? 'is-waving' : '');
+    front += hand(hx, hy, `hand-${side.toLowerCase()} ${isR && pose.wave ? 'is-waving' : ''}`);
     if (isR && pose.thumb) front += `<path d="M${hx - 1} ${hy - 6} q1 -9 5 -8 q3 1 -1 9" fill="var(--mascot-1)" stroke="var(--mascot-2)" stroke-width="1.6"/>`;
   }
   for (const [x, y] of pose.front ?? []) front += hand(x, y);
@@ -294,7 +294,7 @@ export function mascot(mood = 'happy', cls = '', outfit = getOutfit(), opts = {}
   const buff = form === 'buff';
   const held = HAND[outfit.hand] ?? '';
   const poseId = opts.pose ?? (buff ? 'flex' : m.pose);
-  const { back: armsBack, front: armsFront } = arms(poseId, { buff, holding: held || null });
+  const { back: armsBack, front: armsFront } = arms(poseId, { buff, holding: emote ? null : held || null });
   const head = outfit.head === 'cap' ? CAP : (HEAD[outfit.head] ?? '');
   const formHead = head ? '' : buff ? SWEATBAND : form === 'sick' ? ICEPACK : '';
   const blush = m.blush === 2
