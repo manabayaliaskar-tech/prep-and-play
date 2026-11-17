@@ -39,6 +39,7 @@ import { todayRoute } from './screens/today.js';
 import { adaptRoute, diagRoute, knowRoute } from './screens/learn.js';
 import { savedRoute } from './screens/saved.js';
 import { fullReadRoute } from './screens/fullread.js';
+import { explainIndexRoute, explainRoute } from './screens/explain.js';
 import { seasonName, seasonRoute } from './screens/season.js';
 import { seasonId, themeOf } from './core/season.js';
 import { bindLangSwitches, renderTopbar } from './ui/topbar.js';
@@ -83,6 +84,8 @@ route('/know/:course', (params) => knowRoute(app, params));
 route('/adapt/:course', (params) => adaptRoute(app, params));
 route('/saved', () => savedRoute(app));
 route('/ielts-full', () => fullReadRoute(app));
+route('/explain', () => explainIndexRoute(app));
+route('/explain/:id', (params) => explainRoute(app, params));
 route('/premium', () => premiumScreen(app));
 
 on('profile', () => {

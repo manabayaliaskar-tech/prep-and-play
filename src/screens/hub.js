@@ -18,7 +18,19 @@ import { openWardrobe } from '../ui/wardrobe-ui.js';
 import { flameSvg } from '../core/economy.js';
 import { seasonCardHtml } from './season.js';
 import { todayCardHtml } from './today.js';
+import { getSaved } from '../core/saved.js';
 import { bindLife, flameBadgeHtml, giftCardHtml, moodHtml, moodOf, rescueCardHtml, shopCardHtml } from './prepi-life.js';
+
+/** Ряд инструментов учёбы: сохранённое, анимации тем, аудирование. */
+function learnRowHtml() {
+  const saved = getSaved().length;
+  const card = (href, icon, title, desc, cls = '') => `<a class="learn-card ${cls}" href="#${href}"><span class="learn-icon" aria-hidden="true">${icon}</span><span><b>${title}</b><small>${desc}</small></span></a>`;
+  return `<div class="learn-row">
+    ${card('/explain', '🎬', t('explain.title'), t('hub.explainDesc'), 'lc-explain')}
+    ${card('/c/ielts/listening', '🎧', t('hub.listen'), t('hub.listenDesc'), 'lc-listen')}
+    ${card('/saved', '🔖', t('saved.title'), saved ? t('hub.savedN', { n: saved }) : t('hub.savedDesc'), 'lc-saved')}
+  </div>`;
+}
 
 export function ring(value, max) {
   const r = 34;
@@ -232,6 +244,8 @@ export function hubScreen(app) {
           ${seasonCardHtml(p)}
           ${shopCardHtml(p)}
         </div>
+
+        ${learnRowHtml()}
 
         ${continueCard() ? `<div class="continue-row single">${continueCard()}</div>` : ''}
 
