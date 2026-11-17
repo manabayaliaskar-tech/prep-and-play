@@ -81,7 +81,7 @@ function wheelSvg() {
   </svg>`;
 }
 
-const hostPrepi = (mood = 'happy') => mascot(mood, 'host-prepi', { ...getOutfit(), head: 'host-hat', neck: 'host-suit', face: null, back: null, aura: null, pet: null });
+const hostPrepi = (mood = 'happy') => mascot(mood, 'host-prepi', { ...getOutfit(), head: 'host-hat', neck: 'host-suit', hand: 'host-mic', body: null, face: null, back: null, aura: null, pet: null });
 
 /** Разметка блока ведущего. */
 export function quizHostHtml(cls = '') {

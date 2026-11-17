@@ -138,6 +138,12 @@ export function dayRecord(day) {
   return profile.history?.[day] ?? null;
 }
 
+// Бонус к монетам за опыт (например, +10 % за надетый целиком набор). Задаёт магазин, чтобы не было циклического импорта.
+let coinBoost = () => 1;
+export function setCoinBoost(fn) {
+  coinBoost = fn;
+}
+
 /**
  * Начисляет опыт с множителем за серию и монеты (1 монета за XP_PER_COIN XP).
  * Возвращает, сколько XP начислено на самом деле.
@@ -151,7 +157,7 @@ export function addXp(amount) {
   profile.xp += gained;
   const day = todayStats(today);
   day.xp += gained;
-  const dust = (profile.coinDust ?? 0) + gained;
+  const dust = (profile.coinDust ?? 0) + gained * coinBoost();
   addCoins(Math.floor(dust / XP_PER_COIN));
   profile.coinDust = dust % XP_PER_COIN;
   maybeRescue(today, day.xp);

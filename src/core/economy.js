@@ -97,27 +97,36 @@ export function rescueState(profile, today, xpToday) {
 
 // ---------- Настроение Препи ----------
 
+/** С какой серии Препи становится качком и огненным. */
+export const FORM_STREAK = { buff: 7, blaze: 30 };
+
 export const MOODS = {
+  blaze: { mascot: 'starstruck', form: 'blaze', energy: 100 },
+  buff: { mascot: 'win', form: 'buff', energy: 100 },
   joy: { mascot: 'win', energy: 100 },
   happy: { mascot: 'happy', energy: 75 },
   hello: { mascot: 'happy', energy: 60 },
   wait: { mascot: 'think', energy: 50 },
   sad: { mascot: 'sad', energy: 25 },
-  sleep: { mascot: 'sleep', energy: 8 },
+  sick: { mascot: 'sick', form: 'sick', energy: 12 },
+  rip: { mascot: 'ghost', form: 'tomb', energy: 0 },
 };
 
-/** Настроение Препи: зависит от того, занимался ли ты сегодня и как давно был последний раз. */
+/**
+ * Настроение и облик Препи: зависят от того, занимался ли ты сегодня, длины серии и долгого ли был перерыв.
+ * Длинная серия — качок (7+ дней) и огненный (30+); перерыв 3–6 дней — заболел; неделя и больше — призрак над надгробием серии.
+ */
 export function prepiMood(profile, today, xpToday, goal) {
   const last = profile.streak?.last;
+  const count = profile.streak?.count ?? 0;
   let id;
-  if (xpToday >= goal) id = 'joy';
-  else if (xpToday > 0) id = 'happy';
+  if (xpToday > 0) id = count >= FORM_STREAK.blaze ? 'blaze' : count >= FORM_STREAK.buff ? 'buff' : xpToday >= goal ? 'joy' : 'happy';
   else if (!last) id = 'hello';
   else {
     const gap = daysBetween(last, today);
-    id = gap <= 1 ? 'wait' : gap === 2 ? 'sad' : 'sleep';
+    id = gap <= 1 ? 'wait' : gap === 2 ? 'sad' : gap < 7 ? 'sick' : 'rip';
   }
   const base = MOODS[id];
-  const energy = id === 'happy' ? Math.round(55 + (40 * xpToday) / goal) : base.energy;
-  return { id, mascot: base.mascot, energy };
+  const energy = xpToday > 0 && xpToday < goal ? Math.round(55 + (40 * xpToday) / goal) : base.energy;
+  return { id, mascot: base.mascot, form: base.form ?? null, energy };
 }

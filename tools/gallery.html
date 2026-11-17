@@ -1,0 +1,58 @@
+<!doctype html>
+<!-- Галерея Препи для разработки: все настроения, формы и вещи по слотам. Открыть: http://localhost:3000/tools/gallery.html?slot=head -->
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Галерея Препи</title>
+<link rel="stylesheet" href="../styles/main.css">
+<link rel="stylesheet" href="../styles/parts/pets-auras.css">
+<link rel="stylesheet" href="../styles/parts/outfits.css">
+<link rel="stylesheet" href="../styles/parts/extra.css">
+<link rel="stylesheet" href="../styles/parts/emotes.css">
+<link rel="stylesheet" href="../styles/parts/room.css">
+<style>
+  body { background: #f5f3ff; padding: 16px; font-family: system-ui, sans-serif; }
+  h2 { margin: 18px 0 8px; font-size: 16px; }
+  .g { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .c { background: #fff; border-radius: 14px; padding: 8px; text-align: center; font-size: 12px; box-shadow: 0 1px 4px #0001; }
+  .c .mascot { width: 130px; margin: 0 auto; }
+  .c .art-thumb, .c .item-thumb { width: 110px; height: 110px; margin: 0 auto; display: block; }
+  nav a { margin-right: 10px; }
+  body.big .g { grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
+  body.big .c .mascot { width: 310px; }
+</style>
+</head>
+<body>
+<nav id="nav"></nav>
+<div id="out"></div>
+<script type="module">
+  import { mascot, MASCOT_MOODS, MASCOT_FORMS } from '../src/ui/mascot.js';
+  import { ITEMS, SLOTS } from '../src/core/wardrobe.js';
+  import { BACK, BODY, FACE, FEET, HAND, HEAD, NECK } from '../src/ui/art/wear.js';
+  import { PETS } from '../src/ui/art/pets.js';
+  import { AURA_SHAPES } from '../src/ui/art/auras.js';
+  const ART = { head: HEAD, face: FACE, neck: NECK, body: BODY, feet: FEET, hand: HAND, back: BACK, pet: PETS, aura: AURA_SHAPES };
+  const params = new URLSearchParams(location.search);
+  const slot = params.get('slot') ?? 'moods';
+  if (params.get('big')) document.body.classList.add('big');
+  const only = params.get('only')?.split(',');
+  const base = { head: null, face: null, neck: null, body: null, feet: null, hand: null, back: null, color: 'classic', aura: null, pet: null };
+  document.getElementById('nav').innerHTML = ['moods', ...SLOTS, 'thumbs'].map((s) => `<a href="?slot=${s}">${s}</a>`).join('');
+  const card = (title, svg) => `<div class="c">${svg}<div>${title}</div></div>`;
+  let html = '';
+  if (slot === 'moods') {
+    html += '<h2>Настроения</h2><div class="g">' + MASCOT_MOODS.filter((m) => !only || only.includes(m)).map((m) => card(m, mascot(m, '', { ...base, head: 'cap' }))).join('') + '</div>';
+    html += '<h2>Формы</h2><div class="g">' + MASCOT_FORMS.map((f) => card(f, mascot(f === 'buff' || f === 'blaze' ? 'win' : f === 'sick' ? 'sick' : 'ghost', '', base, { form: f }))).join('') + '</div>';
+  } else if (slot === 'thumbs') {
+    const { itemThumb } = await import('../src/ui/item-thumb.js');
+    html += '<div class="g">' + ITEMS.map((it) => card(`${it.slot}: ${it.id}`, itemThumb(it))).join('') + '</div>';
+  } else {
+    const ids = [...new Set([...ITEMS.filter((it) => it.slot === slot).map((it) => it.id), ...Object.keys(ART[slot] ?? {})])].filter((id) => !only || only.includes(id));
+    const mood = params.get('mood') ?? 'happy';
+    html += `<h2>${slot} — ${ids.length}</h2><div class="g">` + ids.map((id) => card(`${id} · ${ITEMS.find((it) => it.id === id)?.rarity ?? 'новая'}`, mascot(mood, '', { ...base, [slot]: id }))).join('') + '</div>';
+  }
+  document.getElementById('out').innerHTML = html;
+</script>
+</body>
+</html>

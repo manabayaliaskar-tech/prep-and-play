@@ -21,6 +21,8 @@ import { weekStart, weekSummary } from '../core/rewards.js';
 import { dayKey } from '../core/dates.js';
 import { courseWeakTopics } from './review.js';
 import { openWardrobe } from '../ui/wardrobe-ui.js';
+import { getRoom } from '../core/shop.js';
+import { roomScene } from '../ui/art/room.js';
 import { canInstall } from '../core/pwa.js';
 import { startInstall } from './hub.js';
 import { getVolume, setVolume, sfx } from '../core/sound.js';
@@ -374,6 +376,11 @@ export function profileScreen(app) {
             <div class="level-line"><span class="lvl-badge big">${lvl.level}</span><div class="bar xp"><i style="width:${Math.round((lvl.into / lvl.need) * 100)}%"></i></div><span class="muted small">${lvl.into}/${lvl.need} XP</span></div>
           </div>
         </div>
+
+        <a class="profile-room" href="#/shop/room" aria-label="${t('profile.room')}">
+          ${roomScene(getRoom(p), mascot('happy', 'mascot-stage float'), { compact: true })}
+          <span class="profile-room-label">🛋️ ${t('profile.room')} →</span>
+        </a>
 
         <div class="stat-grid">
           <div class="stat-tile"><b>${p.counters.answered}</b><span>${t('profile.answered')}</span></div>

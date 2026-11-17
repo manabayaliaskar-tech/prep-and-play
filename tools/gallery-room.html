@@ -1,0 +1,63 @@
+<!doctype html>
+<!-- Комната Препи для разработки: готовые комнаты по темам и все вещи по слотам. Открыть: http://localhost:3000/tools/gallery-room.html (?compact=1 — карточки 16:9) -->
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Комната Препи</title>
+<link rel="stylesheet" href="../styles/main.css">
+<link rel="stylesheet" href="../styles/parts/pets-auras.css">
+<link rel="stylesheet" href="../styles/parts/outfits.css">
+<link rel="stylesheet" href="../styles/parts/extra.css">
+<link rel="stylesheet" href="../styles/parts/room.css">
+<style>
+  body { background: #f5f3ff; padding: 16px; font-family: system-ui, sans-serif; color: #1e1b3a; }
+  h2 { margin: 22px 0 10px; font-size: 16px; }
+  .rooms { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 480px), 1fr)); gap: 16px; }
+  .rooms figure { margin: 0; }
+  .rooms figcaption { font-size: 13px; margin-top: 6px; color: #6b6890; }
+  .smalls { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 10px; }
+  .g { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
+  .c { background: #fff; border-radius: 12px; padding: 6px; text-align: center; font-size: 11px; box-shadow: 0 1px 4px #0001; }
+  .c .item-thumb { width: 100%; height: auto; aspect-ratio: 1; margin: 0 auto 4px; }
+  .c b { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
+  .common b { color: #64748b; } .rare b { color: #2563eb; } .epic b { color: #9333ea; } .legendary b { color: #c2410c; }
+</style>
+</head>
+<body>
+<div id="out"></div>
+<script type="module">
+  import { mascot } from '../src/ui/mascot.js';
+  import { ROOM_SLOTS, ROOM_ART, DEFAULT_ROOM, roomScene, roomItemThumb } from '../src/ui/art/room.js';
+  import { META, NAMES } from '../src/content/room-meta.js';
+  const params = new URLSearchParams(location.search);
+  const base = { head: null, face: null, neck: null, body: null, feet: null, hand: null, back: null, color: 'classic', aura: null, pet: null };
+  const ROOMS = {
+    'по умолчанию': DEFAULT_ROOM,
+    уютная: { wall: 'r-wall-wood', floor: 'r-floor-oak', window: 'r-win-sunset', seat: 'r-seat-bed', desk: 'r-desk-wood', shelf: 'r-shelf-books', plant: 'r-plant-monstera', lamp: 'r-lamp-floor', rug: 'r-rug-round', poster: 'r-poster-cat', toy: 'r-toy-teddy' },
+    космос: { wall: 'r-wall-galaxy', floor: 'r-floor-space', window: 'r-win-space', seat: 'r-seat-rocket', desk: 'r-desk-console', shelf: 'r-shelf-capsule', plant: 'r-plant-alien', lamp: 'r-lamp-moon', rug: 'r-rug-galaxy', poster: 'r-poster-planets', toy: 'r-toy-telescope' },
+    геймер: { wall: 'r-wall-neon', floor: 'r-floor-neon', window: 'r-win-night', seat: 'r-seat-gamer', desk: 'r-desk-gamer', shelf: 'r-shelf-server', plant: 'r-plant-cactus', lamp: 'r-lamp-neon', rug: 'r-rug-neon', poster: 'r-poster-arcade', toy: 'r-toy-robot' },
+    природа: { wall: 'r-wall-leaves', floor: 'r-floor-grass', window: 'r-win-forest', seat: 'r-seat-hammock', desk: 'r-desk-stump', shelf: 'r-shelf-terrarium', plant: 'r-plant-mushroom', lamp: 'r-lamp-mushroom', rug: 'r-rug-leaf', poster: 'r-poster-dream', toy: 'r-toy-guitar' },
+    океан: { wall: 'r-wall-waves', floor: 'r-floor-sand', window: 'r-win-sea', seat: 'r-seat-shell', desk: 'r-desk-coral', shelf: 'r-shelf-cubes', plant: 'r-plant-coral', lamp: 'r-lamp-jelly', rug: 'r-rug-wave', poster: 'r-poster-ocean', toy: 'r-toy-aquarium' },
+    королевская: { wall: 'r-wall-royal', floor: 'r-floor-gold', window: 'r-win-aurora', seat: 'r-seat-throne', desk: 'r-desk-gold', shelf: 'r-shelf-royal', plant: 'r-plant-golden', lamp: 'r-lamp-candelabra', rug: 'r-rug-royal', poster: 'r-poster-portrait', toy: 'r-toy-chest' },
+    школа: { wall: 'r-wall-mint', floor: 'r-floor-tiles', window: 'r-win-city', seat: 'r-seat-beanbag', desk: 'r-desk-school', shelf: 'r-shelf-trophy', plant: 'r-plant-sunflower', lamp: 'r-lamp-floor', rug: 'r-rug-stripes', poster: 'r-poster-board', toy: 'r-toy-globe' },
+    зима: { wall: 'r-wall-snow', floor: 'r-floor-ice', window: 'r-win-snow', seat: 'r-seat-sofa', desk: 'r-desk-wood', shelf: 'r-shelf-books', plant: 'r-plant-fir', lamp: 'r-lamp-candle', rug: 'r-rug-snow', poster: 'r-poster-mountain', toy: 'r-toy-snowman' },
+    сладкая: { wall: 'r-wall-candy', floor: 'r-floor-pink', window: 'r-win-mountains', seat: 'r-seat-cloud', desk: 'r-desk-candy', shelf: 'r-shelf-jars', plant: 'r-plant-lollipop', lamp: 'r-lamp-lava', rug: 'r-rug-heart', poster: 'r-poster-pixel', toy: 'r-toy-gifts' },
+    волшебная: { wall: 'r-wall-lilac', floor: 'r-floor-marble', window: 'r-win-night', seat: 'r-seat-sofa', desk: 'r-desk-gold', shelf: 'r-shelf-potion', plant: 'r-plant-mushroom', lamp: 'r-lamp-lantern', rug: 'r-rug-galaxy', poster: 'r-poster-map', toy: 'r-toy-ball' },
+  };
+  const compact = !!params.get('compact');
+  const moods = ['happy', 'win', 'think', 'sleep', 'happy', 'win', 'happy', 'think', 'happy', 'win', 'happy'];
+  let html = '<h2>Комнаты</h2><div class="rooms">' + Object.entries(ROOMS).map(([name, room], i) =>
+    `<figure>${roomScene(room, mascot(moods[i] ?? 'happy', '', base), { compact })}<figcaption>${name}${compact ? ' · compact' : ''}</figcaption></figure>`).join('') + '</div>';
+  html += '<h2>Компактные карточки</h2><div class="smalls">' + ['уютная', 'космос', 'геймер', 'океан'].map((n) => roomScene(ROOMS[n], mascot('happy', '', base), { compact: true })).join('') + '</div>';
+  for (const slot of ROOM_SLOTS) {
+    const ids = Object.keys(ROOM_ART[slot]);
+    html += `<h2>${slot} — ${ids.length}</h2><div class="g">` + ids.map((id) => {
+      const m = META.find((x) => x.id === id);
+      return `<div class="c ${m?.rarity ?? ''}">${roomItemThumb(slot, id)}<b>${m?.rarity ?? '—'}${m?.free ? ' · free' : ''}</b>${NAMES[id]?.ru ?? id}</div>`;
+    }).join('') + '</div>';
+  }
+  document.getElementById('out').innerHTML = html;
+</script>
+</body>
+</html>

@@ -327,7 +327,7 @@ test('ведущий квиза: колесо останавливается р�
     angle = next;
   }
   const { mascot } = await import('../src/ui/mascot.js');
-  const svg = mascot('happy', '', { head: 'host-hat', neck: 'host-suit' });
+  const svg = mascot('happy', '', { head: 'host-hat', neck: 'host-suit', hand: 'host-mic' });
   assert.ok(svg.includes('host-hat') && svg.includes('host-mic'), 'Препи в цилиндре и с микрофоном');
 });
 

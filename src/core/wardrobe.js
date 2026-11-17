@@ -3,12 +3,15 @@
 // Можно носить по одной вещи в каждом слоте.
 
 import { ACHIEVEMENTS } from '../content/achievements.js';
+import { META as PA_META, NAMES as PA_NAMES } from '../content/pets-auras-meta.js';
+import { META as EXTRA_META, NAMES as EXTRA_NAMES } from '../content/wear-extra-meta.js';
+import { META as OUTFIT_META, NAMES as OUTFIT_NAMES } from '../content/wear-outfit-meta.js';
 import { getProfile, levelInfo } from './profile.js';
 import { openedChests } from './rewards.js';
 import { storage } from './storage.js';
 import { THEMES } from './season.js';
 
-export const SLOTS = ['head', 'face', 'neck', 'back', 'color', 'aura', 'pet'];
+export const SLOTS = ['head', 'face', 'neck', 'body', 'feet', 'hand', 'back', 'color', 'aura', 'pet'];
 
 /** Редкость вещи и базовая цена в магазине. */
 export const RARITIES = ['common', 'rare', 'epic', 'legendary'];
@@ -152,6 +155,15 @@ THEMES.forEach((theme, month) =>
   ),
 );
 
+// Новые нарисованные вещи магазина (костюмы, обувь, вещи в руке, шапки, питомцы, ауры): цена — по редкости.
+const NEW_NAMES = { ...OUTFIT_NAMES, ...EXTRA_NAMES, ...PA_NAMES };
+for (const m of [...OUTFIT_META, ...EXTRA_META, ...PA_META]) {
+  if (!SLOTS.includes(m.slot) || ITEMS.some((x) => x.id === m.id)) continue;
+  const it = shop(m.id, m.slot, m.icon ?? '🎁', m.rarity ?? 'common', m.price ?? PRICES[m.rarity ?? 'common']);
+  it.name = NEW_NAMES[m.id] ?? null;
+  ITEMS.push(it);
+}
+
 /** Коллекции: собери все вещи набора — получи монеты (один раз). */
 export const SETS = [
   { id: 'pirate', icon: '🏴‍☠️', items: ['pirate', 'eyepatch', 'parrot', 'pearls'], coins: 400 },
@@ -194,7 +206,7 @@ export function unlockHint(it) {
   return { key: 'wear.byAch', params: { name: a?.name } };
 }
 
-const DEFAULT_OUTFIT = { head: 'cap', face: null, neck: null, back: null, color: 'classic', aura: null, pet: null };
+const DEFAULT_OUTFIT = { head: 'cap', face: null, neck: null, body: null, feet: null, hand: null, back: null, color: 'classic', aura: null, pet: null };
 
 /** Что сейчас надето. Старое сохранение (одна вещь строкой) переносится в свой слот. */
 export function getOutfit(profile = getProfile()) {

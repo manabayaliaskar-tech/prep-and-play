@@ -17,6 +17,7 @@ import { reviewCardHtml } from './review.js';
 import { planCardHtml } from './plan.js';
 import { nextChestBadge, openChestModal, rewardCardsHtml } from './report.js';
 import { openWardrobe } from '../ui/wardrobe-ui.js';
+import { bindPoke } from '../ui/prepi-poke.js';
 import { flameSvg } from '../core/economy.js';
 import { seasonCardHtml } from './season.js';
 import { todayCardHtml } from './today.js';
@@ -210,7 +211,10 @@ export function hubScreen(app) {
     app.innerHTML = `
       <section class="page home hub">
         <div class="hero-card">
-          <button type="button" class="hero-mascot prepi-dress" aria-label="${t('wear.title')}">${mascot(moodOf(p).mascot, 'mascot-xl float')}<span class="prepi-dress-btn">👗</span></button>
+          <div class="hero-mascot prepi-stage">
+            <button type="button" class="prepi-poke" aria-label="${t('prepi.poke')}">${mascot(moodOf(p).mascot, 'mascot-xl float', undefined, { form: moodOf(p).form })}</button>
+            <button type="button" class="prepi-dress-btn" aria-label="${t('wear.title')}">👗</button>
+          </div>
           <div class="hero-text">
             <p class="hero-kicker">${name ? t('home.helloName', { name }) : t('home.hello')}</p>
             <h1>${t('hub.title')}</h1>
@@ -297,7 +301,11 @@ export function hubScreen(app) {
           <p class="muted tiny">${t('cat.disclaimer')}</p>
         </div>
       </section>`;
-    app.querySelector('.hero-mascot.prepi-dress')?.addEventListener('click', () => openWardrobe(render));
+    app.querySelector('.prepi-stage .prepi-dress-btn')?.addEventListener('click', () => openWardrobe(render));
+    bindPoke(app.querySelector('.prepi-poke'), () => {
+      const m = moodOf(getProfile());
+      return { mood: m.mascot, cls: 'mascot-xl float', outfit: undefined, form: m.form };
+    });
     bindLife(app, render);
     bindQuizHost(app);
     maybeStartTour();

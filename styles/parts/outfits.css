@@ -1,0 +1,83 @@
+/* outfits: анимации костюмов, обуви и вещей на спину (src/ui/art/wear-outfit.js). Все классы — с префиксом of-. */
+.of-glow {
+  opacity: 0.3;
+  animation: of-glow 2.4s ease-in-out infinite;
+}
+@keyframes of-glow {
+  0%, 100% { opacity: 0.22; }
+  50% { opacity: 0.55; }
+}
+.of-blink {
+  animation: of-blink 1.4s steps(1, end) infinite;
+}
+@keyframes of-blink {
+  0%, 55% { opacity: 1; }
+  56%, 100% { opacity: 0.25; }
+}
+.of-twinkle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: of-twinkle 2.2s ease-in-out infinite;
+}
+@keyframes of-twinkle {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.45); opacity: 0.45; }
+}
+.of-glint {
+  animation: of-glint 2.6s ease-in-out infinite;
+}
+@keyframes of-glint {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; }
+}
+.of-flame {
+  transform-box: fill-box;
+  transform-origin: top center;
+  animation: of-flame 0.18s ease-in-out infinite alternate;
+}
+@keyframes of-flame {
+  from { transform: scaleY(0.75); }
+  to { transform: scaleY(1.12); }
+}
+.of-spin {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: of-spin 0.9s linear infinite;
+}
+@keyframes of-spin {
+  to { transform: rotate(360deg); }
+}
+/* Крылья: точка крепления справа (левое крыло; правое — зеркальная копия). */
+.of-flap {
+  transform-box: fill-box;
+  transform-origin: right center;
+  animation: of-flap 1.6s ease-in-out infinite;
+}
+.of-flap.of-slow {
+  animation-duration: 2.6s;
+}
+@keyframes of-flap {
+  0%, 100% { transform: rotate(0); }
+  50% { transform: rotate(-9deg); }
+}
+.of-wave {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: of-wave 1.5s ease-in-out infinite;
+}
+@keyframes of-wave {
+  0%, 100% { transform: skewY(0) scaleX(1); }
+  50% { transform: skewY(5deg) scaleX(0.94); }
+}
+.of-bob {
+  animation: of-bob 3.2s ease-in-out infinite;
+}
+@keyframes of-bob {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-2px, -4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .of-glow, .of-blink, .of-twinkle, .of-glint, .of-flame, .of-spin, .of-flap, .of-wave, .of-bob {
+    animation: none;
+  }
+}

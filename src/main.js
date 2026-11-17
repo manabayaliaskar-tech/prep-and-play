@@ -36,6 +36,7 @@ import { reportRoute } from './screens/report.js';
 import { cardsRoute } from './screens/cards.js';
 import { achievementsRoute } from './screens/achievements.js';
 import { shopRoute } from './screens/shop.js';
+import { goodName, goodThumb } from './ui/goods-ui.js';
 import { mockRoute } from './screens/mock.js';
 import { todayRoute } from './screens/today.js';
 import { adaptRoute, diagRoute, knowRoute } from './screens/learn.js';
@@ -79,6 +80,7 @@ route('/detective', () => detectiveRoute(app));
 route('/profile', () => profileScreen(app));
 route('/achievements', () => achievementsRoute(app));
 route('/shop', () => shopRoute(app));
+route('/shop/:tab', (params) => shopRoute(app, params));
 route('/mock/:exam', (params) => mockRoute(app, params));
 route('/season', () => seasonRoute(app));
 route('/today', () => todayRoute(app));
@@ -107,7 +109,7 @@ on('profile', () => {
   syncAchievements();
   // Новые вещи для Препи: за достижения, уровни и сундуки.
   for (const it of takeNewItems()) {
-    toast(`<span class="toast-icon">${it.icon}</span><span><small>${t('wear.new')}</small><b>${t(`wear.${it.id}`)}</b></span>`, { kind: 'achievement', duration: 5000 });
+    toast(`<span class="toast-thumb">${goodThumb(it)}</span><span><small>${t('wear.new')}</small><b>${goodName(it)}</b></span>`, { kind: 'achievement', duration: 5000 });
   }
 });
 document.addEventListener('routechange', renderTopbar);

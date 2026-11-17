@@ -4,6 +4,7 @@ import { t, tx } from '../core/i18n.js';
 import { sfx } from '../core/sound.js';
 import { syncAchievements } from '../core/profile.js';
 import { ITEMS, SLOTS, getOutfit, isUnlocked, toggleItem, unlockHint } from '../core/wardrobe.js';
+import { goodName, goodThumb } from './goods-ui.js';
 import { mascot } from './mascot.js';
 import { openModal } from './overlay.js';
 
@@ -34,8 +35,8 @@ function body(slot) {
               const open = isUnlocked(it);
               const on = outfit[it.slot] === it.id;
               return `<button type="button" class="wear-item ${open ? '' : 'is-locked'}" data-item="${it.id}" aria-pressed="${on}" ${open ? '' : 'disabled'}>
-                <span class="wear-icon">${open ? it.icon : '🔒'}</span>
-                <span class="wear-name">${t(`wear.${it.id}`)}</span>
+                <span class="wear-icon">${goodThumb(it)}${open ? '' : '<i class="wear-lock">🔒</i>'}</span>
+                <span class="wear-name">${goodName(it)}</span>
                 ${open ? (on ? `<small>✔ ${t('wear.on')}</small>` : '') : `<small>${hintText(it)}</small>`}
               </button>`;
             })

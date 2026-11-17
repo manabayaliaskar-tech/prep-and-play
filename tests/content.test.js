@@ -173,7 +173,7 @@ test('переводы: каждый ключ интерфейса есть на
     ...QUESTS.map((q) => `quest.${q.id}`),
     'pin.add',
     ...['math', 'english', 'langs', 'physics', 'chemistry', 'biology', 'geography', 'history', 'informatics', 'code', 'olymp'].map((k) => `subj.${k}`),
-    ...ITEMS.map((w) => `wear.${w.id}`),
+    ...ITEMS.filter((w) => !w.name).map((w) => `wear.${w.id}`),
     ...SLOTS.map((sl) => `wear.slot.${sl}`),
     'wear.byChest', 'wear.byLevel', 'wear.byAch', 'wear.byShop', 'wear.bySeason',
     ...ACH_CATS.map((c) => `ach.cat.${c}`),
@@ -195,6 +195,10 @@ test('переводы: каждый ключ интерфейса есть на
     ...[0, 1, 2, 3, 4].map((i) => `adapt.tier${i}`),
     ...['new', 'weak', 'learning', 'strong', 'master'].flatMap((s) => [`know.st.${s}`, `know.tip.${s}`]),
     'diag.recLevel', 'diag.recSubject',
+    ...['home', 'wear', 'room', 'emote', 'sets', 'chests'].map((x) => `shop3.tab.${x}`),
+    ...['all', 'mine', 'new'].map((x) => `shop3.f.${x}`),
+    ...['wall', 'floor', 'window', 'seat', 'desk', 'shelf', 'plant', 'lamp', 'rug', 'poster', 'toy'].map((x) => `room.slot.${x}`),
+    ...[1, 2, 3, 4, 5, 6, 7, 8].map((i) => `poke.${i}`),
     ...['hello', 'stats', 'hero', 'today', 'quiz', 'life', 'learn', 'plan', 'quests', 'courses', 'nav', 'look', 'bye'].flatMap((id) => [`tour.${id}.title`, `tour.${id}.text`]),
   ];
   for (const key of [...used, ...dynamic]) {

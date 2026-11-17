@@ -1,0 +1,57 @@
+<!doctype html>
+<!-- Галерея эмоций Препи для разработки. Открыть: http://localhost:3000/tools/gallery-emotes.html
+     Параметры: ?only=e-wave,e-disco — только эти; ?big=1 — крупно; ?t=0.5 — остановить все анимации на доле цикла (0..1). -->
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Эмоции Препи</title>
+<link rel="stylesheet" href="../styles/main.css">
+<link rel="stylesheet" href="../styles/parts/pets-auras.css">
+<link rel="stylesheet" href="../styles/parts/outfits.css">
+<link rel="stylesheet" href="../styles/parts/extra.css">
+<link rel="stylesheet" href="../styles/parts/emotes.css">
+<style>
+  body { background: #f5f3ff; padding: 16px; font-family: system-ui, sans-serif; color: #22164f; }
+  h1 { font-size: 18px; margin: 0 0 12px; }
+  .g { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .c { background: #fff; border-radius: 16px; padding: 10px; box-shadow: 0 1px 4px #0001; }
+  .c .row { display: flex; justify-content: space-around; }
+  .c .mascot { width: 130px; overflow: visible; }
+  .c .t { font-size: 13px; text-align: center; margin-top: 4px; }
+  .c .t b { font-size: 14px; }
+  .r-common { color: #64748b; } .r-rare { color: #2563eb; } .r-epic { color: #9333ea; } .r-legendary { color: #d97706; }
+  body.big .g { grid-template-columns: repeat(auto-fill, minmax(560px, 1fr)); }
+  body.big .c .mascot { width: 250px; }
+</style>
+</head>
+<body>
+<h1>Эмоции и танцы Препи</h1>
+<div class="g" id="out"></div>
+<script type="module">
+  import { mascot } from '../src/ui/mascot.js';
+  import { EMOTES } from '../src/ui/art/emotes.js';
+  import { META, NAMES } from '../src/content/emote-meta.js';
+  const params = new URLSearchParams(location.search);
+  if (params.get('big')) document.body.classList.add('big');
+  const only = params.get('only')?.split(',');
+  const base = { head: null, face: null, neck: null, body: null, feet: null, hand: null, back: null, color: 'classic', aura: null, pet: null };
+  const looks = [{ ...base, head: 'cap', color: 'classic' }, { ...base, head: 'tophat', neck: 'bowtie', color: 'mint' }];
+  const ids = META.map((m) => m.id).filter((id) => !only || only.includes(id));
+  document.getElementById('out').innerHTML = ids.map((id) => {
+    const m = META.find((x) => x.id === id);
+    const e = EMOTES[id];
+    return `<div class="c" data-id="${id}"><div class="row">${looks.map((o) => mascot('happy', '', o, { emote: id })).join('')}</div>
+      <div class="t"><b>${NAMES[id]?.ru ?? id}</b> · ${NAMES[id]?.en} · ${NAMES[id]?.kk}<br><span class="r-${m.rarity}">${m.rarity}</span> · ${id} · ${e?.ms ?? '?'} мс ${m.icon}</div></div>`;
+  }).join('');
+  // Остановить на доле цикла: каждая эмоция — своя длительность ms.
+  window.seek = (frac) => {
+    for (const card of document.querySelectorAll('.c')) {
+      const ms = EMOTES[card.dataset.id].ms;
+      for (const a of card.getAnimations({ subtree: true })) { a.pause(); a.currentTime = frac * ms; }
+    }
+  };
+  if (params.get('t') != null) requestAnimationFrame(() => window.seek(Number(params.get('t'))));
+</script>
+</body>
+</html>

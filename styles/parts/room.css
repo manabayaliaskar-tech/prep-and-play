@@ -1,0 +1,131 @@
+/* ---------- Комната Препи (src/ui/art/room.js) ---------- */
+
+.room-scene {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #f8ead6;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 10px 28px -14px rgba(30, 27, 58, 0.45);
+  isolation: isolate;
+}
+
+.room-scene.is-compact {
+  aspect-ratio: 16 / 9;
+  border-radius: 14px;
+}
+
+.room-stage {
+  position: absolute;
+  inset: 0;
+}
+
+.room-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.room-prepi {
+  position: absolute;
+  left: 50%;
+  height: 38%;
+  aspect-ratio: 140 / 150;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.room-prepi > .mascot,
+.room-prepi > svg {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+.room-thumb {
+  display: block;
+  overflow: hidden;
+}
+
+/* ---------- Анимации ---------- */
+
+:where(.room-scene, .room-thumb) * {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.room-cloud { animation: room-drift 14s ease-in-out infinite alternate; }
+.room-cloud.is-slow { animation-duration: 22s; animation-direction: alternate-reverse; }
+.room-twinkle { animation: room-twinkle 2.6s ease-in-out infinite; }
+.room-twinkle:nth-of-type(3n) { animation-delay: -0.9s; animation-duration: 3.4s; }
+.room-twinkle:nth-of-type(3n + 1) { animation-delay: -1.7s; }
+.room-glow { animation: room-glow 4.5s ease-in-out infinite; }
+.room-pulse { animation: room-pulse 3s ease-in-out infinite; }
+.room-sparkle { animation: room-sparkle 2.4s ease-in-out infinite; }
+.room-sparkle:nth-of-type(2n) { animation-delay: -1.2s; }
+.room-neon { animation: room-neon 3.2s ease-in-out infinite; }
+.room-flicker { animation: room-flicker 5s linear infinite; }
+.room-shimmer { animation: room-shimmer 6s ease-in-out infinite; }
+.room-sway { transform-origin: 50% 100%; animation: room-sway 5s ease-in-out infinite alternate; }
+.room-swing { transform-origin: 50% 0; animation: room-sway 4s ease-in-out infinite alternate; }
+.room-flame { transform-origin: 50% 100%; animation: room-flame 0.9s ease-in-out infinite alternate; }
+.room-flame:nth-of-type(2n) { animation-delay: -0.4s; }
+.room-steam { animation: room-steam 3s ease-in-out infinite; }
+.room-snowfall { transform-box: view-box; animation: room-snow 9s linear infinite; }
+.room-aurora { animation: room-aurora 9s ease-in-out infinite alternate; }
+.room-wave { animation: room-drift 6s ease-in-out infinite alternate; }
+.room-boat { animation: room-bob 4s ease-in-out infinite alternate; }
+.room-comet { animation: room-comet 7s ease-in infinite; }
+.room-fish { animation: room-fish 9s ease-in-out infinite; }
+.room-fish.is-slow { animation-duration: 12s; animation-delay: -5s; }
+.room-bubbles { animation: room-bubbles 3s ease-in infinite; }
+.room-spores { animation: room-bubbles 5s ease-in-out infinite; }
+.room-float { animation: room-bob 3.4s ease-in-out infinite alternate; }
+.room-tentacle { transform-origin: 50% 0; animation: room-sway 2.4s ease-in-out infinite alternate; }
+.room-lava { animation: room-lava 7s ease-in-out infinite alternate; }
+.room-blink { animation: room-blink 1.6s steps(2, jump-none) infinite; }
+.room-sweep { animation: room-spin 3s linear infinite; }
+.room-rgb { animation: room-rgb 6s linear infinite; }
+.room-screen { animation: room-flicker 4s linear infinite; }
+.room-hop { animation: room-hop 1.4s ease-in-out infinite; }
+.room-look { animation: room-look 5s ease-in-out infinite; }
+
+@keyframes room-drift { from { transform: translateX(-4px); } to { transform: translateX(6px); } }
+@keyframes room-twinkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.25; transform: scale(0.6); } }
+@keyframes room-glow { 0%, 100% { opacity: 0.85; } 50% { opacity: 1; } }
+@keyframes room-pulse { 0%, 100% { opacity: 0.65; } 50% { opacity: 1; } }
+@keyframes room-sparkle { 0%, 100% { opacity: 0.2; transform: scale(0.5) rotate(0deg); } 50% { opacity: 1; transform: scale(1.1) rotate(45deg); } }
+@keyframes room-neon { 0%, 100% { opacity: 1; } 46% { opacity: 1; } 48% { opacity: 0.55; } 50% { opacity: 1; } 75% { opacity: 0.8; } }
+@keyframes room-flicker { 0%, 100% { opacity: 1; } 91% { opacity: 1; } 92% { opacity: 0.4; } 93% { opacity: 1; } 95% { opacity: 0.6; } 96% { opacity: 1; } }
+@keyframes room-shimmer { 0%, 30% { transform: translateX(-40px); opacity: 0; } 45% { opacity: 1; } 70%, 100% { transform: translateX(340px); opacity: 0; } }
+@keyframes room-sway { from { transform: rotate(-2.5deg); } to { transform: rotate(2.5deg); } }
+@keyframes room-flame { from { transform: scale(1, 1) rotate(-3deg); } to { transform: scale(0.85, 1.12) rotate(3deg); } }
+@keyframes room-steam { 0% { opacity: 0; transform: translateY(2px); } 40% { opacity: 0.8; } 100% { opacity: 0; transform: translateY(-5px); } }
+@keyframes room-snow { from { transform: translateY(0); } to { transform: translateY(64px); } }
+@keyframes room-aurora { 0% { transform: translateX(-4px) skewX(-4deg); opacity: 0.75; } 100% { transform: translateX(4px) skewX(4deg); opacity: 1; } }
+@keyframes room-bob { from { transform: translateY(-1px); } to { transform: translateY(1.5px); } }
+@keyframes room-comet { 0%, 70% { transform: translate(0, 0); opacity: 0; } 75% { opacity: 1; } 100% { transform: translate(-30px, 15px); opacity: 0; } }
+@keyframes room-fish {
+  0% { transform: translateX(-10px); }
+  45% { transform: translateX(10px); }
+  50% { transform: translateX(10px) scaleX(-1); }
+  95% { transform: translateX(-10px) scaleX(-1); }
+  100% { transform: translateX(-10px); }
+}
+@keyframes room-bubbles { 0% { transform: translateY(4px); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(-10px); opacity: 0; } }
+@keyframes room-lava { 0% { transform: translateY(4px) scale(1); } 50% { transform: translateY(-6px) scale(1.15, 0.9); } 100% { transform: translateY(2px) scale(0.9, 1.1); } }
+@keyframes room-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+@keyframes room-spin { to { transform: rotate(360deg); } }
+@keyframes room-rgb { 0%, 100% { fill: #e879f9; } 33% { fill: #22d3ee; } 66% { fill: #a3e635; } }
+@keyframes room-hop { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-4px); } }
+@keyframes room-look { 0%, 40%, 100% { transform: translateX(0); } 50%, 70% { transform: translateX(-1.2px); } 80%, 90% { transform: translateX(1.2px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .room-scene *,
+  .room-thumb * {
+    animation: none !important;
+  }
+}

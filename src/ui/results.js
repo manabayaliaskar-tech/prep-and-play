@@ -4,6 +4,7 @@ import { t, tx } from '../core/i18n.js';
 import { skillName } from '../content/labels.js';
 import { esc } from './dom.js';
 import { mascot } from './mascot.js';
+import { getEmote } from '../core/shop.js';
 import { bindQuestion, questionHtml } from './question.js';
 import { mountSolution } from './solution.js';
 import { sfx } from '../core/sound.js';
@@ -57,7 +58,7 @@ export function renderResults(app, build) {
   app.innerHTML = `
     <section class="results page">
       <div class="results-hero mood-${data.mood ?? 'neutral'}">
-        ${mascot(mascotMood, 'mascot-lg bounce-in')}
+        ${mascot(mascotMood, 'mascot-lg bounce-in', undefined, { emote: data.mood === 'win' ? (getEmote() ?? undefined) : undefined })}
         <h1>${data.title}</h1>
         ${data.subtitle ? `<p class="results-sub">${data.subtitle}</p>` : ''}
         ${data.stars !== undefined && data.stars !== null ? starsHtml(data.stars) : ''}

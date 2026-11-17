@@ -9,17 +9,18 @@ import { TIERS, TIER_PTS, claimTier, seasonLeft, seasonState, themeOf, tierRewar
 import { sfx } from '../core/sound.js';
 import { getOutfit, itemById } from '../core/wardrobe.js';
 import { mascot } from '../ui/mascot.js';
+import { goodThumb } from '../ui/goods-ui.js';
+import { chestSvg } from '../ui/shop-art.js';
 import { openModal } from '../ui/overlay.js';
 import { openBoxModal } from './shop.js';
 
-const BOX_ICON = { basic: '📦', super: '🎁', mega: '💎' };
 
 export const seasonName = (id) => tx(themeOf(id).name);
 
 function rewardIcon(r) {
   if (r.type === 'coins') return coinHtml('coin-lg');
-  if (r.type === 'box') return BOX_ICON[r.box];
-  return itemById(r.id)?.icon ?? '🎁';
+  if (r.type === 'box') return chestSvg(r.box);
+  return goodThumb(r.id) || '🎁';
 }
 
 function rewardLabel(r) {
@@ -111,7 +112,7 @@ export function seasonRoute(app) {
                 const it = itemById(id);
                 const tier = [10, 20, 30][k];
                 const got = (p.seasonItems ?? []).includes(id);
-                return `<div class="excl-card r-${it.rarity} ${got ? 'is-got' : ''}"><span class="excl-icon">${it.icon}</span><b>${t(`wear.${id}`)}</b><span class="rarity r-${it.rarity}">${t(`rar.${it.rarity}`)}</span><small>${got ? `✔ ${t('season.got')}` : t('season.atTier', { n: tier })}</small></div>`;
+                return `<div class="excl-card r-${it.rarity} ${got ? 'is-got' : ''}"><span class="excl-icon">${goodThumb(it)}</span><b>${t(`wear.${id}`)}</b><span class="rarity r-${it.rarity}">${t(`rar.${it.rarity}`)}</span><small>${got ? `✔ ${t('season.got')}` : t('season.atTier', { n: tier })}</small></div>`;
               })
               .join('')}
           </div>
@@ -167,7 +168,7 @@ export function seasonRoute(app) {
       const it = itemById(r.id);
       openModal({
         title: `${themeOf(seasonState(p).id).icon} ${t('season.exclusive')}`,
-        body: `<div class="loot-reveal r-${it.rarity}"><div class="loot-rays"></div><div class="loot-prepi">${mascot('win', 'mascot-lg', { ...getOutfit(p), [it.slot]: it.id })}</div><span class="loot-icon">${it.icon}</span><b class="loot-name">${t(`wear.${it.id}`)}</b><span class="rarity r-${it.rarity}">${t(`rar.${it.rarity}`)}</span><p class="muted small">${t('season.itemHint')}</p></div>`,
+        body: `<div class="loot-reveal r-${it.rarity}"><div class="loot-rays"></div><div class="loot-prepi">${mascot('win', 'mascot-lg', { ...getOutfit(p), [it.slot]: it.id })}</div><span class="loot-art">${goodThumb(it)}</span><b class="loot-name">${t(`wear.${it.id}`)}</b><span class="rarity r-${it.rarity}">${t(`rar.${it.rarity}`)}</span><p class="muted small">${t('season.itemHint')}</p></div>`,
         actions: [{ label: t('shop.great'), primary: true }],
       });
     }

@@ -1,237 +1,378 @@
-// Маскот Prep&Play — Препи: объёмный светящийся шар с орбитальным кольцом и выпускной шапочкой.
+// Маскот Prep&Play — Препи 2.0: объёмный светящийся шар с ручками, ножками и орбитальным кольцом.
 // Цвета берутся из темы (--mascot-hi, --mascot-1, --mascot-2), поэтому Препи меняется вместе с оформлением.
 // Глаза моргают и следят за курсором (переменные --lx/--ly задаёт ui/motion.js).
-// Настроения: happy, wow, sad, win, think, sleep (Препи уснул, если долго не заниматься).
+//
+// mascot(настроение, класс, наряд, { form, pose }):
+//   настроения — happy, wow, sad, win, think, sleep, love, laugh, cool, angry, shy, confused, cry,
+//                proud, dizzy, wink, scared, starstruck, sick, ghost (а также neutral → happy, lose → sad);
+//   формы (зависят от серии) — buff (качок), blaze (огненный), sick (заболел), ghost (призрак), tomb (призрак над надгробием).
+// Система координат: viewBox 0 0 140 150, тело — круг (70, 80) r 48. Рисунки вещей — в ./art/.
 
-import { COLORS, getOutfit, itemById } from '../core/wardrobe.js';
+import { COLORS, getOutfit } from '../core/wardrobe.js';
+import { auraBack, auraFront } from './art/auras.js';
+import { EMOTES } from './art/emotes.js';
+import { petSvg } from './art/pets.js';
+import { BACK, BODY, CAP, FACE, FEET, HAND, HEAD, NECK } from './art/wear.js';
 
 const INK = '#22164f';
 let uid = 0;
 
-const eye = (cx, cy, ry = 13) => `
-  <g class="eye">
-    <ellipse cx="${cx}" cy="${cy}" rx="11" ry="${ry}" fill="#fff"/>
-    <g class="pupils">
-      <ellipse cx="${cx + 1}" cy="${cy + 2}" rx="6.4" ry="${ry * 0.6}" fill="${INK}"/>
-      <circle cx="${cx + 3.6}" cy="${cy - 2.4}" r="2.6" fill="#fff"/>
-      <circle cx="${cx - 2}" cy="${cy + 5}" r="1.2" fill="#fff" opacity=".8"/>
-    </g>
-  </g>`;
+// ---------- Глаза ----------
 
-const EYES = {
-  open: eye(53, 76) + eye(87, 76),
-  big: eye(53, 75, 15) + eye(87, 75, 15),
-  happy: `
-    <path d="M43 79 Q53 66 63 79" stroke="${INK}" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <path d="M77 79 Q87 66 97 79" stroke="${INK}" stroke-width="5" fill="none" stroke-linecap="round"/>`,
-  closed: `
-    <path d="M43 77 Q53 85 63 77" stroke="${INK}" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-    <path d="M77 77 Q87 85 97 77" stroke="${INK}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`,
-  up: `
-    <g class="eye"><ellipse cx="53" cy="76" rx="11" ry="13" fill="#fff"/><ellipse cx="55" cy="70" rx="6" ry="7.5" fill="${INK}"/><circle cx="57.5" cy="67" r="2.4" fill="#fff"/></g>
-    <g class="eye"><ellipse cx="87" cy="76" rx="11" ry="13" fill="#fff"/><ellipse cx="89" cy="70" rx="6" ry="7.5" fill="${INK}"/><circle cx="91.5" cy="67" r="2.4" fill="#fff"/></g>`,
+/** Открытый глаз: белок, радужка с градиентом, зрачок и два блика. dx/dy — куда смотрит. */
+function eyeOpen(id, cx, cy, { rx = 12, ry = 14, ir = 8, dx = 0, dy = 1, shine = 1 } = {}) {
+  return `<g class="eye">
+    <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#fff"/>
+    <path d="M${cx - rx} ${cy} A${rx} ${ry} 0 0 1 ${cx + rx} ${cy} A${rx} ${ry * 0.72} 0 0 0 ${cx - rx} ${cy} Z" fill="${INK}" opacity=".08"/>
+    <g class="pupils">
+      <circle cx="${cx + dx}" cy="${cy + dy}" r="${ir}" fill="url(#${id}i)"/>
+      <circle cx="${cx + dx}" cy="${cy + dy}" r="${(ir * 0.5).toFixed(1)}" fill="${INK}"/>
+      <circle cx="${(cx + dx + ir * 0.38).toFixed(1)}" cy="${(cy + dy - ir * 0.42).toFixed(1)}" r="${(ir * 0.36 * shine).toFixed(1)}" fill="#fff"/>
+      <circle cx="${(cx + dx - ir * 0.34).toFixed(1)}" cy="${(cy + dy + ir * 0.44).toFixed(1)}" r="${(ir * 0.17 * shine).toFixed(1)}" fill="#fff" opacity=".85"/>
+    </g>
+    <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="none" stroke="${INK}" stroke-width="1.6" opacity=".5"/>
+  </g>`;
+}
+
+/** Веко поверх открытого глаза: half — полуприкрыт, angry — нахмурен, sad — грустно опущен. side: -1 левый глаз, 1 правый. */
+function lid(id, cx, cy, kind, side) {
+  let a;
+  let b;
+  if (kind === 'half') [a, b] = [cy - 1, cy - 1];
+  else if (kind === 'angry') [a, b] = side < 0 ? [cy - 13, cy - 3] : [cy - 3, cy - 13];
+  else [a, b] = side < 0 ? [cy - 4, cy - 12] : [cy - 12, cy - 4];
+  const mid = (a + b) / 2 + (kind === 'half' ? 1.5 : 0);
+  return `<path d="M${cx - 13.5} ${a} Q${cx} ${mid} ${cx + 13.5} ${b} L${cx + 13.5} ${cy - 17} L${cx - 13.5} ${cy - 17} Z" fill="url(#${id}b)"/>
+    <path d="M${cx - 12} ${a + 0.5} Q${cx} ${mid} ${cx + 12} ${b + 0.5}" stroke="${INK}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+}
+
+const arcEye = (cx, cy, up = true) =>
+  `<path d="M${cx - 10} ${cy + 3} Q${cx} ${up ? cy - 10 : cy + 9} ${cx + 10} ${cy + 3}" stroke="${INK}" stroke-width="4.6" fill="none" stroke-linecap="round"/>`;
+
+const heartAt = (x, y, s, fill) => `<path d="M${x} ${y + s * 0.9} C${x - s * 1.5} ${y - s * 0.1} ${x - s} ${y - s * 1.3} ${x} ${y - s * 0.45} C${x + s} ${y - s * 1.3} ${x + s * 1.5} ${y - s * 0.1} ${x} ${y + s * 0.9} Z" fill="${fill}"/>`;
+const starAt = (x, y, r, fill, extra = '') => {
+  const pts = [];
+  for (let k = 0; k < 10; k++) {
+    const ang = -Math.PI / 2 + (k * Math.PI) / 5;
+    const rr = k % 2 ? r * 0.45 : r;
+    pts.push(`${(x + rr * Math.cos(ang)).toFixed(1)} ${(y + rr * Math.sin(ang)).toFixed(1)}`);
+  }
+  return `<path d="M${pts.join(' L')} Z" fill="${fill}" ${extra}/>`;
 };
+
+function eyes(id, kind) {
+  const L = [53, 76];
+  const R = [87, 76];
+  const both = (fn) => fn(...L, -1) + fn(...R, 1);
+  switch (kind) {
+    case 'big':
+      return both((x, y) => eyeOpen(id, x, y, { rx: 13, ry: 16, ir: 9, shine: 1.25 }));
+    case 'tiny':
+      return both((x, y) => eyeOpen(id, x, y, { rx: 13, ry: 16, ir: 4.5 }));
+    case 'up':
+      return both((x, y) => eyeOpen(id, x, y, { dx: 2.5, dy: -5 }));
+    case 'down':
+      return both((x, y) => eyeOpen(id, x, y, { dx: -1.5, dy: 5 }) + lid(id, x, y, 'half', 1));
+    case 'half':
+      return both((x, y, s) => eyeOpen(id, x, y) + lid(id, x, y, 'half', s));
+    case 'angry':
+      return both((x, y, s) => eyeOpen(id, x, y, { dy: 3 }) + lid(id, x, y, 'angry', s));
+    case 'sad':
+      return both((x, y, s) => eyeOpen(id, x, y, { dy: 2.5, shine: 1.3 }) + lid(id, x, y, 'sad', s));
+    case 'happy':
+      return `<g class="face-eyes">${arcEye(...L)}${arcEye(...R)}</g>`;
+    case 'closed':
+      return `<g class="face-eyes">${arcEye(L[0], L[1] + 1, false)}${arcEye(R[0], R[1] + 1, false)}
+        <path d="M44 82 l-3 3 M62 82 l3 3 M78 82 l-3 3 M96 82 l3 3" stroke="${INK}" stroke-width="2" stroke-linecap="round"/></g>`;
+    case 'squeeze':
+      return `<path d="M44 70 L58 77 L44 83 M96 70 L82 77 L96 83" stroke="${INK}" stroke-width="4.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+    case 'wink':
+      return eyeOpen(id, ...L) + arcEye(...R);
+    case 'odd':
+      return eyeOpen(id, L[0], L[1], { rx: 10, ry: 11, ir: 6 }) + eyeOpen(id, R[0], R[1] - 2, { rx: 13.5, ry: 16, ir: 8.5 });
+    case 'heart':
+      return `<g class="eyes-heart">${heartAt(53, 77, 10.5, '#f43f5e')}${heartAt(87, 77, 10.5, '#f43f5e')}<circle cx="49" cy="72" r="2.6" fill="#fff" opacity=".8"/><circle cx="83" cy="72" r="2.6" fill="#fff" opacity=".8"/></g>`;
+    case 'star':
+      return `<g class="eyes-star">${starAt(53, 77, 12.5, '#facc15', `stroke="#f59e0b" stroke-width="1.6" stroke-linejoin="round"`)}${starAt(87, 77, 12.5, '#facc15', `stroke="#f59e0b" stroke-width="1.6" stroke-linejoin="round"`)}<circle cx="49.5" cy="72" r="2.4" fill="#fff"/><circle cx="83.5" cy="72" r="2.4" fill="#fff"/></g>`;
+    case 'spiral':
+      return `<g class="eyes-spiral" stroke="${INK}" stroke-width="2.6" fill="none" stroke-linecap="round">${[L, R]
+        .map(([x, y]) => `<circle cx="${x}" cy="${y}" r="12" fill="#fff" stroke-width="1.6" opacity=".95"/><path class="spin" d="M${x} ${y} m0 -1.5 a1.5 1.5 0 1 1 -1.5 1.5 a3.5 3.5 0 1 1 3.5 3.5 a5.5 5.5 0 1 1 -5.5 -5.5 a7.5 7.5 0 1 1 7.5 7.5"/>`)
+        .join('')}</g>`;
+    case 'hollow':
+      return `<g class="eyes-hollow">${[L, R].map(([x, y]) => `<ellipse cx="${x}" cy="${y + 1}" rx="9" ry="12" fill="${INK}" opacity=".85"/><ellipse cx="${x + 2.5}" cy="${y - 3}" rx="3" ry="3.6" fill="#fff" opacity=".9"/>`).join('')}</g>`;
+    default:
+      return both((x, y) => eyeOpen(id, x, y));
+  }
+}
+
+// ---------- Брови ----------
 
 const BROWS = {
-  wow: `<path d="M43 56 Q52 50 61 55" stroke="${INK}" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M79 55 Q88 50 97 56" stroke="${INK}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`,
-  sad: `<path d="M44 62 L61 57" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/><path d="M79 57 L96 62" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>`,
-  think: `<path d="M44 58 Q52 55 61 58" stroke="${INK}" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M79 54 Q88 49 97 55" stroke="${INK}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`,
+  soft: ['M43 57 Q52 52 61 55', 'M79 55 Q88 52 97 57'],
+  up: ['M42 52 Q52 45 61 50', 'M79 50 Q88 45 98 52'],
+  sad: ['M43 59 Q53 57 61 50', 'M79 50 Q87 57 97 59'],
+  angry: ['M43 51 Q53 54 62 60', 'M78 60 Q87 54 97 51'],
+  think: ['M44 58 Q52 56 61 58', 'M79 52 Q88 46 97 52'],
+  flat: ['M44 56 L61 55', 'M79 55 L96 56'],
+};
+const browsHtml = (kind) =>
+  BROWS[kind] ? `<g class="brows" stroke="${INK}" stroke-width="4" fill="none" stroke-linecap="round">${BROWS[kind].map((d) => `<path d="${d}"/>`).join('')}</g>` : '';
+
+// ---------- Рот ----------
+
+// Открытый рот: форма (по ней обрезаются язык и зубы), язык [cx, cy, rx, ry], верхние зубы — y верхней кромки.
+const OPEN_MOUTHS = {
+  grin: { shape: '<path d="M56 96 Q70 116 84 96 Q70 99 56 96 Z"/>', tongue: [70, 108, 9, 5], teeth: 93.5 },
+  laugh: { shape: '<path d="M52 92 Q70 125 88 92 Q70 98 52 92 Z"/>', tongue: [70, 115, 12, 7.5], teeth: 89.5 },
+  o: { shape: '<ellipse cx="70" cy="101" rx="6.5" ry="8.5"/>', tongue: [70, 108, 5.5, 4] },
+  wail: { shape: '<path d="M55 108 Q57 91 70 91 Q83 91 85 108 Q70 103 55 108 Z"/>', tongue: [70, 108, 9, 4.5], teeth: 89 },
+  scared: { shape: '<path d="M57 105 Q57 94 70 94 Q83 94 83 105 Q70 101 57 105 Z"/>', teeth: 92 },
+  grit: { shape: '<rect x="56" y="95" width="28" height="12" rx="5.5"/>', grit: true },
+  snore: { shape: '<ellipse cx="70" cy="102" rx="4.2" ry="3.4"/>' },
+};
+const LINE_MOUTHS = {
+  smile: 'M58 97 Q70 108 82 97',
+  frown: 'M59 106 Q70 96 81 106',
+  hmm: 'M61 102 Q66 99 71 101 T80 100',
+  wavy: 'M60 101 Q63.5 97.5 67 101 T74 101 T81 101',
+  smirk: 'M60 101 Q72 105 82 95',
+  cat: 'M60 98 Q65 105 70 99 Q75 105 80 98',
+  flat: 'M62 101 L78 101',
 };
 
-const MOUTHS = {
-  happy: `<path d="M58 97 Q70 108 82 97" stroke="${INK}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`,
-  wow: `<ellipse cx="70" cy="101" rx="6" ry="7.5" fill="${INK}"/><ellipse cx="70" cy="104" rx="3.4" ry="2.6" fill="#ff7aa8"/>`,
-  sad: `<path d="M59 105 Q70 96 81 105" stroke="${INK}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`,
-  win: `<path d="M54 94 Q70 118 86 94 Z" fill="${INK}" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/><path d="M61 104 Q70 112 79 104 Q70 99 61 104 Z" fill="#ff7aa8"/>`,
-  sleep: `<ellipse cx="70" cy="101" rx="4" ry="3" fill="${INK}"/>`,
-  think: `<path d="M61 101 Q68 98 79 100" stroke="${INK}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`,
+function mouthHtml(id, kind) {
+  const open = OPEN_MOUTHS[kind];
+  if (!open) return `<path class="mouth" d="${LINE_MOUTHS[kind] ?? LINE_MOUTHS.smile}" stroke="${INK}" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const fill = open.shape.replace('/>', ` fill="${INK}"/>`);
+  let inner = '';
+  if (open.teeth) inner += `<rect x="40" y="${open.teeth}" width="60" height="5.6" rx="2" fill="#fff"/>`;
+  if (open.tongue) inner += `<ellipse cx="${open.tongue[0]}" cy="${open.tongue[1]}" rx="${open.tongue[2]}" ry="${open.tongue[3]}" fill="#ff7aa8"/>`;
+  if (open.grit) inner += `<rect x="56" y="95" width="28" height="12" fill="#fff"/><path d="M56 101 H84 M62.5 95 V107 M70 95 V107 M77.5 95 V107" stroke="${INK}" stroke-width="1.6"/>`;
+  return `<g class="mouth"><clipPath id="${id}m">${open.shape}</clipPath>${fill}<g clip-path="url(#${id}m)">${inner}</g>${open.shape.replace('/>', ` fill="none" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>`)}</g>`;
+}
+
+// ---------- Руки ----------
+
+// Позы: для каждой руки — путь от плеча к кисти [x0 y0 cx cy x1 y1]; front — кисть лежит на лице (рука спрятана за телом).
+const POSES = {
+  rest: { L: [27, 92, 14, 100, 19, 112], R: [113, 92, 126, 100, 121, 112] },
+  droop: { L: [28, 96, 20, 110, 26, 121], R: [112, 96, 120, 110, 114, 121] },
+  up: { L: [28, 86, 10, 76, 12, 56], R: [112, 86, 130, 76, 128, 56] },
+  open: { L: [27, 90, 10, 88, 5, 75], R: [113, 90, 130, 88, 135, 75] },
+  wave: { L: [27, 92, 14, 100, 19, 112], R: [112, 88, 132, 80, 128, 58], wave: true },
+  chin: { L: [27, 92, 14, 100, 19, 112], front: [[88, 112]] },
+  cover: { front: [[39, 97], [101, 97]] },
+  belly: { front: [[50, 119], [90, 119]] },
+  hips: { L: [27, 90, 8, 98, 25, 111], R: [113, 90, 132, 98, 115, 111] },
+  fists: { L: [27, 92, 10, 94, 15, 79], R: [113, 92, 130, 94, 125, 79] },
+  thumb: { L: [27, 92, 14, 100, 19, 112], R: [112, 92, 130, 92, 127, 74], thumb: true },
+  scratch: { L: [27, 92, 14, 100, 19, 112], R: [113, 88, 136, 66, 112, 46] },
+  flex: { L: [27, 88, 4, 90, 8, 64], R: [113, 88, 136, 90, 132, 64], flex: true },
+  hold: { L: [27, 92, 14, 100, 19, 112], R: [113, 92, 128, 99, 123, 106] },
 };
+
+const hand = (x, y, cls = '') =>
+  `<g class="hand ${cls}"><circle cx="${x}" cy="${y}" r="7" fill="var(--mascot-1)" stroke="var(--mascot-2)" stroke-width="1.6"/><circle cx="${x - 2}" cy="${y - 2.2}" r="2.2" fill="#fff" opacity=".45"/></g>`;
+
+function armPath([x0, y0, cx, cy, x1, y1], thick) {
+  const d = `M${x0} ${y0} Q${cx} ${cy} ${x1} ${y1}`;
+  return `<path d="${d}" stroke="var(--mascot-2)" stroke-width="${thick + 3}" fill="none" stroke-linecap="round"/><path d="${d}" stroke="var(--mascot-1)" stroke-width="${thick}" fill="none" stroke-linecap="round"/>`;
+}
+
+/** Руки за телом (рисуются до тела) и кисти (после). Если в руке вещь — правая рука её держит. */
+function arms(poseId, { buff = false, holding = null } = {}) {
+  let pose = POSES[poseId] ?? POSES.rest;
+  if (holding && !['up', 'flex', 'open'].includes(poseId)) pose = { ...pose, R: POSES.hold.R, front: pose.front?.filter(([x]) => x < 70), thumb: false, wave: false };
+  if (holding && pose.front?.length && !pose.L) pose = { ...pose, L: POSES.rest.L };
+  const thick = buff ? 13 : 10;
+  let back = '';
+  let front = '';
+  for (const side of ['L', 'R']) {
+    const a = pose[side];
+    if (!a) continue;
+    const isR = side === 'R';
+    back += `<g class="arm arm-${side.toLowerCase()} ${isR && pose.wave ? 'is-waving' : ''}">${armPath(a, thick)}${pose.flex || buff ? `<circle cx="${(a[0] + a[2]) / 2 + (isR ? 2 : -2)}" cy="${(a[1] + a[3]) / 2 - 3}" r="${buff ? 9.5 : 6}" fill="var(--mascot-1)" stroke="var(--mascot-2)" stroke-width="1.6"/>` : ''}</g>`;
+    const [hx, hy] = [a[4], a[5]];
+    if (isR && holding) front += `<g class="held" transform="translate(${hx} ${hy})">${holding}</g>`;
+    front += hand(hx, hy, isR && pose.wave ? 'is-waving' : '');
+    if (isR && pose.thumb) front += `<path d="M${hx - 1} ${hy - 6} q1 -9 5 -8 q3 1 -1 9" fill="var(--mascot-1)" stroke="var(--mascot-2)" stroke-width="1.6"/>`;
+  }
+  for (const [x, y] of pose.front ?? []) front += hand(x, y);
+  return { back, front };
+}
+
+// ---------- Настроения ----------
+
+const MOODS = {
+  happy: { eyes: 'open', brows: 'soft', mouth: 'grin', pose: 'rest' },
+  wow: { eyes: 'big', brows: 'up', mouth: 'o', pose: 'open' },
+  sad: { eyes: 'sad', brows: 'sad', mouth: 'frown', pose: 'droop', extra: ['tear'] },
+  win: { eyes: 'happy', brows: 'up', mouth: 'laugh', pose: 'up', extra: ['sparkles'] },
+  think: { eyes: 'up', brows: 'think', mouth: 'hmm', pose: 'chin' },
+  sleep: { eyes: 'closed', brows: 'soft', mouth: 'snore', pose: 'droop', extra: ['zzz'] },
+  love: { eyes: 'heart', brows: 'up', mouth: 'cat', pose: 'cover', blush: 2, extra: ['hearts'] },
+  laugh: { eyes: 'happy', brows: 'up', mouth: 'laugh', pose: 'belly', extra: ['joy'] },
+  cool: { eyes: 'half', brows: 'flat', mouth: 'smirk', pose: 'hips' },
+  angry: { eyes: 'angry', brows: 'angry', mouth: 'grit', pose: 'fists', extra: ['steam', 'vein'] },
+  shy: { eyes: 'down', brows: 'sad', mouth: 'wavy', pose: 'cover', blush: 2 },
+  confused: { eyes: 'odd', brows: 'think', mouth: 'wavy', pose: 'scratch', extra: ['question'] },
+  cry: { eyes: 'squeeze', brows: 'sad', mouth: 'wail', pose: 'open', extra: ['streams'] },
+  proud: { eyes: 'happy', brows: 'soft', mouth: 'smile', pose: 'hips', extra: ['sparkles'] },
+  dizzy: { eyes: 'spiral', brows: null, mouth: 'wavy', pose: 'droop', extra: ['stars'] },
+  wink: { eyes: 'wink', brows: 'soft', mouth: 'grin', pose: 'thumb' },
+  scared: { eyes: 'tiny', brows: 'up', mouth: 'scared', pose: 'open', extra: ['sweat'] },
+  starstruck: { eyes: 'star', brows: 'up', mouth: 'laugh', pose: 'up', extra: ['sparkles'] },
+  sick: { eyes: 'half', brows: 'sad', mouth: 'flat', pose: 'droop', extra: ['sweat', 'thermo'] },
+  ghost: { eyes: 'hollow', brows: null, mouth: 'o', pose: 'open' },
+};
+MOODS.neutral = MOODS.happy;
+MOODS.lose = MOODS.sad;
+
+/** Все настроения, которые умеет показывать Препи. */
+export const MASCOT_MOODS = Object.keys(MOODS).filter((m) => m !== 'neutral' && m !== 'lose');
+export const MASCOT_FORMS = ['buff', 'blaze', 'sick', 'ghost', 'tomb'];
+
+// ---------- Мелочи вокруг ----------
 
 const sparkle = (x, y, s, delay) =>
   `<path class="spark" style="animation-delay:${delay}s" d="M${x} ${y - s} Q${x} ${y} ${x + s} ${y} Q${x} ${y} ${x} ${y + s} Q${x} ${y} ${x - s} ${y} Q${x} ${y} ${x} ${y - s} Z" fill="#facc15"/>`;
 
-// Наряды Препи по слотам (см. core/wardrobe.js): голова, лицо, шея, спина и цвет шара.
-const CAP = `
-      <g class="cap" transform="rotate(-10 70 30)">
-        <path d="M50 30 L50 40 Q70 49 90 40 L90 30 L70 37 Z" fill="${'#22164f'}"/>
-        <path d="M70 13 L108 26 L70 39 L32 26 Z" fill="${'#22164f'}"/>
-        <path d="M70 15 L102 26 L70 22 L38 26 Z" fill="#fff" opacity=".14"/>
-        <g class="tassel"><path d="M70 26 L101 28 L102 44" stroke="#facc15" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="102" cy="47" r="4.4" fill="#facc15"/></g>
-      </g>`;
-// Костюм ведущего квиза (не продаётся в магазине): смокинг с бабочкой и ручка с микрофоном.
-const HOST_SUIT = `<g class="host-suit">
-    <path d="M30.7 107.5 L56 105 L70 123 L84 105 L109.3 107.5 A48 48 0 0 1 30.7 107.5 Z" fill="#1e1b4b"/>
-    <path d="M56 105 L70 123 L84 105 Z" fill="#fff"/>
-    <path d="M56 105 L63 105 L70 119 L67 121 Z M84 105 L77 105 L70 119 L73 121 Z" fill="#3730a3"/>
-    <path d="M38 113 L46 111 L44 118 Z" fill="#fff"/>
-    <path d="M70 109 L59 103 L59 115 Z M70 109 L81 103 L81 115 Z" fill="#e11d48"/>
-    <circle cx="70" cy="109" r="3.6" fill="#9f1239"/>
-    <circle cx="70" cy="121" r="1.6" fill="#1e1b4b"/>
-    <g class="host-arm">
-      <path d="M112 100 Q128 104 122 118" stroke="var(--mascot-2)" stroke-width="9" fill="none" stroke-linecap="round"/>
-      <g class="host-mic" transform="rotate(-38 117 112)">
-        <rect x="114" y="92" width="6" height="22" rx="3" fill="#1f2937"/>
-        <rect x="113.5" y="92" width="7" height="3.5" rx="1.5" fill="#e11d48"/>
-        <circle cx="117" cy="86" r="7.5" fill="#9ca3af"/>
-        <circle cx="117" cy="86" r="7.5" fill="none" stroke="#4b5563" stroke-width="1.2"/>
-        <path d="M111 83 H123 M110.5 87 H123.5 M112 91 H122 M114 80 V92 M117 79 V93 M120 80 V92" stroke="#6b7280" stroke-width=".7"/>
-        <circle cx="114.5" cy="83" r="2" fill="#fff" opacity=".6"/>
-      </g>
-      <circle cx="121" cy="117" r="6" fill="#fff" stroke="#e5e7eb" stroke-width="1.2"/>
-    </g>
+const EXTRAS = {
+  tear: '<path class="tear" d="M99 86 Q103 94 99 97 Q95 94 99 86 Z" fill="#7dd3fc"/>',
+  streams: `<g class="streams" fill="#7dd3fc" opacity=".9"><path d="M42 82 Q36 100 40 122 L46 122 Q44 100 48 84 Z"/><path d="M98 82 Q104 100 100 122 L94 122 Q96 100 92 84 Z"/></g>`,
+  joy: `<g class="joy-drops" fill="#7dd3fc"><path d="M36 70 q-8 -2 -10 -8 q6 2 10 8 Z"/><path d="M104 70 q8 -2 10 -8 q-6 2 -10 8 Z"/></g>`,
+  sparkles: sparkle(14, 40, 7, 0) + sparkle(126, 52, 6, 0.5) + sparkle(120, 118, 5, 1) + sparkle(20, 112, 5, 1.4),
+  zzz: '<g class="zzz"><text x="104" y="40" font-size="16">z</text><text x="114" y="26" font-size="20">z</text><text x="126" y="10" font-size="24">Z</text></g>',
+  hearts: `<g class="float-hearts">${heartAt(18, 46, 6, '#fb7185')}${heartAt(124, 38, 7, '#f43f5e')}${heartAt(112, 14, 5, '#fda4af')}</g>`,
+  steam: `<g class="steam" fill="#fff" stroke="#cbd5e1" stroke-width="1.2"><path d="M20 44 q-6 -4 -2 -9 q1 -6 7 -5 q4 -5 9 -1 q6 0 5 6 q4 5 -2 8 Z"/><path d="M120 44 q6 -4 2 -9 q-1 -6 -7 -5 q-4 -5 -9 -1 q-6 0 -5 6 q-4 5 2 8 Z"/></g>`,
+  vein: '<g class="vein" stroke="#ef4444" stroke-width="3" fill="none" stroke-linecap="round"><path d="M98 42 q4 4 8 0"/><path d="M98 52 q4 -4 8 0"/><path d="M96 44 q4 3 0 6"/><path d="M108 44 q-4 3 0 6"/></g>',
+  question: `<text class="question" x="114" y="36" font-size="28" font-weight="900" fill="${INK}" text-anchor="middle">?</text>`,
+  sweat: '<path class="sweat" d="M108 50 Q114 60 108 64 Q102 60 108 50 Z" fill="#7dd3fc" stroke="#38bdf8" stroke-width="1"/>',
+  stars: `<g class="dizzy-stars">${starAt(40, 28, 6, '#facc15')}${starAt(100, 26, 5, '#fde047')}${starAt(70, 18, 4.5, '#facc15')}</g>`,
+  thermo: `<g class="thermo" transform="rotate(18 72 102)"><rect x="70" y="99" width="28" height="5" rx="2.5" fill="#fff" stroke="#94a3b8" stroke-width="1"/><rect x="74" y="100.5" width="16" height="2" rx="1" fill="#ef4444"/><circle cx="97" cy="101.5" r="4" fill="#ef4444" stroke="#b91c1c" stroke-width="1"/></g>`,
+};
+
+// ---------- Формы (по серии) ----------
+
+const ABS = `<g class="abs" stroke="var(--mascot-2)" stroke-width="2" fill="none" stroke-linecap="round" opacity=".55"><path d="M58 109 q4 3 8 0 M74 109 q4 3 8 0 M59 116 q3.5 2.5 7 0 M74 116 q3.5 2.5 7 0 M61 122 q3 2 6 0 M73 122 q3 2 6 0"/><path d="M70 106 V124"/></g>`;
+const SWEATBAND = `<g class="sweatband"><path d="M24 64 Q70 40 116 64 L116 73 Q70 50 24 73 Z" fill="#ef4444"/><path d="M25 68 Q70 45 115 68" stroke="#fff" stroke-width="2.4" fill="none"/></g>`;
+const ICEPACK = `<g class="icepack" transform="rotate(-12 70 34)"><path d="M46 38 Q46 22 70 20 Q94 22 94 38 Q70 44 46 38 Z" fill="#60a5fa"/><path d="M52 30 Q70 25 88 30" stroke="#fff" stroke-width="2.5" fill="none" opacity=".7"/><rect x="66" y="16" width="8" height="6" rx="2" fill="#2563eb"/></g>`;
+const BANDAGE = `<g class="bandage" transform="rotate(-24 104 96)"><rect x="94" y="92" width="20" height="8" rx="3" fill="#fde68a" stroke="#d6b26e" stroke-width="1"/><rect x="101" y="92" width="6" height="8" fill="#fef3c7"/></g>`;
+const BLAZE_BACK = `<g class="blaze-fire">
+    <circle cx="70" cy="80" r="60" fill="#fb923c" opacity=".25" class="blaze-glow"/>
+    <path class="flame-a" d="M28 70 Q18 40 34 20 Q34 38 44 40 Q40 14 58 -2 Q60 20 70 26 Q76 6 90 -4 Q90 18 98 32 Q106 18 112 16 Q124 40 112 70 Z" fill="#f97316"/>
+    <path class="flame-b" d="M38 66 Q32 44 42 30 Q44 42 52 44 Q50 24 62 12 Q66 30 72 34 Q78 18 88 10 Q90 28 96 38 Q102 30 106 28 Q114 46 104 66 Z" fill="#facc15"/>
   </g>`;
-const HOST_HAT = `<g class="host-hat" transform="rotate(-9 70 36)">
-    <ellipse cx="70" cy="37" rx="27" ry="6.5" fill="#111827"/>
-    <path d="M54 37 L56 6 Q70 2 84 6 L86 37 Z" fill="#1f2937"/>
-    <path d="M55.2 27 Q70 30 84.8 27 L85.4 33 Q70 36 54.6 33 Z" fill="#e11d48"/>
-    <path d="M60 9 L61.5 30" stroke="#fff" stroke-opacity=".22" stroke-width="3" stroke-linecap="round"/>
-    <path d="M78 15 l1.4 3 l3.2 .3 l-2.4 2.1 l.8 3.2 l-3 -1.8 l-3 1.8 l.8 -3.2 l-2.4 -2.1 l3.2 -.3 Z" fill="#facc15"/>
+const EMBERS = `<g class="embers" fill="#fb923c">${[[16, 40], [124, 30], [10, 90], [130, 84], [104, 6], [36, 10]].map(([x, y], i) => `<circle class="ember" cx="${x}" cy="${y}" r="${2 + (i % 3)}" style="animation-delay:${(i * 0.3).toFixed(1)}s"/>`).join('')}</g>`;
+const GHOST_BODY = 'M22 80 A48 48 0 0 1 118 80 L118 122 Q110 136 102 124 Q94 136 86 124 Q78 136 70 124 Q62 136 54 124 Q46 136 38 124 Q30 136 22 122 Z';
+const TOMB = `<g class="tomb">
+    <path d="M30 150 L30 112 Q30 88 70 88 Q110 88 110 112 L110 150 Z" fill="#9ca3af" stroke="#6b7280" stroke-width="2.5"/>
+    <path d="M36 148 L36 113 Q36 94 70 94 Q104 94 104 113 L104 148" fill="none" stroke="#d1d5db" stroke-width="2" opacity=".7"/>
+    <text x="70" y="121" text-anchor="middle" font-size="17" font-weight="900" fill="#4b5563" letter-spacing="1">RIP</text>
+    <path d="M62 128 Q66 134 64 140 Q60 137 62 128 Z M76 128 Q80 134 78 140 Q74 137 76 128 Z" fill="#6b7280" opacity=".55"/>
+    <path d="M98 100 L93 108 L98 113 L95 121" stroke="#6b7280" stroke-width="1.6" fill="none"/>
+    <path d="M20 150 Q24 140 28 150 Q32 138 36 150 M104 150 Q108 140 112 150 Q116 136 120 150" stroke="#22c55e" stroke-width="3" fill="none" stroke-linecap="round"/>
   </g>`;
 
-const HEAD = {
-  'host-hat': HOST_HAT,
-  crown: `<g class="wear-crown"><path d="M44 42 L47 16 L58 29 L70 10 L82 29 L93 16 L96 42 Z" fill="#facc15" stroke="#f59e0b" stroke-width="2.5" stroke-linejoin="round"/><circle cx="70" cy="33" r="4" fill="#ef4444"/><circle cx="55" cy="36" r="3" fill="#3b82f6"/><circle cx="85" cy="36" r="3" fill="#22c55e"/></g>`,
-  bow: `<g class="wear-bow" transform="rotate(14 98 38)"><path d="M98 38 L80 26 Q76 38 80 50 Z" fill="#ec4899"/><path d="M98 38 L116 26 Q120 38 116 50 Z" fill="#ec4899"/><circle cx="98" cy="38" r="6" fill="#be185d"/></g>`,
-  headphones: `<g class="wear-headphones"><path d="M24 80 Q24 24 70 24 Q116 24 116 80" stroke="#1e293b" stroke-width="7" fill="none" stroke-linecap="round"/><rect x="14" y="66" width="18" height="30" rx="8" fill="#7c3aed"/><rect x="108" y="66" width="18" height="30" rx="8" fill="#7c3aed"/></g>`,
-  astro: `<g class="wear-astro"><circle cx="70" cy="80" r="60" fill="#bae6fd" fill-opacity=".18" stroke="#e2e8f0" stroke-width="4"/><path d="M36 50 Q48 32 68 28" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity=".7"/><line x1="70" y1="20" x2="70" y2="8" stroke="#94a3b8" stroke-width="3"/><circle cx="70" cy="7" r="4" fill="#ef4444"/></g>`,
-  party: `<g class="wear-party" transform="rotate(12 74 30)"><path d="M56 40 L74 2 L92 40 Z" fill="#a855f7"/><path d="M62 28 L86 28 M66 18 L82 18" stroke="#facc15" stroke-width="4"/><circle cx="74" cy="3" r="6" fill="#facc15"/><ellipse cx="74" cy="40" rx="20" ry="4" fill="#7e22ce"/></g>`,
-  beret: `<g class="wear-beret" transform="rotate(-8 70 34)"><ellipse cx="70" cy="36" rx="36" ry="12" fill="#7c3aed"/><ellipse cx="66" cy="30" rx="26" ry="9" fill="#8b5cf6"/><rect x="68" y="18" width="5" height="9" rx="2" fill="#5b21b6"/></g>`,
-  laurel: `<g class="wear-laurel" fill="#16a34a">${[[30, 66], [33, 54], [39, 44], [47, 36], [57, 31], [83, 31], [93, 36], [101, 44], [107, 54], [110, 66]]
-    .map(([x, y], i) => `<ellipse cx="${x}" cy="${y}" rx="7" ry="4" transform="rotate(${i < 5 ? -50 + i * 12 : 50 - (i - 5) * 12} ${x} ${y})"/>`)
-    .join('')}<circle cx="70" cy="30" r="4" fill="#facc15"/></g>`,
-  wizard: `<g class="wear-wizard" transform="rotate(-8 70 30)"><path d="M46 40 L74 -4 L96 40 Z" fill="#1e3a8a"/><ellipse cx="71" cy="40" rx="32" ry="7" fill="#1e40af"/><path d="M70 14 l2 5 l5 0 l-4 3 l2 5 l-5 -3 l-5 3 l2 -5 l-4 -3 l5 0 Z" fill="#facc15"/><circle cx="82" cy="28" r="2" fill="#fde68a"/></g>`,
-  nightcap: `<g class="wear-nightcap" transform="rotate(-6 70 34)"><path d="M38 40 Q46 6 84 10 Q112 14 118 46 Q104 30 94 40 Z" fill="#2563eb"/><path d="M38 40 Q70 30 96 40" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none"/><circle cx="118" cy="48" r="7" fill="#fff"/><path d="M60 22 l1.5 3.5 l3.5 0.3 l-2.7 2.3 l0.9 3.6 l-3.2 -2 l-3.2 2 l0.9 -3.6 l-2.7 -2.3 l3.5 -0.3 Z" fill="#facc15"/></g>`,
-  cowboy: `<g class="wear-cowboy" transform="rotate(-6 70 32)"><ellipse cx="70" cy="37" rx="46" ry="8" fill="#92400e"/><path d="M47 37 Q48 8 62 13 Q70 19 78 13 Q92 8 93 37 Z" fill="#b45309"/><path d="M49 30 Q70 35 91 30" stroke="#78350f" stroke-width="4" fill="none"/></g>`,
-  chef: `<g class="wear-chef" stroke="#cbd5e1" stroke-width="1.5"><rect x="50" y="22" width="40" height="17" rx="3" fill="#fff"/><circle cx="54" cy="18" r="11" fill="#fff"/><circle cx="86" cy="18" r="11" fill="#fff"/><circle cx="70" cy="11" r="13" fill="#fff"/><path d="M56 26 V36 M70 26 V36 M84 26 V36" stroke="#e2e8f0"/></g>`,
-  bunny: `<g class="wear-bunny">${[[52, -12], [88, 12]].map(([x, r]) => `<g transform="rotate(${r} ${x} 22)"><ellipse cx="${x}" cy="18" rx="9.5" ry="24" fill="#fff" stroke="#e2e8f0" stroke-width="2"/><ellipse cx="${x}" cy="20" rx="4.5" ry="16" fill="#fbcfe8"/></g>`).join('')}</g>`,
-  catears: `<g class="wear-catears"><path d="M30 56 L36 18 L62 38 Z" fill="#334155"/><path d="M36 48 L39 27 L54 39 Z" fill="#f9a8d4"/><path d="M110 56 L104 18 L78 38 Z" fill="#334155"/><path d="M104 48 L101 27 L86 39 Z" fill="#f9a8d4"/></g>`,
-  flowers: `<g class="wear-flowers">${[[34, 54, '#f472b6'], [41, 41, '#facc15'], [53, 32, '#a78bfa'], [70, 28, '#fb7185'], [87, 32, '#38bdf8'], [99, 41, '#f472b6'], [106, 54, '#facc15']]
-    .map(([x, y, c]) => `<circle cx="${x}" cy="${y}" r="6.5" fill="${c}"/><circle cx="${x}" cy="${y}" r="2.4" fill="#fff7ed"/>`)
-    .join('')}</g>`,
-  ninja: `<g class="wear-ninja"><path d="M24 58 Q70 38 116 58 L116 67 Q70 47 24 67 Z" fill="#dc2626"/><rect x="62" y="45" width="16" height="10" rx="2" fill="#cbd5e1" stroke="#64748b" stroke-width="1.5"/><path class="ninja-tail" d="M114 61 Q130 60 138 72 M114 64 Q126 72 128 88" stroke="#dc2626" stroke-width="5" fill="none" stroke-linecap="round"/></g>`,
-  tophat: `<g class="wear-tophat" transform="rotate(-8 70 30)"><rect x="50" y="0" width="40" height="34" rx="4" fill="#1e1b4b"/><rect x="50" y="23" width="40" height="7" fill="#dc2626"/><ellipse cx="70" cy="35" rx="31" ry="6.5" fill="#1e1b4b"/><rect x="54" y="3" width="6" height="18" rx="3" fill="#fff" opacity=".18"/></g>`,
-  pirate: `<g class="wear-pirate" transform="rotate(-6 70 30)"><path d="M26 39 Q34 6 70 9 Q106 6 114 39 Q93 28 70 34 Q47 28 26 39 Z" fill="#111827"/><path d="M29 37 Q48 29 70 35 Q92 29 111 37" stroke="#facc15" stroke-width="2.5" fill="none"/><circle cx="70" cy="21" r="6" fill="#fff"/><circle cx="67.8" cy="20" r="1.5" fill="#111827"/><circle cx="72.2" cy="20" r="1.5" fill="#111827"/><path d="M63 29 L77 23 M63 23 L77 29" stroke="#fff" stroke-width="2"/></g>`,
-  santa: `<g class="wear-santa" transform="rotate(10 74 30)"><path d="M42 40 Q50 2 88 7 Q110 12 118 34 L106 30 Q96 18 86 26 L98 40 Z" fill="#dc2626"/><rect x="37" y="33" width="64" height="12" rx="6" fill="#fff"/><circle cx="118" cy="36" r="7.5" fill="#fff"/></g>`,
-  propeller: `<g class="wear-propeller"><path d="M36 43 Q38 14 70 14 Q102 14 104 43 Z" fill="#2563eb"/><path d="M53 16 Q58 30 70 14 Q82 30 87 16" fill="#ef4444"/><path d="M36 43 Q70 36 104 43" stroke="#facc15" stroke-width="4" fill="none"/><rect x="68" y="4" width="4" height="11" fill="#475569"/><g class="propeller-blades"><ellipse cx="59" cy="4" rx="11" ry="3.2" fill="#ef4444"/><ellipse cx="81" cy="4" rx="11" ry="3.2" fill="#facc15"/><circle cx="70" cy="4" r="3" fill="#475569"/></g></g>`,
-  viking: `<g class="wear-viking"><path d="M38 30 Q16 26 13 4 Q25 20 42 21 Z" fill="#fef3c7" stroke="#d6d3d1" stroke-width="1.5"/><path d="M102 30 Q124 26 127 4 Q115 20 98 21 Z" fill="#fef3c7" stroke="#d6d3d1" stroke-width="1.5"/><path d="M34 44 Q34 12 70 12 Q106 12 106 44 Z" fill="#94a3b8"/><path d="M34 41 L106 41" stroke="#64748b" stroke-width="6"/><path d="M70 12 L70 40" stroke="#64748b" stroke-width="4"/>${[44, 58, 82, 96].map((x) => `<circle cx="${x}" cy="41" r="1.8" fill="#e2e8f0"/>`).join('')}</g>`,
-  tiara: `<g class="wear-tiara"><path d="M46 40 L50 24 L60 32 L70 13 L80 32 L90 24 L94 40 Z" fill="#e5e7eb" stroke="#94a3b8" stroke-width="2" stroke-linejoin="round"/><circle cx="70" cy="23" r="4.2" fill="#ec4899"/><circle cx="56" cy="35" r="2.6" fill="#38bdf8"/><circle cx="84" cy="35" r="2.6" fill="#38bdf8"/></g>`,
-  unicorn: `<g class="wear-unicorn"><path d="M38 44 Q30 30 40 22 Q44 34 52 36 Z" fill="#f472b6"/><path d="M102 44 Q110 30 100 22 Q96 34 88 36 Z" fill="#a78bfa"/><path d="M61 36 L70 -6 L79 36 Z" fill="#fde68a" stroke="#f59e0b" stroke-width="2" stroke-linejoin="round"/><path d="M63 28 L77 23 M65 18 L75 14 M67 8 L73 5" stroke="#f59e0b" stroke-width="2"/></g>`,
-  flamecrown: `<g class="wear-flamecrown"><path d="M40 44 Q37 22 49 10 Q49 26 58 28 Q55 8 70 -4 Q73 16 81 26 Q85 12 93 10 Q103 24 100 44 Z" fill="#f97316"/><path d="M49 44 Q49 30 56 25 Q58 34 64 34 Q63 18 70 9 Q75 25 80 32 Q84 25 88 25 Q93 34 91 44 Z" fill="#facc15"/><path d="M60 44 Q62 36 66 34 Q68 40 70 38 Q72 32 76 34 Q80 40 80 44 Z" fill="#fff7ed"/></g>`,
-  halo: `<g class="wear-halo"><ellipse cx="70" cy="20" rx="26" ry="7" fill="none" stroke="#facc15" stroke-width="5"/><ellipse cx="70" cy="20" rx="26" ry="7" fill="none" stroke="#fff" stroke-width="1.5" opacity=".7"/></g>`,
-};
-const FACE = {
-  glasses: `<g class="wear-glasses"><circle cx="53" cy="76" r="14" fill="#fff" fill-opacity=".12" stroke="#22164f" stroke-width="3.2"/><circle cx="87" cy="76" r="14" fill="#fff" fill-opacity=".12" stroke="#22164f" stroke-width="3.2"/><path d="M67 75 Q70 71 73 75" stroke="#22164f" stroke-width="3" fill="none"/></g>`,
-  sunglasses: `<g class="wear-sunglasses"><rect x="38" y="66" width="30" height="20" rx="8" fill="#0f172a"/><rect x="72" y="66" width="30" height="20" rx="8" fill="#0f172a"/><path d="M68 72 L72 72" stroke="#0f172a" stroke-width="4"/><path d="M43 70 L52 70" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".6"/><path d="M77 70 L86 70" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".6"/></g>`,
-  starglasses: `<g class="wear-starglasses" fill="#f472b6" fill-opacity=".85" stroke="#be185d" stroke-width="2">${[53, 87]
-    .map((x) => `<path d="M${x} 60 L${x + 4.5} 71 L${x + 16} 71 L${x + 7} 78 L${x + 10.5} 90 L${x} 83 L${x - 10.5} 90 L${x - 7} 78 L${x - 16} 71 L${x - 4.5} 71 Z"/>`)
-    .join('')}</g>`,
-  monocle: `<g class="wear-monocle"><circle cx="87" cy="76" r="13" fill="#fff" fill-opacity=".15" stroke="#b45309" stroke-width="3.2"/><path d="M98 84 Q104 104 96 122" stroke="#b45309" stroke-width="1.8" fill="none"/></g>`,
-  clownnose: `<g class="wear-clownnose"><circle cx="70" cy="89" r="8" fill="#ef4444"/><circle cx="67" cy="86" r="2.6" fill="#fff" opacity=".7"/></g>`,
-  blush: `<g class="wear-blush" fill="#facc15">${[[40, 93], [100, 93]].map(([x, y]) => `<path d="M${x} ${y - 7} L${x + 2} ${y - 2} L${x + 7} ${y - 2} L${x + 3} ${y + 1} L${x + 4.5} ${y + 6} L${x} ${y + 3} L${x - 4.5} ${y + 6} L${x - 3} ${y + 1} L${x - 7} ${y - 2} L${x - 2} ${y - 2} Z"/>`).join('')}</g>`,
-  eyepatch: `<g class="wear-eyepatch"><path d="M26 64 Q60 52 100 68" stroke="#111827" stroke-width="3" fill="none"/><ellipse cx="87" cy="77" rx="14" ry="13" fill="#111827"/><path d="M80 72 L86 76" stroke="#fff" stroke-width="1.5" opacity=".3"/></g>`,
-  glasses3d: `<g class="wear-glasses3d"><rect x="37" y="65" width="31" height="22" rx="4" fill="#ef4444" fill-opacity=".75" stroke="#f8fafc" stroke-width="3.5"/><rect x="72" y="65" width="31" height="22" rx="4" fill="#3b82f6" fill-opacity=".75" stroke="#f8fafc" stroke-width="3.5"/><path d="M68 72 L72 72" stroke="#f8fafc" stroke-width="4"/></g>`,
-  heartglasses: `<g class="wear-heartglasses" fill="#ec4899" fill-opacity=".88" stroke="#9d174d" stroke-width="2">${[53, 87].map((x) => `<path d="M${x} 89 C${x - 19} 76 ${x - 13} 60 ${x} 69 C${x + 13} 60 ${x + 19} 76 ${x} 89 Z"/>`).join('')}<path d="M66 72 Q70 69 74 72" fill="none"/></g>`,
-  vr: `<g class="wear-vr"><path d="M24 74 L34 74 M106 74 L116 74" stroke="#1e293b" stroke-width="6"/><rect x="33" y="61" width="74" height="30" rx="12" fill="#1e293b"/><rect x="38" y="66" width="64" height="20" rx="9" fill="#38bdf8" opacity=".65"/><path class="vr-shine" d="M44 70 L58 70" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".8"/></g>`,
-  cyber: `<g class="wear-cyber"><path d="M28 64 Q70 54 112 64 L109 86 Q70 77 31 86 Z" fill="#0f172a" opacity=".92"/><path class="visor-scan" d="M36 72 Q70 63 104 72" stroke="#22d3ee" stroke-width="3.5" fill="none" stroke-linecap="round"/><circle cx="53" cy="75" r="3" fill="#f0abfc"/><circle cx="87" cy="75" r="3" fill="#f0abfc"/></g>`,
-  mustache: `<path class="wear-mustache" d="M54 93 Q62 85 70 91 Q78 85 86 93 Q80 99 70 95 Q60 99 54 93 Z" fill="#22164f"/>`,
-};
-const NECK = {
-  'host-suit': HOST_SUIT,
-  scarf: `<g class="wear-scarf"><path d="M32 106 Q70 128 108 106 L106 118 Q70 140 34 118 Z" fill="#ef4444"/><path d="M88 120 L96 142 L85 144 L80 123 Z" fill="#dc2626"/><path d="M40 112 Q70 130 100 112" stroke="#fff" stroke-width="2" stroke-dasharray="4 5" fill="none" opacity=".6"/></g>`,
-  bowtie: `<g class="wear-bowtie"><path d="M70 122 L54 113 L54 131 Z" fill="#ef4444"/><path d="M70 122 L86 113 L86 131 Z" fill="#ef4444"/><circle cx="70" cy="122" r="4.5" fill="#b91c1c"/></g>`,
-  medal: `<g class="wear-medal"><path d="M58 100 L70 122 L82 100" stroke="#3b82f6" stroke-width="5" fill="none"/><circle cx="70" cy="128" r="9" fill="#facc15" stroke="#f59e0b" stroke-width="2"/><text x="70" y="132" text-anchor="middle" font-size="10" font-weight="900" fill="#92400e">1</text></g>`,
-  lei: `<g class="wear-lei">${[[36, 110], [46, 118], [58, 123], [70, 125], [82, 123], [94, 118], [104, 110]]
-    .map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="6" fill="${['#f472b6', '#facc15', '#fb7185', '#a78bfa'][i % 4]}"/><circle cx="${x}" cy="${y}" r="2" fill="#fff" opacity=".8"/>`)
-    .join('')}</g>`,
-  tie: `<g class="wear-tie"><path d="M63 115 L77 115 L72 122 L68 122 Z" fill="#1d4ed8"/><path d="M68 121 L72 121 L79 141 L70 149 L61 141 Z" fill="#2563eb"/><path d="M66 129 L76 127 M64 137 L77 134" stroke="#facc15" stroke-width="2"/></g>`,
-  bell: `<g class="wear-bell"><path d="M38 110 Q70 128 102 110" stroke="#dc2626" stroke-width="5" fill="none"/><path d="M62 124 Q62 114 70 114 Q78 114 78 124 L80 130 L60 130 Z" fill="#facc15" stroke="#ca8a04" stroke-width="1.5"/><circle cx="70" cy="132" r="2.6" fill="#ca8a04"/></g>`,
-  winterscarf: `<g class="wear-winterscarf"><path d="M32 106 Q70 128 108 106 L106 118 Q70 140 34 118 Z" fill="#16a34a"/><path d="M38 112 Q70 131 102 112" stroke="#fff" stroke-width="3.5" fill="none"/><path d="M86 120 L95 143 L84 145 L79 123 Z" fill="#dc2626"/><path d="M84 132 L93 131" stroke="#fff" stroke-width="2.5"/></g>`,
-  pearls: `<g class="wear-pearls" fill="#fff" stroke="#cbd5e1" stroke-width="1">${[[38, 110], [45, 116], [53, 121], [61, 124], [70, 125], [79, 124], [87, 121], [95, 116], [102, 110]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.6"/>`).join('')}<circle cx="70" cy="132" r="5" fill="#fbcfe8"/></g>`,
-  amulet: `<g class="wear-amulet"><path d="M44 106 Q70 131 96 106" stroke="#78350f" stroke-width="2.5" fill="none"/><circle cx="70" cy="127" r="9" fill="#1d4ed8" stroke="#facc15" stroke-width="2"/><circle cx="70" cy="127" r="5.5" fill="#fff"/><circle cx="70" cy="127" r="3.4" fill="#38bdf8"/><circle cx="70" cy="127" r="1.6" fill="#0f172a"/></g>`,
-  chain: `<g class="wear-chain"><path d="M38 108 Q70 134 102 108" stroke="#facc15" stroke-width="3.5" stroke-dasharray="2 4" stroke-linecap="round" fill="none"/><path d="M70 120 L76 128 L70 136 L64 128 Z" fill="#38bdf8" stroke="#0ea5e9" stroke-width="1.5"/></g>`,
-};
-const BACK = {
-  cape: `<path class="wear-cape" d="M34 92 Q16 140 36 146 L104 146 Q124 140 106 92 Z" fill="#dc2626"/>`,
-  wings: `<g class="wear-wings" fill="#fff" stroke="#cbd5e1" stroke-width="2"><path class="wing-l" d="M30 80 Q-4 46 4 98 Q18 92 30 100 Z"/><path class="wing-r" d="M110 80 Q144 46 136 98 Q122 92 110 100 Z"/></g>`,
-  sword: `<g class="wear-sword" transform="rotate(24 118 90)"><rect x="115" y="34" width="8" height="64" rx="3" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5"/><rect x="107" y="96" width="24" height="6" rx="3" fill="#b45309"/><rect x="116" y="102" width="6" height="14" rx="2" fill="#78350f"/></g>`,
-  jetpack: `<g class="wear-jetpack"><rect x="4" y="66" width="16" height="40" rx="7" fill="#94a3b8"/><rect x="120" y="66" width="16" height="40" rx="7" fill="#94a3b8"/><path class="jet-flame" d="M6 106 Q12 128 18 106 Z M122 106 Q128 128 134 106 Z" fill="#f97316"/><path d="M9 106 Q12 118 15 106 Z M125 106 Q128 118 131 106 Z" fill="#facc15"/></g>`,
-  balloon: `<g class="wear-balloon"><path d="M108 104 Q124 76 118 46" stroke="#94a3b8" stroke-width="1.5" fill="none"/><g class="balloon-bob"><ellipse cx="118" cy="26" rx="16" ry="19" fill="#ef4444"/><path d="M118 45 l-3.5 4 h7 Z" fill="#dc2626"/><ellipse cx="112" cy="19" rx="4" ry="6.5" fill="#fff" opacity=".45"/></g></g>`,
-  shield: `<g class="wear-shield"><path d="M0 66 L25 58 L50 66 Q50 102 25 118 Q0 102 0 66 Z" fill="#2563eb" stroke="#facc15" stroke-width="3"/><path d="M25 70 L25 106 M10 84 L40 84" stroke="#facc15" stroke-width="3.5"/></g>`,
-  guitar: `<g class="wear-guitar" transform="rotate(32 116 92)"><rect x="112" y="22" width="7" height="56" rx="2" fill="#78350f"/><rect x="109.5" y="14" width="12" height="11" rx="3" fill="#451a03"/><ellipse cx="115.5" cy="88" rx="14" ry="15" fill="#f97316"/><ellipse cx="115.5" cy="104" rx="18" ry="15" fill="#ea580c"/><circle cx="115.5" cy="93" r="4.5" fill="#7c2d12"/></g>`,
-  batwings: `<g class="wear-batwings" fill="#4c1d95" stroke="#2e1065" stroke-width="1.5"><path class="wing" d="M32 80 Q16 50 -2 56 Q8 64 4 74 Q14 72 12 84 Q20 82 22 94 Q26 88 32 96 Z"/><g transform="translate(140 0) scale(-1 1)"><path class="wing" d="M32 80 Q16 50 -2 56 Q8 64 4 74 Q14 72 12 84 Q20 82 22 94 Q26 88 32 96 Z"/></g></g>`,
-  katana: `<g class="wear-katana" transform="rotate(-32 32 90)"><rect x="29" y="16" width="6" height="78" rx="3" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/><rect x="23" y="92" width="18" height="5" rx="2" fill="#111827"/><rect x="29" y="97" width="6" height="20" rx="2" fill="#dc2626"/><path d="M30 99 L34 103 M30 105 L34 109 M30 111 L34 115" stroke="#111827" stroke-width="1"/></g>`,
-  butterfly: `<g class="wear-butterfly"><g class="wing"><ellipse cx="16" cy="66" rx="19" ry="23" fill="#a78bfa"/><ellipse cx="20" cy="104" rx="14" ry="16" fill="#f472b6"/><circle cx="14" cy="62" r="6" fill="#fde68a"/></g><g transform="translate(140 0) scale(-1 1)"><g class="wing"><ellipse cx="16" cy="66" rx="19" ry="23" fill="#a78bfa"/><ellipse cx="20" cy="104" rx="14" ry="16" fill="#f472b6"/><circle cx="14" cy="62" r="6" fill="#fde68a"/></g></g></g>`,
-  dragonwings: `<g class="wear-dragonwings" fill="#b91c1c" stroke="#7f1d1d" stroke-width="2" stroke-linejoin="round"><path class="wing" d="M32 78 L4 38 L12 60 L-2 56 L10 78 L-4 84 L12 92 L2 104 L30 98 Z"/><g transform="translate(140 0) scale(-1 1)"><path class="wing" d="M32 78 L4 38 L12 60 L-2 56 L10 78 L-4 84 L12 92 L2 104 L30 98 Z"/></g></g>`,
-  backpack: `<g class="wear-backpack"><rect x="6" y="64" width="34" height="48" rx="11" fill="#f97316"/><rect x="11" y="86" width="22" height="16" rx="5" fill="#fb923c"/></g>`,
-};
+// ---------- Сборка ----------
 
-// Аура: частицы вокруг Препи. Для двух легендарных — ещё и свечение за спиной.
-const AURA_POINTS = [[10, 30], [130, 26], [4, 96], [136, 100], [104, 2], [34, 4]];
-const AURA = {
-  sparkles: '✨', hearts: '💖', bubbles: '🫧', leaves: '🍃', snow: '❄️', notes: '🎵', sakura: '🌸',
-  stars: '⭐', money: '💸', lightning: '⚡', fire: '🔥', goldglow: '🌟', rainbowring: '🌈',
-};
-const AURA_BACK = {
-  goldglow: `<circle class="aura-glow" cx="70" cy="80" r="62" fill="#fde047" opacity=".35"/>`,
-  rainbowring: `<g class="aura-ring" fill="none" stroke-width="4" opacity=".75">${['#f87171', '#fb923c', '#facc15', '#4ade80', '#60a5fa', '#a78bfa']
-    .map((c, i) => `<circle cx="70" cy="80" r="${66 - i * 4}" stroke="${c}"/>`)
-    .join('')}</g>`,
-};
-const auraFront = (id) => {
-  const icon = AURA[id] ?? itemById(id)?.icon;
-  return icon
-    ? `<g class="aura aura-${id}">${AURA_POINTS.map(([x, y], i) => `<text class="aura-p" x="${x}" y="${y}" font-size="${i % 2 ? 13 : 16}" text-anchor="middle" style="animation-delay:${(i * 0.45).toFixed(2)}s">${icon}</text>`).join('')}</g>`
-    : '';
-};
-
-/** Питомец — эмодзи вещи из гардероба, сидит справа внизу. */
-const petHtml = (id, icon) => (icon ? `<g class="pet pet-${id}"><text x="122" y="146" font-size="30" text-anchor="middle">${icon}</text></g>` : '');
-
-export function mascot(mood = 'happy', cls = '', outfit = getOutfit()) {
+/**
+ * Препи целиком (SVG). mood — настроение, cls — CSS-классы, outfit — наряд по слотам (по умолчанию — надетый),
+ * opts.form — форма по серии, opts.pose — поза рук вместо позы настроения, opts.emote — танец/эмоция (CSS-анимация).
+ */
+export function mascot(mood = 'happy', cls = '', outfit = getOutfit(), opts = {}) {
   const id = `pp${++uid}`;
+  const emote = opts.emote ? EMOTES[opts.emote] : null;
+  if (emote?.mood) mood = emote.mood;
+  if (emote?.pose) opts = { ...opts, pose: emote.pose };
+  const form = opts.form ?? (mood === 'ghost' ? 'ghost' : mood === 'sick' ? 'sick' : null);
+  const faceMood = form === 'tomb' ? 'ghost' : form === 'ghost' ? (mood === 'ghost' ? 'ghost' : mood) : mood;
+  const m = MOODS[faceMood] ?? MOODS.happy;
   const palette = COLORS[outfit.color];
   const colorStyle = palette ? ` style="--mascot-hi:${palette[0]};--mascot-1:${palette[1]};--mascot-2:${palette[2]}"` : '';
-  const eyes = mood === 'win' ? EYES.happy : mood === 'wow' ? EYES.big : mood === 'think' ? EYES.up : mood === 'sleep' ? EYES.closed : EYES.open;
-  const mouth = MOUTHS[mood] ?? MOUTHS.happy;
-  return `<svg class="mascot mascot-${mood} ${cls}" viewBox="0 0 140 150" aria-hidden="true"${colorStyle}>
+  const ghosty = form === 'ghost' || form === 'tomb';
+  const buff = form === 'buff';
+  const held = HAND[outfit.hand] ?? '';
+  const poseId = opts.pose ?? (buff ? 'flex' : m.pose);
+  const { back: armsBack, front: armsFront } = arms(poseId, { buff, holding: held || null });
+  const head = outfit.head === 'cap' ? CAP : (HEAD[outfit.head] ?? '');
+  const formHead = head ? '' : buff ? SWEATBAND : form === 'sick' ? ICEPACK : '';
+  const blush = m.blush === 2
+    ? `<g class="blush is-strong"><ellipse cx="38" cy="94" rx="9" ry="5.5" fill="#ff6b9d" opacity=".7"/><ellipse cx="102" cy="94" rx="9" ry="5.5" fill="#ff6b9d" opacity=".7"/><path d="M33 92 l3 -3 M38 93 l3 -3 M97 92 l3 -3 M102 93 l3 -3" stroke="#e11d48" stroke-width="1.4" stroke-linecap="round" opacity=".6"/></g>`
+    : `<g class="blush"><ellipse cx="38" cy="94" rx="7.5" ry="4.5" fill="#ff8fb8" opacity=".5"/><ellipse cx="102" cy="94" rx="7.5" ry="4.5" fill="#ff8fb8" opacity=".5"/></g>`;
+  const extras = (m.extra ?? []).filter((e) => !(e === 'thermo' && outfit.face));
+
+  const bodyShape = ghosty
+    ? `<path d="${GHOST_BODY}" fill="url(#${id}b)"/><path d="${GHOST_BODY}" fill="url(#${id}d)"/><path d="${GHOST_BODY}" fill="none" stroke="var(--mascot-2)" stroke-width="2" opacity=".5"/>`
+    : `<circle cx="70" cy="80" r="48" fill="url(#${id}b)"/>
+      <circle cx="70" cy="80" r="48" fill="url(#${id}d)"/>
+      <circle cx="70" cy="80" r="47" fill="none" stroke="var(--mascot-2)" stroke-width="2" opacity=".55"/>
+      <path d="M31 104 A46 46 0 0 0 64 125.6" stroke="var(--mascot-hi)" stroke-width="3" fill="none" stroke-linecap="round" opacity=".55"/>`;
+
+  const feet = ghosty
+    ? ''
+    : FEET[outfit.feet] ??
+      `<g class="feet"><ellipse cx="55" cy="130" rx="12.5" ry="7" fill="url(#${id}f)" stroke="var(--mascot-2)" stroke-width="1.6"/><ellipse cx="85" cy="130" rx="12.5" ry="7" fill="url(#${id}f)" stroke="var(--mascot-2)" stroke-width="1.6"/><ellipse cx="51" cy="128" rx="4" ry="2" fill="#fff" opacity=".35"/><ellipse cx="81" cy="128" rx="4" ry="2" fill="#fff" opacity=".35"/></g>`;
+
+  const body = `<g class="mascot-body">
+      ${form === 'blaze' ? BLAZE_BACK : ''}
+      ${BACK[outfit.back] ?? ''}
+      <g transform="rotate(-9 70 112)"><path class="ring-back" d="M6 112 A64 13 0 0 1 134 112" fill="none" stroke="url(#${id}r)" stroke-width="4.5" opacity=".55"/></g>
+      ${armsBack}
+      ${feet}
+      ${bodyShape}
+      <ellipse cx="50" cy="54" rx="17" ry="10" transform="rotate(-28 50 54)" fill="url(#${id}s)"/>
+      <path d="M33 70 A40 40 0 0 1 52 40" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" opacity=".35"/>
+      <circle cx="38" cy="72" r="2.4" fill="#fff" opacity=".7"/>
+      ${buff && !BODY[outfit.body] ? ABS : ''}
+      ${BODY[outfit.body] ? `<clipPath id="${id}c"><circle cx="70" cy="80" r="48"/></clipPath><g class="wear-body" clip-path="url(#${id}c)">${BODY[outfit.body]}</g>` : ''}
+      ${blush}
+      <g class="face">${eyes(id, m.eyes)}${browsHtml(m.brows)}${mouthHtml(id, m.mouth)}</g>
+      ${form === 'sick' ? '<circle class="sick-tint" cx="70" cy="80" r="48" fill="#a3e635" opacity=".26"/>' : ''}
+      ${form === 'sick' && !outfit.face ? BANDAGE : ''}
+      ${NECK[outfit.neck] ?? ''}
+      ${FACE[outfit.face] ?? ''}
+      <g transform="rotate(-9 70 112)"><path class="ring-front" d="M6 112 A64 13 0 0 0 134 112" fill="none" stroke="url(#${id}r)" stroke-width="4.5"/></g>
+      ${head}${formHead}
+      ${armsFront}
+      ${extras.map((e) => EXTRAS[e] ?? '').join('')}
+      ${emote?.props ?? ''}
+    </g>`;
+
+  const formCls = form ? ` form-${form}` : '';
+  const emoteCls = opts.emote ? ` emote emote-${opts.emote}` : '';
+  return `<svg class="mascot mascot-${faceMood}${formCls}${emoteCls} ${cls}" viewBox="0 0 140 150" aria-hidden="true"${colorStyle}>
     <defs>
-      <radialGradient id="${id}b" cx=".36" cy=".3" r=".78">
+      <radialGradient id="${id}b" gradientUnits="userSpaceOnUse" cx="56" cy="60" r="78">
         <stop offset="0" style="stop-color:var(--mascot-hi)"/>
         <stop offset=".5" style="stop-color:var(--mascot-1)"/>
         <stop offset="1" style="stop-color:var(--mascot-2)"/>
+      </radialGradient>
+      <radialGradient id="${id}d" gradientUnits="userSpaceOnUse" cx="70" cy="80" r="50" fx="58" fy="62">
+        <stop offset=".62" style="stop-color:var(--mascot-2)" stop-opacity="0"/>
+        <stop offset="1" style="stop-color:var(--mascot-2)" stop-opacity=".55"/>
       </radialGradient>
       <radialGradient id="${id}s" cx=".5" cy=".5" r=".5">
         <stop offset="0" stop-color="#fff" stop-opacity=".95"/>
         <stop offset="1" stop-color="#fff" stop-opacity="0"/>
       </radialGradient>
+      <radialGradient id="${id}i" cx=".4" cy=".35" r=".7">
+        <stop offset="0" stop-color="#8b7bff"/><stop offset=".6" stop-color="#4c35d4"/><stop offset="1" stop-color="${INK}"/>
+      </radialGradient>
+      <linearGradient id="${id}f" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--mascot-1)"/><stop offset="1" style="stop-color:var(--mascot-2)"/>
+      </linearGradient>
       <linearGradient id="${id}r" x1="0" y1="0" x2="1" y2="0">
         <stop offset="0" stop-color="#fde68a"/><stop offset=".5" stop-color="#facc15"/><stop offset="1" stop-color="#f59e0b"/>
       </linearGradient>
     </defs>
-    <ellipse class="mascot-shadow" cx="70" cy="143" rx="34" ry="5" fill="#000" opacity=".14"/>
-    ${AURA_BACK[outfit.aura] ?? ''}
-    <g class="mascot-body">
-      ${BACK[outfit.back] ?? ''}
-      <g transform="rotate(-9 70 112)"><path class="ring-back" d="M6 112 A64 13 0 0 1 134 112" fill="none" stroke="url(#${id}r)" stroke-width="5" opacity=".55"/></g>
-      <circle cx="70" cy="80" r="48" fill="url(#${id}b)"/>
-      <circle cx="70" cy="80" r="46.5" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="2"/>
-      <ellipse cx="50" cy="54" rx="17" ry="10" transform="rotate(-28 50 54)" fill="url(#${id}s)"/>
-      <circle cx="38" cy="72" r="2.6" fill="#fff" opacity=".7"/>
-      <ellipse cx="40" cy="93" rx="7" ry="4.5" fill="#ff8fb8" opacity=".5"/>
-      <ellipse cx="100" cy="93" rx="7" ry="4.5" fill="#ff8fb8" opacity=".5"/>
-      ${BROWS[mood] ?? ''}
-      <g class="face">${eyes}</g>
-      ${mouth}
-      ${mood === 'sad' ? '<path class="tear" d="M98 84 Q102 92 98 95 Q94 92 98 84 Z" fill="#7dd3fc"/>' : ''}
-      ${NECK[outfit.neck] ?? ''}
-      ${FACE[outfit.face] ?? ''}
-      <g transform="rotate(-9 70 112)"><path class="ring-front" d="M6 112 A64 13 0 0 0 134 112" fill="none" stroke="url(#${id}r)" stroke-width="5"/></g>
-${outfit.head === 'cap' ? CAP : (HEAD[outfit.head] ?? '')}
-    </g>
-    ${auraFront(outfit.aura)}
-    ${petHtml(outfit.pet, itemById(outfit.pet)?.icon)}
-    ${mood === 'sleep' ? '<g class="zzz"><text x="104" y="40" font-size="16">z</text><text x="114" y="26" font-size="20">z</text><text x="126" y="10" font-size="24">Z</text></g>' : ''}
-    ${mood === 'win' ? sparkle(14, 40, 7, 0) + sparkle(126, 52, 6, 0.5) + sparkle(120, 118, 5, 1) + sparkle(20, 112, 5, 1.4) : ''}
+    <ellipse class="mascot-shadow" cx="70" cy="143" rx="34" ry="5" fill="#000" opacity="${ghosty ? 0.07 : 0.14}"/>
+    ${auraBack(outfit.aura)}
+    ${form === 'tomb' ? `<g class="tomb-ghost" transform="translate(27 -14) scale(.62)">${body}</g>${TOMB}` : body}
+    ${form === 'tomb' ? '' : auraFront(outfit.aura)}
+    ${form === 'tomb' ? '' : petSvg(outfit.pet)}
+    ${form === 'blaze' ? EMBERS : ''}
+    ${emote?.scene ?? ''}
   </svg>`;
 }
 
