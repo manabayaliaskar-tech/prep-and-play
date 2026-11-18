@@ -15608,3 +15608,37 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
 @media (prefers-reduced-motion: reduce) { .pc-reward.is-ready, .pc-claim { animation: none; } }
 .notes-tip { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 14px; padding: 12px 14px; border-radius: 16px; background: color-mix(in srgb, var(--primary) 10%, var(--card)); border: 1px solid color-mix(in srgb, var(--primary) 30%, var(--line)); }
 .notes-tip span { flex: 1 1 240px; font-weight: 700; }
+/* Меню «⋯» на телефоне: заметки, тарифы, звук */
+.more-menu { position: relative; display: none; }
+.more-btn { font-size: 1.2rem; font-weight: 900; line-height: 1; }
+.more-pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 60;
+  display: grid;
+  min-width: 190px;
+  padding: 6px;
+  border-radius: 16px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: 0 16px 36px rgba(30, 27, 58, 0.2);
+}
+.more-pop[hidden] { display: none; }
+.more-pop a, .more-pop button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  font: inherit;
+  font-weight: 800;
+  color: var(--ink);
+  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
+}
+.more-pop a:hover, .more-pop button:hover { background: var(--primary-l); }
+@media (max-width: 900px) { .more-menu { display: block; } }

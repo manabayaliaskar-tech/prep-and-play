@@ -34,6 +34,8 @@ export function setNotesInNav(on) {
   renderTopbar();
 }
 
+let moreCloser = false;
+
 export function renderTopbar() {
   const el = document.getElementById('topbar');
   if (!el) return;
@@ -74,9 +76,38 @@ export function renderTopbar() {
         <div class="theme-pop" hidden><p class="theme-pop-title">${t('theme.pick')}</p>${themePickerHtml()}</div>
       </div>
       <button type="button" class="icon-btn sound-toggle" aria-label="${t('top.sound')}" title="${t('top.sound')}">${p.sound ? '🔊' : '🔇'}</button>
+      <div class="more-menu">
+        <button type="button" class="icon-btn more-btn" aria-label="${t('top.more')}" title="${t('top.more')}" aria-haspopup="true" aria-expanded="false">⋯</button>
+        <div class="more-pop" hidden>
+          <a href="#/saved">🔖 ${t('nav.notes')}</a>
+          <a href="#/premium">💎 ${t('nav.premium')}</a>
+          <button type="button" class="more-sound">${p.sound ? '🔊' : '🔇'} ${p.sound ? t('top.soundOn') : t('top.soundOff')}</button>
+        </div>
+      </div>
       ${langSwitchHtml()}
     </div>`;
   if (coinMove) animateCoin(el.querySelector('.stat-chip.coins .coin'), coinMove);
+  // Меню «⋯» на телефоне: заметки, тарифы и звук.
+  const moreBtn = el.querySelector('.more-btn');
+  const morePop = el.querySelector('.more-pop');
+  moreBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    morePop.hidden = !morePop.hidden;
+    moreBtn.setAttribute('aria-expanded', String(!morePop.hidden));
+  });
+  morePop.addEventListener('click', (e) => e.stopPropagation());
+  morePop.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => (morePop.hidden = true)));
+  if (!moreCloser) {
+    moreCloser = true;
+    document.addEventListener('click', () => {
+      const pop = document.querySelector('#topbar .more-pop');
+      if (pop && !pop.hidden) pop.hidden = true;
+    });
+  }
+  el.querySelector('.more-sound').addEventListener('click', () => {
+    p.sound = !p.sound;
+    saveProfile();
+  });
   el.querySelector('.sound-toggle').addEventListener('click', () => {
     p.sound = !p.sound;
     saveProfile();
