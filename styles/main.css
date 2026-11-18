@@ -15361,13 +15361,13 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
 .pass-legend .pl-free::before { content: '▲ '; color: var(--sb); }
 
 /* ---------- Главная: магазин рядом с Препи, серия в шапке ---------- */
-.hero-card {
+.hub .hero-card {
   grid-template-columns: auto minmax(0, 1fr) auto auto;
   grid-template-areas: 'mascot text shop goal';
 }
-.hero-card .hero-mascot { grid-area: mascot; }
-.hero-card .hero-text { grid-area: text; }
-.hero-card .goal { grid-area: goal; }
+.hub .hero-card .hero-mascot { grid-area: mascot; }
+.hub .hero-card .hero-text { grid-area: text; }
+.hub .hero-card .goal { grid-area: goal; }
 .hero-shop {
   grid-area: shop;
   align-self: center;
@@ -15411,14 +15411,14 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
 .life-row.single { grid-template-columns: 1fr; }
 .life-row.single .pass-card { min-height: 130px; }
 @media (max-width: 1100px) and (min-width: 721px) {
-  .hero-card {
+  .hub .hero-card {
     grid-template-columns: auto minmax(0, 1fr) auto;
     grid-template-areas: 'mascot text goal' 'shop shop shop';
   }
   .hero-shop { grid-template-columns: auto 1fr auto; justify-items: start; align-items: center; min-width: 0; width: 100%; }
 }
 @media (max-width: 720px) {
-  .hero-card {
+  .hub .hero-card {
     grid-template-columns: auto minmax(0, 1fr) auto;
     grid-template-areas: 'mascot shop goal' 'text text text';
   }
@@ -15434,12 +15434,12 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
 }
 
 /* Шапка главной, вариант 2: магазин на всю правую часть, цель дня - в углу, серия - маленькой строкой наверху */
-.hero-card { position: relative; grid-template-columns: auto minmax(0, 1fr) minmax(260px, 340px); grid-template-areas: 'mascot text shop'; align-items: stretch; }
-.hero-card .hero-mascot, .hero-card .hero-text { align-self: center; }
-.hero-card .goal { position: absolute; top: 14px; right: 14px; width: 70px; z-index: 2; }
-.hero-card .goal .ring, .hero-card .goal .goal-text { width: 70px; height: 70px; }
-.hero-card .goal .goal-text b { font-size: 0.95rem; }
-.hero-card .goal .goal-text span { font-size: 0.55rem; }
+.hub .hero-card { position: relative; grid-template-columns: auto minmax(0, 1fr) minmax(260px, 340px); grid-template-areas: 'mascot text shop'; align-items: stretch; }
+.hub .hero-card .hero-mascot, .hub .hero-card .hero-text { align-self: center; }
+.hub .hero-card .goal { position: absolute; top: 14px; right: 14px; width: 70px; z-index: 2; }
+.hub .hero-card .goal .ring, .hub .hero-card .goal .goal-text { width: 70px; height: 70px; }
+.hub .hero-card .goal .goal-text b { font-size: 0.95rem; }
+.hub .hero-card .goal .goal-text span { font-size: 0.55rem; }
 .hero-shop { align-self: stretch; justify-content: center; align-content: center; gap: 14px; padding: 22px 18px; min-width: 0; color: #1e1b3a; margin-right: 76px; }
 .hero-shop b, .hero-shop .hero-shop-coins { color: #1e1b3a; }
 .hero-shop-top { font-size: 1.3rem; }
@@ -15464,14 +15464,14 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
 .hero-risk-pill .flame { width: 0.9em; height: 1.1em; }
 @keyframes risk-pulse { 50% { box-shadow: 0 4px 18px rgba(239, 68, 68, 0.55); } }
 @media (max-width: 1100px) and (min-width: 721px) {
-  .hero-card { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: 'mascot text' 'shop shop'; }
+  .hub .hero-card { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: 'mascot text' 'shop shop'; }
   .hero-shop { margin-right: 0; }
 }
 @media (max-width: 720px) {
-  .hero-card { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: 'mascot shop' 'text text'; }
+  .hub .hero-card { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: 'mascot shop' 'text text'; }
   .hero-shop { margin-right: 66px; padding: 10px; gap: 6px; }
-  .hero-card .goal { top: 12px; right: 12px; width: 60px; }
-  .hero-card .goal .ring, .hero-card .goal .goal-text { width: 60px; height: 60px; }
+  .hub .hero-card .goal { top: 12px; right: 12px; width: 60px; }
+  .hub .hero-card .goal .ring, .hub .hero-card .goal .goal-text { width: 60px; height: 60px; }
   .hero-shop-top { font-size: 0.85rem; }
   .hero-shop-bag { font-size: 1.6rem; }
 }
@@ -15485,12 +15485,12 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
 @media (max-width: 720px) { .hero-shop { margin-right: 0; } }
 /* Телефон: заголовок рядом с Препи, магазин под ними на всю ширину */
 @media (max-width: 720px) {
-  .hero-card { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: 'mascot title' 'shop shop' 'badges badges'; }
-  .hero-card .hero-text { display: contents; }
-  .hero-card .hero-title { grid-area: title; align-self: center; }
-  .hero-card .hero-title h1 { font-size: 1.35rem; margin: 2px 0 4px; }
-  .hero-card .hero-title p.muted { font-size: 0.82rem; margin: 0; }
-  .hero-card .hero-badges { grid-area: badges; }
+  .hub .hero-card { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: 'mascot title' 'shop shop' 'badges badges'; }
+  .hub .hero-card .hero-text { display: contents; }
+  .hub .hero-card .hero-title { grid-area: title; align-self: center; }
+  .hub .hero-card .hero-title h1 { font-size: 1.35rem; margin: 2px 0 4px; }
+  .hub .hero-card .hero-title p.muted { font-size: 0.82rem; margin: 0; }
+  .hub .hero-card .hero-badges { grid-area: badges; }
   .hero-shop { grid-template-columns: auto 1fr; grid-template-areas: 'top deals' 'coins deals'; justify-items: start; align-items: center; gap: 8px 12px; padding: 14px 16px; }
   .hero-shop-top { grid-area: top; flex-direction: row; gap: 8px; font-size: 1.05rem; }
   .hero-shop-bag { font-size: 2rem; }
@@ -15516,8 +15516,8 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
 @media (max-width: 1100px) and (min-width: 721px) { .hero-shop { margin: 0 -16px -16px; } }
 @media (max-width: 720px) { .hero-shop { margin: 0 -8px; border-radius: 16px; } .hq-bar { width: 30px; } }
 @media (max-width: 720px) {
-  .hero-card { grid-template-areas: 'mascot title' 'shop shop' 'badges badges' 'quests quests'; }
-  .hero-card .hero-quests { grid-area: quests; margin-top: 0; }
+  .hub .hero-card { grid-template-areas: 'mascot title' 'shop shop' 'badges badges' 'quests quests'; }
+  .hub .hero-card .hero-quests { grid-area: quests; margin-top: 0; }
 }
 .hero-quests { align-items: center; }
 .hq-title { font-size: 0.74rem; font-weight: 900; color: var(--muted); margin-right: 2px; }
@@ -15539,7 +15539,7 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
 @media (max-width: 720px) {
   .risk-tail { display: none; }
   .hero-risk-pill { font-size: 0.7rem; }
-  .hero-card .hero-mascot .mascot-xl { width: 96px; }
+  .hub .hero-card .hero-mascot .mascot-xl { width: 96px; }
 }
 
 /* ---------- Карточка Препи Пасса на главной: живой баннер ---------- */
