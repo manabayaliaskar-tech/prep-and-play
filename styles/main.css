@@ -3494,7 +3494,7 @@ button {
   white-space: nowrap;
 }
 
-@media (min-width: 721px) and (max-width: 1380px) {
+@media (min-width: 721px) and (max-width: 1680px) {
   .lvl-bar {
     display: none;
   }
@@ -15359,3 +15359,76 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
 .pass-legend span { padding: 3px 10px; border-radius: 999px; border: 2px solid var(--line); background: var(--card); }
 .pass-legend .pl-gold { color: #92400e; border-color: #fcd34d; background: linear-gradient(135deg, #fffbeb, #fde68a); }
 .pass-legend .pl-free::before { content: '▲ '; color: var(--sb); }
+
+/* ---------- Главная: магазин рядом с Препи, серия в шапке ---------- */
+.hero-card {
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-areas: 'mascot text shop goal';
+}
+.hero-card .hero-mascot { grid-area: mascot; }
+.hero-card .hero-text { grid-area: text; }
+.hero-card .goal { grid-area: goal; }
+.hero-shop {
+  grid-area: shop;
+  align-self: center;
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  min-width: 190px;
+  padding: 16px 16px 14px;
+  border-radius: 24px;
+  text-decoration: none;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.85), transparent 60%),
+    linear-gradient(145deg, #fde68a, #f9a8d4 55%, #c4b5fd);
+  box-shadow: 0 12px 28px rgba(236, 72, 153, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 0.25s var(--ease-spring, ease), box-shadow 0.25s;
+}
+.hero-shop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.6) 45%, transparent 60%);
+  transform: translateX(-120%);
+  animation: card-shine 3.4s ease-in-out infinite;
+}
+.hero-shop:hover { transform: translateY(-4px) scale(1.03); box-shadow: 0 18px 36px rgba(236, 72, 153, 0.38); }
+.hero-shop-top { display: flex; align-items: center; gap: 8px; font-size: 1.1rem; }
+.hero-shop-bag { font-size: 2rem; animation: halo-bob 2.6s ease-in-out infinite; }
+.hero-shop-deals { display: flex; gap: 6px; }
+.hero-shop .mini-deal { position: relative; width: 44px; height: 44px; padding: 3px; border-radius: 12px; background: rgba(255, 255, 255, 0.85); display: grid; place-items: center; }
+.hero-shop .mini-deal .item-thumb { width: 38px; height: 38px; }
+.hero-shop .mini-deal i { position: absolute; right: -6px; bottom: -6px; padding: 0 4px; border-radius: 6px; font-style: normal; font-size: 0.62rem; font-weight: 900; color: #fff; background: #ef4444; }
+.hero-shop-coins { display: inline-flex; align-items: center; gap: 5px; padding: 3px 12px; border-radius: 999px; font-weight: 900; background: rgba(255, 255, 255, 0.85); }
+.hero-shop-coins .coin { width: 20px; height: 20px; }
+.hero-risk { margin: 12px 0 0; padding: 8px 10px; border-radius: 16px; }
+.hero-risk .streak-risk-text b { font-size: 0.92rem; }
+.life-row.single { grid-template-columns: 1fr; }
+.life-row.single .pass-card { min-height: 130px; }
+@media (max-width: 1100px) and (min-width: 721px) {
+  .hero-card {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: 'mascot text goal' 'shop shop shop';
+  }
+  .hero-shop { grid-template-columns: auto 1fr auto; justify-items: start; align-items: center; min-width: 0; width: 100%; }
+}
+@media (max-width: 720px) {
+  .hero-card {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: 'mascot shop goal' 'text text text';
+  }
+  .hero-shop { min-width: 0; padding: 10px; gap: 6px; border-radius: 18px; }
+  .hero-shop-top { flex-direction: column; gap: 2px; font-size: 0.85rem; text-align: center; }
+  .hero-shop-bag { font-size: 1.6rem; }
+  .hero-shop-deals { display: none; }
+  .hero-shop-coins { font-size: 0.85rem; padding: 2px 10px; }
+  .saved-link { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-shop::after, .hero-shop-bag { animation: none; }
+}

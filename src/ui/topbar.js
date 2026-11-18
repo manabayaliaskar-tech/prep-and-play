@@ -58,6 +58,7 @@ export function renderTopbar() {
           <span class="lvl-bar" aria-hidden="true"><i style="width:${Math.round((lvl.into / lvl.need) * 100)}%"></i></span>
         </span>
       </div>
+      <a class="icon-btn saved-link ${path.startsWith('/saved') ? 'is-active' : ''}" href="#/saved" aria-label="${t('saved.title')}" title="${t('saved.title')}">🔖</a>
       ${langSwitchHtml()}
       <a class="icon-btn premium-link ${path.startsWith('/premium') ? 'is-active' : ''}" href="#/premium" aria-label="${t('nav.premium')}" title="${t('nav.premium')}">💎</a>
       <div class="theme-menu">

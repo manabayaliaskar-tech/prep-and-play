@@ -72,6 +72,13 @@ export function bindPoke(holder, base) {
       play({ emote, form: null }, Math.max(2400, EMOTES[emote]?.ms ?? 3200));
       return;
     }
+    const line = base().line;
+    if (line && !holder.dataset.saidMood) {
+      holder.dataset.saidMood = '1';
+      play({ mood: 'wink', form: null, cls: 'poke-squish' });
+      say(line);
+      return;
+    }
     const mood = REACTIONS[Math.floor(Math.random() * REACTIONS.length)];
     play({ mood, form: null, cls: 'poke-squish' });
     if (Math.random() < 0.6) say(t(`poke.${1 + Math.floor(Math.random() * POKE_LINES)}`));

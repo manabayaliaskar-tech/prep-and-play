@@ -6,24 +6,9 @@ import { dayKey } from '../core/dates.js';
 import { RESCUE_XP, flameOf, flameSvg, giftCoins, nextFlame, nextMultiplier, prepiMood, rescueState, streakMultiplier } from '../core/economy.js';
 import { t } from '../core/i18n.js';
 import { DAILY_GOAL, addCoins, currentStreak, getProfile, saveProfile, todayXp } from '../core/profile.js';
-import { dailyDeals } from '../core/shop.js';
 import { sfx } from '../core/sound.js';
-import { goodThumb } from '../ui/goods-ui.js';
 
 export const moodOf = (p = getProfile()) => prepiMood(p, dayKey(), todayXp(), DAILY_GOAL);
-
-/** Пузырь с фразой Препи и шкала его энергии. */
-export function moodHtml(p = getProfile()) {
-  const mood = moodOf(p);
-  return `<div class="prepi-mood m-${mood.id}">
-    <p class="mood-bubble">${t(`mood.${mood.id}`, { n: p.streak?.count ?? 0 })}</p>
-    <div class="energy" title="${t('mood.energy')}">
-      <span class="energy-label">${mood.energy >= 50 ? '💜' : mood.energy >= 20 ? '💔' : '💤'} ${t('mood.energy')}</span>
-      <span class="energy-bar"><i style="width:${mood.energy}%"></i></span>
-      <b>${mood.energy}%</b>
-    </div>
-  </div>`;
-}
 
 /** Огонёк серии: цвет, множитель и сколько до следующего цвета. */
 export function flameBadgeHtml(streak = currentStreak()) {
@@ -60,17 +45,6 @@ export function giftCardHtml(p = getProfile()) {
     <span class="gift-text"><b>${t('gift.title')}</b><small>${t('gift.desc')}</small></span>
     <span class="gift-go">+${giftCoins(currentStreak())} 🪙</span>
   </button>`;
-}
-
-/** Витрина магазина на главной: баланс и товары дня. */
-export function shopCardHtml(p = getProfile()) {
-  const deals = dailyDeals(dayKey());
-  return `<a class="shop-card" href="#/shop">
-    <span class="shop-card-icon" aria-hidden="true">🛍️</span>
-    <span class="shop-card-text"><b>${t('shop.title')}</b><small>${t('shop.cardDesc', { n: deals[0].discount })}</small></span>
-    <span class="shop-card-deals">${deals.slice(0, 3).map((d) => `<span class="mini-deal">${goodThumb(d.id)}<i>−${d.discount}%</i></span>`).join('')}</span>
-    <span class="shop-card-coins">🪙 ${p.coins ?? 0}</span>
-  </a>`;
 }
 
 export function bindLife(app, rerender) {

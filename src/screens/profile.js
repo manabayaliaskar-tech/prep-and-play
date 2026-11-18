@@ -415,6 +415,7 @@ ${achievementsPanel(p)}
           <h2>${t('profile.settings')}</h2>
           <label class="toggle"><input type="checkbox" class="sound-input" ${p.sound ? 'checked' : ''}/><span>${t('profile.sound')}</span></label>
           <label class="volume"><span>🔊 ${t('profile.volume')}</span><input type="range" class="volume-input" min="0" max="100" step="5" value="${Math.round(getVolume() * 100)}" ${p.sound ? '' : 'disabled'}/></label>
+          <a class="btn btn-soft" href="#/saved">🔖 ${t('saved.title')}</a>
           <button type="button" class="btn btn-soft tour-btn">🎓 ${t('tour.replay')}</button>
           ${canInstall() ? `<button type="button" class="btn btn-soft install-btn">📲 ${t('pwa.install')}</button>` : ''}
           <button type="button" class="btn btn-danger-soft reset-btn">🗑 ${t('profile.reset')}</button>

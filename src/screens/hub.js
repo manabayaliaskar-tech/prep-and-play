@@ -23,10 +23,13 @@ import { flameSvg } from '../core/economy.js';
 import { seasonCardHtml } from './season.js';
 import { todayCardHtml } from './today.js';
 import { getSaved } from '../core/saved.js';
-import { bindLife, flameBadgeHtml, giftCardHtml, moodHtml, moodOf, rescueCardHtml, shopCardHtml } from './prepi-life.js';
+import { bindLife, flameBadgeHtml, giftCardHtml, moodOf, rescueCardHtml } from './prepi-life.js';
+import { dailyDeals } from '../core/shop.js';
+import { goodThumb } from '../ui/goods-ui.js';
+import { coinHtml } from '../ui/coin.js';
 
-/** Ряд инструментов учёбы: сохранённое, анимации тем, аудирование. */
-function learnRowHtml() {
+/** Ряд инструментов учёбы: анимации тем, аудирование, сохранённое (на странице «Практика»). */
+export function learnRowHtml() {
   const saved = getSaved().length;
   const card = (href, icon, title, desc, cls = '') => `<a class="learn-card ${cls}" href="#${href}"><span class="learn-icon" aria-hidden="true">${icon}</span><span><b>${title}</b><small>${desc}</small></span></a>`;
   return `<div class="learn-row">
@@ -138,23 +141,21 @@ export function streakRiskHtml(streak, xpToday) {
   if (!streak || xpToday > 0) return '';
   const hours = Math.max(1, Math.ceil(msUntilMidnight() / 3600000));
   return `
-    <a class="streak-risk" href="#/quiz/daily">
+    <a class="streak-risk hero-risk" href="#/quiz/daily">
       <span class="streak-risk-fire" aria-hidden="true">${flameSvg(streak)}</span>
       <span class="streak-risk-text"><b>${t('risk.title', { n: streak })}</b><small>${t('risk.desc', { h: hours })}</small></span>
       <span class="streak-risk-go">${t('risk.go')}</span>
     </a>`;
 }
 
-/** Карточка «Установи на экран» — пока приложение не установлено и её не закрыли. */
-function installCardHtml() {
-  if (!canInstall() || installDismissed()) return '';
-  return `
-    <div class="install-card">
-      <span class="install-icon" aria-hidden="true">📲</span>
-      <span class="install-text"><b>${t('pwa.title')}</b><small>${t('pwa.desc')}</small></span>
-      <button type="button" class="btn btn-primary btn-sm install-go">${t('pwa.install')}</button>
-      <button type="button" class="icon-btn install-close" aria-label="${t('common.close')}">✕</button>
-    </div>`;
+/** Большая кнопка магазина рядом с Препи: товары дня и монеты. */
+function heroShopHtml(p) {
+  const deals = dailyDeals(dayKey());
+  return `<a class="hero-shop" href="#/shop">
+    <span class="hero-shop-top"><span class="hero-shop-bag" aria-hidden="true">🛍️</span><b>${t('shop.title')}</b></span>
+    <span class="hero-shop-deals">${deals.slice(0, 3).map((d) => `<span class="mini-deal">${goodThumb(d.id)}<i>−${d.discount}%</i></span>`).join('')}</span>
+    <span class="hero-shop-coins">${coinHtml()} ${p.coins ?? 0}</span>
+  </a>`;
 }
 
 /** Установка: окно браузера или инструкция для iPhone и iPad. */
@@ -220,15 +221,15 @@ export function hubScreen(app) {
             <p class="hero-kicker">${name ? t('home.helloName', { name }) : t('home.hello')}</p>
             <h1>${t('hub.title')}</h1>
             <p class="muted">${t('hub.subtitle')}</p>
-            ${moodHtml(p)}
             <div class="hero-badges">
               <span class="badge">⭐ ${t('home.level', { n: lvl.level })}</span>
               ${flameBadgeHtml(streak)}
-              <a class="badge coin-badge" href="#/shop">🪙 ${p.coins ?? 0}</a>
               <span class="badge">⚡ ${p.xp} XP</span>
               ${nextChestBadge()}
             </div>
+            ${streakRiskHtml(streak, xpToday)}
           </div>
+          ${heroShopHtml(p)}
           <div class="goal">
             ${ring(xpToday, DAILY_GOAL)}
             <div class="goal-text"><b>${Math.min(xpToday, DAILY_GOAL)}/${DAILY_GOAL}</b><span>${xpToday >= DAILY_GOAL ? t('home.goalDone') : t('home.goal')}</span></div>
@@ -237,24 +238,17 @@ export function hubScreen(app) {
 
         ${rescueCardHtml(p)}
 
-        ${streakRiskHtml(streak, xpToday)}
-
         ${giftCardHtml(p)}
 
         ${todayCardHtml(p)}
 
         ${quizHero(p)}
 
-        <div class="life-row">
+        <div class="life-row single">
           ${seasonCardHtml(p)}
-          ${shopCardHtml(p)}
         </div>
 
-        ${learnRowHtml()}
-
         ${continueCard() ? `<div class="continue-row single">${continueCard()}</div>` : ''}
-
-        ${installCardHtml()}
 
         ${rewardCardsHtml()}
 
@@ -305,7 +299,7 @@ export function hubScreen(app) {
     app.querySelector('.prepi-stage .prepi-dress-btn')?.addEventListener('click', () => openWardrobe(render));
     bindPoke(app.querySelector('.prepi-poke'), () => {
       const m = moodOf(getProfile());
-      return { mood: m.mascot, cls: 'mascot-xl float', outfit: undefined, form: m.form };
+      return { mood: m.mascot, cls: 'mascot-xl float', outfit: undefined, form: m.form, line: t(`mood.${m.id}`, { n: getProfile().streak?.count ?? 0 }) };
     });
     bindLife(app, render);
     bindQuizHost(app);
