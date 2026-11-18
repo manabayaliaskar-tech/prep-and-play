@@ -15768,3 +15768,18 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
   .explain-card small { font-size: 11px; }
   .explain-index .explain-icon { font-size: 1.3rem; }
 }
+
+/* ===== Больше воздуха между предметами ===== */
+.catalog > .practice-course + .practice-course { margin-top: 20px; }
+.catalog .exam-list { gap: 20px; margin-bottom: 26px; }
+.hub .course-grid { gap: 18px; }
+.exam-folds { gap: 14px; }
+.explain-index .explain-subj { margin-top: 36px; }
+.explain-index .explain-chips + .explain-subj { margin-top: 22px; }
+@media (max-width: 720px) {
+  .catalog > .practice-course + .practice-course { margin-top: 14px; }
+  .catalog .exam-list { gap: 14px; margin-bottom: 20px; }
+  .hub .course-grid { gap: 14px; }
+  .explain-index .explain-subj { margin-top: 28px; }
+  .explain-index .explain-chips + .explain-subj { margin-top: 16px; }
+}
