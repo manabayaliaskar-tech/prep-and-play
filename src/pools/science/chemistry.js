@@ -4,6 +4,7 @@ import { pick, randomInt } from '../../core/random.js';
 import { T } from '../bank.js';
 import { CHEMISTRY_MORE } from './science-more.js';
 import { L, ask, dec, n, poolQ, same, steps } from '../gen.js';
+import { CHEMISTRY_MORE2 } from './science-more2.js';
 
 const TIMES = '×';
 const DIV = '÷';
@@ -217,3 +218,4 @@ export const CHEMISTRY_THEORY = [
 
 // Дополнительные вопросы — в science-more.js.
 CHEMISTRY_THEORY.push(...CHEMISTRY_MORE);
+CHEMISTRY_THEORY.push(...CHEMISTRY_MORE2);

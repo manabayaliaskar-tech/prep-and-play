@@ -6,6 +6,7 @@ import { T } from '../bank.js';
 import { PHYSICS_MORE } from './science-more.js';
 import { L, ask, dec, n, poolQ, same, steps } from '../gen.js';
 import { frac } from '../math/fractions.js';
+import { PHYSICS_MORE2 } from './science-more2.js';
 
 const TIMES = '×';
 const DIV = '÷';
@@ -579,3 +580,4 @@ export const PHYSICS_THEORY = [
 
 // Дополнительные вопросы — в science-more.js.
 PHYSICS_THEORY.push(...PHYSICS_MORE);
+PHYSICS_THEORY.push(...PHYSICS_MORE2);

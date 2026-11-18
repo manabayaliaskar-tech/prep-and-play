@@ -3,6 +3,7 @@
 
 import { T } from '../bank.js';
 import { BIOLOGY_MORE, GEOGRAPHY_MORE } from './science-more.js';
+import { BIOLOGY_MORE2, GEOGRAPHY_MORE2 } from './science-more2.js';
 
 export const BIOLOGY = [
   [1, T('Какой органоид клетки отвечает за фотосинтез?', 'Жасушаның қай органоиды фотосинтезге жауап береді?', 'Which cell organelle carries out photosynthesis?'),
@@ -200,3 +201,5 @@ GEOGRAPHY.push(
 // Дополнительные вопросы — в science-more.js.
 BIOLOGY.push(...BIOLOGY_MORE);
 GEOGRAPHY.push(...GEOGRAPHY_MORE);
+BIOLOGY.push(...BIOLOGY_MORE2);
+GEOGRAPHY.push(...GEOGRAPHY_MORE2);

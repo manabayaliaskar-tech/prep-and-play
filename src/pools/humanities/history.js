@@ -3,6 +3,7 @@
 
 import { T } from '../bank.js';
 import { REGION_MORE } from './history-region-more.js';
+import { HISTORY_KZ_MORE2, HISTORY_WORLD_MORE2 } from './humanities-more2.js';
 
 export const HISTORY_KZ = [
   [1, T('В каком году Казахстан провозгласил независимость?', 'Қазақстан тәуелсіздігін қай жылы жариялады?', 'In which year did Kazakhstan declare independence?'),
@@ -192,3 +193,6 @@ export const HISTORY_REGION = {
 
 // Дополнительные вопросы по странам региона — в отдельном файле.
 for (const [country, rows] of Object.entries(REGION_MORE)) HISTORY_REGION[country].push(...rows);
+// Дополнительные вопросы — в humanities-more2.js.
+HISTORY_KZ.push(...HISTORY_KZ_MORE2);
+HISTORY_WORLD.push(...HISTORY_WORLD_MORE2);
