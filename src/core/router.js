@@ -55,7 +55,41 @@ function resolve(force = false) {
       const params = Object.fromEntries(r.keys.map((k, i) => [k, decodeURIComponent(match[i + 1])]));
       teardown();
       window.scrollTo(0, 0);
-      current = r.handler(params) ?? null;
+      const out = r.handler(params);
+      if (out && typeof out.then === 'function') {
+        // Экран грузится по требованию (отдельный файл кода): держим место, пока он не придёт.
+        const holder = {
+          inner: null,
+          dead: false,
+          cleanup() {
+            this.dead = true;
+            if (typeof this.inner === 'function') this.inner();
+            else this.inner?.cleanup?.();
+          },
+          relabel() {
+            if (this.inner?.relabel) this.inner.relabel();
+            else if (this.inner !== null) resolve(true);
+          },
+        };
+        current = holder;
+        out.then(
+          (res) => {
+            if (holder.dead) {
+              if (typeof res === 'function') res();
+              else res?.cleanup?.();
+            } else holder.inner = res ?? null;
+          },
+          (err) => {
+            // Файл экрана не загрузился (например, вышла новая версия сайта) - перезагружаем страницу, но не по кругу.
+            console.error(err);
+            const key = 'prepplay:chunkReload';
+            if (!holder.dead && Date.now() - Number(sessionStorage.getItem(key) ?? 0) > 15000) {
+              sessionStorage.setItem(key, String(Date.now()));
+              location.reload();
+            }
+          },
+        );
+      } else current = out ?? null;
       document.dispatchEvent(new CustomEvent('routechange', { detail: path }));
       return;
     }

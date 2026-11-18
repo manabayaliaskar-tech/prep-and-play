@@ -107,11 +107,21 @@ function introOverlay(st, th, onDone) {
   requestAnimationFrame(() => root.classList.add('is-in'));
   sfx.win();
   setTimeout(() => confetti({ count: 140 }), 700);
+  let closed = false;
   const close = () => {
+    if (closed) return;
+    closed = true;
+    document.removeEventListener('routechange', close);
+    document.removeEventListener('keydown', onKey);
     root.classList.add('is-out');
     setTimeout(() => root.remove(), 450);
     onDone?.();
   };
+  const onKey = (e) => e.key === 'Escape' && close();
+  // Ушли со страницы (кнопка «назад») или нажали Esc - заставка закрывается, а не висит поверх других экранов.
+  // Подписка - со следующего шага: событие о переходе на саму страницу сезона ещё впереди.
+  setTimeout(() => !closed && document.addEventListener('routechange', close), 0);
+  document.addEventListener('keydown', onKey);
   root.querySelector('.pass-intro-go').addEventListener('click', close);
   root.querySelector('.pass-intro-go').focus({ preventScroll: true });
 }

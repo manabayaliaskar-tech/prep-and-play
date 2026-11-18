@@ -3,6 +3,8 @@
 // Шрифты Google - «сначала кеш»: они не меняются.
 
 const CACHE = 'prepplay-v2';
+/** Части кода, которые грузятся по требованию: сборка вписывает их сюда, чтобы сайт работал и без интернета. */
+const LAZY = [];
 const SHELL = ['./', 'index.html', 'styles/main.css', 'src/main.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
 
 self.addEventListener('install', (event) => {
@@ -14,7 +16,9 @@ self.addEventListener('activate', (event) => {
     caches
       .keys()
       .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
-      .then(() => self.clients.claim()),
+      .then(() => self.clients.claim())
+      // Остальные части кода докачиваем в фоне, не задерживая открытие сайта.
+      .then(() => caches.open(CACHE).then((cache) => Promise.all(LAZY.map((f) => cache.match(f).then((hit) => hit || cache.add(f).catch(() => {})))))),
   );
 });
 

@@ -33,3 +33,9 @@ test('качество заданий: нет пустых и сломанных
       }
   assert.deepEqual(problems.slice(0, 20), []);
 });
+
+test('названия тем (topic-names.js) совпадают с реестром тем - иначе запусти node tools/gen-topic-names.mjs', async () => {
+  const { TOPIC_NAMES } = await import('../src/pools/topic-names.js');
+  const expected = Object.fromEntries(Object.entries(TOPICS).map(([id, tp]) => [id, [tp.pool, tp.name]]));
+  assert.deepEqual(JSON.parse(JSON.stringify(TOPIC_NAMES)), JSON.parse(JSON.stringify(expected)));
+});
