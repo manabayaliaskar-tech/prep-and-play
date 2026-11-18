@@ -108,6 +108,17 @@ export function questsCard(profile = getProfile(), day = dayKey()) {
     </section>`;
 }
 
+/** Задания дня — компактной строкой в шапке главной: значок, полоска, прогресс и награда. */
+function heroQuestsHtml(p) {
+  const quests = questState(p, dayKey());
+  return `<div class="hero-quests" aria-label="${t('quest.title')}">${quests
+    .map(({ quest, value, done }) => {
+      const name = t(`quest.${quest.id}`, { n: quest.goal });
+      return `<span class="hq ${done ? 'is-done' : ''}" title="${esc(name)}" aria-label="${esc(name)}: ${value}/${quest.goal}"><span class="hq-icon" aria-hidden="true">${done ? '✔' : quest.icon}</span><span class="hq-bar"><i style="width:${Math.round((value / quest.goal) * 100)}%"></i></span><small>${value}/${quest.goal}</small><b>+${quest.reward}</b></span>`;
+    })
+    .join('')}</div>`;
+}
+
 /** Большая карточка квиза: Препи-ведущий с колесом фортуны, рекорды и кнопки режимов. */
 export function quizHero(p = getProfile(), day = dayKey()) {
   const r = p.records ?? {};
@@ -226,6 +237,7 @@ export function hubScreen(app) {
               <span class="badge goal-badge ${xpToday >= DAILY_GOAL ? 'is-done' : ''}" title="${t('home.goal')}">🎯 <b>${Math.min(xpToday, DAILY_GOAL)}/${DAILY_GOAL}</b> ${xpToday >= DAILY_GOAL ? t('home.goalDone') : t('home.goal')}<span class="goal-bar"><i style="width:${Math.round((Math.min(xpToday, DAILY_GOAL) / DAILY_GOAL) * 100)}%"></i></span></span>
               ${nextChestBadge()}
             </div>
+            ${heroQuestsHtml(p)}
           </div>
           ${heroShopHtml(p)}
         </div>
@@ -248,7 +260,6 @@ export function hubScreen(app) {
 
         ${planCardHtml()}
 
-        ${questsCard(p)}
 
         ${reviewCardHtml()}
 

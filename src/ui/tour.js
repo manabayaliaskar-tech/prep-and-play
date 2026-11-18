@@ -16,7 +16,7 @@ export const TOUR_STEPS = [
   { id: 'life', sel: '.life-row' },
   { id: 'learn', sel: '.learn-row' },
   { id: 'plan', sel: '.plan-card' },
-  { id: 'quests', sel: '.quests' },
+  { id: 'quests', sel: '.hero-quests' },
   { id: 'courses', sel: '.hub .block' },
   { id: 'nav', sel: '.nav' },
   { id: 'look', sel: '.theme-btn' },
