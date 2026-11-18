@@ -53,21 +53,33 @@ function rewardLabel(st, k, r) {
   return goodName(r.id);
 }
 
-/** Карточка Препи Пасса на главной: мини-сцена сезона, уровень и готовые награды. */
+/** Карточка Препи Пасса на главной: живой баннер со сценой сезона, Препи в эксклюзивах и ближайшими наградами. */
 export function seasonCardHtml(p = getProfile()) {
   const st = seasonState(p);
   const th = themeOf(st.id);
   const left = seasonLeft();
   const ready = st.claimable.length + st.claimableGold.length + st.bonusReady;
-  return `<a class="season-card pass-card" href="#/season" style="--sa:${th.colors[0]};--sb:${th.colors[1]}">
-    <span class="pass-card-scene">${passScene(seasonMonth(st.id), { compact: true })}</span>
-    <span class="pass-card-body">
+  const preview = { ...getOutfit(p), aura: th.items[0], color: th.items[1], pet: th.items[2] };
+  const from = Math.max(1, Math.min(st.tier, TIERS - 3));
+  const next = Array.from({ length: 4 }, (_, i) => from + i).filter((k) => k <= TIERS);
+  const reward = (k) => {
+    const r = tierReward(st.id, k);
+    const state = st.claimed.includes(k) ? 'is-claimed' : k <= st.tier ? 'is-ready' : '';
+    return `<span class="pc-reward ${state} ${r.type === 'item' ? 'is-special' : ''}" title="${esc(rewardLabel(st, k, r))}">${rewardIcon(st, k, r)}<em class="pc-num">${k}</em></span>`;
+  };
+  return `<a class="pass-card2 ${st.gold ? 'is-gold' : ''}" href="#/season" style="--sa:${th.colors[0]};--sb:${th.colors[1]}">
+    <span class="pc-scene" aria-hidden="true">${passScene(seasonMonth(st.id))}</span>
+    <span class="pc-shade" aria-hidden="true"></span>
+    <span class="pc-level"><b>${st.tier}</b><small>/${TIERS}</small></span>
+    <span class="pc-body">
       <span class="pass-logo">${t('pass.name')}${st.gold ? ' <i class="gold-tag">GOLD</i>' : ''}</span>
-      <b>${esc(seasonName(st.id))}</b>
-      <small>${t('pass.level', { n: st.tier, m: TIERS })} · ${t('season.left', { d: left.days })}</small>
-      <span class="season-mini-bar"><i style="width:${Math.round((st.into / TIER_PTS) * 100)}%"></i></span>
+      <b class="pc-title">${esc(seasonName(st.id))}</b>
+      <small class="pc-left">⏳ ${t('season.left', { d: left.days })}</small>
+      <span class="pc-rewards">${next.map(reward).join('')}</span>
+      <span class="pc-bar"><i style="width:${Math.round((st.into / TIER_PTS) * 100)}%"></i></span>
     </span>
-    ${ready ? `<span class="season-claim-badge">🎁 ${ready}</span>` : '<span class="daily-go">→</span>'}
+    <span class="pc-prepi" aria-hidden="true">${mascot(ready ? 'starstruck' : 'happy', 'mascot-lg float', preview, { fx: false })}</span>
+    ${ready ? `<span class="pc-claim">🎁 ${ready}</span>` : ''}
   </a>`;
 }
 

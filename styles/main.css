@@ -15541,3 +15541,68 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
   .hero-risk-pill { font-size: 0.7rem; }
   .hero-card .hero-mascot .mascot-xl { width: 96px; }
 }
+
+/* ---------- Карточка Препи Пасса на главной: живой баннер ---------- */
+.pass-card2 {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  min-height: 170px;
+  padding: 18px 22px;
+  border-radius: 26px;
+  overflow: hidden;
+  isolation: isolate;
+  color: #fff;
+  text-decoration: none;
+  border: 2px solid color-mix(in srgb, var(--sb) 55%, transparent);
+  box-shadow: 0 16px 36px color-mix(in srgb, var(--sb) 30%, transparent);
+  transition: transform 0.25s var(--ease-spring, ease), box-shadow 0.25s;
+}
+.pass-card2:hover { transform: translateY(-3px); box-shadow: 0 22px 44px color-mix(in srgb, var(--sb) 42%, transparent); }
+.pass-card2.is-gold { border-color: #fbbf24; box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.35), 0 16px 36px rgba(245, 158, 11, 0.35); }
+.pc-scene { position: absolute; inset: 0; z-index: -2; }
+.pc-scene .pass-scene { width: 100%; height: 100%; }
+.pc-shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(15, 12, 41, 0.78) 0%, rgba(15, 12, 41, 0.45) 55%, rgba(15, 12, 41, 0) 85%); }
+.pc-level {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.35), transparent 55%), linear-gradient(135deg, var(--sa), var(--sb));
+  border: 3px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  line-height: 1;
+}
+.pc-level b { font-size: 1.9rem; font-weight: 900; text-shadow: 0 2px 6px rgba(0, 0, 0, 0.35); }
+.pc-level small { font-size: 0.72rem; font-weight: 800; opacity: 0.9; }
+.pc-body { display: grid; gap: 4px; min-width: 0; }
+.pc-title { font-size: 1.45rem; font-weight: 900; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4); }
+.pc-left { opacity: 0.9; font-weight: 700; }
+.pc-rewards { display: flex; gap: 8px; margin: 6px 0 4px; }
+.pc-reward { position: relative; width: 46px; height: 46px; padding: 5px; border-radius: 14px; display: grid; place-items: center; background: rgba(255, 255, 255, 0.88); border: 2px solid rgba(255, 255, 255, 0.6); }
+.pc-reward .item-thumb, .pc-reward .coin, .pc-reward .chest, .pc-reward .shard { width: 100%; height: 100%; }
+.pc-reward .pc-num { position: absolute; right: -6px; bottom: -6px; padding: 0 5px; border-radius: 8px; font-style: normal; font-size: 0.62rem; font-weight: 900; color: #fff; background: var(--sb); }
+.pc-reward.is-special { border-color: #fbbf24; box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.45); }
+.pc-reward.is-ready { animation: node-ready 1.2s ease-in-out infinite; border-color: #22c55e; }
+.pc-reward.is-claimed { opacity: 0.55; }
+.pc-bar { display: block; height: 9px; max-width: 320px; border-radius: 6px; background: rgba(255, 255, 255, 0.3); overflow: hidden; }
+.pc-bar i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, #fde68a, var(--sa), #fff); box-shadow: 0 0 10px rgba(255, 255, 255, 0.6); }
+.pc-prepi { align-self: end; margin-bottom: -10px; }
+.pc-prepi .mascot { width: 150px; filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.35)); }
+.pc-claim { position: absolute; top: 12px; right: 14px; padding: 4px 12px; border-radius: 999px; font-weight: 900; color: #fff; background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 6px 16px rgba(34, 197, 94, 0.45); animation: pop-pulse 1.2s ease-in-out infinite; }
+@media (max-width: 720px) {
+  .pass-card2 { grid-template-columns: auto minmax(0, 1fr); gap: 12px; padding: 14px; min-height: 150px; }
+  .pc-level { width: 58px; height: 58px; align-self: start; }
+  .pc-level b { font-size: 1.4rem; }
+  .pc-title { font-size: 1.15rem; }
+  .pc-prepi { position: absolute; right: -6px; bottom: -8px; z-index: -1; opacity: 0.95; }
+  .pc-prepi .mascot { width: 104px; }
+  .pc-reward { width: 38px; height: 38px; padding: 4px; }
+  .pc-rewards { gap: 6px; }
+  .pc-shade { background: linear-gradient(90deg, rgba(15, 12, 41, 0.8), rgba(15, 12, 41, 0.35)); }
+}
+@media (prefers-reduced-motion: reduce) { .pc-reward.is-ready, .pc-claim { animation: none; } }
