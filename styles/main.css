@@ -15657,3 +15657,4 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
   .desktop-only { display: none !important; }
   .practice-course .level-chips { margin-top: 10px; }
 }
+@media (max-width: 720px) { .exam-list { gap: 12px; } .exam-list .level-chips { margin-top: 10px; } }

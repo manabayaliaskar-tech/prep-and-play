@@ -94,6 +94,19 @@ function courseHero(course) {
     </div>`;
 }
 
+/** Экзамены: на компьютере - сетка карточек, на телефоне - карточка с первыми 6 разделами и «+N». */
+function examList(list) {
+  const phone = list
+    .map(
+      (course) => `<div class="practice-course" style="--c:${course.color}">
+        <a class="practice-course-head" href="#${courseHref(course)}">${courseBadge(course)}<span class="course-text"><b>${esc(tx(course.name))}</b><small>${esc(tx(course.full))}</small></span></a>
+        ${course.tracks.length ? levelChips(course, { limit: 6 }) : ''}
+      </div>`,
+    )
+    .join('');
+  return `<div class="course-grid desktop-only">${list.map(courseCard).join('')}</div><div class="phone-only exam-list">${phone}</div>`;
+}
+
 export function examsScreen(app) {
   const render = () => {
     const group = groupById('exams');
@@ -104,9 +117,9 @@ export function examsScreen(app) {
           <p class="muted">${t('cat.examsDesc')}</p>
         </div>
         <h2 class="section-title">${t('cat.intl')}</h2>
-        <div class="course-grid">${coursesIn('exams', 'intl').map(courseCard).join('')}</div>
+        ${examList(coursesIn('exams', 'intl'))}
         <h2 class="section-title">${t('cat.cis')}</h2>
-        <div class="course-grid">${coursesIn('exams', 'cis').map(courseCard).join('')}</div>
+        ${examList(coursesIn('exams', 'cis'))}
         <p class="muted tiny catalog-note">${t('cat.disclaimer')}</p>
       </section>`;
   };
