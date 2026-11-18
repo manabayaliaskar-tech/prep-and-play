@@ -1,4 +1,4 @@
-// Освоение тем для карты знаний: по каждой теме — сколько ответов и какая точность.
+// Освоение тем для карты знаний: по каждой теме - сколько ответов и какая точность.
 
 import { getProfile } from './profile.js';
 
@@ -6,7 +6,7 @@ import { getProfile } from './profile.js';
 export const STATES = ['new', 'weak', 'learning', 'strong', 'master'];
 export const STATE_ICONS = { new: '○', weak: '🔴', learning: '🟡', strong: '🟢', master: '⭐' };
 
-/** Состояние темы по статистике { a — ответов, c — верных }. */
+/** Состояние темы по статистике { a - ответов, c - верных }. */
 export function topicState(stat) {
   if (!stat?.a) return 'new';
   const pct = stat.c / stat.a;

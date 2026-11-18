@@ -1,6 +1,6 @@
 // Полный тест IELTS Academic Reading «как на экзамене»: три текста, 40 вопросов, 60 минут.
-// На широком экране текст и вопросы стоят рядом, на телефоне — переключатель «Текст / Вопросы».
-// Ответы можно менять до конца; в конце — band по шкале IELTS и разбор каждого вопроса с цитатой.
+// На широком экране текст и вопросы стоят рядом, на телефоне - переключатель «Текст / Вопросы».
+// Ответы можно менять до конца; в конце - band по шкале IELTS и разбор каждого вопроса с цитатой.
 
 import { IELTS_BANDS } from '../catalog/mocks.js';
 import { dayKey } from '../core/dates.js';
@@ -29,7 +29,7 @@ function optionsOf(q) {
 }
 
 const shortAnswer = (q, v) => {
-  if (v === undefined || v === null) return '—';
+  if (v === undefined || v === null) return '-';
   if (q.type === 'tfng') return TFNG[v];
   if (q.type === 'ynng') return YNNG[v];
   if (q.type === 'heading') return `${ROMAN[v]} · ${q.options[v]}`;

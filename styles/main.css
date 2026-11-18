@@ -1,4 +1,4 @@
-/* Prep&Play — светлый игровой стиль. Цвета и размеры — в переменных. */
+/* Prep&Play - светлый игровой стиль. Цвета и размеры - в переменных. */
 
 :root {
   --bg: #f5f3ff;
@@ -4353,7 +4353,7 @@ button {
   }
 
   .topbar {
-    /* backdrop-filter делает панель «контейнером» для fixed-элементов — нижнее меню прилипло бы к ней */
+    /* backdrop-filter делает панель «контейнером» для fixed-элементов - нижнее меню прилипло бы к ней */
     backdrop-filter: none;
     background: var(--card);
   }
@@ -4584,7 +4584,7 @@ button {
 
 /* =====================================================================
    Оформление 2.0: цветовые темы, объёмные карточки, живой фон, анимации.
-   Палитра каждой темы — набор переменных; компоненты берут цвета только из них.
+   Палитра каждой темы - набор переменных; компоненты берут цвета только из них.
    ===================================================================== */
 
 :root {
@@ -5138,7 +5138,7 @@ body {
   transition-duration: 0.08s;
 }
 
-/* Значки курсов — объёмные «таблетки». */
+/* Значки курсов - объёмные «таблетки». */
 .code-badge {
   background:
     radial-gradient(circle at 30% 22%, color-mix(in srgb, var(--c) 10%, var(--card)), transparent 60%),
@@ -5983,7 +5983,7 @@ body {
     background: var(--card);
   }
 
-  /* Звук включается в профиле — на телефоне в панели нужно место для выбора темы. */
+  /* Звук включается в профиле - на телефоне в панели нужно место для выбора темы. */
   .sound-toggle {
     display: none;
   }
@@ -9282,7 +9282,7 @@ svg.mascot {
   --ink: #18181b;
 }
 
-/* ---------- Новые тёмные темы (общая основа — у всех тёмных) ---------- */
+/* ---------- Новые тёмные темы (общая основа - у всех тёмных) ---------- */
 
 [data-theme='neon'],
 [data-theme='midnight'],
@@ -9490,7 +9490,7 @@ svg.mascot {
   border-radius: inherit;
   background: var(--gloss);
   pointer-events: none;
-  /* Под содержимым, но над фоном карточки (у карточки свой контекст наложения — isolation: isolate). */
+  /* Под содержимым, но над фоном карточки (у карточки свой контекст наложения - isolation: isolate). */
   z-index: -1;
 }
 
@@ -11671,7 +11671,7 @@ svg.mascot {
 
 /* =====================================================================
    Монета Prep&Play: золотая, с лавровой ветвью и P&P в центре.
-   Мелкая монета — icons/coin-sm.svg (P&P читается даже в панели), крупная — icons/coin.svg с бликом.
+   Мелкая монета - icons/coin-sm.svg (P&P читается даже в панели), крупная - icons/coin.svg с бликом.
    ===================================================================== */
 
 .coin {
@@ -11746,7 +11746,7 @@ svg.mascot {
   margin: 0 0.1em 0 0;
 }
 
-/* Получили монеты — монета подпрыгивает и поворачивается; потратили — переворачивается. */
+/* Получили монеты - монета подпрыгивает и поворачивается; потратили - переворачивается. */
 .coin-gain {
   animation: coin-gain 0.9s var(--ease-spring);
 }
@@ -11812,7 +11812,7 @@ svg.mascot {
   display: none;
 }
 
-/* Подложка со светом — внутри карточки, чтобы свет не выходил за скругления. */
+/* Подложка со светом - внутри карточки, чтобы свет не выходил за скругления. */
 .qh-bg {
   position: absolute;
   inset: 0;
@@ -11886,7 +11886,7 @@ svg.mascot {
   pointer-events: none;
 }
 
-/* Лампочки по ободу: мягко мерцают, а пока колесо крутится — бегут. */
+/* Лампочки по ободу: мягко мерцают, а пока колесо крутится - бегут. */
 .bulb {
   fill: #fff7cc;
   filter: drop-shadow(0 0 3px #fde047);
@@ -12043,7 +12043,7 @@ svg.mascot {
   }
 }
 
-/* Облачко с выпавшим предметом — кнопка: ведёт в квиз по этому предмету. */
+/* Облачко с выпавшим предметом - кнопка: ведёт в квиз по этому предмету. */
 .host-go {
   display: grid;
   gap: 3px;
@@ -12091,7 +12091,7 @@ svg.mascot {
 
 /* =====================================================================
    Эмодзи картинками (Fluent Emoji 3D): одинаково на всех устройствах, без «квадратиков».
-   Размер — от размера шрифта, поэтому значок такой же, каким был символ.
+   Размер - от размера шрифта, поэтому значок такой же, каким был символ.
    ===================================================================== */
 
 img.emo {
@@ -13136,7 +13136,7 @@ body.touring {
 }
 
 /* ---------- Вещи Препи: outfits ---------- */
-/* outfits: анимации костюмов, обуви и вещей на спину (src/ui/art/wear-outfit.js). Все классы — с префиксом of-. */
+/* outfits: анимации костюмов, обуви и вещей на спину (src/ui/art/wear-outfit.js). Все классы - с префиксом of-. */
 .of-glow {
   opacity: 0.3;
   animation: of-glow 2.4s ease-in-out infinite;
@@ -13185,7 +13185,7 @@ body.touring {
 @keyframes of-spin {
   to { transform: rotate(360deg); }
 }
-/* Крылья: точка крепления справа (левое крыло; правое — зеркальная копия). */
+/* Крылья: точка крепления справа (левое крыло; правое - зеркальная копия). */
 .of-flap {
   transform-box: fill-box;
   transform-origin: right center;
@@ -13221,7 +13221,7 @@ body.touring {
 }
 
 /* ---------- Вещи Препи: extra ---------- */
-/* extra — анимации новых вещей Препи (src/ui/art/wear-extra.js) */
+/* extra - анимации новых вещей Препи (src/ui/art/wear-extra.js) */
 .wear-wand .tw, .wear-trophy .tw, .wear-scepter .tw, .wear-lasersword .tw, .wear-masquerade .tw, .wear-pocketwatch .tw,
 .wear-wand .wand-star, .wear-sparkler .burst, .wear-torch .flame, .wear-torch .glow, .wear-scepter .glow, .wear-pocketwatch .glow,
 .wear-fishingrod .fish, .wear-pennant .flag, .wear-sprout .sprout-sway, .wear-jester .bell, .wear-longscarf .tail,
@@ -13437,11 +13437,11 @@ body.touring {
 
 /* ---------- Эмоции и танцы Препи ---------- */
 /* =====================================================================
-   Эмоции и танцы Препи (магазин). Разметка и реквизит — src/ui/art/emotes.js.
+   Эмоции и танцы Препи (магазин). Разметка и реквизит - src/ui/art/emotes.js.
    <svg class="mascot emote emote-<id>">: тело .mascot-body, руки .arm-l/.arm-r, кисти .hand
-   (первая .hand в теле — левая, следующая — правая), реквизит emo-*.
-   Селекторы начинаются с svg.mascot — так они сильнее .mascot.float / .mascot-win и т. п.
-   Все движения — только при prefers-reduced-motion: no-preference; иначе Препи стоит в статичной позе.
+   (первая .hand в теле - левая, следующая - правая), реквизит emo-*.
+   Селекторы начинаются с svg.mascot - так они сильнее .mascot.float / .mascot-win и т. п.
+   Все движения - только при prefers-reduced-motion: no-preference; иначе Препи стоит в статичной позе.
    ===================================================================== */
 
 /* ---------- База ---------- */
@@ -13467,7 +13467,7 @@ svg.mascot.emote :is(.arm, .hand) {
   animation: none;
 }
 
-/* Сонное настроение обычно приглушает цвета — в эмоции Препи остаётся ярким. */
+/* Сонное настроение обычно приглушает цвета - в эмоции Препи остаётся ярким. */
 svg.mascot.emote .mascot-body {
   filter: none;
 }
@@ -14712,7 +14712,7 @@ svg.mascot.emote .emo-popper-r {
 .mascot-path .pet-art {
   filter: none;
 }
-/* Миниатюры в витрине мягко покачиваются и блестят при наведении — как легендарные. */
+/* Миниатюры в витрине мягко покачиваются и блестят при наведении - как легендарные. */
 .gcard .gc-art .item-thumb {
   transition: transform 0.35s var(--ease-spring, ease);
 }
@@ -14749,7 +14749,7 @@ svg.mascot.emote .emo-popper-r {
   }
 }
 
-/* Где Препи много на одной странице (наборы, миниатюры эмоций) — блик без движения, чтобы телефон не тормозил. */
+/* Где Препи много на одной странице (наборы, миниатюры эмоций) - блик без движения, чтобы телефон не тормозил. */
 .mascot-set [class^='wear-'],
 .mascot-set [class*=' wear-'],
 .mascot-set .pet-art,
@@ -14761,7 +14761,7 @@ svg.mascot.emote .emo-popper-r {
 
 /* ---------- Анимации тем: плавность и новые сцены ---------- */
 
-/* Пока ползунок тянут или идёт анимация в JS — без CSS-переходов, чтобы картинка не отставала. */
+/* Пока ползунок тянут или идёт анимация в JS - без CSS-переходов, чтобы картинка не отставала. */
 .ex-live * {
   transition: none !important;
 }
@@ -15433,7 +15433,7 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
   .hero-shop::after, .hero-shop-bag { animation: none; }
 }
 
-/* Шапка главной, вариант 2: магазин на всю правую часть, цель дня — в углу, серия — маленькой строкой наверху */
+/* Шапка главной, вариант 2: магазин на всю правую часть, цель дня - в углу, серия - маленькой строкой наверху */
 .hero-card { position: relative; grid-template-columns: auto minmax(0, 1fr) minmax(260px, 340px); grid-template-areas: 'mascot text shop'; align-items: stretch; }
 .hero-card .hero-mascot, .hero-card .hero-text { align-self: center; }
 .hero-card .goal { position: absolute; top: 14px; right: 14px; width: 70px; z-index: 2; }
@@ -15476,7 +15476,7 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
   .hero-shop-bag { font-size: 1.6rem; }
 }
 @media (prefers-reduced-motion: reduce) { .hero-risk-pill { animation: none; } }
-/* Цель дня — прямоугольный значок в ряду значков */
+/* Цель дня - прямоугольный значок в ряду значков */
 .hero-shop { margin-right: 0; }
 .goal-badge { gap: 6px; }
 .goal-bar { display: inline-block; width: 56px; height: 7px; border-radius: 4px; background: color-mix(in srgb, var(--primary) 18%, transparent); overflow: hidden; }
@@ -15523,7 +15523,7 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
 .hq-title { font-size: 0.74rem; font-weight: 900; color: var(--muted); margin-right: 2px; }
 .hq-name { font-weight: 800; white-space: nowrap; }
 @media (max-width: 720px) { .hq-title { width: 100%; } }
-/* Кнопка гардероба — под Препи, с подписью, не закрывает питомца */
+/* Кнопка гардероба - под Препи, с подписью, не закрывает питомца */
 .prepi-stage { display: grid; justify-items: center; }
 .prepi-stage .prepi-dress-btn {
   position: static;

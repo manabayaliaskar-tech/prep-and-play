@@ -103,20 +103,20 @@ export function motion(ctx, d) {
     prompt: askCurrent
       ? L(
           `A boat covers ${s} km downstream in ${t1} h and the same distance upstream in ${t2} h. Find the speed of the current in km/h.`,
-          `Лодка проходит ${s} км по течению за ${t1} ч, а то же расстояние против течения — за ${t2} ч. Найди скорость течения в км/ч.`,
+          `Лодка проходит ${s} км по течению за ${t1} ч, а то же расстояние против течения - за ${t2} ч. Найди скорость течения в км/ч.`,
           `Қайық ағыс бойымен ${s} км жолды ${t1} сағатта, ал ағысқа қарсы сол жолды ${t2} сағатта жүзіп өтеді. Ағыс жылдамдығын км/сағ-пен тап.`,
         )
       : L(
           `A boat covers ${s} km downstream in ${t1} h and the same distance upstream in ${t2} h. Find the speed of the boat in still water in km/h.`,
-          `Лодка проходит ${s} км по течению за ${t1} ч, а то же расстояние против течения — за ${t2} ч. Найди собственную скорость лодки в км/ч.`,
+          `Лодка проходит ${s} км по течению за ${t1} ч, а то же расстояние против течения - за ${t2} ч. Найди собственную скорость лодки в км/ч.`,
           `Қайық ағыс бойымен ${s} км жолды ${t1} сағатта, ал ағысқа қарсы сол жолды ${t2} сағатта жүзіп өтеді. Қайықтың меншікті жылдамдығын км/сағ-пен тап.`,
         ),
     ex: steps(
       L(`Downstream speed: ${s} ${DIV} ${t1} = ${p} km/h.`, `Скорость по течению: ${s} ${DIV} ${t1} = ${p} км/ч.`, `Ағыс бойымен жылдамдық: ${s} ${DIV} ${t1} = ${p} км/сағ.`),
       L(`Upstream speed: ${s} ${DIV} ${t2} = ${q} km/h.`, `Скорость против течения: ${s} ${DIV} ${t2} = ${q} км/ч.`, `Ағысқа қарсы жылдамдық: ${s} ${DIV} ${t2} = ${q} км/сағ.`),
       askCurrent
-        ? L(`The current is half the difference: (${p} ${MINUS} ${q}) ${DIV} 2 = ${current}.`, `Скорость течения — половина разности: (${p} ${MINUS} ${q}) ${DIV} 2 = ${current}.`, `Ағыс жылдамдығы — айырманың жартысы: (${p} ${MINUS} ${q}) ${DIV} 2 = ${current}.`)
-        : L(`The boat's own speed is half the sum: (${p} + ${q}) ${DIV} 2 = ${own}.`, `Собственная скорость — половина суммы: (${p} + ${q}) ${DIV} 2 = ${own}.`, `Меншікті жылдамдық — қосындының жартысы: (${p} + ${q}) ${DIV} 2 = ${own}.`),
+        ? L(`The current is half the difference: (${p} ${MINUS} ${q}) ${DIV} 2 = ${current}.`, `Скорость течения - половина разности: (${p} ${MINUS} ${q}) ${DIV} 2 = ${current}.`, `Ағыс жылдамдығы - айырманың жартысы: (${p} ${MINUS} ${q}) ${DIV} 2 = ${current}.`)
+        : L(`The boat's own speed is half the sum: (${p} + ${q}) ${DIV} 2 = ${own}.`, `Собственная скорость - половина суммы: (${p} + ${q}) ${DIV} 2 = ${own}.`, `Меншікті жылдамдық - қосындының жартысы: (${p} + ${q}) ${DIV} 2 = ${own}.`),
     ),
     ...ask(ctx, ans, [askCurrent ? own : current, p - q, p, q].filter((x) => x !== ans)),
   });
@@ -156,7 +156,7 @@ export function work(ctx, d) {
     return poolQ('m.work', d, {
       prompt: L(
         `One pipe fills a pool in ${a} hours, and another pipe fills it in ${b} hours. In how many hours will both pipes fill the pool together?`,
-        `Одна труба наполняет бассейн за ${a} ч, а другая — за ${b} ч. За сколько часов наполнят бассейн обе трубы вместе?`,
+        `Одна труба наполняет бассейн за ${a} ч, а другая - за ${b} ч. За сколько часов наполнят бассейн обе трубы вместе?`,
         `Бір құбыр бассейнді ${a} сағатта, ал екіншісі ${b} сағатта толтырады. Екі құбыр бірге бассейнді неше сағатта толтырады?`,
       ),
       ex: steps(
@@ -180,7 +180,7 @@ export function work(ctx, d) {
     ex: steps(
       L(
         `Together they do ${frac(1, both)} of the job per hour, the first one does ${frac(1, a)}.`,
-        `Вместе они выполняют ${frac(1, both)} работы в час, первый — ${frac(1, a)}.`,
+        `Вместе они выполняют ${frac(1, both)} работы в час, первый - ${frac(1, a)}.`,
         `Бірге олар сағатына жұмыстың ${frac(1, both)} бөлігін, біріншісі ${frac(1, a)} бөлігін орындайды.`,
       ),
       same(`${frac(1, both)} ${MINUS} ${frac(1, a)} = ${frac(1, b)}`),

@@ -19,7 +19,7 @@ const WEAK_BELOW = 0.75;
 
 // ---------- Слабые темы курса ----------
 
-/** Темы курса, где точность ниже 75% (не меньше трёх ответов). Самые слабые — первыми. */
+/** Темы курса, где точность ниже 75% (не меньше трёх ответов). Самые слабые - первыми. */
 export function courseWeakTopics(course, profile = getProfile(), limit = 3) {
   const topics = [...new Set(course.tracks.flatMap((tr) => tr.spec.map(([topic]) => topic)))];
   return topics

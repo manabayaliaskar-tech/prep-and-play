@@ -6,7 +6,7 @@ import { t } from '../core/i18n.js';
 import { storage } from '../core/storage.js';
 import { mascot } from './mascot.js';
 
-/** Шаги: селектор раздела (null — по центру экрана) и ключ текста tour.<id>.title / .text. */
+/** Шаги: селектор раздела (null - по центру экрана) и ключ текста tour.<id>.title / .text. */
 export const TOUR_STEPS = [
   { id: 'hello', sel: null, mood: 'win' },
   { id: 'stats', sel: '.top-stats' },
@@ -96,7 +96,7 @@ export function startTour() {
     const top = Math.max(4, r.top - pad);
     const bottom = Math.min(vh - 4, r.bottom + pad);
     hole.style.cssText = `left:${r.left - pad}px;top:${top}px;width:${r.width + pad * 2}px;height:${Math.max(0, bottom - top)}px`;
-    // Облачко — под разделом, если там есть место, иначе над ним; если не влезает ни туда ни сюда — по центру внизу.
+    // Облачко - под разделом, если там есть место, иначе над ним; если не влезает ни туда ни сюда - по центру внизу.
     let gy = bottom + 14;
     if (gy + gh > vh - 8) gy = top - gh - 14;
     if (gy < 8) gy = Math.max(8, vh - gh - 12);
@@ -171,7 +171,7 @@ export function startTour() {
   document.addEventListener('keydown', onKey, true);
   addEventListener('resize', place);
   addEventListener('scroll', place, true);
-  // Ушли с главной (например, кнопкой «назад») — экскурсия закрывается.
+  // Ушли с главной (например, кнопкой «назад») - экскурсия закрывается.
   addEventListener('hashchange', close);
   requestAnimationFrame(() => {
     root.classList.add('is-in');

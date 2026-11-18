@@ -1,13 +1,13 @@
 // Анимированные объяснения тем: интерактивные картинки, которые можно крутить ползунками и запускать.
-// Каждая анимация — сцена (SVG) + ползунки/кнопки + подпись, которая объясняет, что происходит.
+// Каждая анимация - сцена (SVG) + ползунки/кнопки + подпись, которая объясняет, что происходит.
 //
 // Сцена: { title, intro, sliders, buttons, draw(v, step, st, f) → { svg, caption } } и по желанию:
-//   values — значения без ползунков; state() — своё состояние; clamp(v) — ограничения;
-//   play / playDur / playLinear / playReverse — кнопка «▶» прогоняет ползунок play;
-//   onButton(i, st, v, api) — своя логика кнопок; вернуть объект { key: цель, $dur } → плавный переход;
-//   pressed(i, v, st) — кнопка-переключатель; onSlide(key, v, st); onDrag(key, point, v, st) — перетаскивание
-//   элементов с data-drag; live(dt, v, st) — постоянное движение (маятник, молекулы).
-// f — «дробный шаг»: при смене шага кнопкой он плавно идёт от старого шага к новому (для анимации переходов).
+//   values - значения без ползунков; state() - своё состояние; clamp(v) - ограничения;
+//   play / playDur / playLinear / playReverse - кнопка «▶» прогоняет ползунок play;
+//   onButton(i, st, v, api) - своя логика кнопок; вернуть объект { key: цель, $dur } → плавный переход;
+//   pressed(i, v, st) - кнопка-переключатель; onSlide(key, v, st); onDrag(key, point, v, st) - перетаскивание
+//   элементов с data-drag; live(dt, v, st) - постоянное движение (маятник, молекулы).
+// f - «дробный шаг»: при смене шага кнопкой он плавно идёт от старого шага к новому (для анимации переходов).
 // SVG не пересоздаётся целиком, а обновляется по месту (morph), поэтому работают CSS-переходы.
 
 import { getLang, t, tx } from '../core/i18n.js';
@@ -28,7 +28,7 @@ const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
 const lerp = (a, b, k) => a + (b - a) * k;
 const ease = (k) => (k < 0.5 ? 4 * k * k * k : 1 - (-2 * k + 2) ** 3 / 2);
 const n1 = (x) => Math.round(x * 10) / 10;
-/** Число для показа: до d знаков, минус «−», в русском и казахском — десятичная запятая. */
+/** Число для показа: до d знаков, минус «−», в русском и казахском - десятичная запятая. */
 const fmt = (x, d = 2) => {
   if (!Number.isFinite(x)) return '∞';
   const r = Math.round(x * 10 ** d) / 10 ** d;
@@ -124,11 +124,11 @@ const PROGRESS = L('progress, %', 'прошло, %', 'өтті, %');
 
 const SCENES = {
   balance: {
-    title: L('Equations as a balance', 'Уравнение — это весы', 'Теңдеу — таразы'),
+    title: L('Equations as a balance', 'Уравнение - это весы', 'Теңдеу - таразы'),
     intro: L(
       'An equation is a balance: whatever you do to one pan, do to the other, and it stays level.',
-      'Уравнение — это весы в равновесии. Что делаешь с одной чашей, то же делай с другой — и весы не перекосятся.',
-      'Теңдеу — тепе-теңдіктегі таразы. Бір табақпен не істесең, екіншісімен де соны істе — таразы қисаймайды.',
+      'Уравнение - это весы в равновесии. Что делаешь с одной чашей, то же делай с другой - и весы не перекосятся.',
+      'Теңдеу - тепе-теңдіктегі таразы. Бір табақпен не істесең, екіншісімен де соны істе - таразы қисаймайды.',
     ),
     sliders: [
       { id: 'a', label: 'a', min: 1, max: 4, value: 3 },
@@ -139,7 +139,7 @@ const SCENES = {
     draw(v, step, st, f) {
       const { a, x, b } = v;
       const c = a * x + b;
-      // Какие коробки на каких чашах на каждом шаге; между шагами — плавный переход.
+      // Какие коробки на каких чашах на каждом шаге; между шагами - плавный переход.
       const stage = (s) => {
         const left = s >= 2 ? ['x0'] : [...Array.from({ length: a }, (_, i) => `x${i}`), ...(s >= 1 ? [] : Array.from({ length: b }, (_, i) => `w${i}`))];
         const rightN = s >= 2 ? x : s >= 1 ? c - b : c;
@@ -186,7 +186,7 @@ const SCENES = {
           <text class="ex-big" x="160" y="30">${eq}</text>`,
         caption: [
           L(`On the left: ${a} boxes x and ${b} weights. On the right: ${c} weights. The scale is level.`, `Слева: ${a} коробки x и ${b} гирь. Справа: ${c} гирь. Весы в равновесии.`, `Сол жақта: ${a} x қорапшасы және ${b} гір. Оң жақта: ${c} гір. Таразы тең.`),
-          L(`We removed ${b} weights from both pans — still level: ${a}x = ${c - b}.`, `Убрали по ${b} гирь с обеих чаш — равновесие осталось: ${a}x = ${c - b}.`, `Екі табақтан ${b} гірден алдық — тепе-теңдік сақталды: ${a}x = ${c - b}.`),
+          L(`We removed ${b} weights from both pans - still level: ${a}x = ${c - b}.`, `Убрали по ${b} гирь с обеих чаш - равновесие осталось: ${a}x = ${c - b}.`, `Екі табақтан ${b} гірден алдық - тепе-теңдік сақталды: ${a}x = ${c - b}.`),
           L(`Split each pan into ${a} equal parts: one box x weighs ${x}.`, `Делим каждую чашу на ${a} равные части: одна коробка x весит ${x}.`, `Әр табақты ${a} тең бөлікке бөлеміз: бір x қорапшасы ${x} тартады.`),
         ][step],
       };
@@ -195,7 +195,7 @@ const SCENES = {
 
   fractions: {
     title: L('What a fraction is', 'Что такое дробь', 'Бөлшек дегеніміз не'),
-    intro: L('The denominator says into how many equal parts the whole is cut; the numerator says how many parts we take.', 'Знаменатель показывает, на сколько равных частей разрезали целое, числитель — сколько частей взяли.', 'Бөлім бүтінді неше тең бөлікке бөлгенін, алым — неше бөлік алғанын көрсетеді.'),
+    intro: L('The denominator says into how many equal parts the whole is cut; the numerator says how many parts we take.', 'Знаменатель показывает, на сколько равных частей разрезали целое, числитель - сколько частей взяли.', 'Бөлім бүтінді неше тең бөлікке бөлгенін, алым - неше бөлік алғанын көрсетеді.'),
     sliders: [
       { id: 'n', label: L('numerator', 'числитель', 'алым'), min: 0, max: 12, value: 3 },
       { id: 'd', label: L('denominator', 'знаменатель', 'бөлім'), min: 2, max: 12, value: 4 },
@@ -223,7 +223,7 @@ const SCENES = {
         return `<path class="ex-slice ${i < n ? 'on' : ''}" style="--i:${i}" d="${p}"/>`;
       }).join('');
       const bar = Array.from({ length: d }, (_, i) => `<rect class="ex-slice ${i < n ? 'on' : ''}" style="--i:${i}" x="${n1(195 + (i * 110) / d)}" y="150" width="${n1(110 / d - 1)}" height="26" rx="3"/>`).join('');
-      // Пока идёт переход — «нож» разрезает каждую часть пополам.
+      // Пока идёт переход - «нож» разрезает каждую часть пополам.
       const cuts =
         !split && k > 0
           ? Array.from({ length: d0 }, (_, i) => {
@@ -243,19 +243,19 @@ const SCENES = {
         caption:
           step === 0
             ? L(`The whole is cut into ${d0} equal parts and ${n0} are shaded: ${n0}/${d0}.`, `Целое разрезали на ${d0} равных частей и закрасили ${n0}: это ${n0}/${d0}.`, `Бүтінді ${d0} тең бөлікке бөліп, ${n0}-ін бояды: бұл ${n0}/${d0}.`)
-            : L(`Each part was cut in two: ${n0 * 2}/${d0 * 2} is the same amount as ${n0}/${d0}. That is why fractions can be simplified.`, `Каждую часть разрезали пополам: ${n0 * 2}/${d0 * 2} — то же количество, что ${n0}/${d0}. Поэтому дроби можно сокращать.`, `Әр бөлікті екіге бөлдік: ${n0 * 2}/${d0 * 2} — ${n0}/${d0}-пен бірдей мөлшер. Сондықтан бөлшекті қысқартуға болады.`),
+            : L(`Each part was cut in two: ${n0 * 2}/${d0 * 2} is the same amount as ${n0}/${d0}. That is why fractions can be simplified.`, `Каждую часть разрезали пополам: ${n0 * 2}/${d0 * 2} - то же количество, что ${n0}/${d0}. Поэтому дроби можно сокращать.`, `Әр бөлікті екіге бөлдік: ${n0 * 2}/${d0 * 2} - ${n0}/${d0}-пен бірдей мөлшер. Сондықтан бөлшекті қысқартуға болады.`),
       };
     },
   },
 
   percent: {
-    title: L('Percent: one hundredth', 'Процент — это сотая часть', 'Пайыз — жүзден бір бөлік'),
-    intro: L('Imagine the number cut into 100 equal cells. p% is p of those cells.', 'Представь, что число разрезали на 100 равных клеточек. p% — это p таких клеточек.', 'Санды 100 тең торкөзге бөлді деп елестет. p% — осындай p торкөз.'),
+    title: L('Percent: one hundredth', 'Процент - это сотая часть', 'Пайыз - жүзден бір бөлік'),
+    intro: L('Imagine the number cut into 100 equal cells. p% is p of those cells.', 'Представь, что число разрезали на 100 равных клеточек. p% - это p таких клеточек.', 'Санды 100 тең торкөзге бөлді деп елестет. p% - осындай p торкөз.'),
     sliders: [
       { id: 'p', label: 'p, %', min: 0, max: 100, step: C, value: 25 },
       { id: 'N', label: 'N', min: 10, max: 2000, value: 400 },
     ],
-    buttons: [L('p = 50%: a half', 'p = 50% — половина', 'p = 50% — жартысы'), L('p = 12.5%: an eighth', 'p = 12,5% — восьмая', 'p = 12,5% — сегізден бір')],
+    buttons: [L('p = 50%: a half', 'p = 50% - половина', 'p = 50% - жартысы'), L('p = 12.5%: an eighth', 'p = 12,5% - восьмая', 'p = 12,5% - сегізден бір')],
     onButton: (i) => [{ p: 50 }, { p: 12.5 }][i],
     draw(v) {
       const full = Math.floor(v.p + 1e-9);
@@ -267,7 +267,7 @@ const SCENES = {
       const val = (v.N * v.p) / 100;
       return {
         svg: `${cells}${partial}<text class="ex-small" x="262" y="60">1% = ${fmt(one)}</text><text class="ex-big" x="262" y="100">${fmt(v.p)}%</text><text class="ex-small" x="262" y="130">= ${fmt(val)}</text>`,
-        caption: L(`One cell is 1% of ${v.N}, that is ${v.N} ÷ 100 = ${fmt(one)}. ${fmt(v.p)} cells: ${fmt(one)} × ${fmt(v.p)} = ${fmt(val)}.`, `Одна клетка — 1% от ${v.N}, то есть ${v.N} ÷ 100 = ${fmt(one)}. ${fmt(v.p)} клеток: ${fmt(one)} × ${fmt(v.p)} = ${fmt(val)}.`, `Бір торкөз — ${v.N}-нің 1%-ы, яғни ${v.N} ÷ 100 = ${fmt(one)}. ${fmt(v.p)} торкөз: ${fmt(one)} × ${fmt(v.p)} = ${fmt(val)}.`),
+        caption: L(`One cell is 1% of ${v.N}, that is ${v.N} ÷ 100 = ${fmt(one)}. ${fmt(v.p)} cells: ${fmt(one)} × ${fmt(v.p)} = ${fmt(val)}.`, `Одна клетка - 1% от ${v.N}, то есть ${v.N} ÷ 100 = ${fmt(one)}. ${fmt(v.p)} клеток: ${fmt(one)} × ${fmt(v.p)} = ${fmt(val)}.`, `Бір торкөз - ${v.N}-нің 1%-ы, яғни ${v.N} ÷ 100 = ${fmt(one)}. ${fmt(v.p)} торкөз: ${fmt(one)} × ${fmt(v.p)} = ${fmt(val)}.`),
       };
     },
   },
@@ -299,14 +299,14 @@ const SCENES = {
       return {
         svg: `<g transform="translate(-10 22) scale(0.82)">${sq(A, Cp, 'sq-a', 0)}${sq(B, A, 'sq-b', 1)}${sq(Cp, B, 'sq-c', 2)}<path class="ex-tri" d="M${A} L${n1(B[0])} ${B[1]} L${Cp[0]} ${n1(Cp[1])} Z"/></g>
           <text class="ex-small" x="250" y="60">a² = ${fmt(a2)}</text><text class="ex-small" x="250" y="86">b² = ${fmt(b2)}</text><text class="ex-big" x="250" y="122">c² = ${fmt(c2)}</text><text class="ex-small" x="250" y="150">c ${exact ? '=' : '≈'} ${fmt(c)}</text>`,
-        caption: L(`${fmt(v.a)}² + ${fmt(v.b)}² = ${fmt(a2)} + ${fmt(b2)} = ${fmt(c2)}, so the hypotenuse is √${fmt(c2)} ${exact ? '=' : '≈'} ${fmt(c)}. Try a = 3, b = 4 for a whole number.`, `${fmt(v.a)}² + ${fmt(v.b)}² = ${fmt(a2)} + ${fmt(b2)} = ${fmt(c2)}, значит гипотенуза √${fmt(c2)} ${exact ? '=' : '≈'} ${fmt(c)}. Попробуй a = 3, b = 4 — получится целое число.`, `${fmt(v.a)}² + ${fmt(v.b)}² = ${fmt(a2)} + ${fmt(b2)} = ${fmt(c2)}, демек гипотенуза √${fmt(c2)} ${exact ? '=' : '≈'} ${fmt(c)}. a = 3, b = 4 етіп көр — бүтін сан шығады.`),
+        caption: L(`${fmt(v.a)}² + ${fmt(v.b)}² = ${fmt(a2)} + ${fmt(b2)} = ${fmt(c2)}, so the hypotenuse is √${fmt(c2)} ${exact ? '=' : '≈'} ${fmt(c)}. Try a = 3, b = 4 for a whole number.`, `${fmt(v.a)}² + ${fmt(v.b)}² = ${fmt(a2)} + ${fmt(b2)} = ${fmt(c2)}, значит гипотенуза √${fmt(c2)} ${exact ? '=' : '≈'} ${fmt(c)}. Попробуй a = 3, b = 4 - получится целое число.`, `${fmt(v.a)}² + ${fmt(v.b)}² = ${fmt(a2)} + ${fmt(b2)} = ${fmt(c2)}, демек гипотенуза √${fmt(c2)} ${exact ? '=' : '≈'} ${fmt(c)}. a = 3, b = 4 етіп көр - бүтін сан шығады.`),
       };
     },
   },
 
   angles: {
-    title: L('Angles of a triangle add up to 180°', 'Сумма углов треугольника — 180°', 'Үшбұрыш бұрыштарының қосындысы — 180°'),
-    intro: L('Tear off the three corners of any triangle and put them together: they always form a straight line.', 'Оторви три угла любого треугольника и сложи их вместе — всегда получится развёрнутый угол.', 'Кез келген үшбұрыштың үш бұрышын жыртып, бірге қос — әрқашан жазыңқы бұрыш шығады.'),
+    title: L('Angles of a triangle add up to 180°', 'Сумма углов треугольника - 180°', 'Үшбұрыш бұрыштарының қосындысы - 180°'),
+    intro: L('Tear off the three corners of any triangle and put them together: they always form a straight line.', 'Оторви три угла любого треугольника и сложи их вместе - всегда получится развёрнутый угол.', 'Кез келген үшбұрыштың үш бұрышын жыртып, бірге қос - әрқашан жазыңқы бұрыш шығады.'),
     sliders: [
       { id: 'A', label: 'A°', min: 20, max: 120, step: C, value: 60 },
       { id: 'B', label: 'B°', min: 20, max: 120, step: C, value: 50 },
@@ -341,7 +341,7 @@ const SCENES = {
           <text class="ex-small" x="${P[0] - 8}" y="${P[1] + 18}">A = ${fmt(A)}°</text><text class="ex-small" x="${Q[0] + 4}" y="${Q[1] + 18}">B = ${fmt(B)}°</text><text class="ex-small" x="${n1(R[0])}" y="${n1(R[1] - 10)}">C = ${fmt(Cc)}°</text>`,
         caption:
           step >= 1
-            ? L(`${fmt(A)}° + ${fmt(Cc)}° + ${fmt(B)}° = 180°: together the three angles make a straight line.`, `${fmt(A)}° + ${fmt(Cc)}° + ${fmt(B)}° = 180°: три угла вместе образуют развёрнутый угол — прямую линию.`, `${fmt(A)}° + ${fmt(Cc)}° + ${fmt(B)}° = 180°: үш бұрыш бірге жазыңқы бұрыш — түзу сызық құрайды.`)
+            ? L(`${fmt(A)}° + ${fmt(Cc)}° + ${fmt(B)}° = 180°: together the three angles make a straight line.`, `${fmt(A)}° + ${fmt(Cc)}° + ${fmt(B)}° = 180°: три угла вместе образуют развёрнутый угол - прямую линию.`, `${fmt(A)}° + ${fmt(Cc)}° + ${fmt(B)}° = 180°: үш бұрыш бірге жазыңқы бұрыш - түзу сызық құрайды.`)
             : L(`Change A and B: C always equals 180° − A − B = ${fmt(Cc)}°.`, `Меняй A и B: угол C всегда равен 180° − A − B = ${fmt(Cc)}°.`, `A мен B-ны өзгерт: C бұрышы әрқашан 180° − A − B = ${fmt(Cc)}°.`),
       };
     },
@@ -395,7 +395,7 @@ const SCENES = {
 
   'unit-circle': {
     title: L('Sine and cosine on the unit circle', 'Синус и косинус на единичной окружности', 'Бірлік шеңбердегі синус пен косинус'),
-    intro: L('A point moves around a circle of radius 1. Its x-coordinate is the cosine of the angle, its y-coordinate is the sine.', 'Точка движется по окружности радиуса 1. Её координата x — косинус угла, координата y — синус.', 'Нүкте радиусы 1 шеңбер бойымен қозғалады. Оның x координатасы — бұрыштың косинусы, y координатасы — синусы.'),
+    intro: L('A point moves around a circle of radius 1. Its x-coordinate is the cosine of the angle, its y-coordinate is the sine.', 'Точка движется по окружности радиуса 1. Её координата x - косинус угла, координата y - синус.', 'Нүкте радиусы 1 шеңбер бойымен қозғалады. Оның x координатасы - бұрыштың косинусы, y координатасы - синусы.'),
     sliders: [{ id: 'deg', label: L('angle, °', 'угол, °', 'бұрыш, °'), min: 0, max: 360, step: C, value: 30 }],
     buttons: [L('▶ Rotate', '▶ Крутить', '▶ Айналдыру')],
     play: 'deg',
@@ -413,14 +413,14 @@ const SCENES = {
           <line class="ex-cos" x1="${cx}" y1="${cy}" x2="${n1(px)}" y2="${cy}"/><line class="ex-sin" x1="${n1(px)}" y1="${cy}" x2="${n1(px)}" y2="${n1(py)}"/><line class="ex-rad" x1="${cx}" y1="${cy}" x2="${n1(px)}" y2="${n1(py)}"/>
           <circle class="ex-dot" cx="${n1(px)}" cy="${n1(py)}" r="6"/><path class="ex-curve thin" d="${wave}"/><line class="ex-axis" x1="180" y1="25" x2="180" y2="195"/>
           <text class="ex-tag t-cos" x="12" y="20">cos = ${fmt(Math.cos(a))}</text><text class="ex-tag t-sin" x="12" y="210">sin = ${fmt(Math.sin(a))}</text>`,
-        caption: L(`Angle ${fmt(v.deg)}°: cos = ${fmt(Math.cos(a))} (green, along x), sin = ${fmt(Math.sin(a))} (pink, along y). On the right, the sine traced as a wave.`, `Угол ${fmt(v.deg)}°: cos = ${fmt(Math.cos(a))} (зелёный отрезок по x), sin = ${fmt(Math.sin(a))} (розовый по y). Справа — синус, нарисованный как волна.`, `Бұрыш ${fmt(v.deg)}°: cos = ${fmt(Math.cos(a))} (x бойынша жасыл кесінді), sin = ${fmt(Math.sin(a))} (y бойынша қызғылт). Оң жақта — толқын түріндегі синус.`),
+        caption: L(`Angle ${fmt(v.deg)}°: cos = ${fmt(Math.cos(a))} (green, along x), sin = ${fmt(Math.sin(a))} (pink, along y). On the right, the sine traced as a wave.`, `Угол ${fmt(v.deg)}°: cos = ${fmt(Math.cos(a))} (зелёный отрезок по x), sin = ${fmt(Math.sin(a))} (розовый по y). Справа - синус, нарисованный как волна.`, `Бұрыш ${fmt(v.deg)}°: cos = ${fmt(Math.cos(a))} (x бойынша жасыл кесінді), sin = ${fmt(Math.sin(a))} (y бойынша қызғылт). Оң жақта - толқын түріндегі синус.`),
       };
     },
   },
 
   derivative: {
-    title: L('The derivative is the slope of the tangent', 'Производная — наклон касательной', 'Туынды — жанаманың көлбеулігі'),
-    intro: L('Take a secant through two close points of the graph and bring them together: the secant turns into the tangent, and its slope is the derivative.', 'Проведём секущую через две близкие точки графика и будем сближать их: секущая превратится в касательную, а её наклон — это производная.', 'График екі жақын нүктесі арқылы қиюшы жүргізіп, оларды жақындатайық: қиюшы жанамаға айналады, ал оның көлбеулігі — туынды.'),
+    title: L('The derivative is the slope of the tangent', 'Производная - наклон касательной', 'Туынды - жанаманың көлбеулігі'),
+    intro: L('Take a secant through two close points of the graph and bring them together: the secant turns into the tangent, and its slope is the derivative.', 'Проведём секущую через две близкие точки графика и будем сближать их: секущая превратится в касательную, а её наклон - это производная.', 'График екі жақын нүктесі арқылы қиюшы жүргізіп, оларды жақындатайық: қиюшы жанамаға айналады, ал оның көлбеулігі - туынды.'),
     sliders: [
       { id: 'x0', label: 'x₀', min: -2, max: 2, step: C, value: 0.5 },
       { id: 'h', label: 'h', min: 0, max: 2, step: C, value: 1.5 },
@@ -480,7 +480,7 @@ const SCENES = {
         svg: `<line class="ex-axis" x1="20" y1="180" x2="310" y2="180"/>${bars}<line class="ex-ideal" x1="20" y1="${ideal}" x2="310" y2="${ideal}"/><text class="ex-tag" x="210" y="${ideal - 6}">1/6 ≈ ${fmt(100 / 6, 1)}%</text>
           ${st.last ? `<text class="ex-die" x="285" y="40" data-key="${total}">${'⚀⚁⚂⚃⚄⚅'[st.last - 1]}</text>` : '<g/>'}<text class="ex-tag" x="8" y="18">N = ${total}</text>`,
         caption: total
-          ? L(`After ${total} rolls the bars are ${total < 60 ? 'still uneven — chance plays a big role' : 'getting close to the dashed line at 1/6'}.`, `После ${total} бросков столбики ${total < 60 ? 'ещё неровные — случай играет большую роль' : 'приближаются к пунктиру на уровне 1/6'}.`, `${total} лақтырудан кейін бағаналар ${total < 60 ? 'әлі тегіс емес — кездейсоқтықтың рөлі үлкен' : '1/6 деңгейіндегі пунктирге жақындап келеді'}.`)
+          ? L(`After ${total} rolls the bars are ${total < 60 ? 'still uneven - chance plays a big role' : 'getting close to the dashed line at 1/6'}.`, `После ${total} бросков столбики ${total < 60 ? 'ещё неровные - случай играет большую роль' : 'приближаются к пунктиру на уровне 1/6'}.`, `${total} лақтырудан кейін бағаналар ${total < 60 ? 'әлі тегіс емес - кездейсоқтықтың рөлі үлкен' : '1/6 деңгейіндегі пунктирге жақындап келеді'}.`)
           : L('Press a button to roll.', 'Нажми кнопку, чтобы бросить кубик.', 'Ойын сүйегін лақтыру үшін батырманы бас.'),
       };
     },
@@ -488,7 +488,7 @@ const SCENES = {
 
   motion: {
     title: L('Moving towards each other', 'Движение навстречу', 'Қарсы қозғалыс'),
-    intro: L('When two objects move towards each other, the distance between them shrinks by v₁ + v₂ every hour (the closing speed).', 'Когда два объекта движутся навстречу, расстояние между ними каждый час уменьшается на v₁ + v₂ — это скорость сближения.', 'Екі нысан қарама-қарсы қозғалғанда, олардың арасындағы қашықтық әр сағат сайын v₁ + v₂-ге азаяды — бұл жақындасу жылдамдығы.'),
+    intro: L('When two objects move towards each other, the distance between them shrinks by v₁ + v₂ every hour (the closing speed).', 'Когда два объекта движутся навстречу, расстояние между ними каждый час уменьшается на v₁ + v₂ - это скорость сближения.', 'Екі нысан қарама-қарсы қозғалғанда, олардың арасындағы қашықтық әр сағат сайын v₁ + v₂-ге азаяды - бұл жақындасу жылдамдығы.'),
     sliders: [
       { id: 'S', label: L('S, km', 'S, км', 'S, км'), min: 60, max: 300, step: C, value: 240 },
       { id: 'v1', label: L('v₁, km/h', 'v₁, км/ч', 'v₁, км/сағ'), min: 20, max: 100, step: C, value: 60 },
@@ -521,7 +521,7 @@ const SCENES = {
 
   linear: {
     title: L('Linear function y = kx + b', 'Линейная функция y = kx + b', 'Сызықтық функция y = kx + b'),
-    intro: L('k is the slope: how much y changes when x grows by 1. b is the point where the line crosses the y-axis.', 'k — угловой коэффициент: на сколько меняется y, когда x увеличивается на 1. b — точка, где прямая пересекает ось y.', 'k — бұрыштық коэффициент: x бірге артқанда y қаншаға өзгереді. b — түзудің y осін қиятын нүктесі.'),
+    intro: L('k is the slope: how much y changes when x grows by 1. b is the point where the line crosses the y-axis.', 'k - угловой коэффициент: на сколько меняется y, когда x увеличивается на 1. b - точка, где прямая пересекает ось y.', 'k - бұрыштық коэффициент: x бірге артқанда y қаншаға өзгереді. b - түзудің y осін қиятын нүктесі.'),
     sliders: [
       { id: 'k', label: 'k', min: -3, max: 3, step: C, value: 0.5 },
       { id: 'b', label: 'b', min: -4, max: 4, step: C, value: 1 },
@@ -543,15 +543,15 @@ const SCENES = {
           ${root !== null && Math.abs(root) < 8 ? `<circle class="ex-dot dot-root" cx="${n1(sx(root))}" cy="${sy(0)}" r="5"/>` : '<g/>'}
           <text class="ex-tag" x="8" y="18">${lineEq(k, b)}</text>`,
         caption: flat
-          ? L(`k = 0: the line is horizontal, y is always ${fmt(b)}. b = ${fmt(b)} is where it crosses the y-axis.`, `k = 0: прямая горизонтальна, y всегда равен ${fmt(b)}. b = ${fmt(b)} — точка пересечения с осью y.`, `k = 0: түзу көлденең, y әрқашан ${fmt(b)}. b = ${fmt(b)} — y осімен қиылысу нүктесі.`)
-          : L(`k = ${fmt(k)}: when x grows by 1, y ${k > 0 ? 'grows' : 'falls'} by ${fmt(Math.abs(k))} (orange step). b = ${fmt(b)}: the line crosses the y-axis at (0; ${fmt(b)}). It crosses the x-axis at x = −b/k = ${fmt(root)}.`, `k = ${fmt(k)}: когда x растёт на 1, y ${k > 0 ? 'растёт' : 'уменьшается'} на ${fmt(Math.abs(k))} (оранжевая ступенька). b = ${fmt(b)}: прямая пересекает ось y в точке (0; ${fmt(b)}). Ось x — в точке x = −b/k = ${fmt(root)}.`, `k = ${fmt(k)}: x бірге артқанда y ${fmt(Math.abs(k))}-ге ${k > 0 ? 'артады' : 'кемиді'} (қызғылт сары баспалдақ). b = ${fmt(b)}: түзу y осін (0; ${fmt(b)}) нүктесінде қияды. x осін — x = −b/k = ${fmt(root)} нүктесінде.`),
+          ? L(`k = 0: the line is horizontal, y is always ${fmt(b)}. b = ${fmt(b)} is where it crosses the y-axis.`, `k = 0: прямая горизонтальна, y всегда равен ${fmt(b)}. b = ${fmt(b)} - точка пересечения с осью y.`, `k = 0: түзу көлденең, y әрқашан ${fmt(b)}. b = ${fmt(b)} - y осімен қиылысу нүктесі.`)
+          : L(`k = ${fmt(k)}: when x grows by 1, y ${k > 0 ? 'grows' : 'falls'} by ${fmt(Math.abs(k))} (orange step). b = ${fmt(b)}: the line crosses the y-axis at (0; ${fmt(b)}). It crosses the x-axis at x = −b/k = ${fmt(root)}.`, `k = ${fmt(k)}: когда x растёт на 1, y ${k > 0 ? 'растёт' : 'уменьшается'} на ${fmt(Math.abs(k))} (оранжевая ступенька). b = ${fmt(b)}: прямая пересекает ось y в точке (0; ${fmt(b)}). Ось x - в точке x = −b/k = ${fmt(root)}.`, `k = ${fmt(k)}: x бірге артқанда y ${fmt(Math.abs(k))}-ге ${k > 0 ? 'артады' : 'кемиді'} (қызғылт сары баспалдақ). b = ${fmt(b)}: түзу y осін (0; ${fmt(b)}) нүктесінде қияды. x осін - x = −b/k = ${fmt(root)} нүктесінде.`),
       };
     },
   },
 
   exponential: {
     title: L('Exponential vs linear growth', 'Показательный рост против линейного', 'Көрсеткіштік өсу мен сызықтық өсу'),
-    intro: L('Linear growth adds the same amount every step; exponential growth multiplies by the same number. Sooner or later the exponent always wins.', 'Линейный рост каждый шаг прибавляет одно и то же, показательный — умножает на одно и то же число. Рано или поздно показательный рост всегда обгоняет.', 'Сызықтық өсу әр қадамда бірдей шама қосады, көрсеткіштік өсу бірдей санға көбейтеді. Ерте ме, кеш пе көрсеткіштік өсу әрқашан озады.'),
+    intro: L('Linear growth adds the same amount every step; exponential growth multiplies by the same number. Sooner or later the exponent always wins.', 'Линейный рост каждый шаг прибавляет одно и то же, показательный - умножает на одно и то же число. Рано или поздно показательный рост всегда обгоняет.', 'Сызықтық өсу әр қадамда бірдей шама қосады, көрсеткіштік өсу бірдей санға көбейтеді. Ерте ме, кеш пе көрсеткіштік өсу әрқашан озады.'),
     sliders: [
       { id: 'a', label: L('multiply by a', 'умножать на a', 'a-ға көбейту'), min: 1.1, max: 3, step: C, value: 1.5 },
       { id: 'd', label: L('add d', 'прибавлять d', 'd қосу'), min: 0.5, max: 5, step: C, value: 3 },
@@ -589,17 +589,17 @@ const SCENES = {
           <g class="exc-p"><path class="ex-stroke" d="${plot(ex, 0, v.n, sx, sy, 80)}"/><circle class="ex-fill" cx="${n1(sx(v.n))}" cy="${n1(sy(ex(v.n)))}" r="5"/></g>
           <text class="ex-tag tc exc-o" x="40" y="22">1 + ${fmt(v.d)}·n = ${fmt(lin(v.n))}</text><text class="ex-tag tc exc-p" x="40" y="40">${fmt(v.a)}ⁿ = ${fmt(ex(v.n))}</text>`,
         caption: L(
-          `After ${fmt(v.n)} steps: linear 1 + ${fmt(v.d)}·n = ${fmt(lin(v.n))}, exponential ${fmt(v.a)}ⁿ = ${fmt(ex(v.n))}. ${cross > 0 ? `The exponential overtakes at n ≈ ${fmt(cross)}${ahead ? ' — and then runs away.' : '.'}` : 'Here the exponential is ahead from the very start.'}`,
-          `Через ${fmt(v.n)} шагов: линейный рост 1 + ${fmt(v.d)}·n = ${fmt(lin(v.n))}, показательный ${fmt(v.a)}ⁿ = ${fmt(ex(v.n))}. ${cross > 0 ? `Показательный обгоняет при n ≈ ${fmt(cross)}${ahead ? ' — и дальше улетает вверх.' : '.'}` : 'Здесь показательный рост впереди с самого начала.'}`,
-          `${fmt(v.n)} қадамнан кейін: сызықтық өсу 1 + ${fmt(v.d)}·n = ${fmt(lin(v.n))}, көрсеткіштік ${fmt(v.a)}ⁿ = ${fmt(ex(v.n))}. ${cross > 0 ? `Көрсеткіштік өсу n ≈ ${fmt(cross)} кезінде озады${ahead ? ' — содан кейін жоғары ұшып кетеді.' : '.'}` : 'Мұнда көрсеткіштік өсу басынан алда.'}`,
+          `After ${fmt(v.n)} steps: linear 1 + ${fmt(v.d)}·n = ${fmt(lin(v.n))}, exponential ${fmt(v.a)}ⁿ = ${fmt(ex(v.n))}. ${cross > 0 ? `The exponential overtakes at n ≈ ${fmt(cross)}${ahead ? ' - and then runs away.' : '.'}` : 'Here the exponential is ahead from the very start.'}`,
+          `Через ${fmt(v.n)} шагов: линейный рост 1 + ${fmt(v.d)}·n = ${fmt(lin(v.n))}, показательный ${fmt(v.a)}ⁿ = ${fmt(ex(v.n))}. ${cross > 0 ? `Показательный обгоняет при n ≈ ${fmt(cross)}${ahead ? ' - и дальше улетает вверх.' : '.'}` : 'Здесь показательный рост впереди с самого начала.'}`,
+          `${fmt(v.n)} қадамнан кейін: сызықтық өсу 1 + ${fmt(v.d)}·n = ${fmt(lin(v.n))}, көрсеткіштік ${fmt(v.a)}ⁿ = ${fmt(ex(v.n))}. ${cross > 0 ? `Көрсеткіштік өсу n ≈ ${fmt(cross)} кезінде озады${ahead ? ' - содан кейін жоғары ұшып кетеді.' : '.'}` : 'Мұнда көрсеткіштік өсу басынан алда.'}`,
         ),
       };
     },
   },
 
   logarithm: {
-    title: L('The logarithm undoes a power', 'Логарифм — обратный к степени', 'Логарифм — дәрежеге кері амал'),
-    intro: L('log_b(x) answers the question: to what power must b be raised to get x? Its graph is the mirror image of y = bˣ in the line y = x.', 'log_b(x) отвечает на вопрос: в какую степень нужно возвести b, чтобы получить x? Его график — зеркальное отражение y = bˣ относительно прямой y = x.', 'log_b(x) сұраққа жауап береді: x шығу үшін b-ны қандай дәрежеге шығару керек? Оның графигі y = bˣ графигінің y = x түзуіне қатысты айнадағы бейнесі.'),
+    title: L('The logarithm undoes a power', 'Логарифм - обратный к степени', 'Логарифм - дәрежеге кері амал'),
+    intro: L('log_b(x) answers the question: to what power must b be raised to get x? Its graph is the mirror image of y = bˣ in the line y = x.', 'log_b(x) отвечает на вопрос: в какую степень нужно возвести b, чтобы получить x? Его график - зеркальное отражение y = bˣ относительно прямой y = x.', 'log_b(x) сұраққа жауап береді: x шығу үшін b-ны қандай дәрежеге шығару керек? Оның графигі y = bˣ графигінің y = x түзуіне қатысты айнадағы бейнесі.'),
     sliders: [
       { id: 'b', label: L('base b', 'основание b', 'негіз b'), min: 1.2, max: 4, step: C, value: 2 },
       { id: 'x', label: 'x', min: 0.1, max: 16, step: C, value: 8 },
@@ -624,8 +624,8 @@ const SCENES = {
           <text class="ex-tag" x="200" y="20">log_${fmt(b)}(${fmt(x)}) = ${fmt(y)}</text>`,
         caption: L(
           `log_${fmt(b)}(${fmt(x)}) = ${fmt(y)}, because ${fmt(b)}^${fmt(y)} ≈ ${fmt(x)}. ${x < 1 ? 'For x < 1 the logarithm is negative.' : Math.abs(x - 1) < 0.005 ? 'log of 1 is always 0: b⁰ = 1.' : 'The orange dot on y = bˣ is the same pair of numbers swapped.'}`,
-          `log_${fmt(b)}(${fmt(x)}) = ${fmt(y)}, потому что ${fmt(b)}^${fmt(y)} ≈ ${fmt(x)}. ${x < 1 ? 'При x < 1 логарифм отрицательный.' : Math.abs(x - 1) < 0.005 ? 'Логарифм единицы всегда 0: b⁰ = 1.' : 'Оранжевая точка на y = bˣ — та же пара чисел, только переставленная.'}`,
-          `log_${fmt(b)}(${fmt(x)}) = ${fmt(y)}, себебі ${fmt(b)}^${fmt(y)} ≈ ${fmt(x)}. ${x < 1 ? 'x < 1 болғанда логарифм теріс.' : Math.abs(x - 1) < 0.005 ? 'Бірдің логарифмі әрқашан 0: b⁰ = 1.' : 'y = bˣ бойындағы қызғылт сары нүкте — орындары ауысқан сол сандар жұбы.'}`,
+          `log_${fmt(b)}(${fmt(x)}) = ${fmt(y)}, потому что ${fmt(b)}^${fmt(y)} ≈ ${fmt(x)}. ${x < 1 ? 'При x < 1 логарифм отрицательный.' : Math.abs(x - 1) < 0.005 ? 'Логарифм единицы всегда 0: b⁰ = 1.' : 'Оранжевая точка на y = bˣ - та же пара чисел, только переставленная.'}`,
+          `log_${fmt(b)}(${fmt(x)}) = ${fmt(y)}, себебі ${fmt(b)}^${fmt(y)} ≈ ${fmt(x)}. ${x < 1 ? 'x < 1 болғанда логарифм теріс.' : Math.abs(x - 1) < 0.005 ? 'Бірдің логарифмі әрқашан 0: b⁰ = 1.' : 'y = bˣ бойындағы қызғылт сары нүкте - орындары ауысқан сол сандар жұбы.'}`,
         ),
       };
     },
@@ -633,7 +633,7 @@ const SCENES = {
 
   'sine-wave': {
     title: L('Waves: amplitude, frequency, phase', 'Волна: амплитуда, частота, фаза', 'Толқын: амплитуда, жиілік, фаза'),
-    intro: L('y = A·sin(2π·f·t + φ). A is the height of the crest, f is how many waves fit in one second, φ shifts the wave sideways.', 'y = A·sin(2π·f·t + φ). A — высота гребня, f — сколько волн умещается за секунду, φ сдвигает волну вбок.', 'y = A·sin(2π·f·t + φ). A — толқын жотасының биіктігі, f — бір секундта неше толқын сыяды, φ толқынды бүйірге ығыстырады.'),
+    intro: L('y = A·sin(2π·f·t + φ). A is the height of the crest, f is how many waves fit in one second, φ shifts the wave sideways.', 'y = A·sin(2π·f·t + φ). A - высота гребня, f - сколько волн умещается за секунду, φ сдвигает волну вбок.', 'y = A·sin(2π·f·t + φ). A - толқын жотасының биіктігі, f - бір секундта неше толқын сыяды, φ толқынды бүйірге ығыстырады.'),
     sliders: [
       { id: 'A', label: 'A', min: 0.2, max: 2, step: C, value: 1 },
       { id: 'f', label: L('f, Hz', 'f, Гц', 'f, Гц'), min: 0.25, max: 3, step: C, value: 1 },
@@ -661,15 +661,15 @@ const SCENES = {
           ${ta >= 0 && tb <= 2.001 ? `<g class="exc-o"><line class="ex-stroke" style="stroke-width:1.5" x1="${n1(sx(ta))}" y1="${n1(top - 8)}" x2="${n1(sx(tb))}" y2="${n1(top - 8)}"/></g><text class="ex-tag tc exc-o" x="${n1(sx(ta) + 4)}" y="${n1(top - 13)}">T = ${fmt(T)} ${u('s', 'с', 'с')}</text>` : '<g/><g/>'}`,
         caption: L(
           `A = ${fmt(v.A)}: the crest rises ${fmt(v.A)} above the middle line. f = ${fmt(v.f)} Hz: ${fmt(v.f)} waves per second, so one wave lasts T = 1/f = ${fmt(T)} s. φ = ${fmt(v.ph)}° shifts the wave by ${fmt(v.ph / 360)} of a period. The grey wave is A = 1, f = 1, φ = 0.`,
-          `A = ${fmt(v.A)}: гребень поднимается на ${fmt(v.A)} над средней линией. f = ${fmt(v.f)} Гц: ${fmt(v.f)} волны в секунду, значит одна волна длится T = 1/f = ${fmt(T)} с. φ = ${fmt(v.ph)}° сдвигает волну на ${fmt(v.ph / 360)} периода. Серая волна — A = 1, f = 1, φ = 0.`,
-          `A = ${fmt(v.A)}: жота орта сызықтан ${fmt(v.A)}-ге көтеріледі. f = ${fmt(v.f)} Гц: секундына ${fmt(v.f)} толқын, демек бір толқын T = 1/f = ${fmt(T)} с созылады. φ = ${fmt(v.ph)}° толқынды периодтың ${fmt(v.ph / 360)} бөлігіне ығыстырады. Сұр толқын — A = 1, f = 1, φ = 0.`,
+          `A = ${fmt(v.A)}: гребень поднимается на ${fmt(v.A)} над средней линией. f = ${fmt(v.f)} Гц: ${fmt(v.f)} волны в секунду, значит одна волна длится T = 1/f = ${fmt(T)} с. φ = ${fmt(v.ph)}° сдвигает волну на ${fmt(v.ph / 360)} периода. Серая волна - A = 1, f = 1, φ = 0.`,
+          `A = ${fmt(v.A)}: жота орта сызықтан ${fmt(v.A)}-ге көтеріледі. f = ${fmt(v.f)} Гц: секундына ${fmt(v.f)} толқын, демек бір толқын T = 1/f = ${fmt(T)} с созылады. φ = ${fmt(v.ph)}° толқынды периодтың ${fmt(v.ph / 360)} бөлігіне ығыстырады. Сұр толқын - A = 1, f = 1, φ = 0.`,
         ),
       };
     },
   },
 
   'circle-area': {
-    title: L('Why the area of a circle is πr²', 'Почему площадь круга — πr²', 'Неліктен дөңгелектің ауданы πr²'),
+    title: L('Why the area of a circle is πr²', 'Почему площадь круга - πr²', 'Неліктен дөңгелектің ауданы πr²'),
     intro: L('Cut the circle into thin rings and straighten each one. The rings line up into a triangle with base 2πr (the circumference) and height r.', 'Разрежем круг на тонкие кольца и распрямим каждое. Кольца сложатся в треугольник с основанием 2πr (длина окружности) и высотой r.', 'Дөңгелекті жұқа сақиналарға бөліп, әрқайсысын түзейік. Сақиналар табаны 2πr (шеңбер ұзындығы), биіктігі r үшбұрыш құрайды.'),
     sliders: [
       { id: 'r', label: 'r', min: 1, max: 5, step: C, value: 3 },
@@ -705,7 +705,7 @@ const SCENES = {
           <text class="ex-tag" x="8" y="18">S = πr² = ${fmt(S)}</text>`,
         caption:
           k < 0.5
-            ? L(`A circle of radius ${fmt(r)} is made of thin rings. Unroll them: the longest ring is the circumference 2πr = ${fmt(2 * Math.PI * r)}.`, `Круг радиуса ${fmt(r)} состоит из тонких колец. Развернём их: самое длинное кольцо — это длина окружности 2πr = ${fmt(2 * Math.PI * r)}.`, `Радиусы ${fmt(r)} дөңгелек жұқа сақиналардан тұрады. Оларды жазайық: ең ұзын сақина — шеңбер ұзындығы 2πr = ${fmt(2 * Math.PI * r)}.`)
+            ? L(`A circle of radius ${fmt(r)} is made of thin rings. Unroll them: the longest ring is the circumference 2πr = ${fmt(2 * Math.PI * r)}.`, `Круг радиуса ${fmt(r)} состоит из тонких колец. Развернём их: самое длинное кольцо - это длина окружности 2πr = ${fmt(2 * Math.PI * r)}.`, `Радиусы ${fmt(r)} дөңгелек жұқа сақиналардан тұрады. Оларды жазайық: ең ұзын сақина - шеңбер ұзындығы 2πr = ${fmt(2 * Math.PI * r)}.`)
             : L(`The rings became a triangle: base 2πr = ${fmt(2 * Math.PI * r)}, height r = ${fmt(r)}. Its area is ½ · 2πr · r = πr² = ${fmt(S)}.`, `Кольца превратились в треугольник: основание 2πr = ${fmt(2 * Math.PI * r)}, высота r = ${fmt(r)}. Его площадь ½ · 2πr · r = πr² = ${fmt(S)}.`, `Сақиналар үшбұрышқа айналды: табаны 2πr = ${fmt(2 * Math.PI * r)}, биіктігі r = ${fmt(r)}. Ауданы ½ · 2πr · r = πr² = ${fmt(S)}.`),
       };
     },
@@ -743,15 +743,15 @@ const SCENES = {
         caption: [
           L(`a = (3; 1), b = (${fmt(bx)}; ${fmt(by)}). To add them, move b so that it starts where a ends.`, `a = (3; 1), b = (${fmt(bx)}; ${fmt(by)}). Чтобы сложить, перенесём b так, чтобы он начинался в конце a.`, `a = (3; 1), b = (${fmt(bx)}; ${fmt(by)}). Қосу үшін b-ны a-ның соңынан басталатындай көшіреміз.`),
           L(`a + b goes from the start of a to the end of b: (3 + ${fmt(bx)}; 1 + ${fmt(by)}) = (${fmt(ax + bx)}; ${fmt(ay + by)}), length ${fmt(sx)}.`, `a + b идёт из начала a в конец b: (3 + ${fmt(bx)}; 1 + ${fmt(by)}) = (${fmt(ax + bx)}; ${fmt(ay + by)}), длина ${fmt(sx)}.`, `a + b a-ның басынан b-ның соңына барады: (3 + ${fmt(bx)}; 1 + ${fmt(by)}) = (${fmt(ax + bx)}; ${fmt(ay + by)}), ұзындығы ${fmt(sx)}.`),
-          L(`Going along b first and then a ends in the same point: a + b = b + a. The sum is the diagonal of the parallelogram.`, `Если идти сначала по b, потом по a, придём в ту же точку: a + b = b + a. Сумма — диагональ параллелограмма.`, `Алдымен b, содан кейін a бойымен жүрсек, сол нүктеге келеміз: a + b = b + a. Қосынды — параллелограмның диагоналы.`),
+          L(`Going along b first and then a ends in the same point: a + b = b + a. The sum is the diagonal of the parallelogram.`, `Если идти сначала по b, потом по a, придём в ту же точку: a + b = b + a. Сумма - диагональ параллелограмма.`, `Алдымен b, содан кейін a бойымен жүрсек, сол нүктеге келеміз: a + b = b + a. Қосынды - параллелограмның диагоналы.`),
         ][step],
       };
     },
   },
 
   systems: {
-    title: L('A system of equations is two lines', 'Система уравнений — это две прямые', 'Теңдеулер жүйесі — екі түзу'),
-    intro: L('Each linear equation is a line. The solution of the system is the point that lies on both lines — where they cross.', 'Каждое линейное уравнение — прямая. Решение системы — точка, которая лежит на обеих прямых, то есть их пересечение.', 'Әр сызықтық теңдеу — түзу. Жүйенің шешімі — екі түзуде де жатқан нүкте, яғни олардың қиылысуы.'),
+    title: L('A system of equations is two lines', 'Система уравнений - это две прямые', 'Теңдеулер жүйесі - екі түзу'),
+    intro: L('Each linear equation is a line. The solution of the system is the point that lies on both lines - where they cross.', 'Каждое линейное уравнение - прямая. Решение системы - точка, которая лежит на обеих прямых, то есть их пересечение.', 'Әр сызықтық теңдеу - түзу. Жүйенің шешімі - екі түзуде де жатқан нүкте, яғни олардың қиылысуы.'),
     sliders: [
       { id: 'k1', label: 'k₁', min: -3, max: 3, step: C, value: 1 },
       { id: 'b1', label: 'b₁', min: -4, max: 4, step: C, value: -1 },
@@ -775,9 +775,9 @@ const SCENES = {
           ${vis ? `<g class="exc-m"><line class="ex-stroke ex-dash" style="stroke-width:1.2" x1="${n1(sx(X))}" y1="${n1(sy(Y))}" x2="${n1(sx(X))}" y2="${sy(0)}"/><line class="ex-stroke ex-dash" style="stroke-width:1.2" x1="${n1(sx(X))}" y1="${n1(sy(Y))}" x2="${sx(0)}" y2="${n1(sy(Y))}"/></g><circle class="ex-dot dot-root" cx="${n1(sx(X))}" cy="${n1(sy(Y))}" r="6"/>` : '<g/><g/>'}
           <text class="ex-tag tc exc-p" x="8" y="18">${lineEq(k1, b1)}</text><text class="ex-tag tc exc-b" x="8" y="36">${lineEq(k2, b2)}</text>`,
         caption: same
-          ? L('The lines coincide: every point of the line is a solution — infinitely many solutions.', 'Прямые совпали: каждая точка прямой — решение. Решений бесконечно много.', 'Түзулер беттесті: түзудің әр нүктесі — шешім. Шешімдер шексіз көп.')
+          ? L('The lines coincide: every point of the line is a solution - infinitely many solutions.', 'Прямые совпали: каждая точка прямой - решение. Решений бесконечно много.', 'Түзулер беттесті: түзудің әр нүктесі - шешім. Шешімдер шексіз көп.')
           : par
-            ? L(`k₁ = k₂ = ${fmt(k1)}: the lines are parallel and never meet — the system has no solutions.`, `k₁ = k₂ = ${fmt(k1)}: прямые параллельны и не пересекаются — у системы нет решений.`, `k₁ = k₂ = ${fmt(k1)}: түзулер параллель, қиылыспайды — жүйенің шешімі жоқ.`)
+            ? L(`k₁ = k₂ = ${fmt(k1)}: the lines are parallel and never meet - the system has no solutions.`, `k₁ = k₂ = ${fmt(k1)}: прямые параллельны и не пересекаются - у системы нет решений.`, `k₁ = k₂ = ${fmt(k1)}: түзулер параллель, қиылыспайды - жүйенің шешімі жоқ.`)
             : L(`Equate the right sides: ${fmt(k1)}x${term(b1)} = ${fmt(k2)}x + 2 → x = (2 − b₁)/(k₁ − k₂) = ${fmt(X)}, y = ${fmt(Y)}. Solution: (${fmt(X)}; ${fmt(Y)}).`, `Приравняем правые части: ${fmt(k1)}x${term(b1)} = ${fmt(k2)}x + 2 → x = (2 − b₁)/(k₁ − k₂) = ${fmt(X)}, y = ${fmt(Y)}. Решение: (${fmt(X)}; ${fmt(Y)}).`, `Оң жақтарын теңестіреміз: ${fmt(k1)}x${term(b1)} = ${fmt(k2)}x + 2 → x = (2 − b₁)/(k₁ − k₂) = ${fmt(X)}, y = ${fmt(Y)}. Шешімі: (${fmt(X)}; ${fmt(Y)}).`),
       };
     },
@@ -785,7 +785,7 @@ const SCENES = {
 
   progression: {
     title: L('Arithmetic and geometric progressions', 'Арифметическая и геометрическая прогрессии', 'Арифметикалық және геометриялық прогрессиялар'),
-    intro: L('An arithmetic progression adds the same number d each time; a geometric one multiplies by the same number q.', 'Арифметическая прогрессия каждый раз прибавляет одно и то же число d, геометрическая — умножает на одно и то же число q.', 'Арифметикалық прогрессия әр жолы бірдей d санын қосады, геометриялық — бірдей q санына көбейтеді.'),
+    intro: L('An arithmetic progression adds the same number d each time; a geometric one multiplies by the same number q.', 'Арифметическая прогрессия каждый раз прибавляет одно и то же число d, геометрическая - умножает на одно и то же число q.', 'Арифметикалық прогрессия әр жолы бірдей d санын қосады, геометриялық - бірдей q санына көбейтеді.'),
     sliders: [
       { id: 'a1', label: 'a₁ = b₁', min: 0.5, max: 5, step: C, value: 1 },
       { id: 'd', label: 'd', min: 0, max: 3, step: C, value: 1 },
@@ -817,7 +817,7 @@ const SCENES = {
 
   'mean-median': {
     title: L('Mean and median', 'Среднее и медиана', 'Орта мән және медиана'),
-    intro: L('Drag the dots. The mean is the balance point of all values; the median is the middle value after sorting. One outlier pulls the mean, but hardly moves the median.', 'Перетаскивай точки. Среднее — точка равновесия всех значений, медиана — значение посередине после сортировки. Один выброс тянет среднее, а медиана почти не двигается.', 'Нүктелерді сүйре. Орта мән — барлық мәндердің тепе-теңдік нүктесі, медиана — сұрыптаудан кейінгі ортадағы мән. Бір шығыңқы мән орта мәнді тартады, ал медиана әрең қозғалады.'),
+    intro: L('Drag the dots. The mean is the balance point of all values; the median is the middle value after sorting. One outlier pulls the mean, but hardly moves the median.', 'Перетаскивай точки. Среднее - точка равновесия всех значений, медиана - значение посередине после сортировки. Один выброс тянет среднее, а медиана почти не двигается.', 'Нүктелерді сүйре. Орта мән - барлық мәндердің тепе-теңдік нүктесі, медиана - сұрыптаудан кейінгі ортадағы мән. Бір шығыңқы мән орта мәнді тартады, ал медиана әрең қозғалады.'),
     values: { p0: 2, p1: 3, p2: 4, p3: 4.5, p4: 6, p5: 7 },
     sliders: [{ id: 'p6', label: L('last value', 'последнее значение', 'соңғы мән'), min: 0, max: 20, step: C, value: 8.5 }],
     buttons: [L('Add an outlier', 'Добавить выброс', 'Шығыңқы мән қосу'), RESET],
@@ -845,7 +845,7 @@ const SCENES = {
           <path class="ex-fill exc-o" d="M${n1(sx(mean))} 162 l-9 16 h18 Z"/><text class="ex-tag tc exc-o" x="${n1(clamp(sx(mean) + 12, 0, 250))}" y="194">x̄ = ${fmt(mean)}</text>
           <g class="exc-g"><line class="ex-stroke" style="stroke-width:3" x1="${n1(sx(med))}" y1="44" x2="${n1(sx(med))}" y2="160"/></g><text class="ex-tag tc exc-g" x="${n1(clamp(sx(med) + 6, 0, 250))}" y="52">Me = ${fmt(med)}</text>`,
         caption: L(
-          `Mean = sum ÷ 7 = ${fmt(sum)} ÷ 7 = ${fmt(mean)} (the balance point, orange). Median = the 4th of 7 sorted values = ${fmt(med)} (green).${Math.abs(mean - med) > 1.5 ? ' They differ a lot — a far-away value drags the mean, not the median.' : ''}`,
+          `Mean = sum ÷ 7 = ${fmt(sum)} ÷ 7 = ${fmt(mean)} (the balance point, orange). Median = the 4th of 7 sorted values = ${fmt(med)} (green).${Math.abs(mean - med) > 1.5 ? ' They differ a lot - a far-away value drags the mean, not the median.' : ''}`,
           `Среднее = сумма ÷ 7 = ${fmt(sum)} ÷ 7 = ${fmt(mean)} (точка равновесия, оранжевая). Медиана = 4-е из 7 упорядоченных значений = ${fmt(med)} (зелёная).${Math.abs(mean - med) > 1.5 ? ' Они сильно разошлись: далёкое значение тянет среднее, но не медиану.' : ''}`,
           `Орта мән = қосынды ÷ 7 = ${fmt(sum)} ÷ 7 = ${fmt(mean)} (тепе-теңдік нүктесі, қызғылт сары). Медиана = реттелген 7 мәннің 4-сі = ${fmt(med)} (жасыл).${Math.abs(mean - med) > 1.5 ? ' Олар қатты алшақтады: алыс мән орта мәнді тартады, медиананы емес.' : ''}`,
         ),
@@ -855,7 +855,7 @@ const SCENES = {
 
   ohm: {
     title: L("Ohm's law: I = U / R", 'Закон Ома: I = U / R', 'Ом заңы: I = U / R'),
-    intro: L('Voltage pushes the charges, resistance holds them back. The current is voltage divided by resistance — and the bulb shines brighter when more current flows.', 'Напряжение толкает заряды, сопротивление их тормозит. Сила тока — это напряжение, делённое на сопротивление; чем больше ток, тем ярче лампа.', 'Кернеу зарядтарды итереді, кедергі оларды тежейді. Ток күші — кернеуді кедергіге бөлгенге тең; ток неғұрлым көп болса, шам соғұрлым жарқын.'),
+    intro: L('Voltage pushes the charges, resistance holds them back. The current is voltage divided by resistance - and the bulb shines brighter when more current flows.', 'Напряжение толкает заряды, сопротивление их тормозит. Сила тока - это напряжение, делённое на сопротивление; чем больше ток, тем ярче лампа.', 'Кернеу зарядтарды итереді, кедергі оларды тежейді. Ток күші - кернеуді кедергіге бөлгенге тең; ток неғұрлым көп болса, шам соғұрлым жарқын.'),
     sliders: [
       { id: 'U', label: L('U, V', 'U, В', 'U, В'), min: 0, max: 12, step: C, value: 6 },
       { id: 'R', label: L('R, Ω', 'R, Ом', 'R, Ом'), min: 1, max: 20, step: C, value: 4 },
@@ -893,9 +893,9 @@ const SCENES = {
           <circle class="ex-glow" cx="280" cy="115" r="${n1(16 + 26 * b)}" opacity="${n1(b * 80) / 100}"/><circle class="ex-bulb" cx="280" cy="115" r="16" style="fill:color-mix(in srgb, var(--yellow) ${Math.round(b * 100)}%, var(--surface))"/><path class="ex-fil" d="M272 118 l4 -8 l4 8 l4 -8 l4 8"/>
           <text class="ex-big" x="160" y="125">I = ${fmt(I)} ${A}</text><text class="ex-small" x="160" y="150">${fmt(v.U)} ${V} ÷ ${fmt(v.R)} ${Om}</text><text class="ex-tag" x="8" y="210">P = U·I = ${fmt(P)} ${u('W', 'Вт', 'Вт')}</text>`,
         caption: L(
-          `I = U / R = ${fmt(v.U)} V ÷ ${fmt(v.R)} Ω = ${fmt(I)} A. Double the voltage — the current doubles and the bulb gets brighter; double the resistance — the current halves. Power P = U·I = ${fmt(P)} W.`,
-          `I = U / R = ${fmt(v.U)} В ÷ ${fmt(v.R)} Ом = ${fmt(I)} А. Увеличь напряжение вдвое — ток вырастет вдвое и лампа станет ярче; увеличь вдвое сопротивление — ток уменьшится вдвое. Мощность P = U·I = ${fmt(P)} Вт.`,
-          `I = U / R = ${fmt(v.U)} В ÷ ${fmt(v.R)} Ом = ${fmt(I)} А. Кернеуді екі есе арттыр — ток екі есе өседі, шам жарқырайды; кедергіні екі есе арттыр — ток екі есе азаяды. Қуат P = U·I = ${fmt(P)} Вт.`,
+          `I = U / R = ${fmt(v.U)} V ÷ ${fmt(v.R)} Ω = ${fmt(I)} A. Double the voltage - the current doubles and the bulb gets brighter; double the resistance - the current halves. Power P = U·I = ${fmt(P)} W.`,
+          `I = U / R = ${fmt(v.U)} В ÷ ${fmt(v.R)} Ом = ${fmt(I)} А. Увеличь напряжение вдвое - ток вырастет вдвое и лампа станет ярче; увеличь вдвое сопротивление - ток уменьшится вдвое. Мощность P = U·I = ${fmt(P)} Вт.`,
+          `I = U / R = ${fmt(v.U)} В ÷ ${fmt(v.R)} Ом = ${fmt(I)} А. Кернеуді екі есе арттыр - ток екі есе өседі, шам жарқырайды; кедергіні екі есе арттыр - ток екі есе азаяды. Қуат P = U·I = ${fmt(P)} Вт.`,
         ),
       };
     },
@@ -903,7 +903,7 @@ const SCENES = {
 
   lens: {
     title: L('How a lens makes an image', 'Как линза строит изображение', 'Линза кескінді қалай құрады'),
-    intro: L('A ray parallel to the axis passes through the focus after the lens; a ray through the centre goes straight. Where they meet, the image appears.', 'Луч, параллельный оси, после линзы проходит через фокус; луч через центр линзы идёт не преломляясь. Где они встретятся — там изображение.', 'Оске параллель сәуле линзадан кейін фокус арқылы өтеді; линза ортасы арқылы өтетін сәуле сынбайды. Олар қай жерде кездессе — кескін сонда.'),
+    intro: L('A ray parallel to the axis passes through the focus after the lens; a ray through the centre goes straight. Where they meet, the image appears.', 'Луч, параллельный оси, после линзы проходит через фокус; луч через центр линзы идёт не преломляясь. Где они встретятся - там изображение.', 'Оске параллель сәуле линзадан кейін фокус арқылы өтеді; линза ортасы арқылы өтетін сәуле сынбайды. Олар қай жерде кездессе - кескін сонда.'),
     sliders: [
       { id: 'd', label: L('object distance d', 'до предмета d', 'нәрсеге дейін d'), min: 0.5, max: 8, step: C, value: 5 },
       { id: 'F', label: L('focal length F', 'фокус F', 'фокус F'), min: 1, max: 4, step: C, value: 2 },
@@ -940,10 +940,10 @@ const SCENES = {
           ${arrow(Xo, ax, Xo, Yt, 'exc-p', 3)}${img}
           <text class="ex-tag" x="8" y="18">1/d + 1/f = 1/F</text><text class="ex-tag" x="8" y="36">f = ${none ? '∞' : fmt(di)}</text>`,
         caption: none
-          ? L('d = F: after the lens the rays go parallel and never meet — there is no image.', 'd = F: после линзы лучи идут параллельно и не встречаются — изображения нет.', 'd = F: линзадан кейін сәулелер параллель жүреді, кездеспейді — кескін жоқ.')
+          ? L('d = F: after the lens the rays go parallel and never meet - there is no image.', 'd = F: после линзы лучи идут параллельно и не встречаются - изображения нет.', 'd = F: линзадан кейін сәулелер параллель жүреді, кездеспейді - кескін жоқ.')
           : real
             ? L(`d = ${fmt(d)} > F: the image is real and upside down at f = dF/(d − F) = ${fmt(di)}, magnified ${fmt(G)}×${d > 2 * F ? ' (smaller than the object, like in a camera)' : d < 2 * F ? ' (bigger than the object, like in a projector)' : ' (same size at d = 2F)'}.`, `d = ${fmt(d)} > F: изображение действительное и перевёрнутое, на расстоянии f = dF/(d − F) = ${fmt(di)}, увеличение ${fmt(G)}×${d > 2 * F ? ' (меньше предмета, как в фотоаппарате)' : d < 2 * F ? ' (больше предмета, как в проекторе)' : ' (того же размера при d = 2F)'}.`, `d = ${fmt(d)} > F: кескін нақты және төңкерілген, f = dF/(d − F) = ${fmt(di)} қашықтықта, үлкейту ${fmt(G)}×${d > 2 * F ? ' (нәрседен кіші, фотоаппараттағыдай)' : d < 2 * F ? ' (нәрседен үлкен, проектордағыдай)' : ' (d = 2F кезінде өлшемі бірдей)'}.`)
-            : L(`d = ${fmt(d)} < F: the rays spread out after the lens; their dashed extensions meet in front of it. The image is virtual, upright and ${fmt(G)}× bigger — that is a magnifying glass.`, `d = ${fmt(d)} < F: после линзы лучи расходятся, а их пунктирные продолжения встречаются перед линзой. Изображение мнимое, прямое и увеличенное в ${fmt(G)} раза — так работает лупа.`, `d = ${fmt(d)} < F: линзадан кейін сәулелер тарайды, ал олардың пунктир жалғасы линзаның алдында кездеседі. Кескін жалған, тура және ${fmt(G)} есе үлкен — лупа осылай жұмыс істейді.`),
+            : L(`d = ${fmt(d)} < F: the rays spread out after the lens; their dashed extensions meet in front of it. The image is virtual, upright and ${fmt(G)}× bigger - that is a magnifying glass.`, `d = ${fmt(d)} < F: после линзы лучи расходятся, а их пунктирные продолжения встречаются перед линзой. Изображение мнимое, прямое и увеличенное в ${fmt(G)} раза - так работает лупа.`, `d = ${fmt(d)} < F: линзадан кейін сәулелер тарайды, ал олардың пунктир жалғасы линзаның алдында кездеседі. Кескін жалған, тура және ${fmt(G)} есе үлкен - лупа осылай жұмыс істейді.`),
       };
     },
   },
@@ -1002,7 +1002,7 @@ const SCENES = {
 
   pendulum: {
     title: L('The period of a pendulum', 'Период маятника', 'Маятниктің периоды'),
-    intro: L('A pendulum swings with period T = 2π√(l/g). It depends only on the string length and gravity — not on the mass of the bob.', 'Маятник качается с периодом T = 2π√(l/g). Он зависит только от длины нити и силы тяжести — масса груза не важна.', 'Маятник T = 2π√(l/g) периодымен тербеледі. Ол тек жіптің ұзындығы мен ауырлық күшіне тәуелді — жүктің массасы маңызды емес.'),
+    intro: L('A pendulum swings with period T = 2π√(l/g). It depends only on the string length and gravity - not on the mass of the bob.', 'Маятник качается с периодом T = 2π√(l/g). Он зависит только от длины нити и силы тяжести - масса груза не важна.', 'Маятник T = 2π√(l/g) периодымен тербеледі. Ол тек жіптің ұзындығы мен ауырлық күшіне тәуелді - жүктің массасы маңызды емес.'),
     sliders: [
       { id: 'l', label: L('l, m', 'l, м', 'l, м'), min: 0.2, max: 2.5, step: C, value: 1 },
       { id: 'g', label: L('g, m/s²', 'g, м/с²', 'g, м/с²'), min: 1.6, max: 25, step: C, value: 9.81 },
@@ -1029,9 +1029,9 @@ const SCENES = {
           <line class="ex-rad" x1="${px}" y1="${py}" x2="${n1(bx)}" y2="${n1(by)}"/><circle class="ex-ball" cx="${n1(bx)}" cy="${n1(by)}" r="10"/>
           <text class="ex-tag" x="8" y="40">T = ${fmt(T)} ${u('s', 'с', 'с')}</text><text class="ex-tag" x="8" y="58">${fmt(60 / T, 1)} ${u('swings/min', 'кол./мин', 'тербеліс/мин')}</text>`,
         caption: L(
-          `T = 2π·√(${fmt(v.l)} / ${fmt(v.g)}) = ${fmt(T)} s. A 4 times longer string gives a 2 times longer period. On the Moon gravity is weak, so the pendulum swings slowly; on Jupiter — fast.`,
-          `T = 2π·√(${fmt(v.l)} / ${fmt(v.g)}) = ${fmt(T)} с. Нить в 4 раза длиннее — период в 2 раза больше. На Луне тяготение слабое, и маятник качается медленно, на Юпитере — быстро.`,
-          `T = 2π·√(${fmt(v.l)} / ${fmt(v.g)}) = ${fmt(T)} с. Жіп 4 есе ұзын болса — период 2 есе артады. Айда тартылыс әлсіз, маятник баяу тербеледі, Юпитерде — жылдам.`,
+          `T = 2π·√(${fmt(v.l)} / ${fmt(v.g)}) = ${fmt(T)} s. A 4 times longer string gives a 2 times longer period. On the Moon gravity is weak, so the pendulum swings slowly; on Jupiter - fast.`,
+          `T = 2π·√(${fmt(v.l)} / ${fmt(v.g)}) = ${fmt(T)} с. Нить в 4 раза длиннее - период в 2 раза больше. На Луне тяготение слабое, и маятник качается медленно, на Юпитере - быстро.`,
+          `T = 2π·√(${fmt(v.l)} / ${fmt(v.g)}) = ${fmt(T)} с. Жіп 4 есе ұзын болса - период 2 есе артады. Айда тартылыс әлсіз, маятник баяу тербеледі, Юпитерде - жылдам.`,
         ),
       };
     },
@@ -1039,7 +1039,7 @@ const SCENES = {
 
   newton: {
     title: L("Newton's second law: a = F / m", 'Второй закон Ньютона: a = F / m', 'Ньютонның екінші заңы: a = F / m'),
-    intro: L('The same force speeds up a light cart faster than a heavy one. Acceleration is force divided by mass.', 'Одна и та же сила разгоняет лёгкую тележку быстрее, чем тяжёлую. Ускорение — это сила, делённая на массу.', 'Бірдей күш жеңіл арбаны ауырға қарағанда тезірек үдетеді. Үдеу — күшті массаға бөлгенге тең.'),
+    intro: L('The same force speeds up a light cart faster than a heavy one. Acceleration is force divided by mass.', 'Одна и та же сила разгоняет лёгкую тележку быстрее, чем тяжёлую. Ускорение - это сила, делённая на массу.', 'Бірдей күш жеңіл арбаны ауырға қарағанда тезірек үдетеді. Үдеу - күшті массаға бөлгенге тең.'),
     sliders: [
       { id: 'F', label: L('F, N', 'F, Н', 'F, Н'), min: 0, max: 20, step: C, value: 8 },
       { id: 'm', label: L('m, kg', 'm, кг', 'm, кг'), min: 0.5, max: 10, step: C, value: 2 },
@@ -1080,7 +1080,7 @@ const SCENES = {
 
   gas: {
     title: L('Gas in a cylinder: pressure, volume, temperature', 'Газ под поршнем: давление, объём, температура', 'Поршень астындағы газ: қысым, көлем, температура'),
-    intro: L('Pressure is the molecules hitting the walls. Squeeze the gas — they hit more often; heat it — they move faster. For a fixed amount of gas pV/T stays constant.', 'Давление — это удары молекул о стенки. Сожмёшь газ — удары чаще, нагреешь — молекулы быстрее. Для данной массы газа pV/T не меняется.', 'Қысым — молекулалардың қабырғаға соқтығысуы. Газды сықсаң — соққылар жиілейді, қыздырсаң — молекулалар жылдамдайды. Газдың берілген массасы үшін pV/T өзгермейді.'),
+    intro: L('Pressure is the molecules hitting the walls. Squeeze the gas - they hit more often; heat it - they move faster. For a fixed amount of gas pV/T stays constant.', 'Давление - это удары молекул о стенки. Сожмёшь газ - удары чаще, нагреешь - молекулы быстрее. Для данной массы газа pV/T не меняется.', 'Қысым - молекулалардың қабырғаға соқтығысуы. Газды сықсаң - соққылар жиілейді, қыздырсаң - молекулалар жылдамдайды. Газдың берілген массасы үшін pV/T өзгермейді.'),
     sliders: [
       { id: 'V', label: L('V, L', 'V, л', 'V, л'), min: 1, max: 4, step: C, value: 2 },
       { id: 'T', label: L('T, K', 'T, К', 'T, К'), min: 150, max: 600, step: C, value: 300 },
@@ -1123,9 +1123,9 @@ const SCENES = {
           <rect class="ex-thermo" x="24" y="40" width="12" height="150" rx="6"/><rect x="26" y="${n1(188 - 146 * th)}" width="8" height="${n1(146 * th)}" rx="4" style="fill:hsl(${hue} 80% 55%)"/><text class="ex-tiny" x="30" y="206">T</text>
           <text class="ex-small" x="290" y="140">${fmt(p, 1)}</text><text class="ex-tiny" x="290" y="154">${u('kPa', 'кПа', 'кПа')}</text>`,
         caption: L(
-          `p = ${fmt(p, 1)} kPa. pV/T = ${fmt(p, 1)}·${fmt(v.V)}/${fmt(v.T)} = ${fmt((p * v.V) / v.T, 3)} — always the same. Halve the volume → the pressure doubles; double the temperature (in kelvins) → the pressure doubles too.`,
-          `p = ${fmt(p, 1)} кПа. pV/T = ${fmt(p, 1)}·${fmt(v.V)}/${fmt(v.T)} = ${fmt((p * v.V) / v.T, 3)} — всегда одно и то же. Объём меньше вдвое → давление вдвое больше; температура (в кельвинах) вдвое выше → давление тоже вдвое больше.`,
-          `p = ${fmt(p, 1)} кПа. pV/T = ${fmt(p, 1)}·${fmt(v.V)}/${fmt(v.T)} = ${fmt((p * v.V) / v.T, 3)} — әрқашан бірдей. Көлем екі есе азайса → қысым екі есе артады; температура (кельвинмен) екі есе артса → қысым да екі есе артады.`,
+          `p = ${fmt(p, 1)} kPa. pV/T = ${fmt(p, 1)}·${fmt(v.V)}/${fmt(v.T)} = ${fmt((p * v.V) / v.T, 3)} - always the same. Halve the volume → the pressure doubles; double the temperature (in kelvins) → the pressure doubles too.`,
+          `p = ${fmt(p, 1)} кПа. pV/T = ${fmt(p, 1)}·${fmt(v.V)}/${fmt(v.T)} = ${fmt((p * v.V) / v.T, 3)} - всегда одно и то же. Объём меньше вдвое → давление вдвое больше; температура (в кельвинах) вдвое выше → давление тоже вдвое больше.`,
+          `p = ${fmt(p, 1)} кПа. pV/T = ${fmt(p, 1)}·${fmt(v.V)}/${fmt(v.T)} = ${fmt((p * v.V) / v.T, 3)} - әрқашан бірдей. Көлем екі есе азайса → қысым екі есе артады; температура (кельвинмен) екі есе артса → қысым да екі есе артады.`,
         ),
       };
     },
@@ -1133,7 +1133,7 @@ const SCENES = {
 
   ph: {
     title: L('The pH scale', 'Шкала pH', 'pH шкаласы'),
-    intro: L('pH shows how acidic or alkaline a solution is: below 7 — acid, 7 — neutral, above 7 — alkali. One step on the scale means 10 times more or fewer H⁺ ions.', 'pH показывает, насколько раствор кислый или щелочной: меньше 7 — кислота, 7 — нейтральный, больше 7 — щёлочь. Шаг шкалы на 1 — это в 10 раз больше или меньше ионов H⁺.', 'pH ерітіндінің қаншалықты қышқыл не сілтілі екенін көрсетеді: 7-ден аз — қышқыл, 7 — бейтарап, 7-ден көп — сілті. Шкаладағы 1 қадам — H⁺ иондары 10 есе көп не аз деген сөз.'),
+    intro: L('pH shows how acidic or alkaline a solution is: below 7 - acid, 7 - neutral, above 7 - alkali. One step on the scale means 10 times more or fewer H⁺ ions.', 'pH показывает, насколько раствор кислый или щелочной: меньше 7 - кислота, 7 - нейтральный, больше 7 - щёлочь. Шаг шкалы на 1 - это в 10 раз больше или меньше ионов H⁺.', 'pH ерітіндінің қаншалықты қышқыл не сілтілі екенін көрсетеді: 7-ден аз - қышқыл, 7 - бейтарап, 7-ден көп - сілті. Шкаладағы 1 қадам - H⁺ иондары 10 есе көп не аз деген сөз.'),
     sliders: [{ id: 'pH', label: 'pH', min: 0, max: 14, step: C, value: 7 }],
     buttons: [L('Lemon juice', 'Лимонный сок', 'Лимон шырыны'), L('Pure water', 'Чистая вода', 'Таза су'), L('Soap', 'Мыло', 'Сабын')],
     onButton: (i) => ({ pH: [2.4, 7, 10][i] }),
@@ -1159,11 +1159,11 @@ const SCENES = {
           <text class="ex-big" x="270" y="70">${fmt(v.pH)}</text><text class="ex-small" x="270" y="94" style="fill:${col(v.pH)}">${u(...kind(['acid', 'кислота', 'қышқыл'], ['neutral', 'нейтр.', 'бейтарап'], ['alkali', 'щёлочь', 'сілті']))}</text>
           <text class="ex-tag" x="8" y="40">[H⁺] = 10<tspan dy="-6" font-size="9">${exp}</tspan></text>`,
         caption: neutral
-          ? L('pH = 7: neutral, like pure water — H⁺ and OH⁻ ions are equal (10⁻⁷ mol/L each).', 'pH = 7: нейтральная среда, как чистая вода, — ионов H⁺ и OH⁻ поровну (по 10⁻⁷ моль/л).', 'pH = 7: бейтарап орта, таза судағыдай — H⁺ және OH⁻ иондары тең (әрқайсысы 10⁻⁷ моль/л).')
+          ? L('pH = 7: neutral, like pure water - H⁺ and OH⁻ ions are equal (10⁻⁷ mol/L each).', 'pH = 7: нейтральная среда, как чистая вода, - ионов H⁺ и OH⁻ поровну (по 10⁻⁷ моль/л).', 'pH = 7: бейтарап орта, таза судағыдай - H⁺ және OH⁻ иондары тең (әрқайсысы 10⁻⁷ моль/л).')
           : L(
-              `pH = ${fmt(v.pH)}: ${kind(['acidic'], [''], ['alkaline'])[0]}. [H⁺] = 10^(${exp}) mol/L — ${fmt(ratio, ratio < 10 ? 2 : 0)} times ${v.pH < 7 ? 'more' : 'fewer'} H⁺ ions than in pure water.`,
-              `pH = ${fmt(v.pH)}: ${kind(['кислая среда'], [''], ['щелочная среда'])[0]}. [H⁺] = 10^(${exp}) моль/л — ионов H⁺ в ${fmt(ratio, ratio < 10 ? 2 : 0)} раз ${v.pH < 7 ? 'больше' : 'меньше'}, чем в чистой воде.`,
-              `pH = ${fmt(v.pH)}: ${kind(['қышқыл орта'], [''], ['сілтілі орта'])[0]}. [H⁺] = 10^(${exp}) моль/л — H⁺ иондары таза судағыдан ${fmt(ratio, ratio < 10 ? 2 : 0)} есе ${v.pH < 7 ? 'көп' : 'аз'}.`,
+              `pH = ${fmt(v.pH)}: ${kind(['acidic'], [''], ['alkaline'])[0]}. [H⁺] = 10^(${exp}) mol/L - ${fmt(ratio, ratio < 10 ? 2 : 0)} times ${v.pH < 7 ? 'more' : 'fewer'} H⁺ ions than in pure water.`,
+              `pH = ${fmt(v.pH)}: ${kind(['кислая среда'], [''], ['щелочная среда'])[0]}. [H⁺] = 10^(${exp}) моль/л - ионов H⁺ в ${fmt(ratio, ratio < 10 ? 2 : 0)} раз ${v.pH < 7 ? 'больше' : 'меньше'}, чем в чистой воде.`,
+              `pH = ${fmt(v.pH)}: ${kind(['қышқыл орта'], [''], ['сілтілі орта'])[0]}. [H⁺] = 10^(${exp}) моль/л - H⁺ иондары таза судағыдан ${fmt(ratio, ratio < 10 ? 2 : 0)} есе ${v.pH < 7 ? 'көп' : 'аз'}.`,
             ),
       };
     },
@@ -1171,7 +1171,7 @@ const SCENES = {
 
   balancing: {
     title: L('Balancing a chemical equation', 'Уравниваем химическую реакцию', 'Химиялық реакцияны теңестіру'),
-    intro: L('Atoms are not created or destroyed in a reaction, only regrouped. Pick the numbers of molecules so that every kind of atom is the same on both sides.', 'В реакции атомы не появляются и не исчезают — они только перегруппировываются. Подбери число молекул так, чтобы атомов каждого вида слева и справа было поровну.', 'Реакцияда атомдар пайда болмайды да, жоғалмайды да — тек қайта топтасады. Әр түрлі атомдар сол және оң жақта тең болатындай молекулалар санын тап.'),
+    intro: L('Atoms are not created or destroyed in a reaction, only regrouped. Pick the numbers of molecules so that every kind of atom is the same on both sides.', 'В реакции атомы не появляются и не исчезают - они только перегруппировываются. Подбери число молекул так, чтобы атомов каждого вида слева и справа было поровну.', 'Реакцияда атомдар пайда болмайды да, жоғалмайды да - тек қайта топтасады. Әр түрлі атомдар сол және оң жақта тең болатындай молекулалар санын тап.'),
     sliders: [
       { id: 'a', label: 'a', min: 1, max: 4, value: 1 },
       { id: 'b', label: 'b', min: 1, max: 4, value: 1 },
@@ -1220,8 +1220,8 @@ const SCENES = {
         svg: `<text class="ex-big" x="160" y="28">${eq}</text>${mols}<text class="ex-big" x="95" y="100">+</text><text class="ex-big" x="192" y="100">→</text>
           <text class="ex-small" x="55" y="172">${lab(v.a, R.f[0])}</text><text class="ex-small" x="135" y="172">${lab(v.b, R.f[1])}</text><text class="ex-small" x="250" y="172">${lab(v.c, R.f[2])}</text>${rows}`,
         caption: ok
-          ? L(`Balanced: ${list} on each side. The coefficients ${v.a} : ${v.b} : ${v.c} are also the ratio of moles in the reaction.`, `Уравнено: ${list} с каждой стороны. Коэффициенты ${v.a} : ${v.b} : ${v.c} — это и соотношение молей в реакции.`, `Теңестірілді: әр жақта ${list}. ${v.a} : ${v.b} : ${v.c} коэффициенттері — реакциядағы моль қатынасы да.`)
-          : L('Not balanced yet: some atoms (red) differ on the left and on the right. Change the number of molecules — never the small indices inside a formula.', 'Пока не уравнено: каких-то атомов (красные) слева и справа разное число. Меняй число молекул (коэффициенты), а не маленькие индексы в формуле.', 'Әлі теңестірілмеген: кейбір атомдар (қызыл) сол және оң жақта әртүрлі. Формуладағы кіші индекстерді емес, молекулалар санын (коэффициенттерді) өзгерт.'),
+          ? L(`Balanced: ${list} on each side. The coefficients ${v.a} : ${v.b} : ${v.c} are also the ratio of moles in the reaction.`, `Уравнено: ${list} с каждой стороны. Коэффициенты ${v.a} : ${v.b} : ${v.c} - это и соотношение молей в реакции.`, `Теңестірілді: әр жақта ${list}. ${v.a} : ${v.b} : ${v.c} коэффициенттері - реакциядағы моль қатынасы да.`)
+          : L('Not balanced yet: some atoms (red) differ on the left and on the right. Change the number of molecules - never the small indices inside a formula.', 'Пока не уравнено: каких-то атомов (красные) слева и справа разное число. Меняй число молекул (коэффициенты), а не маленькие индексы в формуле.', 'Әлі теңестірілмеген: кейбір атомдар (қызыл) сол және оң жақта әртүрлі. Формуладағы кіші индекстерді емес, молекулалар санын (коэффициенттерді) өзгерт.'),
       };
     },
   },
@@ -1262,11 +1262,11 @@ const SCENES = {
           <text class="ex-tag" x="120" y="18">${u('rate', 'скорость', 'жылдамдық')}: ${fmt(rate * 100, 0)}%</text>`,
         caption:
           rate < 0.005
-            ? L(`No ${v.light < 0.005 ? 'light' : 'CO₂'} — no photosynthesis: no glucose and no oxygen are made.`, `Нет ${v.light < 0.005 ? 'света' : 'CO₂'} — нет фотосинтеза: глюкоза и кислород не образуются.`, `${v.light < 0.005 ? 'Жарық' : 'CO₂'} жоқ — фотосинтез жоқ: глюкоза мен оттек түзілмейді.`)
+            ? L(`No ${v.light < 0.005 ? 'light' : 'CO₂'} - no photosynthesis: no glucose and no oxygen are made.`, `Нет ${v.light < 0.005 ? 'света' : 'CO₂'} - нет фотосинтеза: глюкоза и кислород не образуются.`, `${v.light < 0.005 ? 'Жарық' : 'CO₂'} жоқ - фотосинтез жоқ: глюкоза мен оттек түзілмейді.`)
             : L(
-                `Rate ${fmt(rate * 100, 0)}%. It is limited by the factor in shortest supply — ${lim === 'both' ? 'light and CO₂ are equal now' : lim === 'light' ? 'now it is light' : 'now it is CO₂'}. Adding more of the other factor does not help.`,
-                `Скорость ${fmt(rate * 100, 0)}%. Её ограничивает то, чего меньше всего, — ${lim === 'both' ? 'сейчас свет и CO₂ поровну' : lim === 'light' ? 'сейчас это свет' : 'сейчас это CO₂'}. Добавлять другой фактор бесполезно.`,
-                `Жылдамдық ${fmt(rate * 100, 0)}%. Оны ең аз фактор шектейді — ${lim === 'both' ? 'қазір жарық пен CO₂ тең' : lim === 'light' ? 'қазір бұл жарық' : 'қазір бұл CO₂'}. Басқа факторды қосу пайдасыз.`,
+                `Rate ${fmt(rate * 100, 0)}%. It is limited by the factor in shortest supply - ${lim === 'both' ? 'light and CO₂ are equal now' : lim === 'light' ? 'now it is light' : 'now it is CO₂'}. Adding more of the other factor does not help.`,
+                `Скорость ${fmt(rate * 100, 0)}%. Её ограничивает то, чего меньше всего, - ${lim === 'both' ? 'сейчас свет и CO₂ поровну' : lim === 'light' ? 'сейчас это свет' : 'сейчас это CO₂'}. Добавлять другой фактор бесполезно.`,
+                `Жылдамдық ${fmt(rate * 100, 0)}%. Оны ең аз фактор шектейді - ${lim === 'both' ? 'қазір жарық пен CO₂ тең' : lim === 'light' ? 'қазір бұл жарық' : 'қазір бұл CO₂'}. Басқа факторды қосу пайдасыз.`,
               ),
       };
     },
@@ -1274,7 +1274,7 @@ const SCENES = {
 
   punnett: {
     title: L('Punnett square', 'Решётка Пеннета', 'Пеннет торы'),
-    intro: L('Each parent passes one of its two alleles to a child. A (yellow peas) is dominant, a (green) is recessive: a pea is green only as aa.', 'Каждый родитель передаёт ребёнку один из двух своих аллелей. A (жёлтый горох) — доминантный, a (зелёный) — рецессивный: зелёный горох только у aa.', 'Әр ата-ана балаға өзінің екі аллелінің бірін береді. A (сары бұршақ) — доминантты, a (жасыл) — рецессивті: жасыл бұршақ тек aa-да болады.'),
+    intro: L('Each parent passes one of its two alleles to a child. A (yellow peas) is dominant, a (green) is recessive: a pea is green only as aa.', 'Каждый родитель передаёт ребёнку один из двух своих аллелей. A (жёлтый горох) - доминантный, a (зелёный) - рецессивный: зелёный горох только у aa.', 'Әр ата-ана балаға өзінің екі аллелінің бірін береді. A (сары бұршақ) - доминантты, a (жасыл) - рецессивті: жасыл бұршақ тек aa-да болады.'),
     sliders: [
       { id: 'p1', label: L('parent 1', 'родитель 1', '1-ата-ана'), min: 0, max: 2, value: 1, show: (g) => ['aa', 'Aa', 'AA'][g] },
       { id: 'p2', label: L('parent 2', 'родитель 2', '2-ата-ана'), min: 0, max: 2, value: 1, show: (g) => ['aa', 'Aa', 'AA'][g] },
@@ -1305,8 +1305,8 @@ const SCENES = {
           <circle class="ex-pea dom" cx="248" cy="130" r="10"/><text class="ex-small" x="286" y="135">${fmt(dom, 0)}%</text><circle class="ex-pea rec" cx="248" cy="166" r="10"/><text class="ex-small" x="286" y="171">${fmt(100 - dom, 0)}%</text>`,
         caption: L(
           `${G[v.p1]} × ${G[v.p2]}: 4 equally likely combinations. Genotypes AA : Aa : aa = ${cnt[2]} : ${cnt[1]} : ${cnt[0]}. Yellow peas (at least one A) ${fmt(dom, 0)}%, green (aa) ${fmt(100 - dom, 0)}%.`,
-          `${G[v.p1]} × ${G[v.p2]}: 4 равновероятные комбинации. Генотипы AA : Aa : aa = ${cnt[2]} : ${cnt[1]} : ${cnt[0]}. Жёлтый горох (есть хотя бы одна A) — ${fmt(dom, 0)}%, зелёный (aa) — ${fmt(100 - dom, 0)}%.`,
-          `${G[v.p1]} × ${G[v.p2]}: 4 тең ықтимал комбинация. Генотиптер AA : Aa : aa = ${cnt[2]} : ${cnt[1]} : ${cnt[0]}. Сары бұршақ (кем дегенде бір A бар) — ${fmt(dom, 0)}%, жасыл (aa) — ${fmt(100 - dom, 0)}%.`,
+          `${G[v.p1]} × ${G[v.p2]}: 4 равновероятные комбинации. Генотипы AA : Aa : aa = ${cnt[2]} : ${cnt[1]} : ${cnt[0]}. Жёлтый горох (есть хотя бы одна A) - ${fmt(dom, 0)}%, зелёный (aa) - ${fmt(100 - dom, 0)}%.`,
+          `${G[v.p1]} × ${G[v.p2]}: 4 тең ықтимал комбинация. Генотиптер AA : Aa : aa = ${cnt[2]} : ${cnt[1]} : ${cnt[0]}. Сары бұршақ (кем дегенде бір A бар) - ${fmt(dom, 0)}%, жасыл (aa) - ${fmt(100 - dom, 0)}%.`,
         ),
       };
     },
@@ -1314,7 +1314,7 @@ const SCENES = {
 
   timezones: {
     title: L('Earth rotation and time zones', 'Вращение Земли и часовые пояса', 'Жердің айналуы және сағат белдеулері'),
-    intro: L('Seen from above the North Pole, Earth turns 360° in 24 hours — 15° per hour. That is why clocks in places 15° apart differ by about one hour.', 'Если смотреть с Северного полюса, Земля поворачивается на 360° за 24 часа — на 15° в час. Поэтому в местах, отстоящих на 15° по долготе, часы различаются примерно на час.', 'Солтүстік полюстен қарасақ, Жер 24 сағатта 360°-қа — сағатына 15°-қа бұрылады. Сондықтан бойлығы 15°-қа алшақ жерлерде сағаттар шамамен бір сағатқа өзгешеленеді.'),
+    intro: L('Seen from above the North Pole, Earth turns 360° in 24 hours - 15° per hour. That is why clocks in places 15° apart differ by about one hour.', 'Если смотреть с Северного полюса, Земля поворачивается на 360° за 24 часа - на 15° в час. Поэтому в местах, отстоящих на 15° по долготе, часы различаются примерно на час.', 'Солтүстік полюстен қарасақ, Жер 24 сағатта 360°-қа - сағатына 15°-қа бұрылады. Сондықтан бойлығы 15°-қа алшақ жерлерде сағаттар шамамен бір сағатқа өзгешеленеді.'),
     sliders: [{ id: 'tt', label: L('time UTC', 'время UTC', 'UTC уақыты'), min: 0, max: 24, step: C, value: 9, show: hhmm }],
     buttons: [L('▶ One day', '▶ Одни сутки', '▶ Бір тәулік')],
     play: 'tt',
@@ -1342,9 +1342,9 @@ const SCENES = {
         svg: `<circle class="ex-earth" cx="${cx}" cy="${cy}" r="${r}"/>${merid}<path class="ex-night" d="M${cx} ${cy - r} A${r} ${r} 0 0 0 ${cx} ${cy + r} Z"/>
           <circle class="ex-fill exc-m" cx="${cx}" cy="${cy}" r="3"/>${pins}<g class="exc-y">${arrow(cx + r + 20, cy, cx + r + 5, cy, '', 3)}</g>${list}`,
         caption: L(
-          `Now ${hhmm(v.tt)} UTC: London ${hhmm(v.tt)}, Astana ${hhmm(v.tt + 5)}, Tokyo ${hhmm(v.tt + 9)}. Each hour Earth turns 15°, so the line of sunrise moves 15° west — and the local time shifts by one hour per 15° of longitude.`,
-          `Сейчас ${hhmm(v.tt)} UTC: в Лондоне ${hhmm(v.tt)}, в Астане ${hhmm(v.tt + 5)}, в Токио ${hhmm(v.tt + 9)}. За час Земля поворачивается на 15°, граница рассвета сдвигается на 15° к западу — и местное время меняется на час на каждые 15° долготы.`,
-          `Қазір UTC бойынша ${hhmm(v.tt)}: Лондонда ${hhmm(v.tt)}, Астанада ${hhmm(v.tt + 5)}, Токиода ${hhmm(v.tt + 9)}. Бір сағатта Жер 15°-қа бұрылады, таң шекарасы батысқа 15°-қа жылжиды — жергілікті уақыт бойлықтың әр 15°-ына бір сағатқа өзгереді.`,
+          `Now ${hhmm(v.tt)} UTC: London ${hhmm(v.tt)}, Astana ${hhmm(v.tt + 5)}, Tokyo ${hhmm(v.tt + 9)}. Each hour Earth turns 15°, so the line of sunrise moves 15° west - and the local time shifts by one hour per 15° of longitude.`,
+          `Сейчас ${hhmm(v.tt)} UTC: в Лондоне ${hhmm(v.tt)}, в Астане ${hhmm(v.tt + 5)}, в Токио ${hhmm(v.tt + 9)}. За час Земля поворачивается на 15°, граница рассвета сдвигается на 15° к западу - и местное время меняется на час на каждые 15° долготы.`,
+          `Қазір UTC бойынша ${hhmm(v.tt)}: Лондонда ${hhmm(v.tt)}, Астанада ${hhmm(v.tt + 5)}, Токиода ${hhmm(v.tt + 9)}. Бір сағатта Жер 15°-қа бұрылады, таң шекарасы батысқа 15°-қа жылжиды - жергілікті уақыт бойлықтың әр 15°-ына бір сағатқа өзгереді.`,
         ),
       };
     },
@@ -1352,7 +1352,7 @@ const SCENES = {
 
   binary: {
     title: L('Binary numbers: bits and bytes', 'Двоичные числа: биты и байты', 'Екілік сандар: биттер мен байттар'),
-    intro: L('A computer stores numbers as bits — lamps that are on (1) or off (0). Each bit is worth a power of two: 1, 2, 4, 8, … Eight bits make a byte.', 'Компьютер хранит числа в битах — лампочках, которые горят (1) или нет (0). Каждый бит стоит степень двойки: 1, 2, 4, 8, … Восемь битов — один байт.', 'Компьютер сандарды биттерде сақтайды — жанып (1) не сөніп (0) тұрған шамдар. Әр бит екінің дәрежесіне тең: 1, 2, 4, 8, … Сегіз бит — бір байт.'),
+    intro: L('A computer stores numbers as bits - lamps that are on (1) or off (0). Each bit is worth a power of two: 1, 2, 4, 8, … Eight bits make a byte.', 'Компьютер хранит числа в битах - лампочках, которые горят (1) или нет (0). Каждый бит стоит степень двойки: 1, 2, 4, 8, … Восемь битов - один байт.', 'Компьютер сандарды биттерде сақтайды - жанып (1) не сөніп (0) тұрған шамдар. Әр бит екінің дәрежесіне тең: 1, 2, 4, 8, … Сегіз бит - бір байт.'),
     sliders: [{ id: 'n', label: 'n', min: 0, max: 255, value: 74 }],
     buttons: ['128', '64', '32', '16', '8', '4', '2', '1'],
     pressed: (i, v) => ((v.n >> (7 - i)) & 1) === 1,
@@ -1370,9 +1370,9 @@ const SCENES = {
       return {
         svg: `<text class="ex-big" x="160" y="40">${n} = ${bin}₂ = ${hex}₁₆</text>${lamps}<text class="ex-small" x="160" y="180">${sum}</text>`,
         caption: L(
-          `${n} in binary is ${bin}: ${sum}. Tap a bit to switch it. 8 bits = 1 byte, so a byte has 2⁸ = 256 values (0–255); one hex digit is exactly 4 bits.`,
-          `${n} в двоичной системе — ${bin}: ${sum}. Нажми на бит, чтобы переключить его. 8 битов = 1 байт, значит в байте 2⁸ = 256 значений (0–255); одна шестнадцатеричная цифра — ровно 4 бита.`,
-          `${n} екілік жүйеде — ${bin}: ${sum}. Битті ауыстыру үшін оны бас. 8 бит = 1 байт, демек байтта 2⁸ = 256 мән бар (0–255); бір он алтылық цифр — дәл 4 бит.`,
+          `${n} in binary is ${bin}: ${sum}. Tap a bit to switch it. 8 bits = 1 byte, so a byte has 2⁸ = 256 values (0-255); one hex digit is exactly 4 bits.`,
+          `${n} в двоичной системе - ${bin}: ${sum}. Нажми на бит, чтобы переключить его. 8 битов = 1 байт, значит в байте 2⁸ = 256 значений (0-255); одна шестнадцатеричная цифра - ровно 4 бита.`,
+          `${n} екілік жүйеде - ${bin}: ${sum}. Битті ауыстыру үшін оны бас. 8 бит = 1 байт, демек байтта 2⁸ = 256 мән бар (0-255); бір он алтылық цифр - дәл 4 бит.`,
         ),
       };
     },
@@ -1380,7 +1380,7 @@ const SCENES = {
 
   sorting: {
     title: L('Bubble sort step by step', 'Сортировка пузырьком по шагам', 'Көпіршікті сұрыптау қадаммен'),
-    intro: L('Walk along the row and compare neighbours; if the left one is bigger, swap them. After each pass the biggest remaining value "bubbles up" to the end.', 'Идём по ряду и сравниваем соседей; если левый больше — меняем их местами. После каждого прохода самое большое из оставшихся значений «всплывает» в конец.', 'Қатар бойымен жүріп, көршілерді салыстырамыз; сол жақтағысы үлкен болса — орындарын ауыстырамыз. Әр өтуден кейін қалғандардың ең үлкені соңына «қалқып шығады».'),
+    intro: L('Walk along the row and compare neighbours; if the left one is bigger, swap them. After each pass the biggest remaining value "bubbles up" to the end.', 'Идём по ряду и сравниваем соседей; если левый больше - меняем их местами. После каждого прохода самое большое из оставшихся значений «всплывает» в конец.', 'Қатар бойымен жүріп, көршілерді салыстырамыз; сол жақтағысы үлкен болса - орындарын ауыстырамыз. Әр өтуден кейін қалғандардың ең үлкені соңына «қалқып шығады».'),
     sliders: [{ id: 'n', label: L('bars', 'столбиков', 'бағаналар'), min: 4, max: 12, value: 8 }],
     buttons: [L('Next step', 'Следующий шаг', 'Келесі қадам'), L('▶ Sort automatically', '▶ Сортировать автоматически', '▶ Автоматты сұрыптау'), L('Shuffle', 'Перемешать', 'Араластыру')],
     state: () => sortState(8),
@@ -1415,14 +1415,14 @@ const SCENES = {
           ? L(`Sorted! ${st.cmp} comparisons and ${st.sw} swaps. For ${n} values bubble sort needs at most n(n − 1)/2 = ${(n * (n - 1)) / 2} comparisons.`, `Отсортировано! ${st.cmp} сравнений и ${st.sw} обменов. Для ${n} значений пузырьку нужно не больше n(n − 1)/2 = ${(n * (n - 1)) / 2} сравнений.`, `Сұрыпталды! ${st.cmp} салыстыру және ${st.sw} алмасу. ${n} мән үшін көпіршікті сұрыптауға ең көбі n(n − 1)/2 = ${(n * (n - 1)) / 2} салыстыру керек.`)
           : L2
             ? L(`Pass ${L2.pass}: ${L2.a} ${L2.swapped ? '>' : '<'} ${L2.b} → ${L2.swapped ? 'swap them' : 'leave them'}. Green bars are already in place.`, `Проход ${L2.pass}: ${L2.a} ${L2.swapped ? '>' : '<'} ${L2.b} → ${L2.swapped ? 'меняем местами' : 'оставляем'}. Зелёные столбики уже на своих местах.`, `${L2.pass}-өту: ${L2.a} ${L2.swapped ? '>' : '<'} ${L2.b} → ${L2.swapped ? 'орындарын ауыстырамыз' : 'қалдырамыз'}. Жасыл бағаналар өз орнында.`)
-            : L('Press "Next step": we will compare the first two bars.', 'Нажми «Следующий шаг» — сравним первые два столбика.', '«Келесі қадам» бас — алғашқы екі бағананы салыстырамыз.'),
+            : L('Press "Next step": we will compare the first two bars.', 'Нажми «Следующий шаг» - сравним первые два столбика.', '«Келесі қадам» бас - алғашқы екі бағананы салыстырамыз.'),
       };
     },
   },
 
   integral: {
-    title: L('The integral as a sum of rectangles', 'Интеграл — сумма прямоугольников', 'Интеграл — тіктөртбұрыштар қосындысы'),
-    intro: L('Cover the area under the graph with thin rectangles and add up their areas. The more rectangles, the closer the sum is to the exact area — the integral.', 'Закроем площадь под графиком тонкими прямоугольниками и сложим их площади. Чем больше прямоугольников, тем ближе сумма к точной площади — интегралу.', 'График астындағы ауданды жұқа тіктөртбұрыштармен жауып, аудандарын қосайық. Тіктөртбұрыштар неғұрлым көп болса, қосынды нақты ауданға — интегралға соғұрлым жақын.'),
+    title: L('The integral as a sum of rectangles', 'Интеграл - сумма прямоугольников', 'Интеграл - тіктөртбұрыштар қосындысы'),
+    intro: L('Cover the area under the graph with thin rectangles and add up their areas. The more rectangles, the closer the sum is to the exact area - the integral.', 'Закроем площадь под графиком тонкими прямоугольниками и сложим их площади. Чем больше прямоугольников, тем ближе сумма к точной площади - интегралу.', 'График астындағы ауданды жұқа тіктөртбұрыштармен жауып, аудандарын қосайық. Тіктөртбұрыштар неғұрлым көп болса, қосынды нақты ауданға - интегралға соғұрлым жақын.'),
     sliders: [
       { id: 'b', label: 'b', min: 0.5, max: 3, step: C, value: 2 },
       { id: 'n', label: 'n', min: 1, max: 40, value: 4 },
@@ -1450,9 +1450,9 @@ const SCENES = {
           <path class="ex-curve" d="${plot((x) => x * x, 0, 3.1, sx, sy, 80)}"/><line class="ex-ideal" x1="${n1(sx(b))}" y1="${n1(sy(b * b))}" x2="${n1(sx(b))}" y2="196"/><text class="ex-tiny" x="${n1(sx(b))}" y="210">b</text>
           <text class="ex-tag" x="40" y="22">Σ = ${fmt(sum, 3)}</text><text class="ex-tag tc exc-p" x="40" y="40">∫₀ᵇ x² dx = b³/3 = ${fmt(exact, 3)}</text>`,
         caption: L(
-          `${n} rectangles of width Δx = b/n = ${fmt(dx, 3)}: their total area is ${fmt(sum, 3)}. The exact area under y = x² from 0 to ${fmt(b)} is b³/3 = ${fmt(exact, 3)}, the error is ${fmt(exact - sum, 3)}. More rectangles — smaller error: the integral is the limit of these sums.`,
-          `${n} прямоугольников шириной Δx = b/n = ${fmt(dx, 3)}: их общая площадь ${fmt(sum, 3)}. Точная площадь под y = x² от 0 до ${fmt(b)} — b³/3 = ${fmt(exact, 3)}, ошибка ${fmt(exact - sum, 3)}. Больше прямоугольников — меньше ошибка: интеграл — это предел таких сумм.`,
-          `Ені Δx = b/n = ${fmt(dx, 3)} болатын ${n} тіктөртбұрыш: жалпы ауданы ${fmt(sum, 3)}. y = x² астындағы 0-ден ${fmt(b)}-ге дейінгі нақты аудан b³/3 = ${fmt(exact, 3)}, қателік ${fmt(exact - sum, 3)}. Тіктөртбұрыш көп болса — қателік аз: интеграл — осындай қосындылардың шегі.`,
+          `${n} rectangles of width Δx = b/n = ${fmt(dx, 3)}: their total area is ${fmt(sum, 3)}. The exact area under y = x² from 0 to ${fmt(b)} is b³/3 = ${fmt(exact, 3)}, the error is ${fmt(exact - sum, 3)}. More rectangles - smaller error: the integral is the limit of these sums.`,
+          `${n} прямоугольников шириной Δx = b/n = ${fmt(dx, 3)}: их общая площадь ${fmt(sum, 3)}. Точная площадь под y = x² от 0 до ${fmt(b)} - b³/3 = ${fmt(exact, 3)}, ошибка ${fmt(exact - sum, 3)}. Больше прямоугольников - меньше ошибка: интеграл - это предел таких сумм.`,
+          `Ені Δx = b/n = ${fmt(dx, 3)} болатын ${n} тіктөртбұрыш: жалпы ауданы ${fmt(sum, 3)}. y = x² астындағы 0-ден ${fmt(b)}-ге дейінгі нақты аудан b³/3 = ${fmt(exact, 3)}, қателік ${fmt(exact - sum, 3)}. Тіктөртбұрыш көп болса - қателік аз: интеграл - осындай қосындылардың шегі.`,
         ),
       };
     },

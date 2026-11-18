@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Комната Препи для разработки: готовые комнаты по темам и все вещи по слотам. Открыть: http://localhost:3000/tools/gallery-room.html (?compact=1 — карточки 16:9) -->
+<!-- Комната Препи для разработки: готовые комнаты по темам и все вещи по слотам. Открыть: http://localhost:3000/tools/gallery-room.html (?compact=1 - карточки 16:9) -->
 <html lang="ru">
 <head>
 <meta charset="utf-8">
@@ -48,9 +48,9 @@
   html += '<h2>Компактные карточки</h2><div class="smalls">' + ['уютная', 'космос', 'геймер', 'океан'].map((n) => roomScene(ROOMS[n], mascot('happy', '', base), { compact: true })).join('') + '</div>';
   for (const slot of ROOM_SLOTS) {
     const ids = Object.keys(ROOM_ART[slot]);
-    html += `<h2>${slot} — ${ids.length}</h2><div class="g">` + ids.map((id) => {
+    html += `<h2>${slot} - ${ids.length}</h2><div class="g">` + ids.map((id) => {
       const m = META.find((x) => x.id === id);
-      return `<div class="c ${m?.rarity ?? ''}">${roomItemThumb(slot, id)}<b>${m?.rarity ?? '—'}${m?.free ? ' · free' : ''}</b>${NAMES[id]?.ru ?? id}</div>`;
+      return `<div class="c ${m?.rarity ?? ''}">${roomItemThumb(slot, id)}<b>${m?.rarity ?? '-'}${m?.free ? ' · free' : ''}</b>${NAMES[id]?.ru ?? id}</div>`;
     }).join('') + '</div>';
   }
   document.getElementById('out').innerHTML = html;

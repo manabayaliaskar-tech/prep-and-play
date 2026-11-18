@@ -1,6 +1,6 @@
 // Русский язык: ударения (орфоэпический минимум ЕГЭ) и словарные слова.
-// Обществознание: термины и определения. Ключ сложности — 1…3.
-// Задания по русскому языку показываются по-русски при любом языке интерфейса — как на экзамене.
+// Обществознание: термины и определения. Ключ сложности - 1…3.
+// Задания по русскому языку показываются по-русски при любом языке интерфейса - как на экзамене.
 
 import { hashString, pick, shuffle } from '../../core/random.js';
 import { L, poolQ } from '../gen.js';
@@ -14,7 +14,7 @@ function mcOf(rng, correct, wrong) {
   return { choices: order.map((k) => all[k]), answer: order.indexOf(0) };
 }
 
-// ---------- Ударения: сложность|верно|неверно (ударная гласная — заглавная) ----------
+// ---------- Ударения: сложность|верно|неверно (ударная гласная - заглавная) ----------
 const STRESS = rows(`
 1|звонИт|звОнит
 1|тОрты|тортЫ
@@ -228,7 +228,7 @@ export function socialMaker(topic) {
         prompt: fwd
           ? L(`What is ${t.term.en}?`, `Что такое «${t.term.ru}»?`, `«${t.term.kk}» дегеніміз не?`)
           : L(`Which term means: ${t.def.en}?`, `Какой термин означает: ${t.def.ru}?`, `Қай термин мынаны білдіреді: ${t.def.kk}?`),
-        ex: L(`${t.term.en} — ${t.def.en}.`, `${t.term.ru} — ${t.def.ru}.`, `${t.term.kk} — ${t.def.kk}.`),
+        ex: L(`${t.term.en} - ${t.def.en}.`, `${t.term.ru} - ${t.def.ru}.`, `${t.term.kk} - ${t.def.kk}.`),
         mc: fwd ? mcOf(rng, t.def, wrong.map((x) => x.def)) : mcOf(rng, t.term, wrong.map((x) => x.term)),
       });
       q.id = `${topic}:${fwd ? 'f' : 'b'}:${t.term.en}`;
@@ -295,7 +295,7 @@ export function powersMaker(topic) {
         q = poolQ(topic, d, {
           kind: 'text',
           prompt: L(`Which branch of power does ${body.name.en} belong to?`, `К какой ветви власти относится ${body.name.ru}?`, `${body.name.kk} биліктің қай тармағына жатады?`),
-          ex: L(`${body.name.en} — ${BRANCHES[body.b].en}.`, `${body.name.ru} — ${BRANCHES[body.b].ru}.`, `${body.name.kk} — ${BRANCHES[body.b].kk}.`),
+          ex: L(`${body.name.en} - ${BRANCHES[body.b].en}.`, `${body.name.ru} - ${BRANCHES[body.b].ru}.`, `${body.name.kk} - ${BRANCHES[body.b].kk}.`),
           mc: mcOf(rng, BRANCHES[body.b], [...wrong, extra]),
         });
         q.id = `${topic}:b:${body.name.en}`;
@@ -305,7 +305,7 @@ export function powersMaker(topic) {
         q = poolQ(topic, d, {
           kind: 'text',
           prompt: L(`Which sphere of society does this illustrate: ${f.fact.en}?`, `Какую сферу общества иллюстрирует пример: ${f.fact.ru}?`, `Мысал қоғамның қай саласын көрсетеді: ${f.fact.kk}?`),
-          ex: L(`This is the ${SPHERES[f.s].en} sphere.`, `Это ${SPHERES[f.s].ru} сфера.`, `Бұл — ${SPHERES[f.s].kk} сала.`),
+          ex: L(`This is the ${SPHERES[f.s].en} sphere.`, `Это ${SPHERES[f.s].ru} сфера.`, `Бұл - ${SPHERES[f.s].kk} сала.`),
           mc: mcOf(rng, SPHERES[f.s], wrong),
         });
         q.id = `${topic}:s:${f.fact.en}`;

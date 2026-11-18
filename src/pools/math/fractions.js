@@ -61,7 +61,7 @@ export function fractions(ctx, d) {
     return poolQ('m.frac', d, {
       prompt: calc(`${left} ${plus ? '+' : MINUS} ${right}`),
       ex: steps(
-        L(`The common denominator is ${m}.`, `Общий знаменатель — ${m}.`, `Ортақ бөлім — ${m}.`),
+        L(`The common denominator is ${m}.`, `Общий знаменатель - ${m}.`, `Ортақ бөлім - ${m}.`),
         same(`${left} = ${frac(lx, m)}, ${right} = ${frac(rx, m)}`),
         same(`${frac(lx, m)} ${plus ? '+' : MINUS} ${frac(rx, m)} = ${frac(top, m)}${sd !== m ? ` = ${fracHtml(sn, sd)}` : ''}`),
       ),
@@ -154,8 +154,8 @@ export function decimals(ctx, d) {
       ex: steps(
         L(
           'Multiply as whole numbers. The factors have 2 decimal digits in total, so the answer has 2 as well.',
-          'Умножаем как целые числа. В множителях вместе 2 знака после запятой — столько же в ответе.',
-          'Бүтін сандар сияқты көбейтеміз. Көбейткіштерде үтірден кейін барлығы 2 таңба — жауапта да сонша.',
+          'Умножаем как целые числа. В множителях вместе 2 знака после запятой - столько же в ответе.',
+          'Бүтін сандар сияқты көбейтеміз. Көбейткіштерде үтірден кейін барлығы 2 таңба - жауапта да сонша.',
         ),
         loc((l) => `${a} ${TIMES} ${c} = ${a * c} → ${dec(ans)[l]}`),
       ),
@@ -189,10 +189,10 @@ export function percent(ctx, d) {
     return poolQ('m.pct', d, {
       prompt: L(`Find ${p}% of ${N}.`, `Найди ${p}% от числа ${N}.`, `${N} санының ${p}%-ын тап.`),
       ex: steps(
-        L(`1% of ${N} is ${N} ${DIV} 100.`, `1% от ${N} — это ${N} ${DIV} 100.`, `${N} санының 1%-ы — ${N} ${DIV} 100.`),
+        L(`1% of ${N} is ${N} ${DIV} 100.`, `1% от ${N} - это ${N} ${DIV} 100.`, `${N} санының 1%-ы - ${N} ${DIV} 100.`),
         loc((l) => `${N} ${DIV} 100 ${TIMES} ${p} = ${dec(ans)[l]}`),
       ),
-      ...ask(ctx, ans, [N / p, why(ans * 10, L('The decimal point is in the wrong place: 1% is one hundredth, divide by 100.', 'Ошибка в 10 раз: 1% — это сотая часть, делить нужно на 100.', '10 есе қате: 1% — жүзден бір бөлік, 100-ге бөлу керек.')), why(N - ans, L('That is what remains after taking the percentage. The question asks for the percentage itself.', 'Это остаток после вычитания процентов. А спрашивают сами проценты.', 'Бұл — пайызды алып тастағаннан кейінгі қалдық. Ал сұрақ пайыздың өзі туралы.')), ans + p].filter((v) => val(v) !== ans && Number.isInteger(val(v)))),
+      ...ask(ctx, ans, [N / p, why(ans * 10, L('The decimal point is in the wrong place: 1% is one hundredth, divide by 100.', 'Ошибка в 10 раз: 1% - это сотая часть, делить нужно на 100.', '10 есе қате: 1% - жүзден бір бөлік, 100-ге бөлу керек.')), why(N - ans, L('That is what remains after taking the percentage. The question asks for the percentage itself.', 'Это остаток после вычитания процентов. А спрашивают сами проценты.', 'Бұл - пайызды алып тастағаннан кейінгі қалдық. Ал сұрақ пайыздың өзі туралы.')), ans + p].filter((v) => val(v) !== ans && Number.isInteger(val(v)))),
     });
   }
   if (d === 2) {
@@ -218,10 +218,10 @@ export function percent(ctx, d) {
         ? L(`A price of ${N} was increased by ${p}%. Find the new price.`, `Цену ${N} увеличили на ${p}%. Найди новую цену.`, `${N} бағасын ${p}%-ға арттырды. Жаңа бағаны тап.`)
         : L(`A price of ${N} was reduced by ${p}%. Find the new price.`, `Цену ${N} снизили на ${p}%. Найди новую цену.`, `${N} бағасын ${p}%-ға төмендетті. Жаңа бағаны тап.`),
       ex: steps(
-        L(`${p}% of ${N} is ${(N * p) / 100}.`, `${p}% от ${N} — это ${(N * p) / 100}.`, `${N} санының ${p}%-ы — ${(N * p) / 100}.`),
+        L(`${p}% of ${N} is ${(N * p) / 100}.`, `${p}% от ${N} - это ${(N * p) / 100}.`, `${N} санының ${p}%-ы - ${(N * p) / 100}.`),
         same(`${N} ${up ? '+' : MINUS} ${(N * p) / 100} = ${ans}`),
       ),
-      ...ask(ctx, ans, [why((N * p) / 100, L('That is only the change. Add it to (or subtract it from) the old price.', 'Это только изменение цены. Его нужно прибавить к старой цене или вычесть из неё.', 'Бұл — тек бағаның өзгерісі. Оны ескі бағаға қосу немесе одан азайту керек.')), N + (up ? -1 : 1) * ((N * p) / 100), why(N + p, L('You added the percentage as a number. First find what p% of the price is.', 'Ты прибавил проценты как обычное число. Сначала найди, сколько это от цены.', 'Пайызды қарапайым сан ретінде қостың. Алдымен оның бағадан қанша екенін тап.')), ans + 10].filter((v) => val(v) !== ans)),
+      ...ask(ctx, ans, [why((N * p) / 100, L('That is only the change. Add it to (or subtract it from) the old price.', 'Это только изменение цены. Его нужно прибавить к старой цене или вычесть из неё.', 'Бұл - тек бағаның өзгерісі. Оны ескі бағаға қосу немесе одан азайту керек.')), N + (up ? -1 : 1) * ((N * p) / 100), why(N + p, L('You added the percentage as a number. First find what p% of the price is.', 'Ты прибавил проценты как обычное число. Сначала найди, сколько это от цены.', 'Пайызды қарапайым сан ретінде қостың. Алдымен оның бағадан қанша екенін тап.')), ans + 10].filter((v) => val(v) !== ans)),
     });
   }
   if (rng() < 0.5) {
@@ -235,7 +235,7 @@ export function percent(ctx, d) {
         `${p}% жеңілдіктен кейін күрте ${n(now)} тұрады. Жеңілдікке дейін ол қанша тұрған?`,
       ),
       ex: steps(
-        L(`The new price is ${100 - p}% of the old one.`, `Новая цена — это ${100 - p}% от старой.`, `Жаңа баға — ескі бағаның ${100 - p}%-ы.`),
+        L(`The new price is ${100 - p}% of the old one.`, `Новая цена - это ${100 - p}% от старой.`, `Жаңа баға - ескі бағаның ${100 - p}%-ы.`),
         same(`${n(now)} ${DIV} ${100 - p} ${TIMES} 100 = ${n(orig)}`),
       ),
       ...ask(ctx, orig, [why((now * (100 + p)) / 100, L('A common trap: adding p% back to the new price. The discount was taken from the old price, so divide by (100 − p)%.', 'Частая ловушка: прибавить p% к новой цене. Скидку считали от старой цены, поэтому делим на (100 − p)%.', 'Жиі тұзақ: жаңа бағаға p% қосу. Жеңілдік ескі бағадан есептелген, сондықтан (100 − p)%-ға бөлеміз.')), now + p, orig + 20, orig - 20].filter((v) => val(v) !== orig && Number.isInteger(val(v)))),
@@ -312,7 +312,7 @@ export function ratio(ctx, d) {
   const w1 = w2 * f;
   const total = w2 * t2 * f;
   const t1 = total / w1;
-  // w1 рабочих — t1 дней; w2 рабочих — ? дней. Работа одна и та же: w1·t1 = w2·x.
+  // w1 рабочих - t1 дней; w2 рабочих - ? дней. Работа одна и та же: w1·t1 = w2·x.
   const ans = total / w2;
   return poolQ('m.ratio', d, {
     prompt: L(
@@ -323,8 +323,8 @@ export function ratio(ctx, d) {
     ex: steps(
       L(
         `The whole job is ${w1} ${TIMES} ${t1} = ${total} worker-days.`,
-        `Вся работа — это ${w1} ${TIMES} ${t1} = ${total} человеко-дней.`,
-        `Бүкіл жұмыс — ${w1} ${TIMES} ${t1} = ${total} адам-күн.`,
+        `Вся работа - это ${w1} ${TIMES} ${t1} = ${total} человеко-дней.`,
+        `Бүкіл жұмыс - ${w1} ${TIMES} ${t1} = ${total} адам-күн.`,
       ),
       L(
         `Fewer workers need more time: ${total} ${DIV} ${w2} = ${ans}.`,

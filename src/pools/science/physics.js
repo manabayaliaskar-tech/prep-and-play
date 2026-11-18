@@ -172,7 +172,7 @@ export function dynamics(ctx, d) {
     return poolQ('p.dyn', d, {
       prompt: L(
         `A body has a mass of ${n(m)} kg and a volume of ${V} m³. Find its density in kg/m³.`,
-        `Масса тела равна ${n(m)} кг, а объём — ${V} м³. Найди плотность тела в кг/м³.`,
+        `Масса тела равна ${n(m)} кг, а объём - ${V} м³. Найди плотность тела в кг/м³.`,
         `Дененің массасы ${n(m)} кг, көлемі ${V} м³. Дененің тығыздығын кг/м³-пен тап.`,
       ),
       ex: steps(same('ρ = <i>m</i> / <i>V</i>'), same(`ρ = ${n(m)} ${DIV} ${V} = ${n(rho)}`)),
@@ -404,7 +404,7 @@ export function electricity(ctx, d) {
         `Кедергісі ${R} Ом резистор арқылы ${t} с бойы ${I} А ток өтеді. Қанша жылу (джоульмен) бөлінеді?`,
       ),
       ex: steps(
-        L('Joule–Lenz law: Q = I² · R · t.', 'Закон Джоуля — Ленца: Q = I² · R · t.', 'Джоуль — Ленц заңы: Q = I² · R · t.'),
+        L('Joule-Lenz law: Q = I² · R · t.', 'Закон Джоуля - Ленца: Q = I² · R · t.', 'Джоуль - Ленц заңы: Q = I² · R · t.'),
         same(`<i>Q</i> = ${I * I} ${TIMES} ${R} ${TIMES} ${t} = ${n(Q)}`),
       ),
       ...ask(ctx, Q, [I * R * t, I * I * R, Q * 2, Q + R * t].filter((x) => x !== Q)),
@@ -438,8 +438,8 @@ export function heat(ctx, d) {
     return poolQ('p.heat', d, {
       prompt: L(
         `How much heat (in kilojoules) is needed to heat ${m} kg of water by ${dt} °C? The specific heat of water is 4200 J/(kg·°C).`,
-        `Сколько теплоты (в килоджоулях) нужно, чтобы нагреть ${m} кг воды на ${dt} °C? Удельная теплоёмкость воды — 4200 Дж/(кг·°C).`,
-        `${m} кг суды ${dt} °C-қа қыздыру үшін қанша жылу (килоджоульмен) керек? Судың меншікті жылу сыйымдылығы — 4200 Дж/(кг·°C).`,
+        `Сколько теплоты (в килоджоулях) нужно, чтобы нагреть ${m} кг воды на ${dt} °C? Удельная теплоёмкость воды - 4200 Дж/(кг·°C).`,
+        `${m} кг суды ${dt} °C-қа қыздыру үшін қанша жылу (килоджоульмен) керек? Судың меншікті жылу сыйымдылығы - 4200 Дж/(кг·°C).`,
       ),
       ex: steps(
         same('<i>Q</i> = <i>c</i> · <i>m</i> · Δ<i>t</i>'),
@@ -458,8 +458,8 @@ export function heat(ctx, d) {
     return poolQ('p.heat', d, {
       prompt: L(
         `How much heat (in kilojoules) is needed to melt ${m} kg of ${name.en}? The specific heat of fusion is ${lambda} kJ/kg.`,
-        `Сколько теплоты (в килоджоулях) нужно, чтобы расплавить ${m} кг ${name.ru}? Удельная теплота плавления — ${lambda} кДж/кг.`,
-        `${m} кг ${name.kk} балқыту үшін қанша жылу (килоджоульмен) керек? Меншікті балқу жылуы — ${lambda} кДж/кг.`,
+        `Сколько теплоты (в килоджоулях) нужно, чтобы расплавить ${m} кг ${name.ru}? Удельная теплота плавления - ${lambda} кДж/кг.`,
+        `${m} кг ${name.kk} балқыту үшін қанша жылу (килоджоульмен) керек? Меншікті балқу жылуы - ${lambda} кДж/кг.`,
       ),
       ex: steps(same('<i>Q</i> = λ · <i>m</i>'), same(`<i>Q</i> = ${lambda} ${TIMES} ${m} = ${n(lambda * m)}`)),
       ...ask(ctx, lambda * m, [lambda + m, lambda / m, lambda * m * 10, lambda * (m + 1)].filter((x) => Number.isInteger(x))),
@@ -503,7 +503,7 @@ export function waves(ctx, d) {
         `Маятник ${t} с ішінде ${count} тербеліс жасайды. Тербеліс жиілігін герцпен тап.`,
       ),
       ex: steps(
-        L('Frequency is the number of oscillations per second.', 'Частота — число колебаний за одну секунду.', 'Жиілік — бір секундтағы тербелістер саны.'),
+        L('Frequency is the number of oscillations per second.', 'Частота - число колебаний за одну секунду.', 'Жиілік - бір секундтағы тербелістер саны.'),
         same(`ν = ${count} ${DIV} ${t} = ${nu}`),
       ),
       ...ask(ctx, nu, [count * t, nu + 1, nu * 2, nu + 5].filter((x) => x !== nu)),
@@ -527,7 +527,7 @@ export function waves(ctx, d) {
   return poolQ('p.wave', d, {
     prompt: L(
       `An object is ${dd} cm from a converging lens, and its real image is ${f} cm from the lens. Find the focal length of the lens in centimetres.`,
-      `Предмет находится на расстоянии ${dd} см от собирающей линзы, а его действительное изображение — на расстоянии ${f} см от линзы. Найди фокусное расстояние линзы в сантиметрах.`,
+      `Предмет находится на расстоянии ${dd} см от собирающей линзы, а его действительное изображение - на расстоянии ${f} см от линзы. Найди фокусное расстояние линзы в сантиметрах.`,
       `Нәрсе жинағыш линзадан ${dd} см қашықтықта, ал оның нақты кескіні линзадан ${f} см қашықтықта орналасқан. Линзаның фокус аралығын сантиметрмен тап.`,
     ),
     ex: steps(
@@ -542,42 +542,42 @@ export function waves(ctx, d) {
 export const PHYSICS_THEORY = [
   [1, T('В каких единицах измеряется сила?', 'Күш қандай бірлікпен өлшенеді?', 'In what units is force measured?'),
     T('ньютон', 'ньютон', 'newton'), [T('джоуль', 'джоуль', 'joule'), T('ватт', 'ватт', 'watt'), T('паскаль', 'паскаль', 'pascal')],
-    T('Сила измеряется в ньютонах (Н). Джоуль — единица работы и энергии, ватт — мощности, паскаль — давления.', 'Күш ньютонмен (Н) өлшенеді. Джоуль — жұмыс пен энергияның, ватт — қуаттың, паскаль — қысымның бірлігі.', 'Force is measured in newtons (N). The joule is the unit of work and energy, the watt of power, the pascal of pressure.')],
+    T('Сила измеряется в ньютонах (Н). Джоуль - единица работы и энергии, ватт - мощности, паскаль - давления.', 'Күш ньютонмен (Н) өлшенеді. Джоуль - жұмыс пен энергияның, ватт - қуаттың, паскаль - қысымның бірлігі.', 'Force is measured in newtons (N). The joule is the unit of work and energy, the watt of power, the pascal of pressure.')],
   [1, T('В каких единицах измеряется электрическое сопротивление?', 'Электр кедергісі қандай бірлікпен өлшенеді?', 'In what units is electrical resistance measured?'),
     T('ом', 'ом', 'ohm'), [T('вольт', 'вольт', 'volt'), T('ампер', 'ампер', 'ampere'), T('ватт', 'ватт', 'watt')],
-    T('Сопротивление измеряется в омах, напряжение — в вольтах, сила тока — в амперах.', 'Кедергі оммен, кернеу вольтпен, ток күші ампермен өлшенеді.', 'Resistance is measured in ohms, voltage in volts, current in amperes.')],
+    T('Сопротивление измеряется в омах, напряжение - в вольтах, сила тока - в амперах.', 'Кедергі оммен, кернеу вольтпен, ток күші ампермен өлшенеді.', 'Resistance is measured in ohms, voltage in volts, current in amperes.')],
   [1, T('Какая из величин является векторной?', 'Қай шама векторлық болып табылады?', 'Which of these quantities is a vector?'),
     T('скорость', 'жылдамдық', 'velocity'), [T('масса', 'масса', 'mass'), T('время', 'уақыт', 'time'), T('температура', 'температура', 'temperature')],
-    T('У векторной величины есть направление. Скорость направлена, а масса, время и температура — нет.', 'Векторлық шаманың бағыты болады. Жылдамдықтың бағыты бар, ал масса, уақыт пен температураның бағыты жоқ.', 'A vector quantity has a direction. Velocity has one; mass, time and temperature do not.')],
+    T('У векторной величины есть направление. Скорость направлена, а масса, время и температура - нет.', 'Векторлық шаманың бағыты болады. Жылдамдықтың бағыты бар, ал масса, уақыт пен температураның бағыты жоқ.', 'A vector quantity has a direction. Velocity has one; mass, time and temperature do not.')],
   [1, T('Каким прибором измеряют силу тока?', 'Ток күшін қандай аспаппен өлшейді?', 'Which instrument measures electric current?'),
     T('амперметром', 'амперметрмен', 'an ammeter'), [T('вольтметром', 'вольтметрмен', 'a voltmeter'), T('барометром', 'барометрмен', 'a barometer'), T('динамометром', 'динамометрмен', 'a dynamometer')],
-    T('Амперметр измеряет силу тока, вольтметр — напряжение, барометр — атмосферное давление, динамометр — силу.', 'Амперметр ток күшін, вольтметр кернеуді, барометр атмосфералық қысымды, динамометр күшті өлшейді.', 'An ammeter measures current, a voltmeter voltage, a barometer air pressure, a dynamometer force.')],
+    T('Амперметр измеряет силу тока, вольтметр - напряжение, барометр - атмосферное давление, динамометр - силу.', 'Амперметр ток күшін, вольтметр кернеуді, барометр атмосфералық қысымды, динамометр күшті өлшейді.', 'An ammeter measures current, a voltmeter voltage, a barometer air pressure, a dynamometer force.')],
   [2, T('Как называется явление сохранения скорости тела при отсутствии действия на него других тел?', 'Денеге басқа денелер әсер етпегенде оның жылдамдығын сақтау құбылысы қалай аталады?', 'What is the name of the tendency of a body to keep its velocity when no other bodies act on it?'),
     T('инерция', 'инерция', 'inertia'), [T('диффузия', 'диффузия', 'diffusion'), T('конвекция', 'конвекция', 'convection'), T('индукция', 'индукция', 'induction')],
-    T('Инерция — свойство тела сохранять скорость, если на него не действуют другие тела (первый закон Ньютона).', 'Инерция — басқа денелер әсер етпегенде дененің жылдамдығын сақтау қасиеті (Ньютонның бірінші заңы).', "Inertia is the property of a body to keep its velocity when no other bodies act on it (Newton's first law).")],
+    T('Инерция - свойство тела сохранять скорость, если на него не действуют другие тела (первый закон Ньютона).', 'Инерция - басқа денелер әсер етпегенде дененің жылдамдығын сақтау қасиеті (Ньютонның бірінші заңы).', "Inertia is the property of a body to keep its velocity when no other bodies act on it (Newton's first law).")],
   [2, T('Как изменится сила тока в проводнике, если напряжение на нём увеличить в 2 раза, а сопротивление не менять?', 'Өткізгіштегі кернеуді 2 есе арттырып, кедергіні өзгертпесе, ток күші қалай өзгереді?', 'How will the current in a conductor change if the voltage is doubled and the resistance stays the same?'),
     T('увеличится в 2 раза', '2 есе артады', 'it will double'), [T('уменьшится в 2 раза', '2 есе кемиді', 'it will halve'), T('не изменится', 'өзгермейді', 'it will not change'), T('увеличится в 4 раза', '4 есе артады', 'it will increase 4 times')],
     T('По закону Ома I = U / R: сила тока прямо пропорциональна напряжению.', 'Ом заңы бойынша I = U / R: ток күші кернеуге тура пропорционал.', "By Ohm's law I = U / R: the current is directly proportional to the voltage.")],
   [2, T('Какой вид теплопередачи может происходить в вакууме?', 'Жылу берілудің қай түрі вакуумде жүре алады?', 'Which kind of heat transfer can take place in a vacuum?'),
     T('излучение', 'сәуле шығару', 'radiation'), [T('конвекция', 'конвекция', 'convection'), T('теплопроводность', 'жылуөткізгіштік', 'conduction'), T('ни один из видов', 'ешқайсысы', 'none of them')],
-    T('Для теплопроводности и конвекции нужно вещество. Излучение распространяется и в вакууме — так тепло Солнца доходит до Земли.', 'Жылуөткізгіштік пен конвекцияға зат қажет. Сәуле шығару вакуумде де таралады — Күн жылуы Жерге осылай жетеді.', "Conduction and convection need matter. Radiation travels through a vacuum too — this is how the Sun's heat reaches the Earth.")],
+    T('Для теплопроводности и конвекции нужно вещество. Излучение распространяется и в вакууме - так тепло Солнца доходит до Земли.', 'Жылуөткізгіштік пен конвекцияға зат қажет. Сәуле шығару вакуумде де таралады - Күн жылуы Жерге осылай жетеді.', "Conduction and convection need matter. Radiation travels through a vacuum too - this is how the Sun's heat reaches the Earth.")],
   [2, T('Что происходит с давлением жидкости при увеличении глубины?', 'Тереңдік артқанда сұйықтың қысымы қалай өзгереді?', 'What happens to the pressure in a liquid as the depth increases?'),
     T('увеличивается', 'артады', 'it increases'), [T('уменьшается', 'кемиді', 'it decreases'), T('не меняется', 'өзгермейді', 'it does not change'), T('сначала растёт, потом падает', 'алдымен артып, сосын кемиді', 'it first rises, then falls')],
     T('Давление жидкости p = ρ · g · h растёт с глубиной h.', 'Сұйық қысымы p = ρ · g · h тереңдікпен (h) бірге артады.', 'The pressure of a liquid p = ρ · g · h grows with the depth h.')],
   [2, T('Какая частица имеет отрицательный электрический заряд?', 'Қай бөлшектің электр заряды теріс?', 'Which particle has a negative electric charge?'),
     T('электрон', 'электрон', 'the electron'), [T('протон', 'протон', 'the proton'), T('нейтрон', 'нейтрон', 'the neutron'), T('ядро атома', 'атом ядросы', 'the atomic nucleus')],
-    T('Электрон заряжен отрицательно, протон — положительно, нейтрон не имеет заряда.', 'Электрон теріс, протон оң зарядталған, нейтронның заряды жоқ.', 'The electron is negative, the proton is positive, the neutron has no charge.')],
+    T('Электрон заряжен отрицательно, протон - положительно, нейтрон не имеет заряда.', 'Электрон теріс, протон оң зарядталған, нейтронның заряды жоқ.', 'The electron is negative, the proton is positive, the neutron has no charge.')],
   [3, T('Тело плавает в жидкости, частично погрузившись. Что можно сказать о силе Архимеда?', 'Дене сұйықта жартылай батып жүзеді. Архимед күші туралы не айтуға болады?', 'A body floats partly submerged in a liquid. What can be said about the buoyant force?'),
     T('она равна силе тяжести', 'ол ауырлық күшіне тең', 'it equals the force of gravity'), [T('она больше силы тяжести', 'ол ауырлық күшінен үлкен', 'it is greater than gravity'), T('она меньше силы тяжести', 'ол ауырлық күшінен кіші', 'it is less than gravity'), T('она равна нулю', 'ол нөлге тең', 'it is zero')],
     T('Тело покоится, значит силы уравновешены: сила Архимеда равна силе тяжести.', 'Дене тыныштықта, демек күштер теңгерілген: Архимед күші ауырлық күшіне тең.', 'The body is at rest, so the forces balance: the buoyant force equals gravity.')],
   [3, T('Как изменится сила притяжения между двумя телами, если расстояние между ними увеличить в 2 раза?', 'Екі дененің арақашықтығын 2 есе арттырса, олардың тартылыс күші қалай өзгереді?', 'How will the gravitational force between two bodies change if the distance between them is doubled?'),
     T('уменьшится в 4 раза', '4 есе кемиді', 'it will become 4 times smaller'), [T('уменьшится в 2 раза', '2 есе кемиді', 'it will halve'), T('увеличится в 2 раза', '2 есе артады', 'it will double'), T('не изменится', 'өзгермейді', 'it will not change')],
     T('По закону всемирного тяготения сила обратно пропорциональна квадрату расстояния: 2² = 4.', 'Бүкіләлемдік тартылыс заңы бойынша күш қашықтықтың квадратына кері пропорционал: 2² = 4.', 'By the law of universal gravitation the force is inversely proportional to the square of the distance: 2² = 4.')],
-  [3, T('Какое явление доказывает, что свет — это волна?', 'Қай құбылыс жарықтың толқын екенін дәлелдейді?', 'Which phenomenon shows that light is a wave?'),
+  [3, T('Какое явление доказывает, что свет - это волна?', 'Қай құбылыс жарықтың толқын екенін дәлелдейді?', 'Which phenomenon shows that light is a wave?'),
     T('интерференция', 'интерференция', 'interference'), [T('фотоэффект', 'фотоэффект', 'the photoelectric effect'), T('прямолинейное распространение', 'түзу сызықты таралу', 'travelling in straight lines'), T('образование тени', 'көлеңкенің пайда болуы', 'the formation of a shadow')],
-    T('Интерференция и дифракция — волновые явления. Фотоэффект, наоборот, показывает, что свет ведёт себя как поток частиц.', 'Интерференция мен дифракция — толқындық құбылыстар. Фотоэффект, керісінше, жарықтың бөлшектер ағыны сияқты әрекет ететінін көрсетеді.', 'Interference and diffraction are wave phenomena. The photoelectric effect, on the contrary, shows light behaving as a stream of particles.')],
+    T('Интерференция и дифракция - волновые явления. Фотоэффект, наоборот, показывает, что свет ведёт себя как поток частиц.', 'Интерференция мен дифракция - толқындық құбылыстар. Фотоэффект, керісінше, жарықтың бөлшектер ағыны сияқты әрекет ететінін көрсетеді.', 'Interference and diffraction are wave phenomena. The photoelectric effect, on the contrary, shows light behaving as a stream of particles.')],
 ];
 
-// Дополнительные вопросы — в science-more.js.
+// Дополнительные вопросы - в science-more.js.
 PHYSICS_THEORY.push(...PHYSICS_MORE);
 PHYSICS_THEORY.push(...PHYSICS_MORE2);

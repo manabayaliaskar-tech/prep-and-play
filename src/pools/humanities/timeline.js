@@ -1,5 +1,5 @@
 // Хронология и личности для генератора заданий по истории.
-// Событие: год|en|ru|kk. Годы до нашей эры — отрицательные. Только общепринятые даты.
+// Событие: год|en|ru|kk. Годы до нашей эры - отрицательные. Только общепринятые даты.
 
 export const KZ_EVENTS = `
 1219|the Mongol siege of Otrar|осада Отрара монголами|моңғолдардың Отырарды қоршауы
@@ -21,7 +21,7 @@ export const KZ_EVENTS = `
 1986|the December events (Jeltoqsan)|Декабрьские события (Желтоқсан)|Желтоқсан оқиғалары
 1991|the declaration of independence of Kazakhstan|провозглашение независимости Казахстана|Қазақстан тәуелсіздігінің жариялануы
 1992|Kazakhstan joins the United Nations|вступление Казахстана в ООН|Қазақстанның БҰҰ-ға кіруі
-1993|the introduction of the tenge|введение национальной валюты — тенге|ұлттық валюта — теңгенің енгізілуі
+1993|the introduction of the tenge|введение национальной валюты - тенге|ұлттық валюта - теңгенің енгізілуі
 1995|the adoption of the current Constitution of Kazakhstan|принятие действующей Конституции Казахстана|Қазақстанның қолданыстағы Конституциясының қабылдануы
 1997|the capital moves from Almaty to Akmola|перенос столицы из Алматы в Акмолу|астананың Алматыдан Ақмолаға көшірілуі
 2015|the start of the Eurasian Economic Union|начало работы Евразийского экономического союза|Еуразиялық экономикалық одақтың жұмысының басталуы
@@ -32,14 +32,14 @@ export const WORLD_EVENTS = `
 -776|the first recorded Olympic Games in Greece|первые известные Олимпийские игры в Греции|Грекиядағы алғашқы белгілі Олимпиада ойындары
 -221|the unification of China under the Qin dynasty|объединение Китая под властью династии Цинь|Қытайдың Цинь әулеті тұсында біріктірілуі
 476|the fall of the Western Roman Empire|падение Западной Римской империи|Батыс Рим империясының құлауы
-622|the Hijra — the Prophet Muhammad moves to Medina|хиджра — переселение пророка Мухаммеда в Медину|хижра — Мұхаммед пайғамбардың Мәдинаға қоныс аударуы
+622|the Hijra - the Prophet Muhammad moves to Medina|хиджра - переселение пророка Мухаммеда в Медину|хижра - Мұхаммед пайғамбардың Мәдинаға қоныс аударуы
 1066|the Battle of Hastings|битва при Гастингсе|Гастингс шайқасы
 1206|Genghis Khan is proclaimed great khan|провозглашение Чингисхана великим ханом|Шыңғыс ханның ұлы хан болып жариялануы
 1215|the signing of Magna Carta in England|подписание Великой хартии вольностей в Англии|Англияда Ұлы бостандықтар хартиясына қол қойылуы
 1453|the fall of Constantinople|падение Константинополя|Константинопольдің құлауы
 1492|Columbus reaches America|Колумб достигает Америки|Колумбтың Америкаға жетуі
 1498|Vasco da Gama reaches India by sea|Васко да Гама достигает Индии морем|Васко да Гаманың Үндістанға теңіз арқылы жетуі
-1517|Martin Luther's 95 theses — the start of the Reformation|95 тезисов Лютера — начало Реформации|Лютердің 95 тезисі — Реформацияның басталуы
+1517|Martin Luther's 95 theses - the start of the Reformation|95 тезисов Лютера - начало Реформации|Лютердің 95 тезисі - Реформацияның басталуы
 1519|the start of Magellan's voyage around the world|начало кругосветного плавания Магеллана|Магелланның жер шарын айналып жүзуінің басталуы
 1648|the Peace of Westphalia|Вестфальский мир|Вестфалия бітімі
 1687|Newton publishes the «Principia»|Ньютон издаёт «Математические начала натуральной философии»|Ньютонның «Натурал философияның математикалық бастамалары» еңбегінің жарық көруі
@@ -64,7 +64,7 @@ export const WORLD_EVENTS = `
 `;
 
 export const RU_EVENTS = `
-862|the calling of the Varangians — Rurik begins to rule|призвание варягов — начало правления Рюрика|варягтарды шақыру — Рюрик билігінің басталуы
+862|the calling of the Varangians - Rurik begins to rule|призвание варягов - начало правления Рюрика|варягтарды шақыру - Рюрик билігінің басталуы
 988|the Baptism of Rus|Крещение Руси|Русьтің шоқынуы
 1147|the first mention of Moscow in the chronicles|первое упоминание Москвы в летописи|Мәскеудің шежіреде алғаш аталуы
 1240|the Battle of the Neva|Невская битва|Нева шайқасы
@@ -95,7 +95,7 @@ Abai Kunanbayev|Абай Кунанбаев|Абай Құнанбайұлы|the 
 al-Farabi|аль-Фараби|әл-Фараби|the philosopher known as «the Second Teacher»|философ, прозванный «Вторым учителем»|«Екінші ұстаз» атанған философ
 Abylai Khan|Абылай хан|Абылай хан|the khan who united the three zhuzes in the 18th century|хан, объединивший три жуза в XVIII веке|XVIII ғасырда үш жүзді біріктірген хан
 Tauke Khan|Тауке хан|Тәуке хан|the khan who issued the law code «Jeti Jarghy»|хан, при котором создан свод законов «Жеті жарғы»|«Жеті жарғы» заңдар жинағын шығарған хан
-Kenesary Kasymov|Кенесары Касымов|Кенесары Қасымұлы|the last khan who led an uprising in 1837–1847|последний хан, возглавивший восстание 1837–1847 годов|1837–1847 жылдардағы көтерілісті басқарған соңғы хан
+Kenesary Kasymov|Кенесары Касымов|Кенесары Қасымұлы|the last khan who led an uprising in 1837-1847|последний хан, возглавивший восстание 1837-1847 годов|1837-1847 жылдардағы көтерілісті басқарған соңғы хан
 Shokan Ualikhanov|Чокан Валиханов|Шоқан Уәлиханов|the scholar and traveller who explored Kashgar|учёный и путешественник, исследовавший Кашгар|Қашқарды зерттеген ғалым және саяхатшы
 Ybyrai Altynsarin|Ибрай Алтынсарин|Ыбырай Алтынсарин|the educator who opened Kazakh schools|просветитель, открывавший казахские школы|қазақ мектептерін ашқан ағартушы
 Akhmet Baitursynov|Ахмет Байтурсынов|Ахмет Байтұрсынұлы|the linguist who created a Kazakh alphabet|языковед, создавший казахский алфавит|қазақ әліпбиін жасаған тілші ғалым

@@ -1,6 +1,6 @@
 // Общий каталог магазина: вещи гардероба (wear), предметы комнаты (room) и эмоции (emote).
-// У каждого товара: id, kind, slot, rarity, icon (для уведомлений), name ({ ru, en, kk } — у новых товаров)
-// и unlock — как открывается (бесплатно, покупкой, за сезон, достижение и т. д.).
+// У каждого товара: id, kind, slot, rarity, icon (для уведомлений), name ({ ru, en, kk } - у новых товаров)
+// и unlock - как открывается (бесплатно, покупкой, за сезон, достижение и т. д.).
 
 import { META as EMOTE_META, NAMES as EMOTE_NAMES } from '../content/emote-meta.js';
 import { META as ROOM_META, NAMES as ROOM_NAMES } from '../content/room-meta.js';

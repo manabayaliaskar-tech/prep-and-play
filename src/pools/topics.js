@@ -1,5 +1,5 @@
 // Реестр тем: какой генератор отвечает за какую тему и как она называется на трёх языках.
-// Тема — наименьшая единица статистики: по ней считается точность в профиле.
+// Тема - наименьшая единица статистики: по ней считается точность в профиле.
 
 import { L } from './gen.js';
 import { add, divis, mul, neg, order, seq } from './math/arith.js';
@@ -198,7 +198,7 @@ export const TOPICS = {
   ),
 
   // ----- Олимпиадная математика -----
-  'o.count': topic('olymp', L('Counting and inclusion–exclusion', 'Подсчёт и формула включений-исключений', 'Санау және қосу-алу формуласы'), counting),
+  'o.count': topic('olymp', L('Counting and inclusion-exclusion', 'Подсчёт и формула включений-исключений', 'Санау және қосу-алу формуласы'), counting),
   'o.digit': topic('olymp', L('Last digit', 'Последняя цифра', 'Соңғы цифр'), lastDigit),
   'o.div': topic('olymp', L('Divisors', 'Делители', 'Бөлгіштер'), divisors),
   'o.pigeon': topic('olymp', L('Pigeonhole principle', 'Принцип Дирихле', 'Дирихле принципі'), pigeonhole),

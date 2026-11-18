@@ -1,6 +1,6 @@
 // Задания на слова из общего словаря (words-a/b/c.js) для английского, испанского и французского.
 // Виды заданий: что значит слово, как сказать по-иностранному, лишнее слово, артикль (род).
-// Уровень — от 1 (A1) до 6 (C2). Неправильные варианты берутся из соседних уровней и, по возможности, из той же темы.
+// Уровень - от 1 (A1) до 6 (C2). Неправильные варианты берутся из соседних уровней и, по возможности, из той же темы.
 
 import { hashString, pick, shuffle } from '../../core/random.js';
 import { L, poolQ } from '../gen.js';
@@ -56,7 +56,7 @@ export const CATS = {
   adj: L('adjectives', 'прилагательные', 'сын есімдер'),
 };
 
-/** Часть речи по теме: v — глагол, a — прилагательное, n — существительное. */
+/** Часть речи по теме: v - глагол, a - прилагательное, n - существительное. */
 const group = (cat) => (cat === 'verb' ? 'v' : ['adj', 'feeling', 'color'].includes(cat) ? 'a' : 'n');
 /** Близкие темы: слово одной из них нельзя считать «лишним» среди слов другой. */
 const NEAR = new Set(['nature|place', 'home|place', 'school|place', 'people|job', 'travel|transport', 'travel|place', 'science|tech', 'science|nature', 'society|work', 'health|body', 'time|nature', 'mind|society', 'mind|science', 'work|job', 'hobby|school', 'home|school']);
@@ -68,7 +68,7 @@ const LANG_NAME = {
   fr: L('French', 'французском', 'француз'),
 };
 
-/** Все поля слов попарно различны — иначе варианты могут совпасть или оба быть верными. */
+/** Все поля слов попарно различны - иначе варианты могут совпасть или оба быть верными. */
 function compatible(list, w) {
   return list.every((x) => FIELDS.slice(1).every((f) => x[f].toLowerCase() !== w[f].toLowerCase()));
 }
@@ -112,9 +112,9 @@ function meaningTask(ctx, topic, lang, w) {
       : L('What does this word mean?', 'Что значит это слово?', 'Бұл сөз нені білдіреді?');
   const word = w[lang];
   const ex = L(
-    lang === 'en' ? `"${word}" — «${w.ru}» in Russian.` : `"${word}" means "${w.en}".`,
-    `«${word}» — «${w.ru}»${lang === 'en' ? '' : ` (по-английски ${w.en})`}.`,
-    `«${word}» — «${w.kk}»${lang === 'en' ? '' : ` (ағылшынша ${w.en})`}.`,
+    lang === 'en' ? `"${word}" - «${w.ru}» in Russian.` : `"${word}" means "${w.en}".`,
+    `«${word}» - «${w.ru}»${lang === 'en' ? '' : ` (по-английски ${w.en})`}.`,
+    `«${word}» - «${w.kk}»${lang === 'en' ? '' : ` (ағылшынша ${w.en})`}.`,
   );
   const q = poolQ(topic, 1, { kind: 'text', passage: word, prompt, ex, mc: { choices: order.map((k) => meaningOf(all[k], lang)), answer: order.indexOf(0) } });
   q.voice = { lang, now: word };
@@ -130,7 +130,7 @@ function reverseTask(ctx, topic, lang, w) {
     `Как по-${lang === 'en' ? 'английски' : lang === 'es' ? 'испански' : 'французски'} «${w.ru}»?`,
     `«${w.kk}» ${LANG_NAME[lang].kk} тілінде қалай айтылады?`,
   );
-  const ex = L(`"${w.en}" — ${w[lang]}.`, `«${w.ru}» — ${w[lang]}.`, `«${w.kk}» — ${w[lang]}.`);
+  const ex = L(`"${w.en}" - ${w[lang]}.`, `«${w.ru}» - ${w[lang]}.`, `«${w.kk}» - ${w[lang]}.`);
   const q = poolQ(topic, 2, { kind: 'text', prompt, ex, mc: { choices: order.map((k) => all[k][lang]), answer: order.indexOf(0) } });
   q.voice = { lang };
   return finish(q, `${topic}:r:${w.i}`, w.level);
@@ -142,7 +142,7 @@ function oddTask(ctx, topic, lang, level) {
   const cats = [...new Set(window.map((w) => w.cat))].filter((c) => window.filter((w) => w.cat === c).length >= 4);
   for (let attempt = 0; attempt < 20; attempt++) {
     const cat = pick(rng, cats);
-    // Среди прилагательных и глаголов «лишнее» — только другая часть речи: цвет или чувство — тоже прилагательное.
+    // Среди прилагательных и глаголов «лишнее» - только другая часть речи: цвет или чувство - тоже прилагательное.
     const byPos = group(cat) !== 'n' || rng() < 0.5;
     const oddPool = window.filter((w) => (byPos ? group(w.cat) !== group(cat) : group(w.cat) === group(cat) && !near(w.cat, cat)));
     if (!oddPool.length) continue;
@@ -158,8 +158,8 @@ function oddTask(ctx, topic, lang, level) {
     const list = (l) => others.map((w) => `${w[lang]} (${l === 'en' ? (lang === 'en' ? w.ru : w.en) : w[l]})`).join(', ');
     const ex = L(
       `"${odd[lang]}" belongs to «${CATS[odd.cat].en}», the others to «${CATS[cat].en}»: ${list('en')}.`,
-      `«${odd[lang]}» (${odd.ru}) — это ${CATS[odd.cat].ru}, а остальные — ${CATS[cat].ru}: ${list('ru')}.`,
-      `«${odd[lang]}» (${odd.kk}) — ${CATS[odd.cat].kk}, ал қалғандары — ${CATS[cat].kk}: ${list('kk')}.`,
+      `«${odd[lang]}» (${odd.ru}) - это ${CATS[odd.cat].ru}, а остальные - ${CATS[cat].ru}: ${list('ru')}.`,
+      `«${odd[lang]}» (${odd.kk}) - ${CATS[odd.cat].kk}, ал қалғандары - ${CATS[cat].kk}: ${list('kk')}.`,
     );
     const prompt = L('Which word is the odd one out?', 'Какое слово лишнее?', 'Қай сөз артық?');
     const q = poolQ(topic, 2, { kind: 'text', prompt, ex, mc: { choices: order.map((k) => main[k][lang]), answer: order.indexOf(0) } });
@@ -185,12 +185,12 @@ function articleTask(ctx, topic, lang, w) {
   // Слова-исключения испанского: el día, el mapa, el problema, la mano, la foto…
   const odd = lang === 'es' && ((masc && /a$/.test(noun)) || (!masc && /o$/.test(noun)));
   const note = odd
-    ? L(' This is an exception to the -o / -a rule.', ' Это исключение из правила «-o — мужской, -a — женский».', ' Бұл «-o — еркек тек, -a — әйел тек» ережесінен ерекшелік.')
+    ? L(' This is an exception to the -o / -a rule.', ' Это исключение из правила «-o - мужской, -a - женский».', ' Бұл «-o - еркек тек, -a - әйел тек» ережесінен ерекшелік.')
     : L('', '', '');
   const ex = L(
     `"${noun}" is ${masc ? 'masculine' : 'feminine'}: ${w[lang]} (${w.en}).${note.en}`,
-    `«${noun}» — ${masc ? 'мужского' : 'женского'} рода: ${w[lang]} (${w.ru}).${note.ru}`,
-    `«${noun}» — ${masc ? 'еркек' : 'әйел'} тектес: ${w[lang]} (${w.kk}).${note.kk}`,
+    `«${noun}» - ${masc ? 'мужского' : 'женского'} рода: ${w[lang]} (${w.ru}).${note.ru}`,
+    `«${noun}» - ${masc ? 'еркек' : 'әйел'} тектес: ${w[lang]} (${w.kk}).${note.kk}`,
   );
   const prompt = L('Choose the correct article.', 'Выбери правильный артикль.', 'Дұрыс артикльді таңда.');
   const q = poolQ(topic, 1, { kind: 'text', passage: `______ ${noun}`, prompt, ex, mc: { choices: order.map((k) => all[k]), answer: order.indexOf(0) } });
@@ -200,7 +200,7 @@ function articleTask(ctx, topic, lang, w) {
 
 /**
  * Генератор слов для языка: (ctx, уровень) → задание. Не повторяет задания внутри сессии.
- * Артикли — только на уровнях A1–B1, «лишнее слово» — на всех.
+ * Артикли - только на уровнях A1-B1, «лишнее слово» - на всех.
  */
 export function wordsMaker(topic, lang) {
   return (ctx, level) => {
@@ -237,7 +237,7 @@ export function wordsCount(lang, level) {
   return words * 2 + arts;
 }
 
-// ---------- Аналогии (ОРТ): «волк — животные = рубашка — ?» на языке интерфейса ----------
+// ---------- Аналогии (ОРТ): «волк - животные = рубашка - ?» на языке интерфейса ----------
 
 const ANALOGY_CATS = ['food', 'animal', 'body', 'home', 'school', 'clothes', 'transport', 'job', 'nature', 'place', 'color', 'people'];
 
@@ -256,8 +256,8 @@ export function analogyMaker(topic) {
         const wrong = shuffle(ANALOGY_CATS.filter((c) => c !== b.cat && c !== a.cat && !near(c, b.cat)), rng).slice(0, 3).map((c) => CATS[c]);
         q = poolQ(topic, d, {
           kind: 'text',
-          prompt: L(`Complete the analogy: ${a.en} — ${cat(a).en} = ${b.en} — ?`, `Продолжи по аналогии: ${a.ru} — ${cat(a).ru} = ${b.ru} — ?`, `Ұқсастық бойынша жалғастыр: ${a.kk} — ${cat(a).kk} = ${b.kk} — ?`),
-          ex: L(`"${a.en}" belongs to «${cat(a).en}», "${b.en}" belongs to «${cat(b).en}».`, `«${a.ru}» относится к группе «${cat(a).ru}», а «${b.ru}» — к группе «${cat(b).ru}».`, `«${a.kk}» — «${cat(a).kk}» тобына, ал «${b.kk}» — «${cat(b).kk}» тобына жатады.`),
+          prompt: L(`Complete the analogy: ${a.en} - ${cat(a).en} = ${b.en} - ?`, `Продолжи по аналогии: ${a.ru} - ${cat(a).ru} = ${b.ru} - ?`, `Ұқсастық бойынша жалғастыр: ${a.kk} - ${cat(a).kk} = ${b.kk} - ?`),
+          ex: L(`"${a.en}" belongs to «${cat(a).en}», "${b.en}" belongs to «${cat(b).en}».`, `«${a.ru}» относится к группе «${cat(a).ru}», а «${b.ru}» - к группе «${cat(b).ru}».`, `«${a.kk}» - «${cat(a).kk}» тобына, ал «${b.kk}» - «${cat(b).kk}» тобына жатады.`),
           mc: (() => {
             const all = [cat(b), ...wrong];
             const order = shuffle([0, 1, 2, 3], rng);
@@ -275,7 +275,7 @@ export function analogyMaker(topic) {
         const order = shuffle([0, 1, 2, 3], rng);
         q = poolQ(topic, d, {
           kind: 'text',
-          prompt: L(`Complete the analogy: ${a.en} — ${cat(a).en} = ? — ${cat(b).en}`, `Продолжи по аналогии: ${a.ru} — ${cat(a).ru} = ? — ${cat(b).ru}`, `Ұқсастық бойынша жалғастыр: ${a.kk} — ${cat(a).kk} = ? — ${cat(b).kk}`),
+          prompt: L(`Complete the analogy: ${a.en} - ${cat(a).en} = ? - ${cat(b).en}`, `Продолжи по аналогии: ${a.ru} - ${cat(a).ru} = ? - ${cat(b).ru}`, `Ұқсастық бойынша жалғастыр: ${a.kk} - ${cat(a).kk} = ? - ${cat(b).kk}`),
           ex: L(`Of these words only "${b.en}" belongs to «${cat(b).en}».`, `Из этих слов только «${b.ru}» относится к группе «${cat(b).ru}».`, `Бұл сөздердің ішінде тек «${b.kk}» «${cat(b).kk}» тобына жатады.`),
           mc: { choices: order.map((k) => all[k]), answer: order.indexOf(0) },
         });

@@ -1,6 +1,6 @@
 // Хронология и личности по истории стран региона: Узбекистан, Кыргызстан, Таджикистан,
-// Азербайджан, Армения, Беларусь, Молдова. Формат — как в timeline.js:
-// событие — год|en|ru|kk (до нашей эры — отрицательный год), личность — en|ru|kk|о ком en|ru|kk.
+// Азербайджан, Армения, Беларусь, Молдова. Формат - как в timeline.js:
+// событие - год|en|ru|kk (до нашей эры - отрицательный год), личность - en|ru|kk|о ком en|ru|kk.
 // Только общепринятые даты; спорные датировки не включены.
 
 export const UZ_EVENTS = `
@@ -50,7 +50,7 @@ export const KG_EVENTS = `
 1936|the creation of the Kirghiz SSR|образование Киргизской ССР|Қырғыз КСР-інің құрылуы
 1958|Aitmatov publishes the novella «Jamilia»|Айтматов публикует повесть «Джамиля»|Айтматов «Жәмила» повесін жариялайды
 1991|the declaration of independence of Kyrgyzstan|провозглашение независимости Кыргызстана|Қырғызстан тәуелсіздігінің жариялануы
-1993|the national currency, the som, is introduced|введение национальной валюты — сома|ұлттық валюта — сомның енгізілуі
+1993|the national currency, the som, is introduced|введение национальной валюты - сома|ұлттық валюта - сомның енгізілуі
 2005|the Tulip Revolution|«Тюльпановая революция»|«Қызғалдақ революциясы»
 2010|a referendum adopts a new constitution with a stronger parliament|на референдуме принята новая конституция с более сильным парламентом|референдумда парламенті күштірек жаңа конституция қабылданады
 `;
@@ -74,14 +74,14 @@ export const TJ_EVENTS = `
 999|the end of the Samanid state|конец государства Саманидов|Самани мемлекетінің құлауы
 1878|the birth of the writer Sadriddin Ayni|рождение писателя Садриддина Айни|жазушы Садриддин Айнидің туған жылы
 1924|the creation of the Tajik ASSR within the Uzbek SSR|образование Таджикской АССР в составе Узбекской ССР|Өзбек КСР құрамында Тәжік АКСР-інің құрылуы
-1929|Tajikistan becomes a union republic, the Tajik SSR|Таджикистан становится союзной республикой — Таджикской ССР|Тәжікстан одақтас республика — Тәжік КСР болады
+1929|Tajikistan becomes a union republic, the Tajik SSR|Таджикистан становится союзной республикой - Таджикской ССР|Тәжікстан одақтас республика - Тәжік КСР болады
 1961|Stalinabad is renamed Dushanbe|Сталинабад переименован в Душанбе|Сталинабадтың Душанбе болып аталуы
 1972|the first units of the Nurek hydroelectric station start working|начинают работать первые агрегаты Нурекской ГЭС|Нұрек су электр станциясының алғашқы агрегаттары іске қосылады
 1991|the declaration of independence of Tajikistan|провозглашение независимости Таджикистана|Тәжікстан тәуелсіздігінің жариялануы
 1992|the beginning of the civil war|начало гражданской войны|азамат соғысының басталуы
 1994|the adoption of the Constitution of Tajikistan|принятие Конституции Таджикистана|Тәжікстан Конституциясының қабылдануы
 1997|the General Peace Agreement ends the civil war|Общее соглашение о мире завершает гражданскую войну|Бейбітшілік туралы жалпы келісім азамат соғысын аяқтайды
-2000|the national currency, the somoni, is introduced|введение национальной валюты — сомони|ұлттық валюта — сомонидің енгізілуі
+2000|the national currency, the somoni, is introduced|введение национальной валюты - сомони|ұлттық валюта - сомонидің енгізілуі
 `;
 
 export const TJ_PEOPLE = `
@@ -107,7 +107,7 @@ export const AZ_EVENTS = `
 1967|the Baku metro opens|открытие Бакинского метрополитена|Баку метрополитенінің ашылуы
 1990|the tragic events of 20 January in Baku|трагические события 20 января в Баку|Бакудегі 20 қаңтардағы қайғылы оқиғалар
 1991|Azerbaijan restores its state independence|Азербайджан восстанавливает государственную независимость|Әзербайжан мемлекеттік тәуелсіздігін қалпына келтіреді
-1992|the national currency, the manat, is introduced|введение национальной валюты — маната|ұлттық валюта — манаттың енгізілуі
+1992|the national currency, the manat, is introduced|введение национальной валюты - маната|ұлттық валюта - манаттың енгізілуі
 1995|the adoption of the Constitution of Azerbaijan|принятие Конституции Азербайджана|Әзербайжан Конституциясының қабылдануы
 2012|Baku hosts the Eurovision Song Contest|Баку принимает конкурс «Евровидение»|Баку «Еуровидение» байқауын өткізеді
 `;
@@ -139,7 +139,7 @@ export const AM_EVENTS = `
 1981|the Yerevan metro opens|открытие Ереванского метрополитена|Ереван метрополитенінің ашылуы
 1988|the Spitak earthquake|Спитакское землетрясение|Спитак жер сілкінісі
 1991|the independence referendum in Armenia|референдум о независимости Армении|Армения тәуелсіздігі туралы референдум
-1993|the national currency, the dram, is introduced|введение национальной валюты — драма|ұлттық валюта — драмның енгізілуі
+1993|the national currency, the dram, is introduced|введение национальной валюты - драма|ұлттық валюта - драмның енгізілуі
 1995|the adoption of the Constitution of Armenia|принятие Конституции Армении|Армения Конституциясының қабылдануы
 `;
 
@@ -184,7 +184,7 @@ Tadeusz Kościuszko|Тадеуш Костюшко|Тадеуш Костюшко|
 Kastus Kalinouski|Кастусь Калиновский|Кастусь Калиновский|the leader of the uprising of 1863|руководитель восстания 1863 года|1863 жылғы көтерілістің жетекшісі
 Yanka Kupala|Янка Купала|Янка Купала|the People’s Poet of Belarus, author of «The Burial Mound»|народный поэт Беларуси, автор поэмы «Курган»|Беларусьтің халық ақыны, «Қорған» дастанының авторы
 Yakub Kolas|Якуб Колас|Якуб Колас|the poet who wrote the long poem «The New Land»|поэт, автор поэмы «Новая земля»|«Жаңа жер» дастанын жазған ақын
-Maksim Bahdanovich|Максим Богданович|Максим Богданович|the poet whose only book published in his lifetime was «Vianok» («The Garland»)|поэт, единственный прижизненный сборник которого — «Венок»|көзі тірісінде шыққан жалғыз жинағы «Шоқ гүл» болған ақын
+Maksim Bahdanovich|Максим Богданович|Максим Богданович|the poet whose only book published in his lifetime was «Vianok» («The Garland»)|поэт, единственный прижизненный сборник которого - «Венок»|көзі тірісінде шыққан жалғыз жинағы «Шоқ гүл» болған ақын
 Marc Chagall|Марк Шагал|Марк Шагал|the painter from Vitebsk|художник из Витебска|Витебскіден шыққан суретші
 `;
 
@@ -200,7 +200,7 @@ export const MD_EVENTS = `
 1924|the Moldavian ASSR is created within the Ukrainian SSR|образование Молдавской АССР в составе Украинской ССР|Украин КСР құрамында Молдова АКСР-інің құрылуы
 1940|the Moldavian SSR is created|образование Молдавской ССР|Молдова КСР-інің құрылуы
 1991|the declaration of independence of Moldova|провозглашение независимости Молдовы|Молдова тәуелсіздігінің жариялануы
-1993|the national currency, the leu, is introduced|введение национальной валюты — лея|ұлттық валюта — лейдің енгізілуі
+1993|the national currency, the leu, is introduced|введение национальной валюты - лея|ұлттық валюта - лейдің енгізілуі
 1994|the adoption of the Constitution of Moldova|принятие Конституции Молдовы|Молдова Конституциясының қабылдануы
 `;
 

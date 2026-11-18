@@ -94,7 +94,7 @@ export function openChestModal(days, onDone) {
 
 // ---------- Страница отчёта ----------
 
-/** Препи в текущем наряде как картинка (переменные темы подставляются явно — в картинке CSS не работает). */
+/** Препи в текущем наряде как картинка (переменные темы подставляются явно - в картинке CSS не работает). */
 function prepiImage() {
   const css = getComputedStyle(document.documentElement);
   const palette = COLORS[getOutfit().color] ?? ['--mascot-hi', '--mascot-1', '--mascot-2'].map((v) => css.getPropertyValue(v).trim() || '#a78bfa');
@@ -134,7 +134,7 @@ async function shareImage(report) {
   g.font = '700 46px Nunito, system-ui, sans-serif';
   g.fillText(t('report.title'), 80, 220);
   g.font = '600 34px Nunito, system-ui, sans-serif';
-  g.fillText(`${fmtDay(report.last.monday)} – ${fmtDay(report.last.rows[6].day)}`, 80, 272);
+  g.fillText(`${fmtDay(report.last.monday)} - ${fmtDay(report.last.rows[6].day)}`, 80, 272);
   const tiles = [
     [String(report.last.total.xp), 'XP'],
     [String(report.last.total.a), t('report.tasks')],
@@ -191,7 +191,7 @@ async function share(report) {
       await navigator.share({ files: [file], title: 'Prep&Play', text: t('report.shareText') });
       return;
     } catch {
-      // Пользователь закрыл окно «поделиться» — сохраним картинку.
+      // Пользователь закрыл окно «поделиться» - сохраним картинку.
     }
   }
   const a = document.createElement('a');
@@ -214,7 +214,7 @@ export function reportRoute(app) {
         <div class="report-hero">
           ${mascot(last.total.a ? 'win' : 'think', 'mascot-lg float')}
           <div>
-            <p class="hero-kicker">${fmtDay(last.monday)} – ${fmtDay(last.rows[6].day)}</p>
+            <p class="hero-kicker">${fmtDay(last.monday)} - ${fmtDay(last.rows[6].day)}</p>
             <h1>${t('report.title')}</h1>
             <p class="muted">${last.total.a ? (change === null ? t('report.first') : change >= 0 ? t('report.up', { n: change }) : t('report.down', { n: -change })) : t('report.empty')}</p>
           </div>

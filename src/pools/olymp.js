@@ -1,4 +1,4 @@
-// Олимпиадная математика: задачи с идеей. Три уровня: 1 — 5–6 классы, 2 — 7–8 классы, 3 — 9–11 классы.
+// Олимпиадная математика: задачи с идеей. Три уровня: 1 - 5-6 классы, 2 - 7-8 классы, 3 - 9-11 классы.
 // Каждый генератор: (ctx, уровень) → задание. В q.meta лежат параметры задачи:
 // по ним тесты пересчитывают ответ полным перебором.
 
@@ -193,7 +193,7 @@ export function divisors(ctx, d) {
       ),
       ex: steps(
         L('Divisors come in pairs whose product is the number itself.', 'Делители удобно выписывать парами, произведение которых равно самому числу.', 'Бөлгіштерді көбейтіндісі сол санға тең жұптармен жазған ыңғайлы.'),
-        L(`${list.join(', ')} — ${list.length} divisors.`, `${list.join(', ')} — всего ${list.length}.`, `${list.join(', ')} — барлығы ${list.length}.`),
+        L(`${list.join(', ')} - ${list.length} divisors.`, `${list.join(', ')} - всего ${list.length}.`, `${list.join(', ')} - барлығы ${list.length}.`),
       ),
       ...ask(ctx, list.length, [list.length - 2, list.length + 2, list.length - 1, list.length + 1].filter((v) => v > 0)),
     });
@@ -215,15 +215,15 @@ export function divisors(ctx, d) {
         same(`${n(N)} = ${factorised}`),
         L(
           `A divisor is ${p}<sup>i</sup> ${TIMES} ${q}<sup>j</sup>, where i is from 0 to ${x} (${x + 1} choices) and j is from 0 to ${y} (${y + 1} choices).`,
-          `Делитель имеет вид ${p}<sup>i</sup> ${TIMES} ${q}<sup>j</sup>, где i — от 0 до ${x} (вариантов: ${x + 1}), а j — от 0 до ${y} (вариантов: ${y + 1}).`,
-          `Бөлгіштің түрі ${p}<sup>i</sup> ${TIMES} ${q}<sup>j</sup>, мұнда i — 0-ден ${x}-ке дейін (${x + 1} нұсқа), j — 0-ден ${y}-ке дейін (${y + 1} нұсқа).`,
+          `Делитель имеет вид ${p}<sup>i</sup> ${TIMES} ${q}<sup>j</sup>, где i - от 0 до ${x} (вариантов: ${x + 1}), а j - от 0 до ${y} (вариантов: ${y + 1}).`,
+          `Бөлгіштің түрі ${p}<sup>i</sup> ${TIMES} ${q}<sup>j</sup>, мұнда i - 0-ден ${x}-ке дейін (${x + 1} нұсқа), j - 0-ден ${y}-ке дейін (${y + 1} нұсқа).`,
         ),
         same(`${x + 1} ${TIMES} ${y + 1} = ${ans}`),
       ),
       ...ask(ctx, ans, [x * y, x + y, ans + 2, (x + 1) * (y + 1) - 1, x * y + 1].filter((v) => v !== ans && v > 0)),
     });
   }
-  // Сколько делителей кратны p (для p = 2 — чётные делители).
+  // Сколько делителей кратны p (для p = 2 - чётные делители).
   const ans = x * (y + 1);
   return make('o.div', d, { kind: 'multiple', N, p }, {
     prompt: L(
@@ -235,8 +235,8 @@ export function divisors(ctx, d) {
       same(`${n(N)} = ${factorised}`),
       L(
         `A divisor ${p}<sup>i</sup> ${TIMES} ${q}<sup>j</sup> is divisible by ${p} when i is at least 1: i is from 1 to ${x} (${x} choices), j is from 0 to ${y} (${y + 1} choices).`,
-        `Делитель ${p}<sup>i</sup> ${TIMES} ${q}<sup>j</sup> делится на ${p}, если i не меньше 1: i — от 1 до ${x} (вариантов: ${x}), j — от 0 до ${y} (вариантов: ${y + 1}).`,
-        `${p}<sup>i</sup> ${TIMES} ${q}<sup>j</sup> бөлгіші i кемінде 1 болса ${p}-ге бөлінеді: i — 1-ден ${x}-ке дейін (${x} нұсқа), j — 0-ден ${y}-ке дейін (${y + 1} нұсқа).`,
+        `Делитель ${p}<sup>i</sup> ${TIMES} ${q}<sup>j</sup> делится на ${p}, если i не меньше 1: i - от 1 до ${x} (вариантов: ${x}), j - от 0 до ${y} (вариантов: ${y + 1}).`,
+        `${p}<sup>i</sup> ${TIMES} ${q}<sup>j</sup> бөлгіші i кемінде 1 болса ${p}-ге бөлінеді: i - 1-ден ${x}-ке дейін (${x} нұсқа), j - 0-ден ${y}-ке дейін (${y + 1} нұсқа).`,
       ),
       same(`${x} ${TIMES} ${y + 1} = ${ans}`),
     ),
@@ -295,7 +295,7 @@ export function pigeonhole(ctx, d) {
   return make('o.pigeon', d, { kind: 'each', a, b, c }, {
     prompt: L(
       `A bag contains ${a} red, ${b} blue and ${c} green balls. What is the smallest number of balls you must take without looking to be sure of getting at least one ball of each colour?`,
-      `В мешке лежат шары: красных — ${a}, синих — ${b}, зелёных — ${c}. Какое наименьшее число шаров нужно взять не глядя, чтобы среди них наверняка оказался хотя бы один шар каждого цвета?`,
+      `В мешке лежат шары: красных - ${a}, синих - ${b}, зелёных - ${c}. Какое наименьшее число шаров нужно взять не глядя, чтобы среди них наверняка оказался хотя бы один шар каждого цвета?`,
       `Қапта ${a} қызыл, ${b} көк және ${c} жасыл шар бар. Әр түстен кемінде бір шар міндетті түрде шығуы үшін қарамай ең аз дегенде неше шар алу керек?`,
     ),
     ex: steps(
@@ -445,14 +445,14 @@ export function tournaments(ctx, d) {
   return make('o.games', d, { kind: 'draws', k, total }, {
     prompt: L(
       `${k} teams played a round-robin football tournament (each pair played once). A win gives 3 points, a draw 1 point to each team, a loss 0. The teams scored ${total} points in total. How many matches ended in a draw?`,
-      `В футбольном турнире участвовали команды: их ${k}. Каждая сыграла с каждой один раз. За победу дают 3 очка, за ничью — по 1 очку каждой команде, за поражение — 0. Все команды вместе набрали ${total} ${plural(total, 'очко', 'очка', 'очков')}. Сколько матчей закончилось вничью?`,
+      `В футбольном турнире участвовали команды: их ${k}. Каждая сыграла с каждой один раз. За победу дают 3 очка, за ничью - по 1 очку каждой команде, за поражение - 0. Все команды вместе набрали ${total} ${plural(total, 'очко', 'очка', 'очков')}. Сколько матчей закончилось вничью?`,
       `Футбол турниріне ${k} команда қатысты, әрқайсысы әрқайсысымен бір рет ойнады. Жеңіске 3 ұпай, тең ойынға әр командаға 1 ұпай, жеңіліске 0 ұпай беріледі. Барлық команда бірге ${total} ұпай жинады. Неше матч тең аяқталды?`,
     ),
     ex: steps(
       L(`There were ${k} ${TIMES} ${k - 1} ${DIV} 2 = ${games} matches.`, `Всего матчей: ${k} ${TIMES} ${k - 1} ${DIV} 2 = ${games}.`, `Барлық матч саны: ${k} ${TIMES} ${k - 1} ${DIV} 2 = ${games}.`),
       L(
         `A match with a winner gives 3 points in total, a draw gives 2. If there were no draws, there would be ${3 * games} points.`,
-        `Матч с победителем даёт в сумме 3 очка, ничья — 2. Без ничьих очков было бы ${3 * games}.`,
+        `Матч с победителем даёт в сумме 3 очка, ничья - 2. Без ничьих очков было бы ${3 * games}.`,
         `Жеңімпазы бар матч барлығы 3 ұпай, тең ойын 2 ұпай береді. Тең ойынсыз ${3 * games} ұпай болар еді.`,
       ),
       L(`Each draw takes away 1 point: ${3 * games} ${MINUS} ${total} = ${draws}.`, `Каждая ничья уменьшает сумму на 1: ${3 * games} ${MINUS} ${total} = ${draws}.`, `Әр тең ойын қосындыны 1-ге азайтады: ${3 * games} ${MINUS} ${total} = ${draws}.`),
@@ -479,7 +479,7 @@ export function logic(ctx, d) {
       ex: steps(
         L(
           `Imagine that all ${heads} animals are chickens: then there would be ${heads} ${TIMES} 2 = ${2 * heads} legs.`,
-          `Представим, что все ${heads} животных — куры: тогда ног было бы ${heads} ${TIMES} 2 = ${2 * heads}.`,
+          `Представим, что все ${heads} животных - куры: тогда ног было бы ${heads} ${TIMES} 2 = ${2 * heads}.`,
           `Барлық ${heads} жануар тауық деп елестетейік: сонда аяқ саны ${heads} ${TIMES} 2 = ${2 * heads} болар еді.`,
         ),
         L(
@@ -493,7 +493,7 @@ export function logic(ctx, d) {
     });
   }
   if (d === 2) {
-    // Сейчас отец старше сына в a раз, через k лет — в b раз.
+    // Сейчас отец старше сына в a раз, через k лет - в b раз.
     let a;
     let b;
     let k;
@@ -515,7 +515,7 @@ export function logic(ctx, d) {
         L(`Let the son be x years old; then the father is ${a}x.`, `Пусть сыну x лет, тогда отцу ${a}x лет.`, `Ұлы x жаста болсын, сонда әкесі ${a}x жаста.`),
         same(`${a}x + ${k} = ${b}(x + ${k})`),
         same(`${a - b}x = ${b * k - k}, x = ${son}`),
-        L(`Check: now ${son} and ${father}; in ${k} years ${son + k} and ${father + k}.`, `Проверка: сейчас им ${son} и ${father}; через ${k} ${plural(k, 'год', 'года', 'лет')} будет ${son + k} и ${father + k}.`, `Тексеру: қазір ${son} және ${father}; ${k} жылдан кейін — ${son + k} және ${father + k}.`),
+        L(`Check: now ${son} and ${father}; in ${k} years ${son + k} and ${father + k}.`, `Проверка: сейчас им ${son} и ${father}; через ${k} ${plural(k, 'год', 'года', 'лет')} будет ${son + k} и ${father + k}.`, `Тексеру: қазір ${son} және ${father}; ${k} жылдан кейін - ${son + k} және ${father + k}.`),
       ),
       ...ask(ctx, son, [son + 1, son - 1, son + k, father - son].filter((v) => v !== son && v > 0)),
     });
@@ -567,8 +567,8 @@ export function shapes(ctx, d) {
       ex: steps(
         L(
           `A segment is a pair of points. The first end can be chosen in ${k} ways, the second in ${k - 1} ways.`,
-          `Отрезок — это пара точек. Первый конец можно выбрать ${k} способами, второй — ${k - 1} способами.`,
-          `Кесінді — нүктелер жұбы. Бірінші ұшын ${k} тәсілмен, екіншісін ${k - 1} тәсілмен таңдауға болады.`,
+          `Отрезок - это пара точек. Первый конец можно выбрать ${k} способами, второй - ${k - 1} способами.`,
+          `Кесінді - нүктелер жұбы. Бірінші ұшын ${k} тәсілмен, екіншісін ${k - 1} тәсілмен таңдауға болады.`,
         ),
         L(`Each segment was counted twice: ${k} ${TIMES} ${k - 1} ${DIV} 2 = ${ans}.`, `Каждый отрезок посчитан дважды: ${k} ${TIMES} ${k - 1} ${DIV} 2 = ${ans}.`, `Әр кесінді екі рет саналды: ${k} ${TIMES} ${k - 1} ${DIV} 2 = ${ans}.`),
       ),
@@ -742,7 +742,7 @@ export function remainders(ctx, d) {
   return make('o.rem', d, { kind: 'crt', m1, r1, m2, r2 }, {
     prompt: L(
       `Find the smallest positive integer that gives a remainder of ${r1} when divided by ${m1} and a remainder of ${r2} when divided by ${m2}.`,
-      `Найди наименьшее натуральное число, которое при делении на ${m1} даёт остаток ${r1}, а при делении на ${m2} — остаток ${r2}.`,
+      `Найди наименьшее натуральное число, которое при делении на ${m1} даёт остаток ${r1}, а при делении на ${m2} - остаток ${r2}.`,
       `${m1}-ге бөлгенде ${r1} қалдық, ал ${m2}-ге бөлгенде ${r2} қалдық беретін ең кіші натурал санды тап.`,
     ),
     ex: steps(
@@ -753,8 +753,8 @@ export function remainders(ctx, d) {
       ),
       L(
         `The first of them that gives remainder ${r1} when divided by ${m1} is ${ans}.`,
-        `Первое из них, дающее остаток ${r1} при делении на ${m1}, — это ${ans}.`,
-        `Олардың ішінде ${m1}-ге бөлгенде ${r1} қалдық беретін алғашқысы — ${ans}.`,
+        `Первое из них, дающее остаток ${r1} при делении на ${m1}, - это ${ans}.`,
+        `Олардың ішінде ${m1}-ге бөлгенде ${r1} қалдық беретін алғашқысы - ${ans}.`,
       ),
     ),
     ...ask(ctx, ans, [ans + m1 * m2, r1 + r2, r1 * m2 + r2, ans + m2, ans + m1].filter((v) => v !== ans)),
@@ -775,11 +775,11 @@ export function factorials(ctx, d) {
         `Кітап беттері 1-ден ${pages}-ге дейін нөмірленген. Нөмірлеуге барлығы неше цифр жұмсалды?`,
       ),
       ex: steps(
-        L('Pages 1–9 use one digit each: 9 digits.', 'Страницы 1–9 — по одной цифре: 9 цифр.', '1–9 беттер — бір цифрдан: 9 цифр.'),
+        L('Pages 1-9 use one digit each: 9 digits.', 'Страницы 1-9 - по одной цифре: 9 цифр.', '1-9 беттер - бір цифрдан: 9 цифр.'),
         L(
-          `Pages 10–${pages} use two digits each: there are ${pages - 9} of them, ${pages - 9} ${TIMES} 2 = ${2 * (pages - 9)} digits.`,
-          `Страницы 10–${pages} — по две цифры: таких страниц ${pages - 9}, цифр на них ${pages - 9} ${TIMES} 2 = ${2 * (pages - 9)}.`,
-          `10–${pages} беттер — екі цифрдан: олар ${pages - 9}, бұл ${pages - 9} ${TIMES} 2 = ${2 * (pages - 9)} цифр.`,
+          `Pages 10-${pages} use two digits each: there are ${pages - 9} of them, ${pages - 9} ${TIMES} 2 = ${2 * (pages - 9)} digits.`,
+          `Страницы 10-${pages} - по две цифры: таких страниц ${pages - 9}, цифр на них ${pages - 9} ${TIMES} 2 = ${2 * (pages - 9)}.`,
+          `10-${pages} беттер - екі цифрдан: олар ${pages - 9}, бұл ${pages - 9} ${TIMES} 2 = ${2 * (pages - 9)} цифр.`,
         ),
         same(`9 + ${2 * (pages - 9)} = ${ans}`),
       ),
@@ -807,7 +807,7 @@ export function factorials(ctx, d) {
         ),
         L(
           'Multiples of 5 give one five each, multiples of 25 one more, multiples of 125 another one.',
-          'Числа, кратные 5, дают по одной пятёрке, кратные 25 — ещё по одной, кратные 125 — ещё по одной.',
+          'Числа, кратные 5, дают по одной пятёрке, кратные 25 - ещё по одной, кратные 125 - ещё по одной.',
           '5-ке еселі сандар бір бестіктен, 25-ке еселілер тағы бір бестіктен, 125-ке еселілер тағы бір бестіктен береді.',
         ),
         sumLine,
@@ -824,7 +824,7 @@ export function factorials(ctx, d) {
     ex: steps(
       L(
         `Count how many factors ${p} are in the product 1 × 2 × … × ${k}: multiples of ${p} give one each, multiples of ${p * p} one more, and so on.`,
-        `Посчитаем, сколько множителей ${p} в произведении 1 × 2 × … × ${k}: кратные ${p} дают по одному, кратные ${p * p} — ещё по одному, и так далее.`,
+        `Посчитаем, сколько множителей ${p} в произведении 1 × 2 × … × ${k}: кратные ${p} дают по одному, кратные ${p * p} - ещё по одному, и так далее.`,
         `1 × 2 × … × ${k} көбейтіндісінде неше ${p} көбейткіші бар екенін санаймыз: ${p}-ге еселілер бір-бірден, ${p * p}-ге еселілер тағы бір-бірден береді, осылай жалғасады.`,
       ),
       sumLine,
@@ -851,7 +851,7 @@ export function paths(ctx, d) {
     return make('o.paths', d, { kind: 'roads', a, b, c }, {
       prompt: L(
         `There are ${a} roads from town A to town B, ${b} roads from B to C and ${c} roads from C to D. In how many ways can you travel from A to D through B and C?`,
-        `Города соединены дорогами. Число дорог: из A в B — ${a}, из B в C — ${b}, из C в D — ${c}. Сколькими способами можно проехать из A в D через B и C?`,
+        `Города соединены дорогами. Число дорог: из A в B - ${a}, из B в C - ${b}, из C в D - ${c}. Сколькими способами можно проехать из A в D через B и C?`,
         `A қаласынан B қаласына ${a} жол, B-дан C-ға ${b} жол, C-дан D-ға ${c} жол апарады. A-дан D-ға B мен C арқылы неше тәсілмен жетуге болады?`,
       ),
       ex: steps(
@@ -868,14 +868,14 @@ export function paths(ctx, d) {
     return make('o.paths', d, { kind: 'grid', w, h }, {
       prompt: L(
         `A city is a grid of streets. You need to go ${w} blocks east and ${h} blocks north, moving only east or north. How many different shortest routes are there?`,
-        `Город — это сетка улиц. Нужно пройти ${w} ${plural(w, 'квартал', 'квартала', 'кварталов')} на восток и ${h} ${plural(h, 'квартал', 'квартала', 'кварталов')} на север, двигаясь только на восток или на север. Сколько существует различных кратчайших маршрутов?`,
-        `Қала — көшелер торы. Тек шығысқа немесе солтүстікке жүріп, ${w} орам шығысқа және ${h} орам солтүстікке өту керек. Неше түрлі ең қысқа маршрут бар?`,
+        `Город - это сетка улиц. Нужно пройти ${w} ${plural(w, 'квартал', 'квартала', 'кварталов')} на восток и ${h} ${plural(h, 'квартал', 'квартала', 'кварталов')} на север, двигаясь только на восток или на север. Сколько существует различных кратчайших маршрутов?`,
+        `Қала - көшелер торы. Тек шығысқа немесе солтүстікке жүріп, ${w} орам шығысқа және ${h} орам солтүстікке өту керек. Неше түрлі ең қысқа маршрут бар?`,
       ),
       ex: steps(
         L(
           `Every route is a sequence of ${w + h} steps, ${h} of which go north.`,
-          `Любой маршрут — это последовательность из ${w + h} шагов, из которых ${h} — на север.`,
-          `Кез келген маршрут — ${w + h} қадамнан тұратын тізбек, оның ${h} қадамы солтүстікке.`,
+          `Любой маршрут - это последовательность из ${w + h} шагов, из которых ${h} - на север.`,
+          `Кез келген маршрут - ${w + h} қадамнан тұратын тізбек, оның ${h} қадамы солтүстікке.`,
         ),
         L(
           `Choose which ${h} of the ${w + h} steps go north: C(${w + h}, ${h}) = ${ans}.`,
@@ -935,7 +935,7 @@ export function diophantine(ctx, d) {
         L(
           `We need non-negative integers x and y with ${a}x + ${b}y = ${total}. Try every y from 0 to ${Math.floor(total / b)} and check whether the rest is divisible by ${a}.`,
           `Нужны целые неотрицательные x и y, для которых ${a}x + ${b}y = ${total}. Перебираем y от 0 до ${Math.floor(total / b)} и проверяем, делится ли остаток суммы на ${a}.`,
-          `${a}x + ${b}y = ${total} болатын теріс емес бүтін x пен y керек. y-ті 0-ден ${Math.floor(total / b)}-ге дейін тексеріп, соманың қалғаны ${a}-ге бөліне ме — соны қараймыз.`,
+          `${a}x + ${b}y = ${total} болатын теріс емес бүтін x пен y керек. y-ті 0-ден ${Math.floor(total / b)}-ге дейін тексеріп, соманың қалғаны ${a}-ге бөліне ме - соны қараймыз.`,
         ),
         sols.length
           ? L(
@@ -964,8 +964,8 @@ export function diophantine(ctx, d) {
       same(`${a} ${TIMES} ${b} ${MINUS} ${a} ${MINUS} ${b} = ${ans}`),
       L(
         `Every number greater than ${ans} can be bought, and ${ans} itself cannot.`,
-        `Любое количество больше ${ans} купить можно, а ровно ${ans} — нельзя.`,
-        `${ans}-ден үлкен кез келген санды сатып алуға болады, ал дәл ${ans}-ді — болмайды.`,
+        `Любое количество больше ${ans} купить можно, а ровно ${ans} - нельзя.`,
+        `${ans}-ден үлкен кез келген санды сатып алуға болады, ал дәл ${ans}-ді - болмайды.`,
       ),
     ),
     ...ask(ctx, ans, [a * b, a * b - 1, a + b - 1, ans - a, ans + b].filter((v) => v !== ans && v > 0)),

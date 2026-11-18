@@ -71,8 +71,8 @@ export function makeMc(rng, correct, distractors, fmt = num) {
 }
 
 /**
- * Решает, будет ли задание с вариантами или с вводом ответа (как на SAT ~30% — с вводом).
- * ctx.mcOnly — только варианты (для «Блица»).
+ * Решает, будет ли задание с вариантами или с вводом ответа (как на SAT ~30% - с вводом).
+ * ctx.mcOnly - только варианты (для «Блица»).
  */
 export function choose(ctx, answer, distractors, { fmt = num, display, sprChance = 0.3 } = {}) {
   if (!ctx.mcOnly && ctx.rng() < sprChance) {

@@ -1,6 +1,6 @@
 // Сервис-воркер Prep&Play: сайт работает без интернета и ставится на экран как приложение.
-// Свои файлы — «сначала сеть»: при интернете всегда свежая версия, без него — из кеша.
-// Шрифты Google — «сначала кеш»: они не меняются.
+// Свои файлы - «сначала сеть»: при интернете всегда свежая версия, без него - из кеша.
+// Шрифты Google - «сначала кеш»: они не меняются.
 
 const CACHE = 'prepplay-v2';
 const SHELL = ['./', 'index.html', 'styles/main.css', 'src/main.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
@@ -21,7 +21,7 @@ self.addEventListener('activate', (event) => {
 async function networkFirst(request) {
   const cache = await caches.open(CACHE);
   try {
-    const response = await fetch(request, { cache: 'no-cache' }); // всегда сверяемся с сервером — новая версия видна сразу
+    const response = await fetch(request, { cache: 'no-cache' }); // всегда сверяемся с сервером - новая версия видна сразу
     if (response.ok) cache.put(request, response.clone());
     return response;
   } catch {

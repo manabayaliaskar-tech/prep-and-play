@@ -1,10 +1,10 @@
 // Химия: генераторы по таблице Менделеева и по составлению формул солей, оксидов и оснований.
-// Ключ сложности — 1…3.
+// Ключ сложности - 1…3.
 
 import { hashString, pick, shuffle } from '../../core/random.js';
 import { L, ask, n, plural, poolQ, same, steps } from '../gen.js';
 
-// Z|символ|en|ru|kk|масса|группа главной подгруппы (0 — побочная)|период|тип (m — металл, n — неметалл, g — благородный газ)
+// Z|символ|en|ru|kk|масса|группа главной подгруппы (0 - побочная)|период|тип (m - металл, n - неметалл, g - благородный газ)
 const ELEMENTS_TEXT = `
 1|H|hydrogen|водород|сутегі|1|1|1|n
 2|He|helium|гелий|гелий|4|8|1|g
@@ -60,7 +60,7 @@ function mcOf(rng, correct, wrong) {
   return { choices: order.map((k) => all[k]), answer: order.indexOf(0) };
 }
 
-/** Элементы, доступные на сложности: 1 — первые 20, 2 — плюс известные металлы, 3 — все. */
+/** Элементы, доступные на сложности: 1 - первые 20, 2 - плюс известные металлы, 3 - все. */
 const elementsFor = (d) => ELEMENTS.filter((e) => (d === 1 ? e.z <= 20 : d === 2 ? e.z <= 30 || ['Ag', 'Au', 'Hg', 'Pb', 'Sn', 'I'].includes(e.sym) : true));
 
 export function elementsMaker(topic) {
@@ -74,9 +74,9 @@ export function elementsMaker(topic) {
       const others = shuffle(pool.filter((x) => x !== e), rng);
       let q;
       if (mode === 'sym' || mode === 'name') {
-        // Ловушки для символа — элементы на ту же букву, их легко спутать.
+        // Ловушки для символа - элементы на ту же букву, их легко спутать.
         const similar = [...others.filter((x) => x.sym[0] === e.sym[0]), ...others.filter((x) => x.sym[0] !== e.sym[0])].slice(0, 3);
-        const ex = L(`${cap(e.name.en)} — ${e.sym}, atomic number ${e.z}.`, `${cap(e.name.ru)} — ${e.sym}, порядковый номер ${e.z}.`, `${cap(e.name.kk)} — ${e.sym}, реттік нөмірі ${e.z}.`);
+        const ex = L(`${cap(e.name.en)} - ${e.sym}, atomic number ${e.z}.`, `${cap(e.name.ru)} - ${e.sym}, порядковый номер ${e.z}.`, `${cap(e.name.kk)} - ${e.sym}, реттік нөмірі ${e.z}.`);
         q =
           mode === 'sym'
             ? poolQ(topic, d, { kind: 'text', prompt: L(`What is the chemical symbol of ${e.name.en}?`, `Какой химический символ у элемента «${e.name.ru}»?`, `«${e.name.kk}» элементінің химиялық таңбасы қандай?`), ex, mc: mcOf(rng, e.sym, similar.map((x) => x.sym)) })
@@ -105,7 +105,7 @@ export function elementsMaker(topic) {
         q = poolQ(topic, d, {
           kind: 'text',
           prompt: L(`In which period of the periodic table is ${e.sym} (${e.name.en})?`, `В каком периоде таблицы Менделеева находится ${e.sym} (${e.name.ru})?`, `${e.sym} (${e.name.kk}) Менделеев кестесінің қай периодында орналасқан?`),
-          ex: L(`${e.sym} is in period ${e.period}: its atom has ${e.period} electron shells.`, `${e.sym} — в ${e.period}-м периоде: у атома ${e.period} ${plural(e.period, 'электронный слой', 'электронных слоя', 'электронных слоёв')}.`, `${e.sym} — ${e.period}-периодта: атомында ${e.period} электрон қабаты бар.`),
+          ex: L(`${e.sym} is in period ${e.period}: its atom has ${e.period} electron shells.`, `${e.sym} - в ${e.period}-м периоде: у атома ${e.period} ${plural(e.period, 'электронный слой', 'электронных слоя', 'электронных слоёв')}.`, `${e.sym} - ${e.period}-периодта: атомында ${e.period} электрон қабаты бар.`),
           mc: mcOf(rng, String(e.period), wrong.map(String)),
         });
       } else if (mode === 'outer') {
@@ -114,7 +114,7 @@ export function elementsMaker(topic) {
         q = poolQ(topic, d, {
           kind: 'text',
           prompt: L(`How many electrons are in the outer shell of ${e.sym} (${e.name.en})?`, `Сколько электронов на внешнем слое атома ${e.sym} (${e.name.ru})?`, `${e.sym} (${e.name.kk}) атомының сыртқы қабатында неше электрон бар?`),
-          ex: L(`For main-group elements the number of outer electrons equals the group number: ${e.sym} is in group ${e.group}.`, `У элементов главных подгрупп число внешних электронов равно номеру группы: ${e.sym} — в ${e.group}-й группе.`, `Негізгі топша элементтерінде сыртқы электрон саны топ нөміріне тең: ${e.sym} — ${e.group}-топта.`),
+          ex: L(`For main-group elements the number of outer electrons equals the group number: ${e.sym} is in group ${e.group}.`, `У элементов главных подгрупп число внешних электронов равно номеру группы: ${e.sym} - в ${e.group}-й группе.`, `Негізгі топша элементтерінде сыртқы электрон саны топ нөміріне тең: ${e.sym} - ${e.group}-топта.`),
           mc: mcOf(rng, String(e.group), wrong.map(String)),
         });
       } else {
@@ -125,10 +125,10 @@ export function elementsMaker(topic) {
         const label = (x) => L(`${x.sym} (${x.name.en})`, `${x.sym} (${x.name.ru})`, `${x.sym} (${x.name.kk})`);
         q = poolQ(topic, d, {
           kind: 'text',
-          prompt: wantMetal ? L('Which of these elements is a metal?', 'Какой из этих элементов — металл?', 'Бұл элементтердің қайсысы металл?') : L('Which of these elements is a non-metal?', 'Какой из этих элементов — неметалл?', 'Бұл элементтердің қайсысы бейметалл?'),
+          prompt: wantMetal ? L('Which of these elements is a metal?', 'Какой из этих элементов - металл?', 'Бұл элементтердің қайсысы металл?') : L('Which of these elements is a non-metal?', 'Какой из этих элементов - неметалл?', 'Бұл элементтердің қайсысы бейметалл?'),
           ex: wantMetal
-            ? L(`${right.sym} (${right.name.en}) is a metal; the others are non-metals or noble gases.`, `${right.sym} (${right.name.ru}) — металл, остальные — неметаллы или благородные газы.`, `${right.sym} (${right.name.kk}) — металл, қалғандары — бейметалдар немесе инертті газдар.`)
-            : L(`${right.sym} (${right.name.en}) is a non-metal; the others are metals.`, `${right.sym} (${right.name.ru}) — неметалл, остальные — металлы.`, `${right.sym} (${right.name.kk}) — бейметалл, қалғандары — металдар.`),
+            ? L(`${right.sym} (${right.name.en}) is a metal; the others are non-metals or noble gases.`, `${right.sym} (${right.name.ru}) - металл, остальные - неметаллы или благородные газы.`, `${right.sym} (${right.name.kk}) - металл, қалғандары - бейметалдар немесе инертті газдар.`)
+            : L(`${right.sym} (${right.name.en}) is a non-metal; the others are metals.`, `${right.sym} (${right.name.ru}) - неметалл, остальные - металлы.`, `${right.sym} (${right.name.kk}) - бейметалл, қалғандары - металдар.`),
           mc: mcOf(rng, label(right), wrong.map(label)),
         });
         q.id = `${topic}:metal:${hashString([right, ...wrong].map((x) => x.sym).sort().join())}`;
@@ -174,7 +174,7 @@ const ANIONS = [
   ['PO₄', [['P', 1], ['O', 4]], 3, 'phosphate', 'фосфат', 'фосфаты'],
 ];
 
-/** Соединения, которых нет или которые сразу разлагаются водой, — не используем. */
+/** Соединения, которых нет или которые сразу разлагаются водой, - не используем. */
 const SKIP = new Set(['Al:CO₃', 'Fe3:CO₃', 'Cu:CO₃', 'Al:S', 'Fe3:S', 'Ag:OH', 'Ag:CO₃']);
 
 const gcd = (a, b) => (b ? gcd(b, a % b) : a);
@@ -232,7 +232,7 @@ export function compoundsMaker(topic) {
         q = poolQ(topic, d, {
           kind: 'text',
           prompt: L(`What is the name of ${c.formula}?`, `Как называется вещество ${c.formula}?`, `${c.formula} заты қалай аталады?`),
-          ex: L(`${c.formula} — ${c.name.en}.`, `${c.formula} — ${c.name.ru}.`, `${c.formula} — ${c.name.kk}.`),
+          ex: L(`${c.formula} - ${c.name.en}.`, `${c.formula} - ${c.name.ru}.`, `${c.formula} - ${c.name.kk}.`),
           mc: mcOf(rng, c.name, near.map((x) => x.name)),
         });
       } else {

@@ -28,7 +28,7 @@ export const PACE_DEFAULT = 60;
 /** Время ответа дольше этого (отошёл от экрана) в статистику скорости не идёт. */
 export const SPEED_CAP_MS = 5 * 60 * 1000;
 
-/** Сколько секунд даётся на задание. Задания с текстом для чтения — дольше. */
+/** Сколько секунд даётся на задание. Задания с текстом для чтения - дольше. */
 export function paceFor(q) {
   if (q.passages || (q.passage && String(q.passage.en ?? q.passage).length > 400)) return 120;
   if (q.listen) return 90;
@@ -41,7 +41,7 @@ export function paceFor(q) {
 export const getPaceMode = () => storage.get('paceMode', false) === true;
 export const setPaceMode = (on) => storage.set('paceMode', Boolean(on));
 
-/** Запоминает время ответа по теме: profile.speed[тема] = { n, ms, fast } (fast — сколько раз уложился в темп). */
+/** Запоминает время ответа по теме: profile.speed[тема] = { n, ms, fast } (fast - сколько раз уложился в темп). */
 export function recordSpeed(q, ms, profile = getProfile()) {
   if (!q?.skill || !(ms > 0) || ms > SPEED_CAP_MS) return;
   const s = ((profile.speed ??= {})[q.skill] ??= { n: 0, ms: 0, fast: 0 });

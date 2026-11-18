@@ -46,7 +46,7 @@ export function toggleSaved(q, today = dayKey()) {
   return true;
 }
 
-/** Заметка к заданию. Если задание ещё не в закладках — сохраняет его. Пустая заметка просто стирается. */
+/** Заметка к заданию. Если задание ещё не в закладках - сохраняет его. Пустая заметка просто стирается. */
 export function setNote(q, text, today = dayKey()) {
   const note = String(text ?? '').slice(0, NOTE_LIMIT).trim();
   const list = getSaved();

@@ -198,7 +198,7 @@ export function planRoute(app) {
                   .map(
                     (w) => `<div class="plan-week ${w.current ? 'is-current' : ''} ${w.final ? 'is-final' : ''}" style="--i:${w.index}">
                       <small>${w.final ? `🏁 ${t('plan.finalWeek')}` : t('plan.week', { n: w.index + 1 })}</small>
-                      <b>${fmt(w.start)} – ${fmt(w.end)}</b>
+                      <b>${fmt(w.start)} - ${fmt(w.end)}</b>
                       <ul>${
                         w.final
                           ? `<li>🏁 ${t('plan.finalMocks')}</li><li>🔁 ${t('plan.finalMistakes')}</li><li>😴 ${t('plan.finalSleep')}</li>`

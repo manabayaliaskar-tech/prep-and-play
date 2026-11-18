@@ -1,8 +1,8 @@
-// Тарифы и цены. Только расчёты, без интерфейса — поэтому всё проверяется тестами.
+// Тарифы и цены. Только расчёты, без интерфейса - поэтому всё проверяется тестами.
 // Цены задаются в долларах. Местная валюта показывается приблизительно, со знаком «≈»:
 // точную сумму списания определяет банк покупателя.
 
-// usd — цена за месяц в целых долларах; покупатель видит её на один цент меньше (3 → 2,99 $).
+// usd - цена за месяц в целых долларах; покупатель видит её на один цент меньше (3 → 2,99 $).
 export const PLANS = [
   { id: 'gold', icon: '🥇', usd: 3, color: '#f59e0b' },
   { id: 'diamond', icon: '💎', usd: 4, color: '#0ea5e9' },
@@ -85,7 +85,7 @@ const ZONE_CURRENCY = [
 
 const REGION_CURRENCY = { KZ: 'KZT', UZ: 'UZS', KG: 'KGS', TJ: 'TJS', AZ: 'AZN', AM: 'AMD', MD: 'MDL', GE: 'GEL', TM: 'TMT', UA: 'UAH', RU: 'RUB', BY: 'BYN', TR: 'TRY', GB: 'GBP', US: 'USD' };
 
-/** Валюта по часовому поясу и языку браузера. Если не удалось определить — доллары. */
+/** Валюта по часовому поясу и языку браузера. Если не удалось определить - доллары. */
 export function guessCurrency(timeZone = '', locale = '') {
   for (const [pattern, code] of ZONE_CURRENCY) if (pattern.test(timeZone)) return code;
   const region = locale.split('-')[1]?.toUpperCase();
@@ -94,7 +94,7 @@ export function guessCurrency(timeZone = '', locale = '') {
   return 'USD';
 }
 
-/** Округление «для глаз»: три значащие цифры для больших сумм, копейки — только для маленьких. */
+/** Округление «для глаз»: три значащие цифры для больших сумм, копейки - только для маленьких. */
 export function roundNice(amount) {
   if (amount >= 100) {
     const magnitude = 10 ** (Math.floor(Math.log10(amount)) - 2);

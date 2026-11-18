@@ -19,8 +19,8 @@ function explain(item) {
   if (Array.isArray(ref)) {
     return L(
       `Correct: "${correct}". It is the only option that fits the meaning and grammar of the sentence.`,
-      `Правильно: «${correct}» — ${ref[0]}.`,
-      `Дұрысы: «${correct}» — ${ref[1]}.`,
+      `Правильно: «${correct}» - ${ref[0]}.`,
+      `Дұрысы: «${correct}» - ${ref[1]}.`,
     );
   }
   const rule = RULES[ref];
@@ -50,8 +50,8 @@ export function englishMaker(topic) {
 }
 
 /**
- * Темы уровня: банк (где на уровне есть хотя бы два задания) и генераторы — слова, времена,
- * неправильные глаголы (A1–C1) и степени сравнения (A1–B1).
+ * Темы уровня: банк (где на уровне есть хотя бы два задания) и генераторы - слова, времена,
+ * неправильные глаголы (A1-C1) и степени сравнения (A1-B1).
  */
 export function englishSpec(levels) {
   const spec = [];

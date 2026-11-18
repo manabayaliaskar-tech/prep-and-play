@@ -284,15 +284,15 @@ function codeQ(topic, lang, d, program, why, wrong) {
   return { ...poolQ(topic, d, { prompt, ex: steps(...why), ...ask(CTX.current, answer, wrong.filter((v) => Number.isInteger(v) && v !== answer && v >= 0)) }), program };
 }
 
-/** Контекст текущего вызова генератора (rng, mcOnly) — чтобы не передавать его в каждую функцию. */
+/** Контекст текущего вызова генератора (rng, mcOnly) - чтобы не передавать его в каждую функцию. */
 const CTX = { current: null };
 
 // ---------- Генераторы по темам ----------
 
 const NOTE_DIV = L(
   'Integer division drops the remainder: in Python it is //, in C++ and Java / between integers, in JavaScript Math.floor(a / b). The remainder is %.',
-  'Целочисленное деление отбрасывает остаток: в Python это //, в C++ и Java — / между целыми числами, в JavaScript — Math.floor(a / b). Остаток — %.',
-  'Бүтін бөлу қалдықты тастайды: Python-да //, C++ пен Java-да бүтін сандар арасындағы /, JavaScript-те Math.floor(a / b). Қалдық — %.',
+  'Целочисленное деление отбрасывает остаток: в Python это //, в C++ и Java - / между целыми числами, в JavaScript - Math.floor(a / b). Остаток - %.',
+  'Бүтін бөлу қалдықты тастайды: Python-да //, C++ пен Java-да бүтін сандар арасындағы /, JavaScript-те Math.floor(a / b). Қалдық - %.',
 );
 
 function vars(lang, ctx, d) {
@@ -426,7 +426,7 @@ function arrays(lang, ctx, d) {
     const i = randomInt(rng, 1, items.length - 1);
     const program = [array('a', items), print(bin('+', idx('a', num(i)), idx('a', num(0))))];
     return codeQ(`${lang}.arr`, lang, d, program, [
-      L('Indexes start at 0: a[0] is the first element.', 'Нумерация элементов начинается с 0: a[0] — первый элемент.', 'Элементтердің нөмірленуі 0-ден басталады: a[0] — бірінші элемент.'),
+      L('Indexes start at 0: a[0] is the first element.', 'Нумерация элементов начинается с 0: a[0] - первый элемент.', 'Элементтердің нөмірленуі 0-ден басталады: a[0] - бірінші элемент.'),
       L(`a[${i}] + a[0] = ${items[i]} + ${items[0]} = ${items[i] + items[0]}`, `a[${i}] + a[0] = ${items[i]} + ${items[0]} = ${items[i] + items[0]}`, `a[${i}] + a[0] = ${items[i]} + ${items[0]} = ${items[i] + items[0]}`),
     ], [items[i - 1] + items[0], (items[i + 1] ?? items[0]) + items[1], items[i] + items[1], items[i] + items[0] + 1]);
   }
@@ -447,7 +447,7 @@ function arrays(lang, ctx, d) {
   ];
   return codeQ(`${lang}.arr`, lang, d, program, [
     L('m keeps the largest element seen so far.', 'В m хранится наибольший из уже просмотренных элементов.', 'm-де осыған дейін қаралған элементтердің ең үлкені сақталады.'),
-    L(`The maximum of ${items.join(', ')} is ${max}.`, `Максимум из ${items.join(', ')} — ${max}.`, `${items.join(', ')} сандарының ең үлкені — ${max}.`),
+    L(`The maximum of ${items.join(', ')} is ${max}.`, `Максимум из ${items.join(', ')} - ${max}.`, `${items.join(', ')} сандарының ең үлкені - ${max}.`),
   ], [Math.min(...items), items[0], items.at(-1), items.reduce((s, v) => s + v, 0)]);
 }
 
@@ -464,7 +464,7 @@ function funcs(lang, ctx, d) {
       L(`${f(a)} + ${f(b)} = ${f(a) + f(b)}`, `${f(a)} + ${f(b)} = ${f(a) + f(b)}`, `${f(a)} + ${f(b)} = ${f(a) + f(b)}`),
     ], [a * a + b * b + k, f(a + b), 2 * a + 2 * b + 2 * k, f(a) + f(b) + 1]);
   }
-  // Сложность 3: рекурсия — факториал, сумма, числа Фибоначчи или степень.
+  // Сложность 3: рекурсия - факториал, сумма, числа Фибоначчи или степень.
   const kind = pick(rng, ['fact', 'sum', 'fib', 'pow']);
   if (kind === 'sum') {
     const n = randomInt(rng, 4, 12);
@@ -487,7 +487,7 @@ function funcs(lang, ctx, d) {
       print(call('f', num(n))),
     ];
     return codeQ(`${lang}.func`, lang, d, program, [
-      L('Each value is the sum of the two previous ones: these are the Fibonacci numbers.', 'Каждое значение — сумма двух предыдущих: это числа Фибоначчи.', 'Әр мән алдыңғы екеуінің қосындысы: бұл Фибоначчи сандары.'),
+      L('Each value is the sum of the two previous ones: these are the Fibonacci numbers.', 'Каждое значение - сумма двух предыдущих: это числа Фибоначчи.', 'Әр мән алдыңғы екеуінің қосындысы: бұл Фибоначчи сандары.'),
       L(`f(0..${n}) = ${fib.slice(0, n + 1).join(', ')}`, `f(0..${n}) = ${fib.slice(0, n + 1).join(', ')}`, `f(0..${n}) = ${fib.slice(0, n + 1).join(', ')}`),
     ], [fib[n - 1], fib[n + 1], fib[n] + 1, 2 * fib[n - 1]]);
   }
@@ -499,7 +499,7 @@ function funcs(lang, ctx, d) {
       print(call('p', num(a), num(b))),
     ];
     return codeQ(`${lang}.func`, lang, d, program, [
-      L('p(a, b) multiplies a by itself b times: it is a to the power b.', 'p(a, b) умножает a на себя b раз — это a в степени b.', 'p(a, b) a-ны өзіне b рет көбейтеді — бұл a-ның b дәрежесі.'),
+      L('p(a, b) multiplies a by itself b times: it is a to the power b.', 'p(a, b) умножает a на себя b раз - это a в степени b.', 'p(a, b) a-ны өзіне b рет көбейтеді - бұл a-ның b дәрежесі.'),
       L(`${a}^${b} = ${a ** b}`, `${a}^${b} = ${a ** b}`, `${a}^${b} = ${a ** b}`),
     ], [a * b, a ** (b - 1), b ** a === a ** b ? a ** b + a : b ** a, a ** b + 1]);
   }

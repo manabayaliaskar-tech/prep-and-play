@@ -1,6 +1,6 @@
 // Физика и информатика: генераторы по таблицам «понятие → ответ».
-// Физика — единицы измерения, формулы, учёные. Информатика — устройства, типы файлов, термины.
-// Ключ сложности — 1…3: чем выше, тем реже встречающиеся понятия.
+// Физика - единицы измерения, формулы, учёные. Информатика - устройства, типы файлов, термины.
+// Ключ сложности - 1…3: чем выше, тем реже встречающиеся понятия.
 
 import { hashString, pick, shuffle } from '../../core/random.js';
 import { L, poolQ } from '../gen.js';
@@ -193,7 +193,7 @@ function pairTask(ctx, topic, d, table) {
   const q = poolQ(topic, d, {
     kind: 'text',
     prompt: fwd ? table.fwd(p) : table.back(p),
-    ex: L(`${p.a.en} — ${p.b.en}.`, `${p.a.ru} — ${p.b.ru}.`, `${p.a.kk} — ${p.b.kk}.`),
+    ex: L(`${p.a.en} - ${p.b.en}.`, `${p.a.ru} - ${p.b.ru}.`, `${p.a.kk} - ${p.b.kk}.`),
     mc: fwd ? mcOf(rng, p.b, wrong.map((x) => x.b)) : mcOf(rng, p.a, wrong.map((x) => x.a)),
   });
   q.id = `${topic}:${table.id}:${fwd ? 'f' : 'b'}:${p.a.en}`;
@@ -219,8 +219,8 @@ function deviceTask(ctx, topic, d) {
   const wrong = shuffle(pool.filter((x) => x.role !== role && roles.includes(x.role)), rng).slice(0, 3);
   const q = poolQ(topic, d, {
     kind: 'text',
-    prompt: L(`Which of these is ${ROLES[role].en}?`, `Что из этого — ${ROLES[role].ru}?`, `Бұлардың қайсысы — ${ROLES[role].kk}?`),
-    ex: L(`${right.name.en} — ${ROLES[role].en}.`, `${right.name.ru} — ${ROLES[role].ru}.`, `${right.name.kk} — ${ROLES[role].kk}.`),
+    prompt: L(`Which of these is ${ROLES[role].en}?`, `Что из этого - ${ROLES[role].ru}?`, `Бұлардың қайсысы - ${ROLES[role].kk}?`),
+    ex: L(`${right.name.en} - ${ROLES[role].en}.`, `${right.name.ru} - ${ROLES[role].ru}.`, `${right.name.kk} - ${ROLES[role].kk}.`),
     mc: mcOf(rng, right.name, wrong.map((x) => x.name)),
   });
   q.id = `${topic}:dev:${hashString([right, ...wrong].map((x) => x.name.en).sort().join())}`;
@@ -235,7 +235,7 @@ function fileTask(ctx, topic, d) {
   const q = poolQ(topic, d, {
     kind: 'text',
     prompt: L(`What is usually stored in a file with the extension ${f.ext}?`, `Что обычно хранится в файле с расширением ${f.ext}?`, `${f.ext} кеңейтілімі бар файлда әдетте не сақталады?`),
-    ex: L(`${f.ext} — ${FILES[f.kind].en}.`, `${f.ext} — ${FILES[f.kind].ru}.`, `${f.ext} — ${FILES[f.kind].kk}.`),
+    ex: L(`${f.ext} - ${FILES[f.kind].en}.`, `${f.ext} - ${FILES[f.kind].ru}.`, `${f.ext} - ${FILES[f.kind].kk}.`),
     mc: mcOf(rng, FILES[f.kind], wrong.map((k) => FILES[k])),
   });
   q.id = `${topic}:ext:${f.ext}`;

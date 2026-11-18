@@ -1,14 +1,14 @@
 // Простой линейный график результатов (SVG): одна линия, тонкие отметки, тихая сетка,
 // подписи только у первой и последней точки, подсказка при наведении или фокусе.
-// Прогнозов нет — только то, что уже было.
+// Прогнозов нет - только то, что уже было.
 
 import { esc } from './dom.js';
 
 let uid = 0;
 
 /**
- * points: [{ label, value, note, hollow }] — по порядку попыток.
- * max — верх шкалы (максимум экзамена). Возвращает HTML; подсказки включает bindChart().
+ * points: [{ label, value, note, hollow }] - по порядку попыток.
+ * max - верх шкалы (максимум экзамена). Возвращает HTML; подсказки включает bindChart().
  */
 export function lineChart(points, { max, ariaLabel = '', height = 190 } = {}) {
   if (!points.length) return '';
@@ -50,7 +50,7 @@ function chartSvg(points, { max, ariaLabel, height, width }) {
     </svg>`;
 }
 
-/** Подсказки у точек графиков внутри root. points — те же данные, что у lineChart. */
+/** Подсказки у точек графиков внутри root. points - те же данные, что у lineChart. */
 export function bindChart(root, points) {
   const box = root.querySelector('.chart');
   if (!box) return;

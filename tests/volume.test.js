@@ -20,7 +20,7 @@ function distinct(spec, n) {
 // Тексты для чтения и записи для аудирования пишутся вручную, их число проверяется отдельно.
 const HANDWRITTEN = new Set(['reading', 'listening']);
 
-test('объём: в каждом уровне каждого курса — не меньше сотни разных заданий', () => {
+test('объём: в каждом уровне каждого курса - не меньше сотни разных заданий', () => {
   const small = [];
   for (const course of COURSES) {
     for (const track of course.tracks) {
@@ -32,7 +32,7 @@ test('объём: в каждом уровне каждого курса — н�
   assert.deepEqual(small, [], `мало заданий: ${small.join(', ')}`);
 });
 
-test('объём: у всех курсов с уровнями — по шесть уровней или больше', () => {
+test('объём: у всех курсов с уровнями - по шесть уровней или больше', () => {
   for (const course of COURSES.filter((c) => c.leveled)) {
     assert.ok(course.tracks.length >= 6, `${course.id}: ${course.tracks.length}`);
   }

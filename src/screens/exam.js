@@ -1,5 +1,5 @@
 // Пробный экзамен в формате цифрового SAT: 2 модуля на раздел, таймер, отметки «вернуться»,
-// адаптивный второй модуль и прогноз балла 400–1600.
+// адаптивный второй модуль и прогноз балла 400-1600.
 
 import { confetti } from '../core/confetti.js';
 import { dayKey } from '../core/dates.js';
@@ -103,9 +103,9 @@ export function examRoute(app) {
           <h1>${t('exam.title')}</h1>
           <p class="muted">${t('exam.desc')}</p>
           <div class="option-group"><span>${t('exam.what')}</span><div class="options">
-            ${opt('section', 'both', t('exam.both'), '400–1600')}
-            ${opt('section', 'rw', tx(SECTIONS.rw.name), '200–800')}
-            ${opt('section', 'math', tx(SECTIONS.math.name), '200–800')}
+            ${opt('section', 'both', t('exam.both'), '400-1600')}
+            ${opt('section', 'rw', tx(SECTIONS.rw.name), '200-800')}
+            ${opt('section', 'math', tx(SECTIONS.math.name), '200-800')}
           </div></div>
           <div class="option-group"><span>${t('exam.length')}</span><div class="options">
             ${opt('length', 'mini', t('exam.mini'), t('exam.miniDesc'))}
@@ -345,9 +345,9 @@ export function examRoute(app) {
     st.build = () => {
       const scoreCard = `
         <div class="score-card">
-          ${total !== null ? `<div class="score-total"><span>${t('exam.predicted')}</span><b>${total}</b><small>400–1600</small></div>` : ''}
+          ${total !== null ? `<div class="score-total"><span>${t('exam.predicted')}</span><b>${total}</b><small>400-1600</small></div>` : ''}
           <div class="score-sections">
-            ${st.plan.map((s) => `<div class="score-section"><span>${SECTIONS[s].icon} ${esc(tx(SECTIONS[s].name))}</span><b>${scores[s]}</b><small>200–800 · ${t(st.results[s].route === 'hard' ? 'exam.routeHard' : 'exam.routeEasy')}</small></div>`).join('')}
+            ${st.plan.map((s) => `<div class="score-section"><span>${SECTIONS[s].icon} ${esc(tx(SECTIONS[s].name))}</span><b>${scores[s]}</b><small>200-800 · ${t(st.results[s].route === 'hard' ? 'exam.routeHard' : 'exam.routeEasy')}</small></div>`).join('')}
           </div>
           <p class="muted small">${t('exam.disclaimer')}</p>
         </div>

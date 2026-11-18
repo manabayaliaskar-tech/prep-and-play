@@ -22,8 +22,8 @@ export function logarithms(ctx, d) {
       ex: steps(
         L(
           `A logarithm is the exponent: to what power must ${a} be raised to get ${n(a ** k)}?`,
-          `Логарифм — это показатель степени: в какую степень нужно возвести ${a}, чтобы получить ${n(a ** k)}?`,
-          `Логарифм — дәреже көрсеткіші: ${n(a ** k)} шығу үшін ${a} санын қандай дәрежеге шығару керек?`,
+          `Логарифм - это показатель степени: в какую степень нужно возвести ${a}, чтобы получить ${n(a ** k)}?`,
+          `Логарифм - дәреже көрсеткіші: ${n(a ** k)} шығу үшін ${a} санын қандай дәрежеге шығару керек?`,
         ),
         same(`${a}<sup>${k}</sup> = ${n(a ** k)}, ${log(a, n(a ** k))} = ${k}`),
       ),
@@ -97,7 +97,7 @@ export function trig(ctx, d) {
     return poolQ('m.trig', d, {
       prompt: loc((l) => `${{ en: 'Find the value', ru: 'Найди значение', kk: 'Мәнін тап' }[l]}: ${FN_NAME[fn][l]} ${angle}°`),
       ex: steps(
-        L('This is a value from the table of special angles — it is worth memorising.', 'Это табличное значение — его стоит запомнить.', 'Бұл — кестелік мән, оны жаттап алған жөн.'),
+        L('This is a value from the table of special angles - it is worth memorising.', 'Это табличное значение - его стоит запомнить.', 'Бұл - кестелік мән, оны жаттап алған жөн.'),
         loc((l) => `${FN_NAME[fn][l]} ${angle}° = ${VAL[key]}`),
       ),
       mc: mcText(rng, VAL[key], others.map((k) => VAL[k])),
@@ -176,7 +176,7 @@ export function combinatorics(ctx, d) {
       ex: steps(
         L(
           `Any of the ${k} books can go first, any of the remaining ${k - 1} second, and so on.`,
-          `На первое место можно поставить любую из ${k} книг, на второе — любую из оставшихся ${k - 1}, и так далее.`,
+          `На первое место можно поставить любую из ${k} книг, на второе - любую из оставшихся ${k - 1}, и так далее.`,
           `Бірінші орынға ${k} кітаптың кез келгенін, екіншіге қалған ${k - 1} кітаптың кез келгенін қоюға болады, осылай жалғасады.`,
         ),
         same(`${k}! = ${Array.from({ length: k }, (_, i) => k - i).join(` ${TIMES} `)} = ${ans}`),
@@ -196,7 +196,7 @@ export function combinatorics(ctx, d) {
           `${m} оқушының ішінен командаға ${k} оқушыны неше тәсілмен таңдауға болады? Реті маңызды емес.`,
         ),
         ex: steps(
-          L('The order does not matter, so these are combinations.', 'Порядок не важен, значит это сочетания.', 'Реті маңызды емес, демек бұл — терулер.'),
+          L('The order does not matter, so these are combinations.', 'Порядок не важен, значит это сочетания.', 'Реті маңызды емес, демек бұл - терулер.'),
           same(
             `<i>C</i> = ${frac(Array.from({ length: k }, (_, i) => m - i).join(` ${TIMES} `), Array.from({ length: k }, (_, i) => k - i).join(` ${TIMES} `))} = ${ans}`,
           ),
@@ -214,7 +214,7 @@ export function combinatorics(ctx, d) {
       ex: steps(
         L(
           `The roles are different, so the order matters: ${m} choices for the president, ${m - 1} for the deputy.`,
-          `Роли разные, поэтому порядок важен: старостой может стать любой из ${m}, заместителем — любой из оставшихся ${m - 1}.`,
+          `Роли разные, поэтому порядок важен: старостой может стать любой из ${m}, заместителем - любой из оставшихся ${m - 1}.`,
           `Рөлдер әртүрлі, сондықтан реті маңызды: старостаға ${m} нұсқа, орынбасарға ${m - 1} нұсқа.`,
         ),
         same(`${m} ${TIMES} ${m - 1} = ${ans}`),
@@ -263,8 +263,8 @@ export function combinatorics(ctx, d) {
       ),
       L(
         `The second digit is any of the remaining ${m - 1} (0 is allowed now), the third is any of the remaining ${m - 2}.`,
-        `Вторая цифра — любая из оставшихся ${m - 1} (ноль уже можно), третья — любая из оставшихся ${m - 2}.`,
-        `Екінші цифр — қалған ${m - 1} цифрдың кез келгені (енді 0 болады), үшіншісі — қалған ${m - 2} цифрдың кез келгені.`,
+        `Вторая цифра - любая из оставшихся ${m - 1} (ноль уже можно), третья - любая из оставшихся ${m - 2}.`,
+        `Екінші цифр - қалған ${m - 1} цифрдың кез келгені (енді 0 болады), үшіншісі - қалған ${m - 2} цифрдың кез келгені.`,
       ),
       same(`${m - 1} ${TIMES} ${m - 1} ${TIMES} ${m - 2} = ${ans}`),
     ),
@@ -282,7 +282,7 @@ export function probability(ctx, d) {
     return poolQ('m.prob', d, {
       prompt: L(
         `A bag has ${r} red, ${b} blue and ${g} green balls. One ball is taken at random. Find the probability that it is red.`,
-        `В мешке лежат шары: красных — ${r}, синих — ${b}, зелёных — ${g}. Наугад вынимают один шар. Найди вероятность того, что он красный.`,
+        `В мешке лежат шары: красных - ${r}, синих - ${b}, зелёных - ${g}. Наугад вынимают один шар. Найди вероятность того, что он красный.`,
         `Қапта ${r} қызыл, ${b} көк және ${g} жасыл шар бар. Кездейсоқ бір шар алынады. Оның қызыл болу ықтималдығын тап.`,
       ),
       ex: steps(
@@ -342,7 +342,7 @@ export function probability(ctx, d) {
   return poolQ('m.prob', d, {
     prompt: L(
       `A box has ${r} red and ${b} blue pencils. Two pencils are taken at random without putting the first one back. Find the probability that both are red.`,
-      `В коробке лежат карандаши: красных — ${r}, синих — ${b}. Наугад берут два карандаша, не возвращая первый. Найди вероятность того, что оба красные.`,
+      `В коробке лежат карандаши: красных - ${r}, синих - ${b}. Наугад берут два карандаша, не возвращая первый. Найди вероятность того, что оба красные.`,
       `Қорапта ${r} қызыл және ${b} көк қарындаш бар. Біріншісін қайтармай, кездейсоқ екі қарындаш алынады. Екеуі де қызыл болу ықтималдығын тап.`,
     ),
     ex: steps(
@@ -393,11 +393,11 @@ export function derivative(ctx, d) {
     return poolQ('m.deriv', d, {
       prompt: L(
         `A point moves by the law <i>s</i>(${T}) = ${law} (in metres, ${T} in seconds). Find its speed at ${T} = ${t0} s.`,
-        `Точка движется по закону <i>s</i>(${T}) = ${law} (в метрах, ${T} — в секундах). Найди её скорость в момент ${T} = ${t0} с.`,
-        `Нүкте <i>s</i>(${T}) = ${law} заңы бойынша қозғалады (метрмен, ${T} — секундпен). ${T} = ${t0} с мезетіндегі жылдамдығын тап.`,
+        `Точка движется по закону <i>s</i>(${T}) = ${law} (в метрах, ${T} - в секундах). Найди её скорость в момент ${T} = ${t0} с.`,
+        `Нүкте <i>s</i>(${T}) = ${law} заңы бойынша қозғалады (метрмен, ${T} - секундпен). ${T} = ${t0} с мезетіндегі жылдамдығын тап.`,
       ),
       ex: steps(
-        L('Speed is the derivative of the distance.', 'Скорость — это производная пути по времени.', 'Жылдамдық — жолдың уақыт бойынша туындысы.'),
+        L('Speed is the derivative of the distance.', 'Скорость - это производная пути по времени.', 'Жылдамдық - жолдың уақыт бойынша туындысы.'),
         same(`<i>v</i>(${T}) = <i>s</i>′(${T}) = ${2 * a}${T} + ${b}`),
         same(`<i>v</i>(${t0}) = ${2 * a} ${TIMES} ${t0} + ${b} = ${ans}`),
       ),
@@ -421,8 +421,8 @@ export function derivative(ctx, d) {
       ),
       L(
         `At ${X} = ${k} the derivative changes sign from minus to plus, so this is the minimum point.`,
-        `В точке ${X} = ${k} производная меняет знак с минуса на плюс — это точка минимума.`,
-        `${X} = ${k} нүктесінде туынды таңбасын минустан плюске өзгертеді — бұл минимум нүктесі.`,
+        `В точке ${X} = ${k} производная меняет знак с минуса на плюс - это точка минимума.`,
+        `${X} = ${k} нүктесінде туынды таңбасын минустан плюске өзгертеді - бұл минимум нүктесі.`,
       ),
     ),
     ...ask(ctx, k, [-k, 0, k * k, 3 * k, m - 2 * k ** 3].filter((v) => v !== k)),
@@ -464,7 +464,7 @@ export function statistics(ctx, d) {
       ex: steps(
         L(`Put the numbers in order: ${list(sorted)}.`, `Запишем числа по возрастанию: ${list(sorted)}.`, `Сандарды өсу ретімен жазамыз: ${list(sorted)}.`),
         count % 2
-          ? L(`The middle number is ${ans}.`, `Число в середине — ${ans}.`, `Ортадағы сан — ${ans}.`)
+          ? L(`The middle number is ${ans}.`, `Число в середине - ${ans}.`, `Ортадағы сан - ${ans}.`)
           : loc(
               (l) =>
                 ({

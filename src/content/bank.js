@@ -7,7 +7,7 @@ import { MATH_GENERATORS } from './math/index.js';
 import { RW_QUESTIONS } from './rw/index.js';
 import { DOMAINS } from './skills.js';
 
-/** Навыки, задания которых решаются быстро — для «Блица». */
+/** Навыки, задания которых решаются быстро - для «Блица». */
 const QUICK_RW = new Set(['boundaries', 'fss', 'transitions', 'words']);
 
 /** Копия задания R&W с перемешанными вариантами ответа. */

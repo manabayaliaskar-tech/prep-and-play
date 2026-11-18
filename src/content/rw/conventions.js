@@ -1,14 +1,14 @@
 // Standard English Conventions: Boundaries (пунктуация) и Form, Structure, and Sense (формы слов).
-// Все тексты и задания — авторские, в формате цифрового SAT. Первый вариант — правильный.
+// Все тексты и задания - авторские, в формате цифрового SAT. Первый вариант - правильный.
 
 import { CONV } from './prompts.js';
 
 const SPLICE_EN =
   'Two independent clauses need a period or a semicolon between them (or a comma plus "and," "but," etc.). A comma alone creates a comma splice, and no punctuation creates a run-on sentence.';
 const SPLICE_RU =
-  'Два самостоятельных предложения разделяют точкой или точкой с запятой (либо запятой + and/but). Одна запятая — ошибка comma splice, отсутствие знака — слитное предложение (run-on).';
+  'Два самостоятельных предложения разделяют точкой или точкой с запятой (либо запятой + and/but). Одна запятая - ошибка comma splice, отсутствие знака - слитное предложение (run-on).';
 const SPLICE_KK =
-  'Екі дербес сөйлемді нүктемен немесе нүктелі үтірмен (не үтір + and/but) бөледі. Жалғыз үтір — comma splice қатесі, белгісіз жазу — run-on (біріккен сөйлем) қатесі.';
+  'Екі дербес сөйлемді нүктемен немесе нүктелі үтірмен (не үтір + and/but) бөледі. Жалғыз үтір - comma splice қатесі, белгісіз жазу - run-on (біріккен сөйлем) қатесі.';
 
 export const CONVENTIONS = [
   {
@@ -56,11 +56,11 @@ export const CONVENTIONS = [
     passage:
       'Marie Tharp, a geologist and oceanographic ______ created one of the first detailed maps of the Atlantic Ocean floor.',
     prompt: CONV,
-    choices: ['cartographer,', 'cartographer;', 'cartographer—', 'cartographer'],
+    choices: ['cartographer,', 'cartographer;', 'cartographer-', 'cartographer'],
     ex: {
       en: 'The phrase "a geologist and oceanographic cartographer" is extra information that opens with a comma, so it must close with a matching comma.',
-      ru: 'Оборот «a geologist and oceanographic cartographer» — дополнительная информация. Он открывается запятой, значит, и закрываться должен запятой.',
-      kk: '«a geologist and oceanographic cartographer» тіркесі — қосымша ақпарат. Ол үтірмен ашылған, сондықтан үтірмен жабылуы керек.',
+      ru: 'Оборот «a geologist and oceanographic cartographer» - дополнительная информация. Он открывается запятой, значит, и закрываться должен запятой.',
+      kk: '«a geologist and oceanographic cartographer» тіркесі - қосымша ақпарат. Ол үтірмен ашылған, сондықтан үтірмен жабылуы керек.',
     },
   },
   {
@@ -87,8 +87,8 @@ export const CONVENTIONS = [
     choices: ['year; however,', 'year, however,', 'year however', 'year, however'],
     ex: {
       en: '"However" here links two independent clauses, so it needs a semicolon (or period) before it and a comma after it. A comma before "however" creates a comma splice.',
-      ru: 'However здесь связывает два самостоятельных предложения: перед ним нужна точка с запятой (или точка), после — запятая. Запятая перед however даёт ошибку comma splice.',
-      kk: 'Мұнда however екі дербес сөйлемді байланыстырады: алдына нүктелі үтір (не нүкте), соңына үтір қойылады. However алдындағы үтір — comma splice қатесі.',
+      ru: 'However здесь связывает два самостоятельных предложения: перед ним нужна точка с запятой (или точка), после - запятая. Запятая перед however даёт ошибку comma splice.',
+      kk: 'Мұнда however екі дербес сөйлемді байланыстырады: алдына нүктелі үтір (не нүкте), соңына үтір қойылады. However алдындағы үтір - comma splice қатесі.',
     },
   },
   {
@@ -110,8 +110,8 @@ export const CONVENTIONS = [
     choices: ['small, it', 'small; it', 'small. It', 'small: it'],
     ex: {
       en: '"Although the honey badger is small" is a dependent clause. It is followed by a comma, not a semicolon, colon, or period, because it cannot stand alone.',
-      ru: '«Although the honey badger is small» — придаточное предложение, оно не может стоять отдельно. После него ставится запятая, а не точка с запятой, двоеточие или точка.',
-      kk: '«Although the honey badger is small» — бағыныңқы сөйлем, ол жеке тұра алмайды. Одан кейін нүктелі үтір, қос нүкте не нүкте емес, үтір қойылады.',
+      ru: '«Although the honey badger is small» - придаточное предложение, оно не может стоять отдельно. После него ставится запятая, а не точка с запятой, двоеточие или точка.',
+      kk: '«Although the honey badger is small» - бағыныңқы сөйлем, ол жеке тұра алмайды. Одан кейін нүктелі үтір, қос нүкте не нүкте емес, үтір қойылады.',
     },
   },
   {
@@ -124,8 +124,8 @@ export const CONVENTIONS = [
     choices: ['scientist: the', 'scientist, the', 'scientist the', 'scientist and, the'],
     ex: {
       en: 'A colon can join two independent clauses when the second explains the first (here: what was surprising). A comma alone would create a comma splice.',
-      ru: 'Двоеточие соединяет два самостоятельных предложения, если второе поясняет первое (здесь — что именно удивило). Одна запятая дала бы ошибку comma splice.',
-      kk: 'Екінші сөйлем біріншісін түсіндірсе (мұнда — нені таңғалдырғаны), қос нүкте екі дербес сөйлемді байланыстыра алады. Жалғыз үтір comma splice қатесін тудырады.',
+      ru: 'Двоеточие соединяет два самостоятельных предложения, если второе поясняет первое (здесь - что именно удивило). Одна запятая дала бы ошибку comma splice.',
+      kk: 'Екінші сөйлем біріншісін түсіндірсе (мұнда - нені таңғалдырғаны), қос нүкте екі дербес сөйлемді байланыстыра алады. Жалғыз үтір comma splice қатесін тудырады.',
     },
   },
   {
@@ -133,9 +133,9 @@ export const CONVENTIONS = [
     skill: 'boundaries',
     d: 3,
     passage:
-      'The Darvaza crater in Turkmenistan—a natural gas field that has been burning since ______ thousands of tourists every year.',
+      'The Darvaza crater in Turkmenistan-a natural gas field that has been burning since ______ thousands of tourists every year.',
     prompt: CONV,
-    choices: ['1971—attracts', '1971, attracts', '1971; attracts', '1971 attracts'],
+    choices: ['1971-attracts', '1971, attracts', '1971; attracts', '1971 attracts'],
     ex: {
       en: 'The extra information opens with a dash, so it must close with a dash. Punctuation around an interruption has to match.',
       ru: 'Дополнительная информация открывается тире, значит, и закрыться должна тире. Знаки вокруг вставки должны совпадать.',
@@ -173,8 +173,8 @@ export const CONVENTIONS = [
     choices: ['includes', 'include', 'are including', 'have included'],
     ex: {
       en: 'The subject is "collection" (singular), not "manuscripts." A singular subject takes a singular verb: "includes."',
-      ru: 'Подлежащее — «collection» (единственное число), а не «manuscripts». Единственному числу нужен глагол «includes».',
-      kk: 'Бастауыш — «collection» (жекеше түр), «manuscripts» емес. Жекеше бастауышқа «includes» етістігі керек.',
+      ru: 'Подлежащее - «collection» (единственное число), а не «manuscripts». Единственному числу нужен глагол «includes».',
+      kk: 'Бастауыш - «collection» (жекеше түр), «manuscripts» емес. Жекеше бастауышқа «includes» етістігі керек.',
     },
   },
   {
@@ -186,8 +186,8 @@ export const CONVENTIONS = [
     choices: ['their', 'they’re', 'its', 'there'],
     ex: {
       en: '"Their" is the plural possessive pronoun (the findings belong to the scientists). "They’re" = "they are," and "there" refers to a place.',
-      ru: '«Their» — притяжательное местоимение для множественного числа (находки принадлежат учёным). «They’re» = «they are», «there» — «там».',
-      kk: '«Their» — көпше түрдегі тәуелдік есімдік (нәтижелер ғалымдарға тиесілі). «They’re» = «they are», ал «there» — «сол жерде».',
+      ru: '«Their» - притяжательное местоимение для множественного числа (находки принадлежат учёным). «They’re» = «they are», «there» - «там».',
+      kk: '«Their» - көпше түрдегі тәуелдік есімдік (нәтижелер ғалымдарға тиесілі). «They’re» = «they are», ал «there» - «сол жерде».',
     },
   },
   {
@@ -211,9 +211,9 @@ export const CONVENTIONS = [
     prompt: CONV,
     choices: ['was created', 'were created', 'have been created', 'are created'],
     ex: {
-      en: 'The subject is "Each," which is singular. Ignore the phrase "of the paintings": the verb must be singular — "was created."',
-      ru: 'Подлежащее — «Each», это единственное число. Оборот «of the paintings» не влияет: нужен глагол в единственном числе — «was created».',
-      kk: 'Бастауыш — «Each», ол жекеше. «of the paintings» тіркесі әсер етпейді: етістік жекеше болуы керек — «was created».',
+      en: 'The subject is "Each," which is singular. Ignore the phrase "of the paintings": the verb must be singular - "was created."',
+      ru: 'Подлежащее - «Each», это единственное число. Оборот «of the paintings» не влияет: нужен глагол в единственном числе - «was created».',
+      kk: 'Бастауыш - «Each», ол жекеше. «of the paintings» тіркесі әсер етпейді: етістік жекеше болуы керек - «was created».',
     },
   },
   {
@@ -239,8 +239,8 @@ export const CONVENTIONS = [
     choices: ['its', 'it’s', 'its’', 'their'],
     ex: {
       en: '"Its" (no apostrophe) is the possessive form. "It’s" means "it is." "Their" is plural, but the Caspian Sea is singular.',
-      ru: '«Its» (без апострофа) — притяжательная форма. «It’s» = «it is». «Their» — множественное число, а Каспийское море одно.',
-      kk: '«Its» (апострофсыз) — тәуелдік форма. «It’s» = «it is». «Their» — көпше түр, ал Каспий теңізі біреу.',
+      ru: '«Its» (без апострофа) - притяжательная форма. «It’s» = «it is». «Their» - множественное число, а Каспийское море одно.',
+      kk: '«Its» (апострофсыз) - тәуелдік форма. «It’s» = «it is». «Their» - көпше түр, ал Каспий теңізі біреу.',
     },
   },
   {
@@ -256,9 +256,9 @@ export const CONVENTIONS = [
       'the view of the Mausoleum of Khoja Ahmed Yasawi is visible from almost every street.',
     ],
     ex: {
-      en: 'The phrase "Walking through the old city" must describe whoever is walking. Only "visitors" can walk — a mausoleum, a street, or a view cannot.',
-      ru: 'Оборот «Walking through the old city» относится к тому, кто идёт. Идти могут только «visitors» — мавзолей, улица или вид идти не могут.',
-      kk: '«Walking through the old city» тіркесі жүріп келе жатқан адамға қатысты. Тек «visitors» жүре алады — кесене, көше немесе көрініс жүре алмайды.',
+      en: 'The phrase "Walking through the old city" must describe whoever is walking. Only "visitors" can walk - a mausoleum, a street, or a view cannot.',
+      ru: 'Оборот «Walking through the old city» относится к тому, кто идёт. Идти могут только «visitors» - мавзолей, улица или вид идти не могут.',
+      kk: '«Walking through the old city» тіркесі жүріп келе жатқан адамға қатысты. Тек «visitors» жүре алады - кесене, көше немесе көрініс жүре алмайды.',
     },
   },
   {
@@ -270,8 +270,8 @@ export const CONVENTIONS = [
     choices: ['write', 'writing', 'to writing', 'written'],
     ex: {
       en: 'Items in a list must be parallel: "how to analyze..., write..., and present..." All three verbs share the same form.',
-      ru: 'Элементы перечисления должны быть однотипными: «how to analyze..., write..., and present...» — все три глагола в одной форме.',
-      kk: 'Тізім элементтері бірдей формада болуы керек: «how to analyze..., write..., and present...» — үш етістіктің формасы бірдей.',
+      ru: 'Элементы перечисления должны быть однотипными: «how to analyze..., write..., and present...» - все три глагола в одной форме.',
+      kk: 'Тізім элементтері бірдей формада болуы керек: «how to analyze..., write..., and present...» - үш етістіктің формасы бірдей.',
     },
   },
   {
@@ -283,8 +283,8 @@ export const CONVENTIONS = [
     choices: ['had', 'has', 'was', 'is'],
     ex: {
       en: 'With "neither... nor," the verb agrees with the closer subject ("players," plural). "Had" works with a plural subject; "has," "was," and "is" are singular.',
-      ru: 'В конструкции «neither... nor» глагол согласуется с ближайшим подлежащим («players» — множественное число). «Had» подходит, а «has», «was», «is» — формы единственного числа.',
-      kk: '«neither... nor» құрылымында етістік жақын тұрған бастауышпен («players» — көпше) үйлеседі. «Had» жарайды, ал «has», «was», «is» — жекеше формалар.',
+      ru: 'В конструкции «neither... nor» глагол согласуется с ближайшим подлежащим («players» - множественное число). «Had» подходит, а «has», «was», «is» - формы единственного числа.',
+      kk: '«neither... nor» құрылымында етістік жақын тұрған бастауышпен («players» - көпше) үйлеседі. «Had» жарайды, ал «has», «was», «is» - жекеше формалар.',
     },
   },
   {
@@ -296,8 +296,8 @@ export const CONVENTIONS = [
     choices: ['who', 'which', 'whom', 'whose'],
     ex: {
       en: 'The pronoun refers to a person (the queen) and acts as the subject of "led," so "who" is correct. "Which" is for things; "whom" is an object form.',
-      ru: 'Местоимение относится к человеку (королеве) и является подлежащим для «led», поэтому нужно «who». «Which» — для предметов, «whom» — форма дополнения.',
-      kk: 'Есімдік адамға (патшайымға) қатысты және «led» етістігінің бастауышы, сондықтан «who» керек. «Which» — заттар үшін, «whom» — толықтауыш формасы.',
+      ru: 'Местоимение относится к человеку (королеве) и является подлежащим для «led», поэтому нужно «who». «Which» - для предметов, «whom» - форма дополнения.',
+      kk: 'Есімдік адамға (патшайымға) қатысты және «led» етістігінің бастауышы, сондықтан «who» керек. «Which» - заттар үшін, «whom» - толықтауыш формасы.',
     },
   },
   {
@@ -309,9 +309,9 @@ export const CONVENTIONS = [
     prompt: CONV,
     choices: ['was', 'were', 'have been', 'are'],
     ex: {
-      en: 'The sentence is inverted: the real subject comes after the verb — "a set of bone flutes." "A set" is singular, so the verb is "was."',
-      ru: 'Здесь обратный порядок слов: настоящее подлежащее стоит после глагола — «a set of bone flutes». «A set» — единственное число, значит, «was».',
-      kk: 'Мұнда сөз тәртібі кері: нағыз бастауыш етістіктен кейін тұр — «a set of bone flutes». «A set» жекеше, сондықтан «was».',
+      en: 'The sentence is inverted: the real subject comes after the verb - "a set of bone flutes." "A set" is singular, so the verb is "was."',
+      ru: 'Здесь обратный порядок слов: настоящее подлежащее стоит после глагола - «a set of bone flutes». «A set» - единственное число, значит, «was».',
+      kk: 'Мұнда сөз тәртібі кері: нағыз бастауыш етістіктен кейін тұр - «a set of bone flutes». «A set» жекеше, сондықтан «was».',
     },
   },
   {

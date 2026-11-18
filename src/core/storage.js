@@ -15,7 +15,7 @@ export const storage = {
     try {
       globalThis.localStorage?.setItem(PREFIX + key, JSON.stringify(value));
     } catch {
-      // Хранилище недоступно — прогресс просто не сохранится.
+      // Хранилище недоступно - прогресс просто не сохранится.
     }
   },
 };

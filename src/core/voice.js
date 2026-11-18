@@ -1,6 +1,6 @@
 // Озвучка слов голосом браузера (Web Speech API): работает без интернета и сервера.
 // Выбираем самый естественный голос нужного языка из тех, что есть на устройстве
-// (Google, Siri, Microsoft Natural и т. п.). Если голоса нет — кнопка не показывается.
+// (Google, Siri, Microsoft Natural и т. п.). Если голоса нет - кнопка не показывается.
 
 const LOCALE = { en: 'en-US', es: 'es-ES', fr: 'fr-FR', zh: 'zh-CN' };
 const synth = () => globalThis.speechSynthesis ?? null;
@@ -37,7 +37,7 @@ if (synth()) synth().onvoiceschanged = () => (cache = {});
 export function canSpeak(lang) {
   const s = synth();
   if (!s || !LOCALE[lang]) return false;
-  // Список голосов ещё не загружен — скорее всего голос есть (так бывает в Chrome при первом открытии).
+  // Список голосов ещё не загружен - скорее всего голос есть (так бывает в Chrome при первом открытии).
   return s.getVoices().length === 0 || Boolean(voiceFor(lang));
 }
 
@@ -110,7 +110,7 @@ const MALE = /\bmale|daniel|alex\b|fred|david|guy|ryan|george|arthur|oliver|thom
 
 /**
  * Голоса для говорящих записи: { A: voice, B: voice }. Стараемся дать разным людям разные голоса
- * и подобрать пол по подсказке ('f' / 'm'). Если голос один — у всех он.
+ * и подобрать пол по подсказке ('f' / 'm'). Если голос один - у всех он.
  */
 export function voicesFor(lang, speakers) {
   const s = synth();

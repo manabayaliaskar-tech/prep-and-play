@@ -47,7 +47,7 @@
   } else {
     const ids = [...new Set([...ITEMS.filter((it) => it.slot === slot).map((it) => it.id), ...Object.keys(ART[slot] ?? {})])].filter((id) => !only || only.includes(id));
     const mood = params.get('mood') ?? 'happy';
-    html += `<h2>${slot} — ${ids.length}</h2><div class="g">` + ids.map((id) => card(`${id} · ${ITEMS.find((it) => it.id === id)?.rarity ?? 'новая'}`, mascot(mood, '', { ...base, [slot]: id }))).join('') + '</div>';
+    html += `<h2>${slot} - ${ids.length}</h2><div class="g">` + ids.map((id) => card(`${id} · ${ITEMS.find((it) => it.id === id)?.rarity ?? 'новая'}`, mascot(mood, '', { ...base, [slot]: id }))).join('') + '</div>';
   }
   document.getElementById('out').innerHTML = html;
 </script>

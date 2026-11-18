@@ -38,7 +38,7 @@ export function quadratics(ctx, d) {
           `Значит, ${poly} = ${factorPair(r1, r2)} = 0, откуда ${X} = ${num(r1)} или ${X} = ${num(r2)}.`,
           `Демек, ${poly} = ${factorPair(r1, r2)} = 0, сонда ${X} = ${num(r1)} немесе ${X} = ${num(r2)}.`,
         ),
-        st(`The positive solution is ${num(r1)}.`, `Положительный корень — ${num(r1)}.`, `Оң түбір — ${num(r1)}.`),
+        st(`The positive solution is ${num(r1)}.`, `Положительный корень - ${num(r1)}.`, `Оң түбір - ${num(r1)}.`),
       ),
       ...choose(ctx, r1, [r2, -r2, c, b]),
     });
@@ -68,13 +68,13 @@ export function quadratics(ctx, d) {
         askSum
           ? st(
               `Sum: ${num(r1)} + ${p(r2)} = ${num(ans)}. (Shortcut: the sum of the solutions of ${A}${X}<sup>2</sup> + ${B}${X} + <i>c</i> = 0 is ${MINUS}${B}/${A}.)`,
-              `Сумма: ${num(r1)} + ${p(r2)} = ${num(ans)}. (Быстрый способ — теорема Виета: сумма корней равна ${MINUS}${B}/${A}.)`,
-              `Қосынды: ${num(r1)} + ${p(r2)} = ${num(ans)}. (Қысқа жол — Виет теоремасы: түбірлер қосындысы ${MINUS}${B}/${A}.)`,
+              `Сумма: ${num(r1)} + ${p(r2)} = ${num(ans)}. (Быстрый способ - теорема Виета: сумма корней равна ${MINUS}${B}/${A}.)`,
+              `Қосынды: ${num(r1)} + ${p(r2)} = ${num(ans)}. (Қысқа жол - Виет теоремасы: түбірлер қосындысы ${MINUS}${B}/${A}.)`,
             )
           : st(
               `Product: ${num(r1)} · ${p(r2)} = ${num(ans)}. (Shortcut: the product of the solutions is <i>c</i>/${A}.)`,
-              `Произведение: ${num(r1)} · ${p(r2)} = ${num(ans)}. (Быстрый способ — теорема Виета: произведение корней равно <i>c</i>/${A}.)`,
-              `Көбейтінді: ${num(r1)} · ${p(r2)} = ${num(ans)}. (Қысқа жол — Виет теоремасы: түбірлер көбейтіндісі <i>c</i>/${A}.)`,
+              `Произведение: ${num(r1)} · ${p(r2)} = ${num(ans)}. (Быстрый способ - теорема Виета: произведение корней равно <i>c</i>/${A}.)`,
+              `Көбейтінді: ${num(r1)} · ${p(r2)} = ${num(ans)}. (Қысқа жол - Виет теоремасы: түбірлер көбейтіндісі <i>c</i>/${A}.)`,
             ),
       ),
       ...choose(ctx, ans, askSum ? [-(r1 + r2), r1 * r2, coefs[1], r1 - r2] : [-(r1 * r2), r1 + r2, coefs[2], a * r1 * r2 + 1]),
@@ -180,8 +180,8 @@ export function equivalent(ctx, d) {
         ),
         same(`${k * k}${X}<sup>2</sup> + 2 · ${linear(k, 0)} · ${m} + ${m * m} = ${correct}.`),
         st(
-          `Common trap: (${A} + ${B})<sup>2</sup> is NOT ${A}<sup>2</sup> + ${B}<sup>2</sup> — don't forget the middle term.`,
-          `Частая ошибка: (${A} + ${B})<sup>2</sup> — это НЕ ${A}<sup>2</sup> + ${B}<sup>2</sup>, не забывай среднее слагаемое.`,
+          `Common trap: (${A} + ${B})<sup>2</sup> is NOT ${A}<sup>2</sup> + ${B}<sup>2</sup> - don't forget the middle term.`,
+          `Частая ошибка: (${A} + ${B})<sup>2</sup> - это НЕ ${A}<sup>2</sup> + ${B}<sup>2</sup>, не забывай среднее слагаемое.`,
           `Жиі қате: (${A} + ${B})<sup>2</sup> ≠ ${A}<sup>2</sup> + ${B}<sup>2</sup>, ортаңғы мүшені ұмытпа.`,
         ),
       ),
@@ -231,8 +231,8 @@ export function exponential(ctx, d) {
         ex: steps(
           st(
             `"When it was created" means ${T} = 0. Any number to the power 0 equals 1.`,
-            `«Когда канал создали» — это ${T} = 0. Любое число в степени 0 равно 1.`,
-            `«Арна ашылғанда» — бұл ${T} = 0. Кез келген санның 0 дәрежесі 1-ге тең.`,
+            `«Когда канал создали» - это ${T} = 0. Любое число в степени 0 равно 1.`,
+            `«Арна ашылғанда» - бұл ${T} = 0. Кез келген санның 0 дәрежесі 1-ге тең.`,
           ),
           same(`<i>S</i>(0) = ${num(A0)} · 1 = ${num(A0)}.`),
         ),
@@ -245,7 +245,7 @@ export function exponential(ctx, d) {
         st(
           `In a model ${A}(1 + <i>r</i>)<sup>${T}</sup>, the growth rate is <i>r</i>. Here 1 + <i>r</i> = ${factor}, so <i>r</i> = ${(r / 100).toFixed(2)} = ${r}%.`,
           `В модели ${A}(1 + <i>r</i>)<sup>${T}</sup> скорость роста равна <i>r</i>. Здесь 1 + <i>r</i> = ${factor}, значит <i>r</i> = ${(r / 100).toFixed(2)} = ${r}%.`,
-          `${A}(1 + <i>r</i>)<sup>${T}</sup> моделінде өсу қарқыны — <i>r</i>. Мұнда 1 + <i>r</i> = ${factor}, демек <i>r</i> = ${(r / 100).toFixed(2)} = ${r}%.`,
+          `${A}(1 + <i>r</i>)<sup>${T}</sup> моделінде өсу қарқыны - <i>r</i>. Мұнда 1 + <i>r</i> = ${factor}, демек <i>r</i> = ${(r / 100).toFixed(2)} = ${r}%.`,
         ),
       ),
       mc: makeMc(rng, r, [100 + r, Number(factor), r / 100], pct),
@@ -261,13 +261,13 @@ export function exponential(ctx, d) {
       ex: steps(
         st(
           `The starting amount is ${num(A0)} and each doubling multiplies by 2.`,
-          `Начальное количество — ${num(A0)}, каждое удвоение умножает на 2.`,
-          `Бастапқы саны — ${num(A0)}, әр екі еселену 2-ге көбейтеді.`,
+          `Начальное количество - ${num(A0)}, каждое удвоение умножает на 2.`,
+          `Бастапқы саны - ${num(A0)}, әр екі еселену 2-ге көбейтеді.`,
         ),
         st(
           `In ${T} hours there are ${T}/${k} doublings (for example, ${2 * k} hours → 2 doublings). So the function is ${correct}.`,
-          `За ${T} часов происходит ${T}/${k} удвоений (например, за ${2 * k} часов — 2 удвоения). Значит, функция ${correct}.`,
-          `${T} сағатта ${T}/${k} рет екі еселенеді (мысалы, ${2 * k} сағатта — 2 рет). Демек, функция ${correct}.`,
+          `За ${T} часов происходит ${T}/${k} удвоений (например, за ${2 * k} часов - 2 удвоения). Значит, функция ${correct}.`,
+          `${T} сағатта ${T}/${k} рет екі еселенеді (мысалы, ${2 * k} сағатта - 2 рет). Демек, функция ${correct}.`,
         ),
       ),
       mc: makeMc(rng, correct, wrong, (s) => s),
@@ -288,13 +288,13 @@ export function exponential(ctx, d) {
     ex: steps(
       st(
         `Losing ${r}% means keeping ${100 - r}% each year, so the value is multiplied by ${keep} every year.`,
-        `Потерять ${r}% — значит сохранить ${100 - r}%, поэтому каждый год стоимость умножается на ${keep}.`,
-        `${r}% жоғалту — ${100 - r}% сақтау деген сөз, сондықтан құны жыл сайын ${keep} санына көбейеді.`,
+        `Потерять ${r}% - значит сохранить ${100 - r}%, поэтому каждый год стоимость умножается на ${keep}.`,
+        `${r}% жоғалту - ${100 - r}% сақтау деген сөз, сондықтан құны жыл сайын ${keep} санына көбейеді.`,
       ),
       st(
         `After ${N} years: ${correct}. Trap: ${(r / 100).toFixed(2)} is the part that is lost, not the part that remains.`,
-        `Через ${N} лет: ${correct}. Ловушка: ${(r / 100).toFixed(2)} — это теряемая часть, а не оставшаяся.`,
-        `${N} жылдан кейін: ${correct}. Тұзақ: ${(r / 100).toFixed(2)} — жоғалатын бөлік, қалатын бөлік емес.`,
+        `Через ${N} лет: ${correct}. Ловушка: ${(r / 100).toFixed(2)} - это теряемая часть, а не оставшаяся.`,
+        `${N} жылдан кейін: ${correct}. Тұзақ: ${(r / 100).toFixed(2)} - жоғалатын бөлік, қалатын бөлік емес.`,
       ),
     ),
     mc: makeMc(rng, correct, wrong, (s) => s),

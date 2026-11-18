@@ -85,9 +85,9 @@ export function areaVolume(ctx, d) {
           `Қабырғаны ${factor} санына көбейтсек, аудан (қабырға × қабырға) ${factor}<sup>2</sup> = ${num(factor * factor)} санына көбейеді.`,
         ),
         st(
-          `${num(factor * factor)} means an increase of ${ans}% — not ${p}% and not ${2 * p}%.`,
-          `${num(factor * factor)} означает рост на ${ans}% — не на ${p}% и не на ${2 * p}%.`,
-          `${num(factor * factor)} — ${ans}% өсу деген сөз, ${p}% та, ${2 * p}% та емес.`,
+          `${num(factor * factor)} means an increase of ${ans}% - not ${p}% and not ${2 * p}%.`,
+          `${num(factor * factor)} означает рост на ${ans}% - не на ${p}% и не на ${2 * p}%.`,
+          `${num(factor * factor)} - ${ans}% өсу деген сөз, ${p}% та, ${2 * p}% та емес.`,
         ),
       ),
       ...choose(ctx, ans, [2 * p, p, p * p], { fmt: (x) => `${num(x)}%` }),
@@ -249,7 +249,7 @@ export function rightTri(ctx, d) {
         st(
           `The side opposite <i>A</i> is <i>BC</i> = ${a}, the adjacent side is <i>AC</i> = ${b}, the hypotenuse is <i>AB</i> = ${c}. So ${fn}(<i>A</i>) = ${ratio}.`,
           `Против угла <i>A</i> лежит <i>BC</i> = ${a}, прилежащий катет <i>AC</i> = ${b}, гипотенуза <i>AB</i> = ${c}. Значит, ${fn}(<i>A</i>) = ${ratio}.`,
-          `<i>A</i> бұрышына қарсы катет — <i>BC</i> = ${a}, іргелес катет — <i>AC</i> = ${b}, гипотенуза — <i>AB</i> = ${c}. Демек, ${fn}(<i>A</i>) = ${ratio}.`,
+          `<i>A</i> бұрышына қарсы катет - <i>BC</i> = ${a}, іргелес катет - <i>AC</i> = ${b}, гипотенуза - <i>AB</i> = ${c}. Демек, ${fn}(<i>A</i>) = ${ratio}.`,
         ),
       ),
     };
@@ -411,7 +411,7 @@ export function similar(ctx, d) {
       ex: steps(
         st(
           `If sides are in the ratio ${s}:${t}, areas are in the ratio ${s}<sup>2</sup>:${t}<sup>2</sup> = ${s * s}:${t * t}.`,
-          `Если стороны относятся как ${s}:${t}, то площади — как ${s}<sup>2</sup>:${t}<sup>2</sup> = ${s * s}:${t * t}.`,
+          `Если стороны относятся как ${s}:${t}, то площади - как ${s}<sup>2</sup>:${t}<sup>2</sup> = ${s * s}:${t * t}.`,
           `Қабырғалар ${s}:${t} қатынасында болса, аудандар ${s}<sup>2</sup>:${t}<sup>2</sup> = ${s * s}:${t * t} қатынасында болады.`,
         ),
         same(`${small} · ${t * t}/${s * s} = ${num(ans)}.`),

@@ -131,7 +131,7 @@ export function integrals(ctx, d) {
         `Есепте: ∫<sub>${a}</sub><sup>${b}</sup> ${m}${X} d${X}`,
       ),
       ex: steps(
-        L(`The antiderivative of ${m}${X} is ${m / 2}${X}<sup>2</sup>.`, `Первообразная для ${m}${X} — это ${m / 2}${X}<sup>2</sup>.`, `${m}${X} үшін алғашқы функция — ${m / 2}${X}<sup>2</sup>.`),
+        L(`The antiderivative of ${m}${X} is ${m / 2}${X}<sup>2</sup>.`, `Первообразная для ${m}${X} - это ${m / 2}${X}<sup>2</sup>.`, `${m}${X} үшін алғашқы функция - ${m / 2}${X}<sup>2</sup>.`),
         same(`${m / 2} ${TIMES} ${b}<sup>2</sup> ${MINUS} ${m / 2} ${TIMES} ${a}<sup>2</sup> = ${n(ans)}`),
       ),
       ...ask(ctx, ans, [m * (b - a), m * b * b, ans + m, (m * (b + a)) / 2].filter((v) => v !== ans)),

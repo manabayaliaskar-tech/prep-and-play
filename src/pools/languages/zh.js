@@ -1,5 +1,5 @@
-// Задания по китайским словам HSK 1–6: значение иероглифов, перевод на китайский, чтение (пиньинь)
-// и счётные слова. Уровень — номер HSK.
+// Задания по китайским словам HSK 1-6: значение иероглифов, перевод на китайский, чтение (пиньинь)
+// и счётные слова. Уровень - номер HSK.
 
 import { pick, shuffle } from '../../core/random.js';
 import { L, poolQ } from '../gen.js';
@@ -36,7 +36,7 @@ function task(ctx, topic, w, mode) {
   const keys = ['hz', 'en', 'ru', 'kk', ...(mode === 'p' ? ['py'] : [])];
   const all = distractors(ctx.rng, w, keys);
   const order = shuffle([0, 1, 2, 3], ctx.rng);
-  const ex = L(`${w.hz} (${w.py}) means "${w.en}".`, `${w.hz} (${w.py}) — «${w.ru}».`, `${w.hz} (${w.py}) — «${w.kk}».`);
+  const ex = L(`${w.hz} (${w.py}) means "${w.en}".`, `${w.hz} (${w.py}) - «${w.ru}».`, `${w.hz} (${w.py}) - «${w.kk}».`);
   // На первых трёх уровнях рядом с иероглифами показываем пиньинь.
   const shown = w.level <= 3 && mode === 'm' ? `${w.hz} (${w.py})` : w.hz;
   const view = {
@@ -45,7 +45,7 @@ function task(ctx, topic, w, mode) {
     p: { passage: w.hz, prompt: L('How is this word read (pinyin)?', 'Как читается это слово (пиньинь)?', 'Бұл сөз қалай оқылады (пиньинь)?'), choice: (x) => x.py },
   }[mode];
   const q = poolQ(topic, 1, { kind: 'text', passage: view.passage, prompt: view.prompt, ex, mc: { choices: order.map((k) => view.choice(all[k])), answer: order.indexOf(0) } });
-  // Слово можно послушать сразу (значение) или после ответа (перевод и чтение — иначе это подсказка).
+  // Слово можно послушать сразу (значение) или после ответа (перевод и чтение - иначе это подсказка).
   q.voice = mode === 'm' ? { lang: 'zh', now: w.hz } : { lang: 'zh', after: w.hz };
   return finish(q, `${topic}:${mode}:${w.i}`, w.level);
 }
@@ -62,9 +62,9 @@ function measureTask(ctx, topic, row, level) {
   const u = tri(used);
   const m = tri(meaning);
   const ex = L(
-    `一${main}${noun} (${yi} ${mpy} ${py}) — "${m.en}". ${main} (${mpy}) is used for ${u.en}.`,
-    `一${main}${noun} (${yi} ${mpy} ${py}) — «${m.ru}». ${main} (${mpy}) — счётное слово для: ${u.ru}.`,
-    `一${main}${noun} (${yi} ${mpy} ${py}) — «${m.kk}». ${main} (${mpy}) — мөлшер сөз: ${u.kk}.`,
+    `一${main}${noun} (${yi} ${mpy} ${py}) - "${m.en}". ${main} (${mpy}) is used for ${u.en}.`,
+    `一${main}${noun} (${yi} ${mpy} ${py}) - «${m.ru}». ${main} (${mpy}) - счётное слово для: ${u.ru}.`,
+    `一${main}${noun} (${yi} ${mpy} ${py}) - «${m.kk}». ${main} (${mpy}) - мөлшер сөз: ${u.kk}.`,
   );
   const prompt = L('Choose the correct measure word.', 'Выбери правильное счётное слово.', 'Дұрыс мөлшер сөзді таңда.');
   const q = poolQ(topic, 2, { kind: 'text', passage: `一 ______ ${noun} (${py})`, prompt, ex, mc: { choices: order.map((k) => all[k]), answer: order.indexOf(0) } });

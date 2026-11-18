@@ -1,11 +1,11 @@
-// Цветовые темы оформления. Основная — «Преп» (фиолетовая). Выбор хранится в этом браузере.
-// Палитры описаны в styles/main.css в блоках [data-theme="…"]; здесь — список для переключателя.
+// Цветовые темы оформления. Основная - «Преп» (фиолетовая). Выбор хранится в этом браузере.
+// Палитры описаны в styles/main.css в блоках [data-theme="…"]; здесь - список для переключателя.
 
 import { storage } from './storage.js';
 
 export const DEFAULT_THEME = 'prep';
 
-/** colors — цвета образца в переключателе, meta — цвет панели браузера на телефоне. */
+/** colors - цвета образца в переключателе, meta - цвет панели браузера на телефоне. */
 export const THEMES = [
   { id: 'prep', name: { en: 'Prep', ru: 'Преп', kk: 'Преп' }, colors: ['#6c4cf5', '#ec4899'], meta: '#6c4cf5' },
   { id: 'ocean', name: { en: 'Ocean', ru: 'Океан', kk: 'Мұхит' }, colors: ['#0284c7', '#14b8a6'], meta: '#0284c7' },
@@ -35,7 +35,7 @@ export function applyTheme(id = getTheme(), doc = globalThis.document) {
   const theme = themeById(id);
   if (!doc) return theme;
   doc.documentElement.dataset.theme = theme.id;
-  // Признак тёмной темы — для общих правил всех тёмных тем.
+  // Признак тёмной темы - для общих правил всех тёмных тем.
   if (theme.dark) doc.documentElement.dataset.dark = '1';
   else delete doc.documentElement.dataset.dark;
   doc.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme.meta);

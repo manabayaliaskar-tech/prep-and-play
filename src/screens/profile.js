@@ -86,7 +86,7 @@ export function topicAccuracy(profile, minAnswers = 3) {
     .sort((x, y) => x.pct - y.pct || y.a - x.a);
 }
 
-/** «Паутина»: values — { ключ: 0…1 | null }, icons — { ключ: значок }. */
+/** «Паутина»: values - { ключ: 0…1 | null }, icons - { ключ: значок }. */
 function radar(values, icons = Object.fromEntries(Object.entries(DOMAINS).map(([k, d]) => [k, d.icon])), label = t('profile.radar')) {
   const keys = Object.keys(icons);
   const cx = 150;
@@ -217,7 +217,7 @@ function subjectsPanel(p) {
           ${rows
             .map((r) => {
               const pct = r.value === null ? null : Math.round(r.value * 100);
-              return `<div class="skill-row ${r.a ? '' : 'untried'}"><span>${SUBJECT_ICONS[r.k]} ${t(`subj.${r.k}`)}${r.a ? ` <small class="muted">· ${t('profile.solvedN', { n: r.a })}</small>` : ''}</span><div class="bar" style="--c:${SUBJECT_COLORS[r.k]}"><i style="width:${pct ?? 0}%"></i></div><b title="${r.c}/${r.a}">${pct === null ? '—' : `${pct}%`}</b></div>`;
+              return `<div class="skill-row ${r.a ? '' : 'untried'}"><span>${SUBJECT_ICONS[r.k]} ${t(`subj.${r.k}`)}${r.a ? ` <small class="muted">· ${t('profile.solvedN', { n: r.a })}</small>` : ''}</span><div class="bar" style="--c:${SUBJECT_COLORS[r.k]}"><i style="width:${pct ?? 0}%"></i></div><b title="${r.c}/${r.a}">${pct === null ? '-' : `${pct}%`}</b></div>`;
             })
             .join('')}
         </div>
@@ -255,7 +255,7 @@ function recordsPanel(p) {
       <div class="records">
         ${row('🔥', t('profile.bestStreak'), p.streak.best)}
         ${row('⚔️', t('profile.courseBosses'), courseBosses)}
-        ${row('🎯', `${t('quiz.short')} · ${t('quiz.mode.classic')}`, classic.length ? `${Math.max(...classic)}/10` : '—')}
+        ${row('🎯', `${t('quiz.short')} · ${t('quiz.mode.classic')}`, classic.length ? `${Math.max(...classic)}/10` : '-')}
         ${row('⚡', `${t('quiz.short')} · ${t('quiz.mode.blitz')}`, p.records.quizBlitz ?? 0)}
         ${row('❤️', `${t('quiz.short')} · ${t('quiz.mode.survival')}`, p.records.quizSurvival ?? 0)}
         ${row('📅', t('quiz.mode.daily'), Object.keys(p.records.quizDaily ?? {}).length)}
@@ -275,7 +275,7 @@ function satFoldBody(p, values) {
         <h2>${t('profile.radar')}</h2>
         ${radar(values)}
         <div class="domain-legend">${Object.entries(DOMAINS)
-          .map(([k, d]) => `<div class="dl-row"><span>${d.icon} ${esc(tx(d.name))}</span><b>${values[k] === null ? '—' : `${Math.round(values[k] * 100)}%`}</b></div>`)
+          .map(([k, d]) => `<div class="dl-row"><span>${d.icon} ${esc(tx(d.name))}</span><b>${values[k] === null ? '-' : `${Math.round(values[k] * 100)}%`}</b></div>`)
           .join('')}</div>
       </div>
       <div class="panel">
@@ -285,7 +285,7 @@ function satFoldBody(p, values) {
             .map(([k, sk]) => {
               const st = p.skills[k];
               const pct = st ? Math.round((st.c / st.a) * 100) : null;
-              return `<div class="skill-row ${st ? '' : 'untried'}"><span>${esc(tx(sk.name))}</span><div class="bar" style="--c:${DOMAINS[sk.domain].color}"><i style="width:${pct ?? 0}%"></i></div><b>${pct === null ? '—' : `${pct}%`}</b></div>`;
+              return `<div class="skill-row ${st ? '' : 'untried'}"><span>${esc(tx(sk.name))}</span><div class="bar" style="--c:${DOMAINS[sk.domain].color}"><i style="width:${pct ?? 0}%"></i></div><b>${pct === null ? '-' : `${pct}%`}</b></div>`;
             })
             .join('')}
         </div>
@@ -324,7 +324,7 @@ function examFoldBody(p, course) {
       ${scores
         .map(({ track, score }) => {
           const rec = p.practice?.[practiceKey(course, track)];
-          return `<a class="skill-row exam-subject" href="#/c/${course.id}/${track.id}"><span>${esc(track.icon)} ${esc(tx(track.name))}</span><div class="bar" style="--c:${course.color}"><i style="width:${Math.round(score * 100)}%"></i></div><b>${rec ? '★'.repeat(rec.best) + '☆'.repeat(3 - rec.best) : '—'}</b></a>`;
+          return `<a class="skill-row exam-subject" href="#/c/${course.id}/${track.id}"><span>${esc(track.icon)} ${esc(tx(track.name))}</span><div class="bar" style="--c:${course.color}"><i style="width:${Math.round(score * 100)}%"></i></div><b>${rec ? '★'.repeat(rec.best) + '☆'.repeat(3 - rec.best) : '-'}</b></a>`;
         })
         .join('')}
     </div>

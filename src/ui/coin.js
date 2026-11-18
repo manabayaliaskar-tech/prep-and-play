@@ -1,10 +1,10 @@
-// Монета Prep&Play: золотая, с лавровой ветвью и P&P в центре (картинки — icons/coin.svg и icons/coin-sm.svg,
+// Монета Prep&Play: золотая, с лавровой ветвью и P&P в центре (картинки - icons/coin.svg и icons/coin-sm.svg,
 // их рисует tools/coin-svg.mjs). Везде, где в тексте встречается 🪙, сам собой появляется значок монеты:
 // за этим следит coinify, поэтому эмодзи можно оставлять и в переводах, и в уведомлениях.
 
 export const COIN = '🪙';
 
-/** Значок монеты. cls: 'coin-lg' — подробная монета с бликом (для крупных мест). */
+/** Значок монеты. cls: 'coin-lg' - подробная монета с бликом (для крупных мест). */
 export const coinHtml = (cls = '') => `<i class="coin ${cls}" role="img" aria-label="${COIN}"></i>`;
 
 const SKIP = new Set(['SCRIPT', 'STYLE', 'TEXTAREA', 'OPTION', 'TITLE', 'INPUT', 'SELECT']);

@@ -187,8 +187,8 @@ export function logic(ctx, d) {
     return poolQ('i.logic', d, {
       prompt: L(
         `Find the value of the logical expression ${expr} when ${values} (1 is true, 0 is false).`,
-        `Найди значение логического выражения ${expr} при ${values} (1 — истина, 0 — ложь).`,
-        `${values} болғанда ${expr} логикалық өрнегінің мәнін тап (1 — ақиқат, 0 — жалған).`,
+        `Найди значение логического выражения ${expr} при ${values} (1 - истина, 0 - ложь).`,
+        `${values} болғанда ${expr} логикалық өрнегінің мәнін тап (1 - ақиқат, 0 - жалған).`,
       ),
       ex: steps(
         L(
@@ -316,21 +316,21 @@ export const INFORMATICS_THEORY = [
     T('Оперативная память хранит данные только пока компьютер включён.', 'Жедел жады деректерді тек компьютер қосулы кезде ғана сақтайды.', 'RAM keeps data only while the computer is switched on.')],
   [1, T('Какое расширение обычно имеет текстовый файл без оформления?', 'Безендірусіз мәтіндік файлдың кеңейтілуі әдетте қандай?', 'Which extension does a plain text file usually have?'),
     '.txt', ['.jpg', '.mp3', '.exe'],
-    T('.txt — простой текст, .jpg — изображение, .mp3 — звук, .exe — программа.', '.txt — қарапайым мәтін, .jpg — сурет, .mp3 — дыбыс, .exe — бағдарлама.', '.txt is plain text, .jpg is an image, .mp3 is sound, .exe is a program.')],
+    T('.txt - простой текст, .jpg - изображение, .mp3 - звук, .exe - программа.', '.txt - қарапайым мәтін, .jpg - сурет, .mp3 - дыбыс, .exe - бағдарлама.', '.txt is plain text, .jpg is an image, .mp3 is sound, .exe is a program.')],
   [2, T('Сколько разных значений можно закодировать с помощью 5 бит?', '5 биттің көмегімен неше түрлі мәнді кодтауға болады?', 'How many different values can be encoded with 5 bits?'),
     '32', ['10', '25', '64'],
     T('N бит дают 2ᴺ разных кодов: 2⁵ = 32.', 'N бит 2ᴺ түрлі код береді: 2⁵ = 32.', 'N bits give 2ᴺ different codes: 2⁵ = 32.')],
   [2, T('Какой протокол используется для передачи веб-страниц?', 'Веб-беттерді жіберу үшін қай хаттама қолданылады?', 'Which protocol is used to transfer web pages?'),
     'HTTP', ['FTP', 'SMTP', 'POP3'],
-    T('HTTP (и его защищённая версия HTTPS) передаёт веб-страницы. FTP — файлы, SMTP и POP3 — электронную почту.', 'HTTP (және оның қорғалған нұсқасы HTTPS) веб-беттерді жібереді. FTP — файлдарды, SMTP мен POP3 — электрондық поштаны.', 'HTTP (and its secure version HTTPS) transfers web pages. FTP transfers files, SMTP and POP3 handle e-mail.')],
+    T('HTTP (и его защищённая версия HTTPS) передаёт веб-страницы. FTP - файлы, SMTP и POP3 - электронную почту.', 'HTTP (және оның қорғалған нұсқасы HTTPS) веб-беттерді жібереді. FTP - файлдарды, SMTP мен POP3 - электрондық поштаны.', 'HTTP (and its secure version HTTPS) transfers web pages. FTP transfers files, SMTP and POP3 handle e-mail.')],
   [2, T('Как называется алгоритм, в котором действия повторяются, пока выполняется условие?', 'Шарт орындалып тұрғанда әрекеттер қайталанатын алгоритм қалай аталады?', 'What is an algorithm called in which actions repeat while a condition holds?'),
     T('циклический', 'циклдік', 'a loop'), [T('линейный', 'сызықтық', 'linear'), T('разветвляющийся', 'тармақталған', 'branching'), T('вспомогательный', 'көмекші', 'auxiliary')],
-    T('Повторение действий — это цикл. В линейном алгоритме действия идут подряд, в разветвляющемся выбирается одна из ветвей.', 'Әрекеттердің қайталануы — цикл. Сызықтық алгоритмде әрекеттер бірінен соң бірі орындалады, тармақталғанда бір тармақ таңдалады.', 'Repeating actions is a loop. In a linear algorithm the steps follow one another; in a branching one a single branch is chosen.')],
+    T('Повторение действий - это цикл. В линейном алгоритме действия идут подряд, в разветвляющемся выбирается одна из ветвей.', 'Әрекеттердің қайталануы - цикл. Сызықтық алгоритмде әрекеттер бірінен соң бірі орындалады, тармақталғанда бір тармақ таңдалады.', 'Repeating actions is a loop. In a linear algorithm the steps follow one another; in a branching one a single branch is chosen.')],
   [3, T('В электронной таблице в ячейке C1 записана формула =A1+$B$1. Какой она станет, если скопировать её в ячейку C2?', 'Электрондық кестеде C1 ұяшығына =A1+$B$1 формуласы жазылған. Оны C2 ұяшығына көшірсе, ол қандай болады?', 'In a spreadsheet, cell C1 contains the formula =A1+$B$1. What will it become when copied to cell C2?'),
     '=A2+$B$1', ['=A1+$B$1', '=A2+$B$2', '=B1+$B$1'],
     T('Относительная ссылка A1 сдвигается вместе с формулой и становится A2. Абсолютная ссылка $B$1 не меняется.', 'Салыстырмалы сілтеме A1 формуламен бірге жылжып, A2 болады. Абсолютті сілтеме $B$1 өзгермейді.', 'The relative reference A1 shifts with the formula and becomes A2. The absolute reference $B$1 does not change.')],
   [3, T('Сколько единиц в маске подсети 255.255.255.0, записанной в двоичном виде?', '255.255.255.0 ішкі желі маскасының екілік жазылуында неше бір цифры бар?', 'How many ones are there in the subnet mask 255.255.255.0 written in binary?'),
     '24', ['8', '16', '32'],
-    T('255 — это восемь единиц (11111111). Три таких числа дают 3 × 8 = 24 единицы.', '255 — сегіз бір цифры (11111111). Осындай үш сан 3 × 8 = 24 бірлік береді.', '255 is eight ones (11111111). Three such numbers give 3 × 8 = 24 ones.')],
+    T('255 - это восемь единиц (11111111). Три таких числа дают 3 × 8 = 24 единицы.', '255 - сегіз бір цифры (11111111). Осындай үш сан 3 × 8 = 24 бірлік береді.', '255 is eight ones (11111111). Three such numbers give 3 × 8 = 24 ones.')],
 ];
 INFORMATICS_THEORY.push(...INFORMATICS_MORE);

@@ -1,7 +1,7 @@
 # Картинки эмодзи для сайта: python3 tools/emoji-images.py
 # Находит все эмодзи в src/ и index.html, скачивает их объёмные версии из Fluent Emoji (Microsoft, MIT,
 # https://github.com/microsoft/fluentui-emoji), сжимает в WebP 128×128 в icons/emoji/ и обновляет src/ui/emoji-list.js.
-# Нужны: git, curl, Python с Pillow. Новые эмодзи на сайте — просто запустить скрипт ещё раз.
+# Нужны: git, curl, Python с Pillow. Новые эмодзи на сайте - просто запустить скрипт ещё раз.
 
 import glob, json, os, re, subprocess, tempfile, urllib.parse
 from PIL import Image
@@ -54,9 +54,9 @@ def main():
     rows = [', '.join(f"'{c}'" for c in codes[i:i + 10]) for i in range(0, len(codes), 10)]
     with open(os.path.join(ROOT, 'src', 'ui', 'emoji-list.js'), 'w') as fh:
         fh.write('// Список эмодзи, для которых есть картинки в icons/emoji (Fluent Emoji 3D от Microsoft, лицензия MIT).\n'
-                 '// Код — шестнадцатеричные коды символов через «-» без FE0F. Список пересоздаётся скриптом tools/emoji-images.py.\n\n'
+                 '// Код - шестнадцатеричные коды символов через «-» без FE0F. Список пересоздаётся скриптом tools/emoji-images.py.\n\n'
                  'export const EMOJI_CODES = new Set([\n' + '\n'.join('  ' + r + ',' for r in rows) + '\n]);\n')
-    print(f'картинок: {len(codes)}; нет в Fluent: {" ".join(missing) or "—"}')
+    print(f'картинок: {len(codes)}; нет в Fluent: {" ".join(missing) or "-"}')
 
 if __name__ == '__main__':
     main()

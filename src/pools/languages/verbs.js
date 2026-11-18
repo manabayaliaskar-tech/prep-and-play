@@ -1,6 +1,6 @@
 // Спряжение глаголов испанского и французского по временам.
 // Правильные глаголы спрягаются по правилам, у неправильных формы записаны полностью.
-// Два вида заданий: «какая форма подходит к лицу» и «какое время нужно по смыслу» (подсказка — слово-маркер).
+// Два вида заданий: «какая форма подходит к лицу» и «какое время нужно по смыслу» (подсказка - слово-маркер).
 
 import { pick, shuffle } from '../../core/random.js';
 import { L, poolQ } from '../gen.js';
@@ -64,7 +64,7 @@ const ES_REGULAR = [
 
 /**
  * Неправильные испанские глаголы: только те времена, что отличаются от правил.
- * fut — основа будущего и условного (tendr-), остальные — пять форм.
+ * fut - основа будущего и условного (tendr-), остальные - пять форм.
  */
 const ES_IRREGULAR = {
   ser: { obj: 'muy feliz', en: 'to be', ru: 'быть', kk: 'болу', pres: 'soy eres es somos son', pret: 'fui fuiste fue fuimos fueron', imp: 'era eras era éramos eran', subj: 'sea seas sea seamos sean', impsubj: 'fuera fueras fuera fuéramos fueran' },
@@ -84,7 +84,7 @@ const ES_IRREGULAR = {
 
 const ES_TENSES = {
   pres: { level: 1, name: L('present (presente)', 'настоящее время (presente)', 'осы шақ (presente)'), markers: ['Todos los días', 'Normalmente', 'Siempre'],
-    rule: L('The present tense describes habits and facts.', 'Настоящее время — привычки и факты: «каждый день», «обычно».', 'Осы шақ — әдеттер мен фактілер: «күн сайын», «әдетте».') },
+    rule: L('The present tense describes habits and facts.', 'Настоящее время - привычки и факты: «каждый день», «обычно».', 'Осы шақ - әдеттер мен фактілер: «күн сайын», «әдетте».') },
   pret: { level: 2, name: L('preterite (pretérito indefinido)', 'прошедшее завершённое (pretérito indefinido)', 'аяқталған өткен шақ (pretérito indefinido)'), markers: ['Ayer', 'El año pasado', 'Anoche'],
     rule: L('A finished action at a definite past time: ayer, el año pasado.', 'Законченное действие в определённый момент прошлого: ayer (вчера), el año pasado (в прошлом году).', 'Өткен шақтың белгілі бір сәтінде аяқталған іс-әрекет: ayer (кеше), el año pasado (өткен жылы).') },
   imp: { level: 3, name: L('imperfect (pretérito imperfecto)', 'прошедшее незавершённое (imperfecto)', 'аяқталмаған өткен шақ (imperfecto)'), markers: ['Antes', 'De niño', 'En aquella época'],
@@ -156,7 +156,7 @@ const FR_REGULAR = [
   ['remplir', 'le formulaire', 'to fill in', 'заполнять', 'толтыру'],
 ];
 
-/** Неправильные: пять времён полностью (по шесть форм), pp — причастие; etre — passé composé с être (не используется). */
+/** Неправильные: пять времён полностью (по шесть форм), pp - причастие; etre - passé composé с être (не используется). */
 const FR_IRREGULAR = {
   être: { obj: 'content', en: 'to be', ru: 'быть', kk: 'болу', pres: 'suis es est sommes êtes sont', imp: 'étais étais était étions étiez étaient', fut: 'ser', subj: 'sois sois soit soyons soyez soient', pp: 'été' },
   avoir: { obj: 'un chien', en: 'to have', ru: 'иметь', kk: 'ие болу', pres: 'ai as a avons avez ont', imp: 'avais avais avait avions aviez avaient', fut: 'aur', subj: 'aie aies ait ayons ayez aient', pp: 'eu' },
@@ -177,7 +177,7 @@ const FR_IRREGULAR = {
 
 const FR_TENSES = {
   pres: { level: 1, name: L('present (présent)', 'настоящее время (présent)', 'осы шақ (présent)'), markers: ["Tous les jours,", "D'habitude,", 'Le samedi,'],
-    rule: L('The present tense describes habits and facts.', 'Présent — привычки и факты: tous les jours (каждый день), d’habitude (обычно).', 'Présent — әдеттер мен фактілер: tous les jours (күн сайын), d’habitude (әдетте).') },
+    rule: L('The present tense describes habits and facts.', 'Présent - привычки и факты: tous les jours (каждый день), d’habitude (обычно).', 'Présent - әдеттер мен фактілер: tous les jours (күн сайын), d’habitude (әдетте).') },
   pc: { level: 2, name: L('passé composé', 'прошедшее время (passé composé)', 'өткен шақ (passé composé)'), markers: ['Hier,', 'La semaine dernière,', 'Ce matin,'],
     rule: L('A finished past action: avoir + past participle (j’ai parlé).', 'Законченное действие в прошлом: avoir + причастие (j’ai parlé).', 'Өткенде аяқталған іс-әрекет: avoir + есімше (j’ai parlé).') },
   imp: { level: 3, name: L('imperfect (imparfait)', 'прошедшее длительное (imparfait)', 'созылыңқы өткен шақ (imparfait)'), markers: ['Autrefois,', 'Quand nous étions petits,', 'À cette époque,'],
@@ -233,7 +233,7 @@ const LANGS = {
   fr: { verbs: FR_VERBS, tenses: FR_TENSES, persons: FR_PRONOUNS, forms: frForms },
 };
 
-/** Времена, доступные на уровне: на C2 — все, но только неправильные глаголы. */
+/** Времена, доступные на уровне: на C2 - все, но только неправильные глаголы. */
 function tensesFor(lang, level) {
   const all = Object.keys(LANGS[lang].tenses);
   if (level >= 6) return all;
@@ -248,8 +248,8 @@ function explain(lang, verb, tense, answer) {
   const t = LANGS[lang].tenses[tense];
   return L(
     `${t.rule.en} ${verb.inf} (${verb.en}): ${answer}.`,
-    `${t.rule.ru} ${verb.inf} (${verb.ru}) — ${t.name.ru}: ${answer}.`,
-    `${t.rule.kk} ${verb.inf} (${verb.kk}) — ${t.name.kk}: ${answer}.`,
+    `${t.rule.ru} ${verb.inf} (${verb.ru}) - ${t.name.ru}: ${answer}.`,
+    `${t.rule.kk} ${verb.inf} (${verb.kk}) - ${t.name.kk}: ${answer}.`,
   );
 }
 
@@ -293,7 +293,7 @@ function tenseTask(ctx, topic, lang, tense, verb) {
   const { forms, persons, tenses } = LANGS[lang];
   const p = Math.floor(ctx.rng() * persons.length);
   const subject = pick(ctx.rng, persons[p]);
-  // У модальных глаголов условная форма звучит как вежливое «мог бы», «следовало бы» — её не даём в ловушки.
+  // У модальных глаголов условная форма звучит как вежливое «мог бы», «следовало бы» - её не даём в ловушки.
   const modal = MODALS.has(verb.inf);
   const other = shuffle(SAFE[lang][tense].filter((t) => !(verb.etre && (t === 'pc' || t === 'pqp')) && !(modal && t === 'cond')), ctx.rng);
   const show = (t) => {
@@ -326,7 +326,7 @@ export function verbsMaker(topic, lang) {
     for (let attempt = 0; attempt < 12; attempt++) {
       const own = tensesFor(lang, level);
       const lower = Object.keys(LANGS[lang].tenses).filter((t) => LANGS[lang].tenses[t].level < level);
-      // Чаще — времена своего уровня, иногда — повторение пройденных.
+      // Чаще - времена своего уровня, иногда - повторение пройденных.
       const tense = pick(ctx.rng, lower.length && level < 6 && ctx.rng() < 0.35 ? lower : own);
       const verb = pick(ctx.rng, verbsFor(lang, level, tense));
       const q = (level === 1 || ctx.rng() < 0.5 ? personTask : tenseTask)(ctx, topic, lang, tense, verb);

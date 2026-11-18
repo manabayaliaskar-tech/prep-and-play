@@ -1,12 +1,12 @@
 // Новые вещи: костюмы (BODY), обувь (FEET) и дополнительные вещи на спину (BACK_MORE).
-// Правила координат — в комментариях к BODY, FEET, BACK в ./wear.js.
-// Анимации (классы of-*) — в styles/parts/outfits.css; при prefers-reduced-motion они выключаются.
+// Правила координат - в комментариях к BODY, FEET, BACK в ./wear.js.
+// Анимации (классы of-*) - в styles/parts/outfits.css; при prefers-reduced-motion они выключаются.
 
 // ---------- Общие детали костюмов ----------
 
 /** Ткань костюма: всё ниже линии top (обрезается по кругу тела). */
 const cloth = (top, fill, line) => `<path d="${top} L150 150 L-10 150 Z" fill="${fill}" stroke="${line}" stroke-width="2" stroke-linejoin="round"/>`;
-/** Тень снизу справа — объём. */
+/** Тень снизу справа - объём. */
 const shade = (c, o = 0.35) => `<path d="M114 100 A48 48 0 0 1 46 121.6 A80 80 0 0 0 114 100 Z" fill="${c}" opacity="${o}"/>`;
 /** Контур по нижнему краю шара (только под одеждой). */
 const rim = (c) => `<path d="M28 101 A47 47 0 0 0 112 101" fill="none" stroke="${c}" stroke-width="2.6"/>`;
@@ -18,7 +18,7 @@ const mirror = (s) => `${s}<g transform="matrix(-1 0 0 1 140 0)">${s}</g>`;
 const spark = (x, y, s, fill, cls = '', delay = 0) =>
   `<path${cls ? ` class="${cls}"` : ''}${delay ? ` style="animation-delay:${delay}s"` : ''} d="M${x} ${y - s}Q${x} ${y} ${x + s} ${y}Q${x} ${y} ${x} ${y + s}Q${x} ${y} ${x - s} ${y}Q${x} ${y} ${x} ${y - s}Z" fill="${fill}"/>`;
 
-// Вырезы горловины: круглый и V-образный (низ выреза — на глубине d).
+// Вырезы горловины: круглый и V-образный (низ выреза - на глубине d).
 const NR = 'M-10 98 L38 100 Q50 101 55 104 Q70 117 85 104 Q90 101 102 100 L150 98';
 const NRC = 'M38 100.4 Q50 101 55 104 Q70 117 85 104 Q90 101 102 100.4';
 const nv = (d, a = 54, b = 86) => `M-10 98 L44 100 Q${a - 3} 100 ${a} 102 L70 ${d} L${b} 102 Q${b + 3} 100 96 100 L150 98`;
@@ -246,7 +246,7 @@ export const BODY_ART = {
 };
 
 // ---------- Обувь ----------
-// Рисуем левую туфлю (носок наружу, влево); правая — её зеркальная копия.
+// Рисуем левую туфлю (носок наружу, влево); правая - её зеркальная копия.
 
 const feet = (id, left) => `<g class="wear-${id}">${mirror(left)}</g>`;
 /** Силуэт ботинка: носок слева, пятка у центра (x ≈ 67.5), подошва на y ≈ 139. */
@@ -444,5 +444,5 @@ export const BACK_MORE = {
     ${spark(4, 18, 3.4, '#fff', 'of-twinkle')}${spark(138, 30, 3, '#e0f2fe', 'of-twinkle', 0.6)}${spark(-6, 104, 2.6, '#fff', 'of-twinkle', 1.1)}${spark(144, 110, 2.4, '#cffafe', 'of-twinkle', 1.6)}</g>`,
 };
 
-// Убираем переносы строк и отступы из разметки (их много — Препи бывает на странице десятками).
+// Убираем переносы строк и отступы из разметки (их много - Препи бывает на странице десятками).
 for (const dict of [BODY_ART, FEET_ART, BACK_MORE]) for (const k of Object.keys(dict)) dict[k] = dict[k].replace(/\s*\n\s*/g, ' ').trim();

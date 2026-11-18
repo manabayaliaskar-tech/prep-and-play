@@ -1,7 +1,7 @@
 // Сборка сайта для публикации: node tools/build.mjs → папка _site.
 // Исходники не меняются: код из 160+ модулей склеивается в один сжатый файл src/main.js,
 // стили сжимаются, картинки и остальные файлы копируются как есть.
-// Так на телефоне сайт грузит один файл вместо цепочки из сотен — заметно быстрее, особенно на медленном интернете.
+// Так на телефоне сайт грузит один файл вместо цепочки из сотен - заметно быстрее, особенно на медленном интернете.
 
 import { build, transform } from 'esbuild';
 import { cpSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
@@ -40,5 +40,5 @@ const kb = (f) => {
   const gz = gzipSync(readFileSync(f)).length;
   return `${(raw / 1024).toFixed(0)} КБ (сжатие при передаче: ${(gz / 1024).toFixed(0)} КБ)`;
 };
-console.log(`src/main.js — ${kb(`${OUT}/src/main.js`)}`);
-console.log(`styles/main.css — ${kb(`${OUT}/styles/main.css`)}`);
+console.log(`src/main.js - ${kb(`${OUT}/src/main.js`)}`);
+console.log(`styles/main.css - ${kb(`${OUT}/styles/main.css`)}`);

@@ -12,7 +12,7 @@ import { _setProfileForTests, getProfile } from '../src/core/profile.js';
 const mem = new Map();
 globalThis.localStorage ??= { getItem: (k) => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, String(v)), removeItem: (k) => mem.delete(k), clear: () => mem.clear() };
 
-test('разбор ошибок: у «ловушек» есть объяснение, у правильного ответа — нет; работает и для ввода числа', async () => {
+test('разбор ошибок: у «ловушек» есть объяснение, у правильного ответа - нет; работает и для ввода числа', async () => {
   const { wrongReason } = await import('../src/ui/question.js');
   const rng = createRng(11);
   let mcWithWhy = 0;
@@ -41,7 +41,7 @@ test('разбор ошибок: у «ловушек» есть объяснен
   assert.ok(sprWithTraps > 5, `заданий с ловушками при вводе: ${sprWithTraps}`);
 });
 
-test('адаптивная сложность: два верных подряд — выше, ошибка — ниже, ключ темы подбирается по уровню', async () => {
+test('адаптивная сложность: два верных подряд - выше, ошибка - ниже, ключ темы подбирается по уровню', async () => {
   const { AdaptiveStream, TIERS, keyForTier, mergeSpec } = await import('../src/core/adaptive.js');
   assert.equal(keyForTier([1, 2, 3], 0), 1);
   assert.equal(keyForTier([3, 1, 2], TIERS - 1), 3);
@@ -78,7 +78,7 @@ test('диагностика: по 4 задания на предмет или �
   assert.ok(levels.length <= 8 && levels[0] === math.tracks[0] && levels.at(-1) === math.tracks.at(-1));
   const mq = diagQuestions(math, [], createRng(6));
   assert.equal(mq.length, levels.length * DIAG_PER_LEVEL);
-  // Первые два уровня — всё верно, на третьем ошибка: советуем третий.
+  // Первые два уровня - всё верно, на третьем ошибка: советуем третий.
   const log = mq.map((q, i) => ({ question: q, correct: i < 4 || i === 5 }));
   const res = diagResult(math, log);
   assert.equal(res.level, levels[2].id);
@@ -222,14 +222,14 @@ test('полные IELTS Reading: 8 тестов по 3 текста (650+ сл�
     assert.ok(qs.some((q) => q.type === 'heading') && qs.some((q) => q.type === 'ynng') && qs.some((q) => q.type === 'bank'), test.id);
     const letters = [0, 0, 0, 0];
     for (const q of qs) if (q.type === 'mc') letters[q.item.answer] += 1;
-    assert.ok(letters.every((x) => x >= 2), `${test.id}: правильные ответы равномерно по буквам A–D (${letters})`);
+    assert.ok(letters.every((x) => x >= 2), `${test.id}: правильные ответы равномерно по буквам A-D (${letters})`);
   }
   assert.equal(bandFor(40), 9);
   assert.equal(bandFor(30), 7);
   assert.equal(bandFor(23), 6);
   assert.ok(bandFor(0) >= 1);
   assert.equal(nextTest([]).id, IELTS_TESTS[0].id);
-  assert.equal(nextTest([{ band: 6 }]).id, IELTS_TESTS[1].id, 'старые попытки без номера — это тест 1');
+  assert.equal(nextTest([{ band: 6 }]).id, IELTS_TESTS[1].id, 'старые попытки без номера - это тест 1');
 });
 
 test('анимации тем: каждая привязана к существующим темам и есть на странице', async () => {
@@ -303,7 +303,7 @@ test('монета: картинки P&P на месте, стили на них
   for (const svg of [big, small]) {
     assert.ok(svg.startsWith('<svg') && svg.includes('P&amp;P'), 'в центре P&P');
   }
-  assert.ok(big.includes('url(#leaf)'), 'на крупной монете — лавровая ветвь');
+  assert.ok(big.includes('url(#leaf)'), 'на крупной монете - лавровая ветвь');
   const css = readFileSync('styles/main.css', 'utf8');
   assert.ok(css.includes("url('../icons/coin.svg')") && css.includes("url('../icons/coin-sm.svg')"));
   assert.ok(readFileSync('tools/build.mjs', 'utf8').includes("'icons'"), 'папка icons попадает на сайт');
@@ -353,7 +353,7 @@ test('эмодзи картинками: у каждого эмодзи на с�
       if (!emojiSrc(m[0])) missing.add(m[0]);
     }
   }
-  assert.deepEqual([...missing], [], 'нет картинки — запусти python3 tools/emoji-images.py');
+  assert.deepEqual([...missing], [], 'нет картинки - запусти python3 tools/emoji-images.py');
   for (const code of EMOJI_CODES) assert.ok(existsSync(`icons/emoji/${code}.webp`), code);
   assert.equal(emojiCode('⚛️'), '269b');
   assert.equal(emojiSrc('🪙'), null, 'монета рисуется отдельно');

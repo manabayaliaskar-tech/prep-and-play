@@ -1,5 +1,5 @@
-// Новые питомцы и ауры (рисунки — в src/ui/art/pets.js и src/ui/art/auras.js).
-// META — что добавить в каталог вещей (core/wardrobe.js), NAMES — названия для strings (wear.<id>).
+// Новые питомцы и ауры (рисунки - в src/ui/art/pets.js и src/ui/art/auras.js).
+// META - что добавить в каталог вещей (core/wardrobe.js), NAMES - названия для strings (wear.<id>).
 
 export const META = [
   // Питомцы

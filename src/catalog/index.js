@@ -15,7 +15,7 @@ export const courseHref = (course) => course.href ?? `/c/${course.id}`;
 export const trackHref = (course, track) => `/c/${course.id}/${track.id}`;
 export const practiceKey = (course, track) => `${course.id}:${track.id}`;
 
-/** Подпись уровня: «Уровень 3» или код европейской шкалы (A1…C2). Для предметов экзамена — пусто. */
+/** Подпись уровня: «Уровень 3» или код европейской шкалы (A1…C2). Для предметов экзамена - пусто. */
 export function levelLabel(course, track) {
   if (!course.leveled) return '';
   if (track.kicker) return tx(track.kicker);
@@ -36,10 +36,10 @@ export function courseStars(course) {
 
 /** Раздел сайта, к которому относится адрес (для подсветки меню). */
 export function groupOfPath(path) {
-  // Слабые темы курса — раздел этого курса (а /weak без курса — тренировка слабых навыков SAT).
+  // Слабые темы курса - раздел этого курса (а /weak без курса - тренировка слабых навыков SAT).
   const weak = path.match(/^\/weak\/([^/]+)/);
   if (weak) return courseById(weak[1])?.group ?? null;
-  // Диагностика, карта знаний и «под мой уровень» — тоже разделы своего курса.
+  // Диагностика, карта знаний и «под мой уровень» - тоже разделы своего курса.
   const tool = path.match(/^\/(diag|know|adapt)\/([^/]+)/);
   if (tool) return courseById(tool[2])?.group ?? null;
   if (path === '/exams' || /^\/(sat|map|level|boss|exam|survival|blitz|weak|daily|duel|detective|mock|ielts-full)(\/|$)/.test(path)) return 'exams';

@@ -1,7 +1,7 @@
-// Препи Пасс: каждый календарный месяц — новый сезон со своей темой и 30 уровнями наград на двух дорожках:
-// бесплатной и «Золотой» (открывается за монеты). Очки пасса — опыт за месяц плюс задания пасса (3 на день, 5 на неделю).
-// После 30-го уровня — бесконечные бонусные уровни с осколками.
-// Очки сезона = опыт, заработанный в этом месяце (с множителем серии). На ступенях — монеты,
+// Препи Пасс: каждый календарный месяц - новый сезон со своей темой и 30 уровнями наград на двух дорожках:
+// бесплатной и «Золотой» (открывается за монеты). Очки пасса - опыт за месяц плюс задания пасса (3 на день, 5 на неделю).
+// После 30-го уровня - бесконечные бонусные уровни с осколками.
+// Очки сезона = опыт, заработанный в этом месяце (с множителем серии). На ступенях - монеты,
 // бесплатные сундуки удачи и три эксклюзивные вещи, которые можно получить только в этом месяце.
 
 import { dayKey } from './dates.js';
@@ -25,7 +25,7 @@ export const THEMES = [
   { name: { en: 'New Year', ru: 'Новый год', kk: 'Жаңа жыл' }, icon: '🎄', colors: ['#bbf7d0', '#b91c1c'], items: ['gifts', 'xmas', 'reindeer'] },
 ];
 
-/** Ступени с вещами и сундуками; остальные — монеты. */
+/** Ступени с вещами и сундуками; остальные - монеты. */
 const ITEM_TIERS = { 10: 0, 20: 1, 30: 2 };
 const BOX_TIERS = { 5: 'basic', 15: 'super', 25: 'mega' };
 
@@ -36,7 +36,7 @@ export const themeOf = (id) => THEMES[seasonMonth(id)];
 /** Цена «Золотой» дорожки в монетах. */
 export const GOLD_PRICE = 1500;
 
-// «Золотая» дорожка: на особых уровнях — вещи магазина (какие именно — выбирает магазин по сезону), сундуки и главный приз.
+// «Золотая» дорожка: на особых уровнях - вещи магазина (какие именно - выбирает магазин по сезону), сундуки и главный приз.
 const GOLD_SPECIAL = {
   3: { type: 'good', kind: 'emote', rarity: 'rare' },
   6: { type: 'good', kind: 'room', rarity: 'rare' },
@@ -52,7 +52,7 @@ const GOLD_SPECIAL = {
 
 /**
  * Награда уровня. Бесплатная дорожка: { type: 'coins', n } | { type: 'shards', n } | { type: 'box', box } | { type: 'item', id }.
- * «Золотая» — ещё { type: 'good', kind, rarity } (вещь магазина этого сезона).
+ * «Золотая» - ещё { type: 'good', kind, rarity } (вещь магазина этого сезона).
  */
 export function tierReward(id, tier, track = 'free') {
   if (track === 'gold') {
@@ -65,7 +65,7 @@ export function tierReward(id, tier, track = 'free') {
   return { type: 'coins', n: Math.round((30 + tier * 5) / 5) * 5 };
 }
 
-/** Состояние сезона в профиле (новый месяц — новый сезон). */
+/** Состояние сезона в профиле (новый месяц - новый сезон). */
 export function seasonState(profile, day = dayKey()) {
   const id = seasonId(day);
   const s = profile.season?.id === id ? profile.season : { id, pts: 0, claimed: [] };
@@ -84,7 +84,7 @@ export function seasonState(profile, day = dayKey()) {
   return { id, pts: s.pts, tier, into, claimed: s.claimed, claimable, gold, claimedGold, claimableGold, bonus, bonusReady };
 }
 
-/** Профиль на текущий сезон (новый месяц — новый сезон). */
+/** Профиль на текущий сезон (новый месяц - новый сезон). */
 function ensureSeason(profile, day) {
   const id = seasonId(day);
   if (profile.season?.id !== id) profile.season = { id, pts: 0, claimed: [] };
@@ -102,7 +102,7 @@ export function buyGold(profile, day = dayKey()) {
   return { ok: true };
 }
 
-/** Бонусный уровень после 30-го: осколки (на «Золотой» — вдвое больше). */
+/** Бонусный уровень после 30-го: осколки (на «Золотой» - вдвое больше). */
 export const BONUS_SHARDS = 50;
 export function claimBonus(profile, day = dayKey()) {
   const st = seasonState(profile, day);
@@ -123,7 +123,7 @@ export function seasonLeft(now = new Date()) {
 
 /**
  * Начисляет очки сезона. Если начался новый месяц, невзятые награды прошлого сезона
- * выдаются автоматически (сундуки — монетами), а очки начинаются с нуля.
+ * выдаются автоматически (сундуки - монетами), а очки начинаются с нуля.
  * Возвращает { tierUp: новая ступень или 0, rollover: { coins, items } | null }.
  */
 export function addSeasonPts(profile, pts, day = dayKey()) {
@@ -165,7 +165,7 @@ function settleSeason(profile) {
 }
 
 /**
- * Забирает награду уровня на дорожке (если уровень достигнут, награда ещё не взята, а для «Золотой» — пасс куплен).
+ * Забирает награду уровня на дорожке (если уровень достигнут, награда ещё не взята, а для «Золотой» - пасс куплен).
  * Монеты, осколки и вещи сезона выдаются сразу; сундуки и вещи магазина открывает экран.
  */
 export function claimTier(profile, tier, day = dayKey(), track = 'free') {
@@ -185,7 +185,7 @@ export function claimTier(profile, tier, day = dayKey(), track = 'free') {
 // ---------- Задания пасса ----------
 
 const count = (key) => (p) => p.counters?.[key] ?? 0;
-/** Задания: metric — счётчик профиля (прогресс = прирост с момента выдачи задания) или abs — текущее значение. */
+/** Задания: metric - счётчик профиля (прогресс = прирост с момента выдачи задания) или abs - текущее значение. */
 export const QUESTS = {
   'd.answer': { kind: 'day', target: 20, pts: 120, metric: count('answered') },
   'd.correct': { kind: 'day', target: 15, pts: 120, metric: count('correct') },

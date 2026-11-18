@@ -1,5 +1,5 @@
-// Дополнительные тексты для IELTS и TOEFL: длиннее прежних (350–450 слов), ближе к экзамену.
-// Формат тот же, что в reading.js: tf(...) — True / False / Not Given, mc(...) — первый вариант правильный.
+// Дополнительные тексты для IELTS и TOEFL: длиннее прежних (350-450 слов), ближе к экзамену.
+// Формат тот же, что в reading.js: tf(...) - True / False / Not Given, mc(...) - первый вариант правильный.
 
 import { L } from './gen.js';
 
@@ -43,8 +43,8 @@ export const IELTS_MORE = [
         'By absorbing heat from asphalt',
       ], L(
         'The text says plants cool the air "by releasing water vapour, a process that uses energy from the air".',
-        'В тексте сказано, что растения охлаждают воздух, «выделяя водяной пар — этот процесс забирает энергию у воздуха».',
-        'Мәтін бойынша өсімдіктер «су буын шығару арқылы» салқындатады — бұл процесс ауадан энергия алады.',
+        'В тексте сказано, что растения охлаждают воздух, «выделяя водяной пар - этот процесс забирает энергию у воздуха».',
+        'Мәтін бойынша өсімдіктер «су буын шығару арқылы» салқындатады - бұл процесс ауадан энергия алады.',
       )),
       mc('What does the writer mean by "the heat island can feed itself"?', [
         'Heat increases air-conditioner use, which leads to even more warming.',
@@ -114,9 +114,9 @@ export const IELTS_MORE = [
         'Highlighting key sentences in a textbook',
         'Copying notes into a new notebook',
       ], L(
-        'Retrieval practice means recalling without looking — for example, "explaining the topic to a friend".',
-        'Практика вспоминания — это воспроизведение без подсказки, например «объяснить тему другу».',
-        'Еске түсіру жаттығуы — қарамай еске түсіру, мысалы «тақырыпты досыңа түсіндіру».',
+        'Retrieval practice means recalling without looking - for example, "explaining the topic to a friend".',
+        'Практика вспоминания - это воспроизведение без подсказки, например «объяснить тему другу».',
+        'Еске түсіру жаттығуы - қарамай еске түсіру, мысалы «тақырыпты досыңа түсіндіру».',
       )),
       mc('What is the "main difficulty" mentioned in the last paragraph?', [
         'Effective methods feel harder, so students may not trust them.',
@@ -198,14 +198,14 @@ export const IELTS_MORE = [
     text:
       'Linguists estimate that around seven thousand languages are spoken in the world today, but their distribution is extremely uneven. A small number of major languages are used by the majority of the world\'s population, while thousands of others have only a few thousand speakers, and some only a handful of elderly ones. Many researchers believe that a large share of the world\'s languages could stop being spoken by the end of this century.\n\n' +
       'A language rarely disappears suddenly. More often the process takes several generations. Parents who speak a minority language may decide that their children will have better opportunities in school and at work if they use the dominant language of the country. The children understand their grandparents but answer in the majority language, and their own children may not understand the old language at all. When the last people who learned it as their first language die, the language is described as extinct, even if some words survive in songs or place names.\n\n' +
-      'Why should this matter to anyone who does not speak these languages? Supporters of language preservation give several reasons. Each language contains a unique way of describing the world, including detailed knowledge about local plants, animals and weather that may not exist anywhere else. Oral traditions — stories, poems and histories — can vanish together with the language in which they were told. For many communities, their language is also a central part of their identity.\n\n' +
+      'Why should this matter to anyone who does not speak these languages? Supporters of language preservation give several reasons. Each language contains a unique way of describing the world, including detailed knowledge about local plants, animals and weather that may not exist anywhere else. Oral traditions - stories, poems and histories - can vanish together with the language in which they were told. For many communities, their language is also a central part of their identity.\n\n' +
       'There are examples of successful revival. Hebrew, which for centuries was used mainly in religious texts, became the everyday language of millions of people in the twentieth century. In Wales, bilingual schools and media have helped the Welsh language to stabilise after a long decline. Revival is not easy, however. It requires materials for teaching, trained teachers and, above all, families who choose to speak the language at home.\n\n' +
       'Technology offers new tools as well. Linguists record elderly speakers, and communities create dictionaries, apps and online courses so that young people can learn the language of their ancestors.',
     qs: [
       tf('Most of the world’s languages have millions of speakers.', 1, L(
-        'False: thousands of languages have "only a few thousand speakers" — the distribution is very uneven.',
-        'False: у тысяч языков «лишь несколько тысяч носителей» — распределение очень неравномерное.',
-        'False: мыңдаған тілде «бар болғаны бірнеше мың сөйлеуші» бар — бөлініс өте біркелкі емес.',
+        'False: thousands of languages have "only a few thousand speakers" - the distribution is very uneven.',
+        'False: у тысяч языков «лишь несколько тысяч носителей» - распределение очень неравномерное.',
+        'False: мыңдаған тілде «бар болғаны бірнеше мың сөйлеуші» бар - бөлініс өте біркелкі емес.',
       )),
       tf('Languages usually disappear within a single year.', 1, L(
         'False: "A language rarely disappears suddenly. More often the process takes several generations."',
@@ -249,8 +249,8 @@ export const IELTS_MORE = [
         'Large online courses',
       ], L(
         'The text lists materials and teachers, "and, above all, families who choose to speak the language at home".',
-        'В тексте перечислены материалы и учителя, «а прежде всего — семьи, которые решают говорить на языке дома».',
-        'Мәтінде материалдар мен мұғалімдер аталған, «бәрінен бұрын — үйде сол тілде сөйлейтін отбасылар».',
+        'В тексте перечислены материалы и учителя, «а прежде всего - семьи, которые решают говорить на языке дома».',
+        'Мәтінде материалдар мен мұғалімдер аталған, «бәрінен бұрын - үйде сол тілде сөйлейтін отбасылар».',
       )),
     ],
   },
@@ -266,8 +266,8 @@ export const IELTS_MORE = [
     qs: [
       tf('Different kinds of tea come from different plants.', 1, L(
         'False: tea "is made from the leaves of a single plant, Camellia sinensis".',
-        'False: чай делают «из листьев одного растения — Camellia sinensis».',
-        'False: шай «бір ғана өсімдіктің — Camellia sinensis жапырақтарынан» жасалады.',
+        'False: чай делают «из листьев одного растения - Camellia sinensis».',
+        'False: шай «бір ғана өсімдіктің - Camellia sinensis жапырақтарынан» жасалады.',
       )),
       tf('Lu Yu wrote a book about growing and preparing tea.', 0, L(
         'True: he "produced a famous book describing how it should be grown, prepared and served".',
@@ -324,7 +324,7 @@ export const TOEFL_MORE = [
     title: 'The Horses of Botai',
     text:
       'The domestication of the horse changed human history. Horses allowed people to travel and trade over great distances, to herd animals across wide grasslands and, eventually, to fight on horseback. Yet the question of where and when horses were first domesticated has proved surprisingly difficult to answer.\n\n' +
-      'For many years, one of the strongest candidates was Botai, a settlement in northern Kazakhstan that was occupied around 5,500 years ago. Archaeologists working there found enormous numbers of horse bones — far more than the bones of any other animal. Some of the pottery contained traces of fats that appeared to come from mare\'s milk, and certain horse teeth showed wear that some researchers interpreted as damage caused by a bit, the metal or leather piece placed in a horse\'s mouth for riding. Together, this evidence suggested that the people of Botai were not merely hunting wild horses but keeping and possibly riding them.\n\n' +
+      'For many years, one of the strongest candidates was Botai, a settlement in northern Kazakhstan that was occupied around 5,500 years ago. Archaeologists working there found enormous numbers of horse bones - far more than the bones of any other animal. Some of the pottery contained traces of fats that appeared to come from mare\'s milk, and certain horse teeth showed wear that some researchers interpreted as damage caused by a bit, the metal or leather piece placed in a horse\'s mouth for riding. Together, this evidence suggested that the people of Botai were not merely hunting wild horses but keeping and possibly riding them.\n\n' +
       'In 2018, however, a genetic study complicated the picture. Scientists analysed ancient DNA from Botai horses and compared it with that of modern horses. They concluded that the Botai animals were not the main ancestors of today\'s domestic horses. Instead, they were most closely related to Przewalski\'s horses, the stocky animals of the Mongolian steppe that had long been considered the last truly wild horses. If the Botai horses had been domesticated, then Przewalski\'s horses are not wild at all but the descendants of animals that escaped from human control.\n\n' +
       'Later studies suggested that the ancestors of modern domestic horses spread from a region further west, in the steppes north of the Black and Caspian Seas, more than four thousand years ago. The debate about Botai continues: some researchers believe its people domesticated horses that later died out or became feral, while others think the evidence can be explained by intensive hunting. What is clear is that the steppes of Eurasia played a central role in the story of the horse.',
     qs: [
@@ -345,8 +345,8 @@ export const TOEFL_MORE = [
         'a part of a horse’s tooth',
       ], L(
         'The passage defines it: "a bit, the metal or leather piece placed in a horse’s mouth for riding".',
-        'В тексте дано определение: «удила — металлическая или кожаная деталь, которую вкладывают лошади в рот для верховой езды».',
-        'Мәтінде түсіндірілген: «ауыздық — мінген кезде жылқының аузына салатын темір не былғары бөлік».',
+        'В тексте дано определение: «удила - металлическая или кожаная деталь, которую вкладывают лошади в рот для верховой езды».',
+        'Мәтінде түсіндірілген: «ауыздық - мінген кезде жылқының аузына салатын темір не былғары бөлік».',
       )),
       mc('What did the 2018 genetic study conclude?', [
         'The Botai horses were closely related to Przewalski’s horses, not mainly to modern domestic horses.',
@@ -385,7 +385,7 @@ export const TOEFL_MORE = [
         'The author considers the question unimportant.',
       ], L(
         'The author writes "The debate about Botai continues" and presents both views without choosing one.',
-        'Автор пишет: «Споры о Ботае продолжаются» — и приводит обе точки зрения, не выбирая одну.',
+        'Автор пишет: «Споры о Ботае продолжаются» - и приводит обе точки зрения, не выбирая одну.',
         'Автор «Ботай туралы пікірталас жалғасуда» деп жазып, екі көзқарасты да таңдамай келтіреді.',
       )),
     ],
@@ -394,9 +394,9 @@ export const TOEFL_MORE = [
     id: 'glow',
     title: 'Living Light',
     text:
-      'On a dark night, waves on certain beaches glow blue, and in summer meadows fireflies flash like tiny lanterns. Both are examples of bioluminescence — the production of light by living organisms. The phenomenon is rare on land but remarkably common in the ocean, where a large proportion of the animals living in the deep sea are thought to be able to produce light.\n\n' +
+      'On a dark night, waves on certain beaches glow blue, and in summer meadows fireflies flash like tiny lanterns. Both are examples of bioluminescence - the production of light by living organisms. The phenomenon is rare on land but remarkably common in the ocean, where a large proportion of the animals living in the deep sea are thought to be able to produce light.\n\n' +
       'Bioluminescence is the result of a chemical reaction. In most cases a light-emitting molecule, generally called luciferin, reacts with oxygen with the help of an enzyme called luciferase. The energy released by the reaction is given off as light rather than heat, which is why bioluminescence is sometimes described as "cold light". Different organisms use different versions of these molecules, and as a result the light they produce varies in colour, although blue and green are by far the most common in the sea, because these colours travel farthest through water.\n\n' +
-      'Organisms use their light for a variety of purposes. Some deep-sea fish dangle a glowing lure in front of their mouths to attract prey. Many small animals living in the middle depths of the ocean light up their undersides to match the faint sunlight coming from above, so that predators looking up cannot see their silhouettes — a kind of camouflage known as counter-illumination. Fireflies, on the other hand, use flashes of light to communicate: each species has its own pattern, which helps males and females find each other.\n\n' +
+      'Organisms use their light for a variety of purposes. Some deep-sea fish dangle a glowing lure in front of their mouths to attract prey. Many small animals living in the middle depths of the ocean light up their undersides to match the faint sunlight coming from above, so that predators looking up cannot see their silhouettes - a kind of camouflage known as counter-illumination. Fireflies, on the other hand, use flashes of light to communicate: each species has its own pattern, which helps males and females find each other.\n\n' +
       'Some of the glowing waves seen from beaches are caused by tiny single-celled organisms called dinoflagellates, which flash when the water around them is disturbed. One theory suggests that the sudden light acts as a "burglar alarm": by lighting up, the dinoflagellates may attract larger predators that eat the animals trying to eat them.\n\n' +
       'Scientists have also found practical uses for bioluminescence. Genes that produce glowing proteins are used in laboratories to track how cells work, helping researchers study diseases and test new medicines.',
     qs: [
@@ -446,9 +446,9 @@ export const TOEFL_MORE = [
         'communicate with other dinoflagellates',
         'warm the water around them',
       ], L(
-        'The flash may "attract larger predators that eat the animals trying to eat them" — like an alarm calling for help.',
-        'Вспышка может «привлечь более крупных хищников, которые съедят тех, кто пытается съесть динофлагеллят», — как сигнализация.',
-        'Жарқыл «динофлагеллаттарды жегісі келгендерді жейтін ірі жыртқыштарды шақыруы» мүмкін — дабыл сияқты.',
+        'The flash may "attract larger predators that eat the animals trying to eat them" - like an alarm calling for help.',
+        'Вспышка может «привлечь более крупных хищников, которые съедят тех, кто пытается съесть динофлагеллят», - как сигнализация.',
+        'Жарқыл «динофлагеллаттарды жегісі келгендерді жейтін ірі жыртқыштарды шақыруы» мүмкін - дабыл сияқты.',
       )),
       mc('Which of the following is NOT mentioned as a use of bioluminescence by living things?', [
         'Keeping warm in cold water',
@@ -456,9 +456,9 @@ export const TOEFL_MORE = [
         'Communication between fireflies',
         'Camouflage',
       ], L(
-        'Prey, communication and camouflage are all described; keeping warm is not — the light is "cold".',
-        'Приманка, общение и маскировка описаны; согревание — нет (свет «холодный»).',
-        'Жем, қарым-қатынас және бүркеніс сипатталған; жылыну айтылмаған — жарық «суық».',
+        'Prey, communication and camouflage are all described; keeping warm is not - the light is "cold".',
+        'Приманка, общение и маскировка описаны; согревание - нет (свет «холодный»).',
+        'Жем, қарым-қатынас және бүркеніс сипатталған; жылыну айтылмаған - жарық «суық».',
       )),
     ],
   },
@@ -467,10 +467,10 @@ export const TOEFL_MORE = [
     title: 'The Penny Universities',
     text:
       'In the middle of the seventeenth century a new kind of public space appeared in London: the coffeehouse. The drink itself had come to Europe from the Ottoman Empire, where coffeehouses were already popular meeting places. The first London coffeehouse is usually dated to the 1650s, and within a few decades there were hundreds of them across the city.\n\n' +
-      'Coffeehouses differed from the taverns that had existed for centuries. Coffee did not make customers drunk, and the atmosphere encouraged conversation rather than noisy celebration. For the price of a single cup — often a penny for entry — a visitor could sit for hours, read the newspapers and pamphlets that were kept on the tables, and join discussions with strangers. Because of this, coffeehouses were nicknamed "penny universities".\n\n' +
+      'Coffeehouses differed from the taverns that had existed for centuries. Coffee did not make customers drunk, and the atmosphere encouraged conversation rather than noisy celebration. For the price of a single cup - often a penny for entry - a visitor could sit for hours, read the newspapers and pamphlets that were kept on the tables, and join discussions with strangers. Because of this, coffeehouses were nicknamed "penny universities".\n\n' +
       'Many coffeehouses came to specialise. Merchants and ship owners gathered in some to exchange news about cargoes and voyages; scientists met in others to discuss experiments; writers and critics preferred their own favourite rooms. One coffeehouse owned by Edward Lloyd became a meeting place for people involved in shipping, and the business of insuring ships that grew there eventually developed into Lloyd\'s of London, a major insurance market that still exists today.\n\n' +
       'Not everyone welcomed the new institutions. Some critics complained that people wasted their time in coffeehouses instead of working. The government, worried that the lively political discussions might encourage opposition, attempted in 1675 to close them. The order caused such protest that it was withdrawn within days.\n\n' +
-      'Historians have argued that coffeehouses helped to create what is sometimes called a public sphere — a space where private individuals could gather to discuss matters of common concern and form opinions independently of the government and the church. Whether or not this view is entirely accurate, the coffeehouse clearly played an important role in the spread of news and ideas.',
+      'Historians have argued that coffeehouses helped to create what is sometimes called a public sphere - a space where private individuals could gather to discuss matters of common concern and form opinions independently of the government and the church. Whether or not this view is entirely accurate, the coffeehouse clearly played an important role in the spread of news and ideas.',
     qs: [
       mc('Where did London’s coffee culture originally come from?', [
         'The Ottoman Empire',
@@ -488,9 +488,9 @@ export const TOEFL_MORE = [
         'Students received a penny for each visit.',
         'Professors gave official lectures there.',
       ], L(
-        'For a penny a visitor could read newspapers and discuss topics with others — like learning at a university.',
-        'За пенни посетитель мог читать газеты и обсуждать темы с другими — как будто учиться в университете.',
-        'Бір пенни төлеп келуші газет оқып, басқалармен пікір алмаса алған — университетте оқығандай.',
+        'For a penny a visitor could read newspapers and discuss topics with others - like learning at a university.',
+        'За пенни посетитель мог читать газеты и обсуждать темы с другими - как будто учиться в университете.',
+        'Бір пенни төлеп келуші газет оқып, басқалармен пікір алмаса алған - университетте оқығандай.',
       )),
       mc('How were coffeehouses different from taverns?', [
         'Coffee did not make people drunk, so conversation was encouraged.',
@@ -528,9 +528,9 @@ export const TOEFL_MORE = [
         'certain that it is fully correct',
         'uninterested in the question',
       ], L(
-        'The author says "Whether or not this view is entirely accurate", the coffeehouse clearly helped spread news — a cautious position.',
-        'Автор пишет: «Верна ли эта точка зрения полностью или нет», кофейни явно помогали распространять новости — осторожная позиция.',
-        'Автор «Бұл көзқарас толық дұрыс па, жоқ па» деп жазады, бірақ кофеханалар жаңалық таратқаны анық — сақ ұстаным.',
+        'The author says "Whether or not this view is entirely accurate", the coffeehouse clearly helped spread news - a cautious position.',
+        'Автор пишет: «Верна ли эта точка зрения полностью или нет», кофейни явно помогали распространять новости - осторожная позиция.',
+        'Автор «Бұл көзқарас толық дұрыс па, жоқ па» деп жазады, бірақ кофеханалар жаңалық таратқаны анық - сақ ұстаным.',
       )),
     ],
   },
@@ -561,7 +561,7 @@ export const TOEFL_MORE = [
         'The claw at the end of a tardigrade’s leg',
       ], L(
         'When drying out, tardigrades "curl into a dry ball called a tun", and their metabolism nearly stops.',
-        'Высыхая, тихоходки «сворачиваются в сухой шарик — тун», и обмен веществ почти останавливается.',
+        'Высыхая, тихоходки «сворачиваются в сухой шарик - тун», и обмен веществ почти останавливается.',
         'Кепкенде тихоходтар «тун деп аталатын құрғақ шарға айналады», зат алмасуы тоқтауға жақын болады.',
       )),
       mc('What happened to tardigrades after the 2007 space experiment?', [

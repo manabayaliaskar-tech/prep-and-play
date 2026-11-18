@@ -21,7 +21,7 @@ export function ratios(ctx, d) {
       ex: steps(
         st(
           `${b * n} cups of sugar is ${n} times as much as ${b} cups (${b * n} ÷ ${b} = ${n}).`,
-          `${b * n} стаканов сахара — это в ${n} раз больше, чем ${b} (${b * n} ÷ ${b} = ${n}).`,
+          `${b * n} стаканов сахара - это в ${n} раз больше, чем ${b} (${b * n} ÷ ${b} = ${n}).`,
           `${b * n} стақан қант ${b} стақаннан ${n} есе көп (${b * n} ÷ ${b} = ${n}).`,
         ),
         st(
@@ -80,7 +80,7 @@ export function percent(ctx, d) {
       ex: steps(
         st(
           `${p}% means ${p}/100 = ${(p / 100).toString()}.`,
-          `${p}% — это ${p}/100 = ${(p / 100).toString()}.`,
+          `${p}% - это ${p}/100 = ${(p / 100).toString()}.`,
           `${p}% дегеніміз ${p}/100 = ${(p / 100).toString()}.`,
         ),
         same(`${(p / 100).toString()} · ${num(N)} = ${num(ans)}.`),
@@ -137,12 +137,12 @@ export function percent(ctx, d) {
     ex: steps(
       st(
         `A change of ${c1 > 0 ? '+' : MINUS}${Math.abs(c1)}% multiplies the price by ${f1}; a change of ${c2 > 0 ? '+' : MINUS}${Math.abs(c2)}% multiplies it by ${f2}.`,
-        `Изменение на ${c1 > 0 ? '+' : MINUS}${Math.abs(c1)}% умножает цену на ${f1}, изменение на ${c2 > 0 ? '+' : MINUS}${Math.abs(c2)}% — на ${f2}.`,
+        `Изменение на ${c1 > 0 ? '+' : MINUS}${Math.abs(c1)}% умножает цену на ${f1}, изменение на ${c2 > 0 ? '+' : MINUS}${Math.abs(c2)}% - на ${f2}.`,
         `${c1 > 0 ? '+' : MINUS}${Math.abs(c1)}% өзгеріс бағаны ${f1} санына, ${c2 > 0 ? '+' : MINUS}${Math.abs(c2)}% өзгеріс ${f2} санына көбейтеді.`,
       ),
       st(
         `${f1} · ${f2} = ${(f1 * f2).toFixed(2)}, so the final price is ${num(ans)}% of the original. Percents can't simply be added!`,
-        `${f1} · ${f2} = ${(f1 * f2).toFixed(2)}, значит итоговая цена — ${num(ans)}% от исходной. Проценты нельзя просто складывать!`,
+        `${f1} · ${f2} = ${(f1 * f2).toFixed(2)}, значит итоговая цена - ${num(ans)}% от исходной. Проценты нельзя просто складывать!`,
         `${f1} · ${f2} = ${(f1 * f2).toFixed(2)}, демек соңғы баға бастапқының ${num(ans)}% құрайды. Пайыздарды жай қосуға болмайды!`,
       ),
     ),
@@ -184,8 +184,8 @@ export function stats(ctx, d) {
         st(`Sort the list: ${sorted.join(', ')}.`, `Упорядочим список: ${sorted.join(', ')}.`, `Тізімді реттейміз: ${sorted.join(', ')}.`),
         st(
           `There are 6 values, so the median is the average of the 3rd and 4th: (${sorted[2]} + ${sorted[3]}) ÷ 2 = ${num(median)}.`,
-          `Чисел 6 — чётное количество, поэтому медиана — среднее 3-го и 4-го: (${sorted[2]} + ${sorted[3]}) ÷ 2 = ${num(median)}.`,
-          `Сандар саны 6 (жұп), сондықтан медиана — 3-ші және 4-ші сандардың орташасы: (${sorted[2]} + ${sorted[3]}) ÷ 2 = ${num(median)}.`,
+          `Чисел 6 - чётное количество, поэтому медиана - среднее 3-го и 4-го: (${sorted[2]} + ${sorted[3]}) ÷ 2 = ${num(median)}.`,
+          `Сандар саны 6 (жұп), сондықтан медиана - 3-ші және 4-ші сандардың орташасы: (${sorted[2]} + ${sorted[3]}) ÷ 2 = ${num(median)}.`,
         ),
       ),
       ...choose(ctx, median, [(values[2] + values[3]) / 2, Math.round(mean * 10) / 10, sorted[2], sorted[3]]),
@@ -263,9 +263,9 @@ export function probability(ctx, d) {
       wrong = [[b, total], [b, k2], [r1, total], [a, r1]];
       ex = steps(
         st(
-          `"A grade 10 student is selected" — so only the grade 10 row counts: ${r1} students.`,
-          `«Выбран ученик 10 класса» — значит, считаем только строку 10 класса: ${r1} учеников.`,
-          `«10-сынып оқушысы таңдалды» — тек 10-сынып жолын санаймыз: ${r1} оқушы.`,
+          `"A grade 10 student is selected" - so only the grade 10 row counts: ${r1} students.`,
+          `«Выбран ученик 10 класса» - значит, считаем только строку 10 класса: ${r1} учеников.`,
+          `«10-сынып оқушысы таңдалды» - тек 10-сынып жолын санаймыз: ${r1} оқушы.`,
         ),
         st(
           `Of them, ${b} chose Debate: ${b}/${r1} = ${fracText(b, r1)}.`,
@@ -365,12 +365,12 @@ export function models(ctx, d) {
         st(
           `In <i>y</i> = ${m}${X} + ${b}, the slope (${m}) is how much <i>y</i> changes when ${X} increases by 1.`,
           `В <i>y</i> = ${m}${X} + ${b} угловой коэффициент (${m}) показывает, на сколько меняется <i>y</i>, когда ${X} растёт на 1.`,
-          `<i>y</i> = ${m}${X} + ${b} теңдеуінде еңіс (${m}) — ${X} 1-ге артқанда <i>y</i> қаншаға өзгеретінін көрсетеді.`,
+          `<i>y</i> = ${m}${X} + ${b} теңдеуінде еңіс (${m}) - ${X} 1-ге артқанда <i>y</i> қаншаға өзгеретінін көрсетеді.`,
         ),
         st(
           `The <i>y</i>-intercept (${b}) is the predicted value when ${X} = 0, at the very start.`,
-          `Свободный член (${b}) — это прогноз при ${X} = 0, в самом начале.`,
-          `Бос мүше (${b}) — ${X} = 0 кездегі, яғни ең басындағы болжам.`,
+          `Свободный член (${b}) - это прогноз при ${X} = 0, в самом начале.`,
+          `Бос мүше (${b}) - ${X} = 0 кездегі, яғни ең басындағы болжам.`,
         ),
       ),
       mc: makeMc(rng, correct, wrong, (s) => s),

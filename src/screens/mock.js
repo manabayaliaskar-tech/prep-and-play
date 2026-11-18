@@ -1,5 +1,5 @@
 // Пробный экзамен целиком: выбор предметов и версии (полная / короткая), разделы по порядку
-// со своим таймером, между разделами — экран-переход, в конце — балл по шкале экзамена,
+// со своим таймером, между разделами - экран-переход, в конце - балл по шкале экзамена,
 // разбор ошибок и история прошлых попыток.
 
 import { MOCKS, electiveSlots, mockPlan, mockScore, picksComplete } from '../catalog/mocks.js';
@@ -38,12 +38,12 @@ const historyOf = (examId) => (getProfile().mocks ?? []).filter((m) => m.exam ==
 
 const fmtDay = (d) => d.split('-').reverse().slice(0, 2).join('.');
 
-/** Точки графика: все попытки по порядку; короткая версия — полая точка. */
+/** Точки графика: все попытки по порядку; короткая версия - полая точка. */
 export const progressPoints = (examId) =>
   historyOf(examId).map((h) => ({ label: fmtDay(h.date), value: h.score, hollow: h.short, note: h.short ? t('mock.short') : t('mock.full') }));
 
 /**
- * Панель «Твой прогресс»: график и только факты — лучший, последний, изменение с первой попытки.
+ * Панель «Твой прогресс»: график и только факты - лучший, последний, изменение с первой попытки.
  * Никаких прогнозов: баллы растут постепенно, и обещать их нельзя.
  */
 export function progressPanelHtml(examId) {
@@ -59,7 +59,7 @@ export function progressPanelHtml(examId) {
       <div><b>${list.length}</b><span>${t('mock.attempts')}</span></div>
       <div><b>${best}</b><span>${t('mock.bestShort')}</span></div>
       <div><b>${last.score}</b><span>${t('mock.lastShort')}</span></div>
-      <div><b class="${diff > 0 ? 'is-up' : diff < 0 ? 'is-down' : ''}">${diff === null ? '—' : `${diff > 0 ? '+' : ''}${diff}`}</b><span>${t('mock.sinceFirst')}</span></div>
+      <div><b class="${diff > 0 ? 'is-up' : diff < 0 ? 'is-down' : ''}">${diff === null ? '-' : `${diff > 0 ? '+' : ''}${diff}`}</b><span>${t('mock.sinceFirst')}</span></div>
     </div>
     ${list.length >= 2 ? lineChart(progressPoints(examId), { max: last.max, ariaLabel: t('mock.progress') }) : `<p class="muted small">${t('mock.oneMore')}</p>`}
     <p class="muted tiny">${list.some((h) => h.short) ? `◯ ${t('mock.hollow')} · ` : ''}${t('mock.slow')}</p>

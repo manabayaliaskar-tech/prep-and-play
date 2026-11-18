@@ -96,7 +96,7 @@ test('неправильные глаголы английского: «прав
   }
 });
 
-test('испанский, французский — 6 уровней, китайский — HSK 1–6; в тренировке нет повторов', () => {
+test('испанский, французский - 6 уровней, китайский - HSK 1-6; в тренировке нет повторов', () => {
   for (const id of ['spanish', 'french', 'chinese', 'english', 'hsk']) {
     const course = COURSES.find((c) => c.id === id);
     assert.equal(course.tracks.length, 6, id);
@@ -156,7 +156,7 @@ test('генетика и география: ответы проверяютс�
   assert.equal(new Set(COUNTRIES.map((c) => c.capital.ru)).size, COUNTRIES.length);
 });
 
-test('науки: не меньше 6 уровней в каждом курсе, информатика — отдельный курс', () => {
+test('науки: не меньше 6 уровней в каждом курсе, информатика - отдельный курс', () => {
   for (const id of ['physics', 'chemistry', 'biology', 'geography', 'informatics']) {
     const course = COURSES.find((c) => c.id === id);
     assert.ok(course.tracks.length >= 6, id);
@@ -190,7 +190,7 @@ test('гуманитарные генераторы: корректные зад
   }
 });
 
-test('ударения: верный и неверный вариант — одно и то же слово, ударная буква одна', async () => {
+test('ударения: верный и неверный вариант - одно и то же слово, ударная буква одна', async () => {
   const src = (await import('node:fs')).readFileSync('src/pools/humanities/ru-gen.js', 'utf8');
   const block = src.slice(src.indexOf('const STRESS'), src.indexOf('`).map', src.indexOf('const STRESS')));
   const pairs = block.split('\n').filter((l) => /^\d\|/.test(l)).map((l) => l.split('|'));

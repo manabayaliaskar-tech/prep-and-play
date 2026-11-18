@@ -20,7 +20,7 @@ export function getPlan() {
   return COURSES.some((c) => c.id === plan.course) ? plan : null;
 }
 
-/** tracks — выбранные предметы (id дорожек); пусто — все предметы экзамена. */
+/** tracks - выбранные предметы (id дорожек); пусто - все предметы экзамена. */
 export function setPlan(course, date, tracks = null) {
   storage.set('plan', { course, date, created: dayKey(), ...(tracks?.length ? { tracks } : {}) });
 }
@@ -72,7 +72,7 @@ export function trackScores(course, profile = getProfile(), plan = getPlan()) {
   });
 }
 
-/** Готовность к экзамену в процентах. Для SAT — по навыкам SAT. */
+/** Готовность к экзамену в процентах. Для SAT - по навыкам SAT. */
 export function readiness(course, profile = getProfile()) {
   if (course.id === 'sat') {
     const ids = Object.keys(SKILLS);
@@ -93,7 +93,7 @@ export function planSpec(course, profile = getProfile()) {
 
 // ---------- Режим «экзамен через N дней» ----------
 
-/** Последняя неделя перед экзаменом — финиш: пробники и повтор ошибок, без новых тем. */
+/** Последняя неделя перед экзаменом - финиш: пробники и повтор ошибок, без новых тем. */
 export const FINAL_DAYS = 7;
 /** Сколько ответов по теме нужно, чтобы считать её отработанной. */
 export const READY_ANSWERS = 25;
@@ -111,7 +111,7 @@ export function planNeed(course, profile = getProfile(), plan = getPlan()) {
 
 /**
  * Норма на сегодня, которая «ужимается» к дате: всё, что осталось, делится на оставшиеся дни до финиша.
- * Пропустил день — норма на следующие дни подрастает. В финишную неделю — ровно 20 (повтор, без перегруза).
+ * Пропустил день - норма на следующие дни подрастает. В финишную неделю - ровно 20 (повтор, без перегруза).
  */
 export function planTarget(course, plan = getPlan(), profile = getProfile(), today = dayKey()) {
   const days = daysLeft(plan, today);
@@ -122,8 +122,8 @@ export function planTarget(course, plan = getPlan(), profile = getProfile(), tod
 }
 
 /**
- * Расписание по неделям до экзамена: в каждой неделе — предметы в фокусе (сначала самые слабые),
- * пробник раз в неделю (если для экзамена он есть), последняя неделя — финиш.
+ * Расписание по неделям до экзамена: в каждой неделе - предметы в фокусе (сначала самые слабые),
+ * пробник раз в неделю (если для экзамена он есть), последняя неделя - финиш.
  * [{ index, start, end, focus: [track], mock, final, current }]
  */
 export function planWeeks(course, plan = getPlan(), profile = getProfile(), today = dayKey(), limit = 26) {

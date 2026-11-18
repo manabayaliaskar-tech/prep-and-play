@@ -11,14 +11,14 @@ import { mascot } from '../src/ui/mascot.js';
 import { saveBossResult, saveTrackResult } from '../src/screens/practice.js';
 import { pathHtml } from '../src/screens/catalog.js';
 
-test('темы: у каждой есть палитра в CSS, основная — «Преп»', () => {
+test('темы: у каждой есть палитра в CSS, основная - «Преп»', () => {
   const css = readFileSync('styles/main.css', 'utf8');
   assert.equal(THEMES[0].id, 'prep');
   assert.equal(themeById('нет такой').id, 'prep');
   assert.equal(new Set(THEMES.map((t) => t.id)).size, THEMES.length);
   for (const theme of THEMES.slice(1)) assert.ok(css.includes(`[data-theme='${theme.id}']`), theme.id);
   assert.ok(THEMES.some((t) => t.dark), 'есть тёмная тема');
-  // Белый цвет поверхностей больше не зашит в стили — иначе тёмные темы сломаются.
+  // Белый цвет поверхностей больше не зашит в стили - иначе тёмные темы сломаются.
   assert.ok(!/background:\s*#fff(fff)?;/.test(css));
 });
 
@@ -96,7 +96,7 @@ test('Препи: каждое настроение рисуется, id гра�
   }
 });
 
-test('главная: 4 курса в блоке — сначала закреплённые, потом недавние, потом по умолчанию', async () => {
+test('главная: 4 курса в блоке - сначала закреплённые, потом недавние, потом по умолчанию', async () => {
   const { homeCourses } = await import('../src/core/pins.js');
   const daily = COURSES.filter((c) => c.group === 'daily');
   const fresh = homeCourses(daily, 'daily', { pins: [], profile: {} });
@@ -125,7 +125,7 @@ test('квиз: без повторов внутри игры и между иг
     }
   }
   assert.equal(repeats, 0, 'вопросы прошлых игр вернулись');
-  // Соседние вопросы — из разных предметов.
+  // Соседние вопросы - из разных предметов.
   const qs = buildQuiz({ rng: createRng(7), level: 4 });
   for (let i = 1; i < qs.length; i++) assert.notEqual(TOPICS[qs[i].skill].pool, TOPICS[qs[i - 1].skill].pool);
   // Свой квиз: только выбранные предметы.
@@ -148,9 +148,9 @@ test('квиз: без повторов внутри игры и между иг
   assert.equal(rows.reduce((s, r) => s + r.total, 0), 60);
 });
 
-test('работа над ошибками: ступени 0 → 1 день → 3 дня → неделя → освоено; ошибка — снова завтра', async () => {
+test('работа над ошибками: ступени 0 → 1 день → 3 дня → неделя → освоено; ошибка - снова завтра', async () => {
   const { addMistake, applyReview, dueMistakes, getMistakes, addDays } = await import('../src/core/review.js');
-  // В Node нет localStorage — подставляем простое хранилище в памяти.
+  // В Node нет localStorage - подставляем простое хранилище в памяти.
   const mem = new Map();
   globalThis.localStorage ??= { getItem: (k) => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, String(v)), removeItem: (k) => mem.delete(k), clear: () => mem.clear() };
   globalThis.localStorage.clear();
@@ -171,7 +171,7 @@ test('работа над ошибками: ступени 0 → 1 день → 
     assert.equal(applyReview('test:1', true, d), false);
     d = addDays(d, gap);
   }
-  assert.equal(applyReview('test:1', true, d), true, 'четвёртый верный ответ — освоено');
+  assert.equal(applyReview('test:1', true, d), true, 'четвёртый верный ответ - освоено');
   assert.equal(getMistakes().length, 0);
   assert.equal(addDays('2026-12-31', 1), '2027-01-01');
 });
@@ -203,7 +203,7 @@ test('план подготовки: норма растёт к экзамену
   assert.ok(planExams().some((c) => c.id === 'sat') && planExams().some((c) => c.id === 'ent'));
 });
 
-test('карточки слов: 4 раза «знал» — слово выучено, «не знал» — завтра с начала; колоды на 4 языка', async () => {
+test('карточки слов: 4 раза «знал» - слово выучено, «не знал» - завтра с начала; колоды на 4 языка', async () => {
   const { rateCard, cardState, deck, sessionCards, deckStats } = await import('../src/core/cards.js');
   const { addDays } = await import('../src/core/review.js');
   const mem = new Map();
@@ -395,7 +395,7 @@ test('магазин: товары дня, покупка, сундуки с о�
   assert.equal(new Set(GOODS.map((g) => g.id)).size, GOODS.length, 'id товаров не повторяются');
   for (const slot of ['aura', 'pet']) assert.ok(ITEMS.filter((it) => it.slot === slot).length >= 10, slot);
   for (const set of SETS) for (const id of set.items) assert.equal(goodById(id)?.unlock?.type, 'shop', `${set.id}: ${id}`);
-  // Товары дня одинаковые весь день, их четыре, со скидкой, и первый — эпический или легендарный.
+  // Товары дня одинаковые весь день, их четыре, со скидкой, и первый - эпический или легендарный.
   const deals = dailyDeals('2026-11-17');
   assert.deepEqual(deals, dailyDeals('2026-11-17'));
   assert.equal(new Set(deals.map((d) => d.id)).size, 4);
@@ -433,8 +433,8 @@ test('магазин: товары дня, покупка, сундуки с о�
   const coins0 = p.coins;
   addXp(400);
   assert.ok(p.coins - coins0 > Math.floor(400 / 4), 'бонус набора увеличил монеты');
-  // Сундук: мега — только эпик и легенда; гарантия легендарки не позже 4-го открытия; повторки → осколки.
-  // Все эпические и легендарные вещи уже есть — значит, каждая выпавшая станет повторкой.
+  // Сундук: мега - только эпик и легенда; гарантия легендарки не позже 4-го открытия; повторки → осколки.
+  // Все эпические и легендарные вещи уже есть - значит, каждая выпавшая станет повторкой.
   const topIds = GOODS.filter((g) => g.unlock?.type === 'shop' && ['epic', 'legendary'].includes(g.rarity)).map((g) => g.id);
   _setProfileForTests({ coins: 1000000, owned: topIds, sets: [], achievements: {} });
   const rng = createRng(42);
@@ -476,7 +476,7 @@ test('сезоны: очки из опыта, 30 ступеней, эксклю�
   const r = claimTier(p, 1, '2026-11-20');
   assert.equal(p.coins, r.n);
   assert.equal(claimTier(p, 1, '2026-11-20'), null, 'дважды не выдаётся');
-  // До 10-й ступени — эксклюзив сезона.
+  // До 10-й ступени - эксклюзив сезона.
   addSeasonPts(p, TIER_PTS * 7, '2026-11-21');
   claimTier(p, 10, '2026-11-21');
   assert.ok(isUnlocked(itemById('maple'), p));
@@ -548,7 +548,7 @@ test('план на сегодня: тренировка дня из ошибо�
   assert.equal(mix.questions.length, MIX_SIZE);
   assert.ok(mix.questions.some((q) => q.topic === 'm.pct'), 'слабая тема в тренировке');
   assert.ok(!todaySteps(prof, { today: '2026-11-17' }).some((s) => s.id === 'mock'), 'пробник был 3 дня назад');
-  assert.ok(todaySteps(prof, { today: '2026-11-25' }).some((s) => s.id === 'mock'), 'через неделю — снова пробник');
+  assert.ok(todaySteps(prof, { today: '2026-11-25' }).some((s) => s.id === 'mock'), 'через неделю - снова пробник');
   globalThis.localStorage.removeItem('prepplay:plan');
 });
 

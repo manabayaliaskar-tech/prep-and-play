@@ -28,7 +28,7 @@ export function buildMix(profile = getProfile(), today = dayKey(), rng = createR
   const rest = MIX_SIZE - mistakes.length;
   const questions = mistakes.map((x) => x.q);
   if (course) {
-    // Слабые темы — примерно половина, остальное — план или последний уровень.
+    // Слабые темы - примерно половина, остальное - план или последний уровень.
     const weakCount = weak.length ? Math.ceil(rest / 2) : 0;
     if (weakCount) questions.push(...buildTopicSet({ rng, spec: weakSpec(course, weak), count: weakCount }));
     const mainSpec = focus.plan ? planSpec(course, profile) : (focus.track ?? course.tracks[0]).spec;

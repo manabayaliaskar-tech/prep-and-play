@@ -345,7 +345,7 @@ export function seasonRoute(app) {
       if (el && shards) setTimeout(() => burst(el, `+${shards}`, 'shard'), 250);
     }
     render();
-    // Сундуки и вещи открываем по одному — у каждого своя анимация.
+    // Сундуки и вещи открываем по одному - у каждого своя анимация.
     if (special.length) setTimeout(() => claim(special[0][0], special[0][1], null), 450);
   }
 

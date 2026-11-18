@@ -1,6 +1,6 @@
 // Карточки слов с интервальным повтором (как в Anki): английский, испанский, французский, китайский.
-// «Знал» — карточка вернётся через 1, 3, 7, 21 день, после этого слово выучено.
-// «Не знал» — карточка вернётся завтра и начнёт с начала.
+// «Знал» - карточка вернётся через 1, 3, 7, 21 день, после этого слово выучено.
+// «Не знал» - карточка вернётся завтра и начнёт с начала.
 
 import { WORDS } from '../pools/languages/vocab.js';
 import { HANZI } from '../pools/languages/hanzi.js';
@@ -58,7 +58,7 @@ export function sessionCards(lang, level, count = 15, today = dayKey()) {
   return [...due, ...fresh].slice(0, count);
 }
 
-/** Ответ на карточку: knew — знал или нет. Возвращает true, если слово выучено. */
+/** Ответ на карточку: knew - знал или нет. Возвращает true, если слово выучено. */
 export function rateCard(id, knew, today = dayKey()) {
   const state = cardState();
   const st = state[id] ?? { s: 0, d: today };

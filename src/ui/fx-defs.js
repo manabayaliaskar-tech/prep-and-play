@@ -17,7 +17,7 @@ export function installFxDefs(doc = document) {
         <feComposite in2="off" operator="in" result="shadow"/>
         <feMerge><feMergeNode in="shadow"/><feMergeNode in="lit"/></feMerge>
       </filter>`;
-  // pp-3d — неподвижный (миниатюры в витрине, их много), pp-3d-live — с бегущим бликом (вещи на самом Препи).
+  // pp-3d - неподвижный (миниатюры в витрине, их много), pp-3d-live - с бегущим бликом (вещи на самом Препи).
   doc.body.insertAdjacentHTML(
     'afterbegin',
     `<svg id="pp-fx-defs" aria-hidden="true" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden">${filter('pp-3d', '')}${filter('pp-3d-live', shimmer)}</svg>`,

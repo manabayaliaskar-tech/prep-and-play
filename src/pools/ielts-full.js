@@ -1,8 +1,8 @@
-// Полные тесты IELTS Academic Reading: в каждом три длинных текста (≈650–700 слов), 40 вопросов, 60 минут.
-// Тест 1 — в этом файле, тесты 2–8 — в папке ielts/ (по файлу на тест).
+// Полные тесты IELTS Academic Reading: в каждом три длинных текста (≈650-700 слов), 40 вопросов, 60 минут.
+// Тест 1 - в этом файле, тесты 2-8 - в папке ielts/ (по файлу на тест).
 // Типы вопросов как на экзамене: True / False / Not Given, Yes / No / Not Given, выбор ответа,
 // подбор заголовков к абзацам и заполнение пропусков словами из списка.
-// Объяснение к каждому ответу — абзац и цитата из текста.
+// Объяснение к каждому ответу - абзац и цитата из текста.
 
 import { createRng, hashString, shuffle } from '../core/random.js';
 import { TEST_2 } from './ielts/t2.js';
@@ -40,7 +40,7 @@ export const IELTS_FULL = {
       groups: [
         {
           type: 'tfng',
-          intro: 'Questions 1–6. Do the following statements agree with the information given in the passage? Choose TRUE, FALSE or NOT GIVEN.',
+          intro: 'Questions 1-6. Do the following statements agree with the information given in the passage? Choose TRUE, FALSE or NOT GIVEN.',
           items: [
             tf('The saiga’s nose helps the animal to cope with both dust and cold air.', 0, 'A', 'it filters the dust kicked up by the herd during dry summer migrations and warms the freezing air the animal breathes in winter'),
             tf('Protection in the Soviet period failed to increase saiga numbers.', 1, 'B', 'strict protection introduced in the Soviet period allowed numbers to recover'),
@@ -52,7 +52,7 @@ export const IELTS_FULL = {
         },
         {
           type: 'bank',
-          intro: 'Questions 7–10. Complete the sentences. Choose the correct word, A–H, from the list.',
+          intro: 'Questions 7-10. Complete the sentences. Choose the correct word, A-H, from the list.',
           options: ['males', 'females', 'twins', 'horns', 'bacterium', 'humidity', 'fences', 'calves'],
           items: [
             gap('Poachers targeted adult ______ because only they have horns.', 0, 'B', 'Because only males carry horns, poachers removed adult males from the herds'),
@@ -63,7 +63,7 @@ export const IELTS_FULL = {
         },
         {
           type: 'mc',
-          intro: 'Questions 11–13. Choose the correct letter, A, B, C or D.',
+          intro: 'Questions 11-13. Choose the correct letter, A, B, C or D.',
           items: [
             choice('Why were far fewer calves born in the 1990s?', ['Many females died in harsh winters.', 'Poachers removed most of the adult males.', 'Rangers moved the herds to new areas.', 'A disease reduced the number of births.'], 1, 'B', 'poachers removed adult males from the herds so efficiently that in some herds there was only one male for every hundred females, and far fewer calves were born'),
             choice('What happened in 2023?', ['The saiga was listed as Critically Endangered.', 'Hunting of saiga was completely banned.', 'The IUCN improved the saiga’s conservation status.', 'The population fell below one million.'], 2, 'E', 'in 2023 the International Union for Conservation of Nature moved the species from “Critically Endangered” to “Near Threatened”'),
@@ -78,15 +78,15 @@ export const IELTS_FULL = {
         ['A', 'Long before compasses or satellite navigation, Pacific islanders crossed thousands of kilometres of open ocean in double-hulled canoes, settling islands scattered across an area larger than Asia. For a long time, many Western scholars refused to believe that these voyages had been deliberate. They argued that the islands must have been reached by accident, by canoes blown off course by storms. In the 1960s, a computer simulation of drifting canoes appeared to support this sceptical view, but it also showed something unexpected: drifting alone could not explain how people had reached several of the most remote islands, including Hawaii and New Zealand.'],
         ['B', 'The debate was settled less by argument than by experiment. In 1976 a replica voyaging canoe called Hōkūleʻa sailed from Hawaii to Tahiti, a distance of about 4,000 kilometres, without any modern instruments. Its navigator, Mau Piailug, came from a small island in Micronesia where traditional navigation had never completely died out. The voyage took 33 days, and the canoe arrived exactly where it had intended to arrive.'],
         ['C', 'How was it done? The navigator’s most important tool was a mental model sometimes called a star compass. Stars rise in the east and set in the west at fixed points on the horizon, which change little over a human lifetime. By memorising where dozens of stars rise and set, a navigator could hold a steady course at night, switching to a new star as each one climbed too high in the sky to be useful. During the day, the sun played a similar role, especially near sunrise and sunset.'],
-        ['D', 'But the sky is not always clear, and much of the skill lay in reading the sea itself. Ocean swells — long, regular waves generated by distant weather systems — can keep the same direction for days. Experienced navigators could reportedly feel the pattern of several swells crossing each other through the movement of the canoe, sometimes lying down in the hull to sense it better. When an island lies in the path of a swell, it bends and reflects the waves, creating patterns that an expert could interpret long before land was visible.'],
+        ['D', 'But the sky is not always clear, and much of the skill lay in reading the sea itself. Ocean swells - long, regular waves generated by distant weather systems - can keep the same direction for days. Experienced navigators could reportedly feel the pattern of several swells crossing each other through the movement of the canoe, sometimes lying down in the hull to sense it better. When an island lies in the path of a swell, it bends and reflects the waves, creating patterns that an expert could interpret long before land was visible.'],
         ['E', 'Knowing the direction is only half of navigation; a navigator must also know how far the canoe has travelled. Micronesian navigators used a remarkable mental technique known as etak. Rather than imagining the canoe moving across a fixed sea, the navigator imagined the canoe as stationary while a reference island, out of sight to one side, moved slowly backwards along the horizon beneath a series of stars. Each time the hidden island “passed” under a new star, a stage of the journey was complete. The method sounds strange to people raised on maps, but it allowed navigators to keep a continuous estimate of their position, even after days at sea and without writing anything down. Some researchers have compared it to the way a modern navigation system updates a moving dot on a screen, except that the entire calculation took place in one person’s memory.'],
         ['F', 'Living things offered further clues. Certain seabirds, such as terns and noddies, sleep on land but fly out to sea to fish during the day. Seeing them heading in a particular direction at dawn or dusk could tell a navigator that an island lay that way, usually within a few dozen kilometres. Clouds also tend to gather over islands, and a greenish tint on the underside of a cloud could signal a shallow lagoon below.'],
-        ['G', 'Since the voyage of Hōkūleʻa, a revival of traditional voyaging has spread across the Pacific. New canoes have been built, and young navigators are trained using a combination of the old methods and modern teaching. Training is demanding: apprentices may spend years learning star paths and swell patterns on land before they are allowed to guide a voyage. Between 2014 and 2017, Hōkūleʻa itself sailed around the world. Supporters say the revival is not about rejecting modern technology; rather, it is about recovering knowledge that shows how closely earlier generations observed the natural world — and about restoring pride in a heritage that outsiders once dismissed.'],
+        ['G', 'Since the voyage of Hōkūleʻa, a revival of traditional voyaging has spread across the Pacific. New canoes have been built, and young navigators are trained using a combination of the old methods and modern teaching. Training is demanding: apprentices may spend years learning star paths and swell patterns on land before they are allowed to guide a voyage. Between 2014 and 2017, Hōkūleʻa itself sailed around the world. Supporters say the revival is not about rejecting modern technology; rather, it is about recovering knowledge that shows how closely earlier generations observed the natural world - and about restoring pride in a heritage that outsiders once dismissed.'],
       ],
       groups: [
         {
           type: 'heading',
-          intro: 'Questions 14–20. Choose the correct heading for each paragraph, A–G, from the list of headings below.',
+          intro: 'Questions 14-20. Choose the correct heading for each paragraph, A-G, from the list of headings below.',
           options: [
             'A practical test ends a long argument',
             'Using the stars to hold a course',
@@ -110,7 +110,7 @@ export const IELTS_FULL = {
         },
         {
           type: 'mc',
-          intro: 'Questions 21–23. Choose the correct letter, A, B, C or D.',
+          intro: 'Questions 21-23. Choose the correct letter, A, B, C or D.',
           items: [
             choice('What did the computer simulation of the 1960s show?', ['That all Pacific islands were found by accident', 'That drifting could not explain how some remote islands were reached', 'That canoes could not survive storms', 'That the islands were settled from Asia'], 1, 'A', 'drifting alone could not explain how people had reached several of the most remote islands'),
             choice('Why was Mau Piailug able to guide the canoe?', ['He had studied modern navigation.', 'He had sailed to Tahiti before.', 'He came from a place where traditional navigation had survived.', 'He used a secret instrument.'], 2, 'B', 'came from a small island in Micronesia where traditional navigation had never completely died out'),
@@ -119,11 +119,11 @@ export const IELTS_FULL = {
         },
         {
           type: 'tfng',
-          intro: 'Questions 24–26. Do the following statements agree with the information given in the passage? Choose TRUE, FALSE or NOT GIVEN.',
+          intro: 'Questions 24-26. Do the following statements agree with the information given in the passage? Choose TRUE, FALSE or NOT GIVEN.',
           items: [
             tf('The voyage from Hawaii to Tahiti took more than a month.', 0, 'B', 'The voyage took 33 days'),
             tf('Navigators could feel ocean swells only while standing up.', 1, 'D', 'sometimes lying down in the hull to sense it better'),
-            tf('The round-the-world voyage of 2014–2017 was paid for by the government of Hawaii.', 2, 'G', 'The passage says when Hōkūleʻa sailed around the world, but not who paid for it.'),
+            tf('The round-the-world voyage of 2014-2017 was paid for by the government of Hawaii.', 2, 'G', 'The passage says when Hōkūleʻa sailed around the world, but not who paid for it.'),
           ],
         },
       ],
@@ -132,9 +132,9 @@ export const IELTS_FULL = {
       title: 'Should Schools Teach With Games?',
       paras: [
         ['A', 'Few ideas in education have been promoted as enthusiastically as the use of games in the classroom. Supporters claim that games can turn reluctant students into eager learners, provide instant feedback and allow each pupil to progress at his or her own pace. Critics reply that games are expensive, distracting and, at worst, a way of making learning feel like entertainment rather than effort. Both sides, in my view, tend to overstate their case, and the evidence is more interesting than either of them suggests.'],
-        ['B', 'It is worth separating two quite different things that are often discussed under the same name. The first is “gamification”: adding points, badges, levels and leaderboards to ordinary tasks. The second is the use of genuine games, in which the learning is built into the rules themselves — for example, a simulation in which students manage a city’s water supply and must understand the science in order to succeed. Confusing the two makes it hard to say whether “games work”, because the answer depends on which of them is meant. The research on these two approaches does not point in the same direction.'],
-        ['C', 'Studies of gamification generally find modest benefits, mostly in the short term. Points and badges can encourage students to complete more exercises, especially routine practice that they might otherwise avoid. However, several studies have found that the effect fades once the novelty wears off, and some suggest that rewards can even reduce interest in activities that students already enjoyed. Psychologists have long known that people who are rewarded for doing something they find interesting sometimes lose their enthusiasm for it once the reward stops. This does not mean that points are useless — they are cheap and easy to introduce — but it does mean they should not be treated as a substitute for good teaching.'],
-        ['D', 'Well-designed learning games have produced more impressive results in some areas, particularly in mathematics and science, where abstract ideas can be turned into something students can manipulate and test. A student who adjusts the angle of a virtual cannon until the ball lands on target is, in effect, carrying out a series of small experiments. The key word, however, is “well-designed”. A game in which the learning is merely decoration — answer a question, then enjoy thirty seconds of shooting aliens — teaches little beyond the question itself, and the exciting part may actually distract from it.'],
+        ['B', 'It is worth separating two quite different things that are often discussed under the same name. The first is “gamification”: adding points, badges, levels and leaderboards to ordinary tasks. The second is the use of genuine games, in which the learning is built into the rules themselves - for example, a simulation in which students manage a city’s water supply and must understand the science in order to succeed. Confusing the two makes it hard to say whether “games work”, because the answer depends on which of them is meant. The research on these two approaches does not point in the same direction.'],
+        ['C', 'Studies of gamification generally find modest benefits, mostly in the short term. Points and badges can encourage students to complete more exercises, especially routine practice that they might otherwise avoid. However, several studies have found that the effect fades once the novelty wears off, and some suggest that rewards can even reduce interest in activities that students already enjoyed. Psychologists have long known that people who are rewarded for doing something they find interesting sometimes lose their enthusiasm for it once the reward stops. This does not mean that points are useless - they are cheap and easy to introduce - but it does mean they should not be treated as a substitute for good teaching.'],
+        ['D', 'Well-designed learning games have produced more impressive results in some areas, particularly in mathematics and science, where abstract ideas can be turned into something students can manipulate and test. A student who adjusts the angle of a virtual cannon until the ball lands on target is, in effect, carrying out a series of small experiments. The key word, however, is “well-designed”. A game in which the learning is merely decoration - answer a question, then enjoy thirty seconds of shooting aliens - teaches little beyond the question itself, and the exciting part may actually distract from it.'],
         ['E', 'One frequently overlooked factor is the role of the teacher. In studies where games were most effective, teachers did not simply hand them out and step back. They introduced the game, interrupted it to discuss what students were noticing, and afterwards helped them connect what had happened in the game to the concepts in the curriculum. Without this discussion, students may become skilful at the game without understanding why their strategies work, which limits how far they can apply what they have learned. Short discussions of just five or ten minutes appear to be enough to make a noticeable difference.'],
         ['F', 'Cost is a genuine concern, but it is often misunderstood. The most expensive part of using games is rarely the software itself; it is the teacher time needed to learn the game, plan around it and lead the discussion. Schools that buy games without allowing for this time are, I believe, likely to be disappointed. Several schools in one study reported that games bought with enthusiasm were abandoned within a year, not because students disliked them but because teachers had never been given time to learn them properly. On the other hand, some of the most successful classroom games require no technology at all: card games and board games designed around a single concept can be produced for almost nothing.'],
         ['G', 'So should schools teach with games? The honest answer is: sometimes, and carefully. Games are tools, not methods, and their value depends on what they are asked to do. The question a teacher should ask is not “Is this fun?” but “What will students have to think about in order to win?” If the answer is the subject itself, the game deserves a place in the classroom. If it is something else, students may enjoy themselves, but they will not learn much.'],
@@ -142,7 +142,7 @@ export const IELTS_FULL = {
       groups: [
         {
           type: 'mc',
-          intro: 'Questions 27–31. Choose the correct letter, A, B, C or D.',
+          intro: 'Questions 27-31. Choose the correct letter, A, B, C or D.',
           items: [
             choice('In paragraph A, what does the writer say about supporters and critics of games?', ['Supporters have better evidence.', 'Both groups exaggerate their arguments.', 'Critics are mainly worried about cost.', 'Both groups agree on the main facts.'], 1, 'A', 'Both sides, in my view, tend to overstate their case'),
             choice('What is the main difference between gamification and genuine games?', ['Genuine games are always digital.', 'Gamification is more expensive.', 'In genuine games, the learning is part of the rules.', 'Gamification is used only in science.'], 2, 'B', 'genuine games, in which the learning is built into the rules themselves'),
@@ -153,7 +153,7 @@ export const IELTS_FULL = {
         },
         {
           type: 'ynng',
-          intro: 'Questions 32–36. Do the following statements agree with the claims of the writer? Choose YES, NO or NOT GIVEN.',
+          intro: 'Questions 32-36. Do the following statements agree with the claims of the writer? Choose YES, NO or NOT GIVEN.',
           items: [
             tf('Points and badges should not replace good teaching.', 0, 'C', 'they should not be treated as a substitute for good teaching'),
             tf('The positive effect of points and badges often becomes weaker over time.', 0, 'C', 'the effect fades once the novelty wears off'),
@@ -164,7 +164,7 @@ export const IELTS_FULL = {
         },
         {
           type: 'bank',
-          intro: 'Questions 37–40. Complete the summary. Choose the correct word, A–H, from the list.',
+          intro: 'Questions 37-40. Complete the summary. Choose the correct word, A-H, from the list.',
           options: ['introduces', 'curriculum', 'strategies', 'tools', 'rewards', 'software', 'ignores', 'scores'],
           items: [
             gap('Games work best when the teacher ______ them and leads a discussion.', 0, 'E', 'They introduced the game, interrupted it to discuss what students were noticing'),
@@ -179,8 +179,8 @@ export const IELTS_FULL = {
 };
 
 /**
- * Равномерно раскладывает правильные ответы по буквам A–D: варианты переставляются один раз при загрузке,
- * одинаково при каждом открытии (зерно — номер теста). Иначе верный ответ слишком часто оказывался бы под одной буквой.
+ * Равномерно раскладывает правильные ответы по буквам A-D: варианты переставляются один раз при загрузке,
+ * одинаково при каждом открытии (зерно - номер теста). Иначе верный ответ слишком часто оказывался бы под одной буквой.
  */
 function balanceLetters(test) {
   const rng = createRng(hashString(test.id));
@@ -202,7 +202,7 @@ function balanceLetters(test) {
 export const IELTS_TESTS = [IELTS_FULL, TEST_2, TEST_3, TEST_4, TEST_5, TEST_6, TEST_7, TEST_8].map(balanceLetters);
 export const testById = (id) => IELTS_TESTS.find((t) => t.id === id) ?? IELTS_TESTS[0];
 
-/** Все вопросы теста по порядку с номерами 1–40: { n, passage, group, item }. */
+/** Все вопросы теста по порядку с номерами 1-40: { n, passage, group, item }. */
 export function fullQuestions(test = IELTS_FULL) {
   const out = [];
   test.passages.forEach((passage, pi) =>

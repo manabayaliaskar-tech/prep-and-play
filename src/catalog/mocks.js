@@ -1,11 +1,11 @@
-// Пробные экзамены целиком: разделы по порядку, у каждого свой таймер, итог — по шкале экзамена.
+// Пробные экзамены целиком: разделы по порядку, у каждого свой таймер, итог - по шкале экзамена.
 // Формат приближен к настоящему (число заданий, время, баллы), но части без нашего контента
-// (аудирование, письмо, устная часть, родной язык) не входят — это сказано на странице экзамена.
-// Каждый раздел — дорожка курса экзамена (src/catalog/courses.js), задания берутся из её тем.
+// (аудирование, письмо, устная часть, родной язык) не входят - это сказано на странице экзамена.
+// Каждый раздел - дорожка курса экзамена (src/catalog/courses.js), задания берутся из её тем.
 
 /** Раздел: дорожка, число заданий, минуты, максимум баллов. */
 const sec = (track, count, minutes, points) => ({ track, count, minutes, points });
-/** Предметы по выбору: choose из from; count/minutes — число или { дорожка: число }; points — число или по слотам. */
+/** Предметы по выбору: choose из from; count/minutes - число или { дорожка: число }; points - число или по слотам. */
 const pick = (choose, from, count, minutes, points) => ({ choose, from, count, minutes, points });
 
 export const MOCKS = {
@@ -79,8 +79,8 @@ const valueFor = (v, track) => (typeof v === 'object' && !Array.isArray(v) ? v[t
 export const electiveSlots = (mock) => (mock.electives ?? []).map((g) => g.choose);
 
 /**
- * Список разделов экзамена с учётом выбора: picks — массив выбранных дорожек для каждой группы.
- * short — короткая версия: вдвое меньше заданий и времени.
+ * Список разделов экзамена с учётом выбора: picks - массив выбранных дорожек для каждой группы.
+ * short - короткая версия: вдвое меньше заданий и времени.
  */
 export function mockPlan(examId, picks = [], short = false) {
   const mock = MOCKS[examId];
@@ -104,7 +104,7 @@ const ogeGrade = (pct) => (pct >= 0.8 ? 5 : pct >= 0.55 ? 4 : pct >= 0.3 ? 3 : 2
 const round1 = (x) => Math.round(x * 10) / 10;
 
 /**
- * Итог по шкале экзамена. results — [{ track, correct, count, points }].
+ * Итог по шкале экзамена. results - [{ track, correct, count, points }].
  * Возвращает { score, max, unit, sections: [{ track, correct, count, pct, value, max }] }.
  * unit: 'points' | 'band' | 'grade' | 'percent' | 'mark'.
  */

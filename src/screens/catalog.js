@@ -17,7 +17,7 @@ import { fullReadCardHtml } from './fullread.js';
 
 const stars = (n) => `<span class="track-stars ${n ? 'has' : ''}" aria-label="${n}/3">${'★'.repeat(n)}${'☆'.repeat(3 - n)}</span>`;
 
-/** Темы дорожки без повторов — для подсказки «что внутри». */
+/** Темы дорожки без повторов - для подсказки «что внутри». */
 export function trackTopics(track) {
   return [...new Set(track.spec.map(([topic]) => topic))];
 }

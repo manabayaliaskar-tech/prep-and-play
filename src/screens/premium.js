@@ -1,4 +1,4 @@
-// Тарифы: бесплатная версия и три подписки — Золото, Алмаз, Аметист.
+// Тарифы: бесплатная версия и три подписки - Золото, Алмаз, Аметист.
 // Цены показываются в долларах. Перед покупкой показывается примерная сумма в местной валюте.
 // Оплата ещё не подключена: пока идёт бета-версия, все функции открыты.
 
@@ -26,7 +26,7 @@ import { openModal, toast } from '../ui/overlay.js';
 
 
 // Строки таблицы: [название, «скоро», бесплатно, золото, алмаз, аметист].
-// «Скоро» — функция ещё не готова и появится позже.
+// «Скоро» - функция ещё не готова и появится позже.
 const ROWS = [
   ['premium.rowAll', false, true, true, true, true],
   ['premium.rowSolutions', false, true, true, true, true],
@@ -38,7 +38,7 @@ const ROWS = [
   ['premium.rowAudio', true, false, false, false, true],
 ];
 
-const cell = (v) => (v === true ? '<span class="yes">✓</span>' : v === false ? '<span class="no">—</span>' : `<span class="txt">${t(v)}</span>`);
+const cell = (v) => (v === true ? '<span class="yes">✓</span>' : v === false ? '<span class="no">-</span>' : `<span class="txt">${t(v)}</span>`);
 const periodLabel = (period) => t(`premium.period${period.months}`);
 
 function currentCurrency() {
@@ -48,7 +48,7 @@ function currentCurrency() {
   try {
     zone = Intl.DateTimeFormat().resolvedOptions().timeZone ?? '';
   } catch {
-    // Часовой пояс недоступен — определим валюту только по языку браузера.
+    // Часовой пояс недоступен - определим валюту только по языку браузера.
   }
   return guessCurrency(zone, globalThis.navigator?.language ?? '');
 }

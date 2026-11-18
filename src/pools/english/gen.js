@@ -21,7 +21,7 @@ function choicesOf(rng, correct, wrong) {
   return { choices: order.map((k) => all[k]), answer: order.indexOf(0) };
 }
 
-/** Подлежащие: p — лицо (1 — I, 2 — you, 3 — он/она, pl — мы/они). */
+/** Подлежащие: p - лицо (1 - I, 2 - you, 3 - он/она, pl - мы/они). */
 const SUBJECTS = [
   { s: 'I', p: 1 },
   { s: 'You', p: 2 },
@@ -38,38 +38,38 @@ const be = (p) => (p === 1 ? 'am' : p === 3 ? 'is' : 'are');
 const was = (p) => (p === 1 || p === 3 ? 'was' : 'were');
 const has = (p) => (p === 3 ? 'has' : 'have');
 
-/** Формы времени для подлежащего; wrong — та же форма с ошибкой в согласовании. */
+/** Формы времени для подлежащего; wrong - та же форма с ошибкой в согласовании. */
 const TENSES = {
   ps: { level: 1, form: (v, p) => (p === 3 ? v.s : v.base), wrong: (v, p) => (p === 3 ? v.base : v.s), cont: false,
     markers: ['every day', 'on Sundays', 'every morning', 'twice a week'],
-    rule: L('Present Simple — habits and regular actions; he, she, it + -s.', 'Present Simple — привычки и регулярные действия; после he, she, it глагол с -s.', 'Present Simple — әдеттер мен тұрақты әрекеттер; he, she, it-тен кейін етістікке -s жалғанады.') },
+    rule: L('Present Simple - habits and regular actions; he, she, it + -s.', 'Present Simple - привычки и регулярные действия; после he, she, it глагол с -s.', 'Present Simple - әдеттер мен тұрақты әрекеттер; he, she, it-тен кейін етістікке -s жалғанады.') },
   pc: { level: 1, form: (v, p) => `${be(p)} ${v.ing}`, wrong: (v, p) => `${p === 3 ? 'are' : 'is'} ${v.ing}`, cont: true,
     markers: ['right now', 'at the moment', 'now'],
-    rule: L('Present Continuous — an action happening now: am / is / are + -ing.', 'Present Continuous — действие происходит сейчас: am / is / are + -ing.', 'Present Continuous — әрекет дәл қазір болып жатыр: am / is / are + -ing.') },
+    rule: L('Present Continuous - an action happening now: am / is / are + -ing.', 'Present Continuous - действие происходит сейчас: am / is / are + -ing.', 'Present Continuous - әрекет дәл қазір болып жатыр: am / is / are + -ing.') },
   past: { level: 2, form: (v) => v.past, wrong: (v) => (v.irregular ? `${v.base.replace(/e$/, '')}ed` : `did ${v.past}`), cont: false,
     markers: ['yesterday', 'last week', 'two days ago', 'last summer'],
-    rule: L('Past Simple — a finished action at a past time (yesterday, ago, last…).', 'Past Simple — законченное действие в прошлом: yesterday, ago, last…', 'Past Simple — өткен шақта аяқталған әрекет: yesterday, ago, last…') },
+    rule: L('Past Simple - a finished action at a past time (yesterday, ago, last…).', 'Past Simple - законченное действие в прошлом: yesterday, ago, last…', 'Past Simple - өткен шақта аяқталған әрекет: yesterday, ago, last…') },
   fut: { level: 2, form: (v) => `will ${v.base}`, wrong: (v) => `will ${v.s}`, cont: false,
     markers: ['tomorrow', 'next year', 'one day'], lead: 'I think',
-    rule: L('Future Simple — a prediction or decision about the future: will + verb.', 'Future Simple — предположение о будущем: will + глагол.', 'Future Simple — болашақ туралы болжам: will + етістік.') },
+    rule: L('Future Simple - a prediction or decision about the future: will + verb.', 'Future Simple - предположение о будущем: will + глагол.', 'Future Simple - болашақ туралы болжам: will + етістік.') },
   pastc: { level: 3, form: (v, p) => `${was(p)} ${v.ing}`, wrong: (v, p) => `${p === 1 || p === 3 ? 'were' : 'was'} ${v.ing}`, cont: true,
     markers: ['at eight o’clock last night', 'when the phone rang', 'all evening yesterday'],
-    rule: L('Past Continuous — an action in progress at a past moment: was / were + -ing.', 'Past Continuous — действие в процессе в момент прошлого: was / were + -ing.', 'Past Continuous — өткендегі белгілі сәтте болып жатқан әрекет: was / were + -ing.') },
+    rule: L('Past Continuous - an action in progress at a past moment: was / were + -ing.', 'Past Continuous - действие в процессе в момент прошлого: was / were + -ing.', 'Past Continuous - өткендегі белгілі сәтте болып жатқан әрекет: was / were + -ing.') },
   pp: { level: 3, form: (v, p) => `${has(p)} ${v.pp}`, wrong: (v, p) => `${p === 3 ? 'have' : 'has'} ${v.pp}`, cont: false,
     markers: ['already', 'three times since Monday', 'many times before'],
-    rule: L('Present Perfect — a result now or experience up to now: have / has + past participle.', 'Present Perfect — результат к настоящему моменту: have / has + третья форма.', 'Present Perfect — қазіргі сәттегі нәтиже: have / has + үшінші түр.') },
+    rule: L('Present Perfect - a result now or experience up to now: have / has + past participle.', 'Present Perfect - результат к настоящему моменту: have / has + третья форма.', 'Present Perfect - қазіргі сәттегі нәтиже: have / has + үшінші түр.') },
   ppc: { level: 4, form: (v, p) => `${has(p)} been ${v.ing}`, wrong: (v, p) => `${p === 3 ? 'have' : 'has'} been ${v.ing}`, cont: true,
     markers: ['for two hours', 'since nine o’clock', 'since breakfast'],
-    rule: L('Present Perfect Continuous — an action that started in the past and is still going on: have / has been + -ing.', 'Present Perfect Continuous — действие началось в прошлом и всё ещё длится: have / has been + -ing.', 'Present Perfect Continuous — өткенде басталып, әлі жалғасып жатқан әрекет: have / has been + -ing.') },
+    rule: L('Present Perfect Continuous - an action that started in the past and is still going on: have / has been + -ing.', 'Present Perfect Continuous - действие началось в прошлом и всё ещё длится: have / has been + -ing.', 'Present Perfect Continuous - өткенде басталып, әлі жалғасып жатқан әрекет: have / has been + -ing.') },
   pastp: { level: 4, form: (v) => `had ${v.pp}`, wrong: (v) => `had ${v.past === v.pp ? v.base : v.past}`, cont: false,
     markers: ['By the time we arrived,', 'Before the guests came,', 'By noon,'], front: true,
-    rule: L('Past Perfect — an action before another past moment: had + past participle.', 'Past Perfect — действие раньше другого момента в прошлом: had + третья форма.', 'Past Perfect — өткендегі басқа сәттен бұрын болған әрекет: had + үшінші түр.') },
+    rule: L('Past Perfect - an action before another past moment: had + past participle.', 'Past Perfect - действие раньше другого момента в прошлом: had + третья форма.', 'Past Perfect - өткендегі басқа сәттен бұрын болған әрекет: had + үшінші түр.') },
   futc: { level: 5, form: (v) => `will be ${v.ing}`, wrong: (v) => `will ${v.ing}`, cont: true,
     markers: ['At this time tomorrow,', 'At eight o’clock tonight,'], front: true,
-    rule: L('Future Continuous — an action in progress at a future moment: will be + -ing.', 'Future Continuous — действие будет в процессе в момент будущего: will be + -ing.', 'Future Continuous — болашақтағы белгілі сәтте болып жатқан әрекет: will be + -ing.') },
+    rule: L('Future Continuous - an action in progress at a future moment: will be + -ing.', 'Future Continuous - действие будет в процессе в момент будущего: will be + -ing.', 'Future Continuous - болашақтағы белгілі сәтте болып жатқан әрекет: will be + -ing.') },
   futp: { level: 5, form: (v) => `will have ${v.pp}`, wrong: (v) => `will had ${v.pp}`, cont: false,
     markers: ['By next Monday,', 'By the end of the year,', 'By the time you come back,'], front: true,
-    rule: L('Future Perfect — an action finished before a future moment: will have + past participle.', 'Future Perfect — действие завершится к моменту в будущем: will have + третья форма.', 'Future Perfect — болашақтағы сәтке дейін аяқталатын әрекет: will have + үшінші түр.') },
+    rule: L('Future Perfect - an action finished before a future moment: will have + past participle.', 'Future Perfect - действие завершится к моменту в будущем: will have + третья форма.', 'Future Perfect - болашақтағы сәтке дейін аяқталатын әрекет: will have + үшінші түр.') },
 };
 
 /** Времена-ловушки, которые точно не подходят к маркерам времени. */
@@ -94,7 +94,7 @@ function tenseTask(ctx, topic, level, tense) {
   const marker = pick(ctx.rng, t.markers);
   const correct = t.form(v, subj.p);
   const wrong = [];
-  // Одна ловушка — ошибка согласования того же времени, остальные — другие времена.
+  // Одна ловушка - ошибка согласования того же времени, остальные - другие времена.
   const agreement = t.wrong(v, subj.p);
   if (agreement !== correct) wrong.push(agreement);
   for (const other of shuffle(SAFE[tense], ctx.rng)) {
@@ -114,7 +114,7 @@ function tenseTask(ctx, topic, level, tense) {
   return finish(q, `${topic}:t:${hashString(sentence)}`, level);
 }
 
-/** Времена, которые даются на уровне: на C2 — все. */
+/** Времена, которые даются на уровне: на C2 - все. */
 function tensesFor(level) {
   const own = Object.keys(TENSES).filter((k) => TENSES[k].level === level);
   const lower = Object.keys(TENSES).filter((k) => TENSES[k].level < level);
@@ -144,7 +144,7 @@ const regularized = (v) => (v.base.endsWith('e') ? `${v.base}d` : `${v.base}ed`)
 function irregTask(ctx, topic, level, v) {
   const mode = pick(ctx.rng, ['past', 'pp', 'three']);
   const subj = pick(ctx.rng, SUBJECTS);
-  const tr = L(`${v.base} — ${v.past} — ${v.pp}`, `${v.base} (${v.ru}) — ${v.past} — ${v.pp}`, `${v.base} (${v.kk}) — ${v.past} — ${v.pp}`);
+  const tr = L(`${v.base} - ${v.past} - ${v.pp}`, `${v.base} (${v.ru}) - ${v.past} - ${v.pp}`, `${v.base} (${v.kk}) - ${v.past} - ${v.pp}`);
   const prompt = L('Choose the correct form of the verb.', 'Выбери правильную форму глагола.', 'Етістіктің дұрыс түрін таңда.');
   let q;
   if (mode === 'past') {
@@ -164,17 +164,17 @@ function irregTask(ctx, topic, level, v) {
     q = poolQ(topic, 1, { kind: 'text', passage: sentence, prompt, ex, mc: choicesOf(ctx.rng, v.pp, wrong) });
     q.voice = { lang: 'en' };
   } else {
-    const correct = `${v.base} – ${v.past} – ${v.pp}`;
+    const correct = `${v.base} - ${v.past} - ${v.pp}`;
     const variants = [
-      `${v.base} – ${regularized(v)} – ${regularized(v)}`,
-      `${v.base} – ${v.pp} – ${v.past}`,
-      `${v.base} – ${v.past} – ${regularized(v)}`,
-      `${v.base} – ${v.past} – ${v.past}`,
-      `${v.base} – ${v.pp} – ${v.pp}`,
-      `${v.base} – ${v.base} – ${v.pp}`,
-      `${v.base} – ${v.past} – ${v.base}`,
-      `${v.base} – ${regularized(v)} – ${v.pp}`,
-      `${v.base} – ${v.ing} – ${v.pp}`,
+      `${v.base} - ${regularized(v)} - ${regularized(v)}`,
+      `${v.base} - ${v.pp} - ${v.past}`,
+      `${v.base} - ${v.past} - ${regularized(v)}`,
+      `${v.base} - ${v.past} - ${v.past}`,
+      `${v.base} - ${v.pp} - ${v.pp}`,
+      `${v.base} - ${v.base} - ${v.pp}`,
+      `${v.base} - ${v.past} - ${v.base}`,
+      `${v.base} - ${regularized(v)} - ${v.pp}`,
+      `${v.base} - ${v.ing} - ${v.pp}`,
     ].filter((x) => x !== correct);
     const wrong = shuffle([...new Set(variants)], ctx.rng).slice(0, 3);
     const p3 = L(`Choose the three forms of the verb "${v.base}".`, `Выбери три формы глагола «${v.base}» (${v.ru}).`, `«${v.base}» (${v.kk}) етістігінің үш түрін таңда.`);
@@ -256,8 +256,8 @@ function compTask(ctx, topic, level, a) {
   const wrong = [...new Set(pool.filter((x) => x !== correct))].slice(0, 3);
   const sentence = sup ? a.s2 : a.s1;
   const ex = sup
-    ? L(`Superlative: the + ${a.sup}. ${a.adj} — ${a.comp} — ${a.sup}.`, `Превосходная степень: the + ${a.sup}. ${a.adj} (${a.ru}) — ${a.comp} — ${a.sup}.`, `Күшейтпелі шырай: the + ${a.sup}. ${a.adj} (${a.kk}) — ${a.comp} — ${a.sup}.`)
-    : L(`Comparative + than: ${a.comp} than. ${a.adj} — ${a.comp} — ${a.sup}.`, `Сравнительная степень + than: ${a.comp} than. ${a.adj} (${a.ru}) — ${a.comp} — ${a.sup}.`, `Салыстырмалы шырай + than: ${a.comp} than. ${a.adj} (${a.kk}) — ${a.comp} — ${a.sup}.`);
+    ? L(`Superlative: the + ${a.sup}. ${a.adj} - ${a.comp} - ${a.sup}.`, `Превосходная степень: the + ${a.sup}. ${a.adj} (${a.ru}) - ${a.comp} - ${a.sup}.`, `Күшейтпелі шырай: the + ${a.sup}. ${a.adj} (${a.kk}) - ${a.comp} - ${a.sup}.`)
+    : L(`Comparative + than: ${a.comp} than. ${a.adj} - ${a.comp} - ${a.sup}.`, `Сравнительная степень + than: ${a.comp} than. ${a.adj} (${a.ru}) - ${a.comp} - ${a.sup}.`, `Салыстырмалы шырай + than: ${a.comp} than. ${a.adj} (${a.kk}) - ${a.comp} - ${a.sup}.`);
   const prompt = L('Choose the correct form of the adjective.', 'Выбери правильную форму прилагательного.', 'Сын есімнің дұрыс түрін таңда.');
   const q = poolQ(topic, 1, { kind: 'text', passage: sentence, prompt, ex, mc: choicesOf(ctx.rng, correct, wrong) });
   q.voice = { lang: 'en' };

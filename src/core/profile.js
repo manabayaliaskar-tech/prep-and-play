@@ -18,7 +18,7 @@ function defaults() {
     name: '',
     sound: true,
     xp: 0,
-    // Монеты для магазина Препи; coinDust — остаток XP, ещё не превращённый в монету.
+    // Монеты для магазина Препи; coinDust - остаток XP, ещё не превращённый в монету.
     coins: 0,
     coinDust: 0,
     // Купленные вещи, полученные награды за коллекции и день последнего подарка Препи.
@@ -28,10 +28,10 @@ function defaults() {
     // Погасшая серия, которую можно спасти сегодня: { count, day }.
     streakLost: null,
     streak: { count: 0, last: null, best: 0 },
-    // Счётчики сегодняшнего дня: цель по опыту и ежедневные задания (quests — уже выданные награды).
+    // Счётчики сегодняшнего дня: цель по опыту и ежедневные задания (quests - уже выданные награды).
     today: { date: null, xp: 0, answered: 0, correct: 0, combo: 0, stars2: 0, bosses: 0, quizzes: 0, quests: {} },
     daily: {},
-    // Итоги прошлых дней { 'ГГГГ-ММ-ДД': { xp, a, c } } — для недельного отчёта.
+    // Итоги прошлых дней { 'ГГГГ-ММ-ДД': { xp, a, c } } - для недельного отчёта.
     history: {},
     skills: {},
     map: { stars: {}, bosses: {} },
@@ -39,7 +39,7 @@ function defaults() {
     exams: [],
     // Результаты тренировок по дорожкам каталога: { 'math:l3': { best, runs, pct, last } }.
     practice: {},
-    // Последнее занятие — для кнопки «Продолжить» на главной.
+    // Последнее занятие - для кнопки «Продолжить» на главной.
     last: null,
     achievements: {},
     counters: { answered: 0, correct: 0, bestCombo: 0, detectiveFound: 0, duelsSent: 0, langSwitch: 0, dailyDone: 0, quizzes: 0 },
@@ -92,9 +92,9 @@ export function levelInfo(xp) {
 function touchStreak(today) {
   const s = profile.streak;
   if (s.last === today) return;
-  // Вернулся после перерыва в неделю и больше — достижение «Возвращение».
+  // Вернулся после перерыва в неделю и больше - достижение «Возвращение».
   if (s.last && daysBetween(s.last, today) >= 8) profile.counters.comeback = (profile.counters.comeback ?? 0) + 1;
-  // Пропущен ровно один день — серию ещё можно спасти сегодня двойной нормой.
+  // Пропущен ровно один день - серию ещё можно спасти сегодня двойной нормой.
   profile.streakLost = s.last && s.count >= 2 && daysBetween(s.last, today) === 2 ? { count: s.count, day: today } : null;
   s.count = s.last && daysBetween(s.last, today) === 1 ? s.count + 1 : 1;
   s.last = today;
@@ -202,7 +202,7 @@ export function recordAnswer(skill, correct) {
   const day = todayStats();
   day.answered += 1;
   if (correct) day.correct += 1;
-  // Время занятий — для достижений «Сова» и «Жаворонок».
+  // Время занятий - для достижений «Сова» и «Жаворонок».
   const hour = new Date().getHours();
   if (hour >= 23 || hour < 4) profile.counters.night = (profile.counters.night ?? 0) + 1;
   else if (hour >= 4 && hour < 8) profile.counters.lark = (profile.counters.lark ?? 0) + 1;

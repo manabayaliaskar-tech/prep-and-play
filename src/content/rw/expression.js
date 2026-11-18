@@ -1,5 +1,5 @@
 // Expression of Ideas: Transitions (связующие слова) и Rhetorical Synthesis (работа с заметками).
-// Все задания авторские. Первый вариант — правильный.
+// Все задания авторские. Первый вариант - правильный.
 
 import { TRANS, synthesis } from './prompts.js';
 
@@ -13,7 +13,7 @@ export const EXPRESSION = [
     choices: ['Therefore', 'However', 'For example', 'Similarly'],
     ex: {
       en: 'The second sentence is a result of the first (they are rarely seen → scientists use cameras). A cause-and-effect transition fits: "Therefore."',
-      ru: 'Второе предложение — следствие первого (их редко видят → учёные используют камеры). Нужна связка причины и следствия: «Therefore».',
+      ru: 'Второе предложение - следствие первого (их редко видят → учёные используют камеры). Нужна связка причины и следствия: «Therefore».',
       kk: 'Екінші сөйлем біріншісінің салдары (оларды сирек көреді → ғалымдар камера қолданады). Себеп-салдар байланысы керек: «Therefore».',
     },
   },
@@ -27,8 +27,8 @@ export const EXPRESSION = [
     choices: ['As a result', 'Nevertheless', 'In contrast', 'Meanwhile'],
     ex: {
       en: 'Bamboo’s strength and flexibility explain why engineers use it, so the relationship is cause and effect: "As a result."',
-      ru: 'Прочность и гибкость бамбука объясняют, почему его используют инженеры, — это причина и следствие: «As a result».',
-      kk: 'Бамбуктың беріктігі мен иілгіштігі инженерлердің оны неге қолданатынын түсіндіреді — бұл себеп пен салдар: «As a result».',
+      ru: 'Прочность и гибкость бамбука объясняют, почему его используют инженеры, - это причина и следствие: «As a result».',
+      kk: 'Бамбуктың беріктігі мен иілгіштігі инженерлердің оны неге қолданатынын түсіндіреді - бұл себеп пен салдар: «As a result».',
     },
   },
   {
@@ -41,8 +41,8 @@ export const EXPRESSION = [
     choices: ['however', 'therefore', 'for instance', 'in addition'],
     ex: {
       en: 'Fruit bats behave differently from most bats, so the sentences contrast: "however."',
-      ru: 'Фруктовые летучие мыши ведут себя иначе, чем большинство летучих мышей, — это противопоставление: «however».',
-      kk: 'Жеміс жарқанаттары көпшілік жарқанаттардан басқаша әрекет етеді — бұл қарама-қарсылық: «however».',
+      ru: 'Фруктовые летучие мыши ведут себя иначе, чем большинство летучих мышей, - это противопоставление: «however».',
+      kk: 'Жеміс жарқанаттары көпшілік жарқанаттардан басқаша әрекет етеді - бұл қарама-қарсылық: «however».',
     },
   },
   {
@@ -55,8 +55,8 @@ export const EXPRESSION = [
     choices: ['For example', 'However', 'Still', 'Instead'],
     ex: {
       en: 'The Egyptian farmers are a specific case of the general statement in the first sentence: "For example."',
-      ru: 'Египетские земледельцы — конкретный пример общего утверждения из первого предложения: «For example».',
-      kk: 'Мысырлық егіншілер — бірінші сөйлемдегі жалпы тұжырымның нақты мысалы: «For example».',
+      ru: 'Египетские земледельцы - конкретный пример общего утверждения из первого предложения: «For example».',
+      kk: 'Мысырлық егіншілер - бірінші сөйлемдегі жалпы тұжырымның нақты мысалы: «For example».',
     },
   },
   {
@@ -69,8 +69,8 @@ export const EXPRESSION = [
     choices: ['Moreover', 'Conversely', 'Thus', 'Nonetheless'],
     ex: {
       en: 'The second sentence adds another benefit of the Silk Road, so an addition transition fits: "Moreover."',
-      ru: 'Второе предложение добавляет ещё одну пользу Шёлкового пути — нужна связка добавления: «Moreover».',
-      kk: 'Екінші сөйлем Жібек жолының тағы бір пайдасын қосады — қосу мәніндегі байланыс керек: «Moreover».',
+      ru: 'Второе предложение добавляет ещё одну пользу Шёлкового пути - нужна связка добавления: «Moreover».',
+      kk: 'Екінші сөйлем Жібек жолының тағы бір пайдасын қосады - қосу мәніндегі байланыс керек: «Moreover».',
     },
   },
   {
@@ -83,8 +83,8 @@ export const EXPRESSION = [
     choices: ['Today, however', 'Similarly', 'In other words', 'For instance'],
     ex: {
       en: 'Past criticism is contrasted with the novel’s present reputation, so we need a contrast that also marks time: "Today, however."',
-      ru: 'Прошлая критика противопоставляется нынешней репутации романа — нужна связка противопоставления с указанием времени: «Today, however».',
-      kk: 'Бұрынғы сын романның қазіргі беделіне қарама-қарсы қойылады — уақытты көрсететін қарсылық байланысы керек: «Today, however».',
+      ru: 'Прошлая критика противопоставляется нынешней репутации романа - нужна связка противопоставления с указанием времени: «Today, however».',
+      kk: 'Бұрынғы сын романның қазіргі беделіне қарама-қарсы қойылады - уақытты көрсететін қарсылық байланысы керек: «Today, however».',
     },
   },
   {
@@ -125,8 +125,8 @@ export const EXPRESSION = [
     choices: ['Surprisingly, though', 'Consequently', 'Specifically', 'Likewise'],
     ex: {
       en: 'The result went against the expectation, so we need a contrast that signals surprise: "Surprisingly, though."',
-      ru: 'Результат противоречит ожиданию — нужна связка противопоставления с оттенком неожиданности: «Surprisingly, though».',
-      kk: 'Нәтиже күтілгенге қайшы — таңданыс реңкі бар қарсылық байланысы керек: «Surprisingly, though».',
+      ru: 'Результат противоречит ожиданию - нужна связка противопоставления с оттенком неожиданности: «Surprisingly, though».',
+      kk: 'Нәтиже күтілгенге қайшы - таңданыс реңкі бар қарсылық байланысы керек: «Surprisingly, though».',
     },
   },
   {
@@ -167,8 +167,8 @@ export const EXPRESSION = [
     choices: ['As a result', 'In contrast', 'For instance', 'Regardless'],
     ex: {
       en: 'Lower costs are the effect of switching to LED bulbs: "As a result."',
-      ru: 'Снижение расходов — следствие перехода на светодиоды: «As a result».',
-      kk: 'Шығынның азаюы — LED шамдарға көшудің салдары: «As a result».',
+      ru: 'Снижение расходов - следствие перехода на светодиоды: «As a result».',
+      kk: 'Шығынның азаюы - LED шамдарға көшудің салдары: «As a result».',
     },
   },
   {
@@ -190,7 +190,7 @@ export const EXPRESSION = [
     skill: 'synthesis',
     d: 1,
     notes: [
-      'Abai Kunanbayev (1845–1904) was a Kazakh poet and philosopher.',
+      'Abai Kunanbayev (1845-1904) was a Kazakh poet and philosopher.',
       'He translated works by Russian poets such as Pushkin and Lermontov into Kazakh.',
       'His collection of prose essays is known as the Book of Words.',
       'He is often called the founder of modern Kazakh written literature.',
@@ -204,8 +204,8 @@ export const EXPRESSION = [
     ],
     ex: {
       en: 'The goal is about translation. Only the first choice mentions what Abai translated; the others are true but describe different parts of his life.',
-      ru: 'Цель — подчеркнуть переводческую работу. Только первый вариант говорит о переводах; остальные верны, но о другом.',
-      kk: 'Мақсат — аудармашылық жұмысын көрсету. Тек бірінші нұсқа аудармалар туралы айтады; қалғандары дұрыс, бірақ басқа туралы.',
+      ru: 'Цель - подчеркнуть переводческую работу. Только первый вариант говорит о переводах; остальные верны, но о другом.',
+      kk: 'Мақсат - аудармашылық жұмысын көрсету. Тек бірінші нұсқа аудармалар туралы айтады; қалғандары дұрыс, бірақ басқа туралы.',
     },
   },
   {
@@ -227,8 +227,8 @@ export const EXPRESSION = [
     ],
     ex: {
       en: 'Toughness = surviving extreme conditions. Only the first choice uses the notes about temperature and open space.',
-      ru: 'Выносливость — это выживание в экстремальных условиях. Только первый вариант использует заметки о температурах и открытом космосе.',
-      kk: 'Төзімділік — қатал жағдайларда тірі қалу. Тек бірінші нұсқа температура мен ашық ғарыш туралы жазбаларды қолданады.',
+      ru: 'Выносливость - это выживание в экстремальных условиях. Только первый вариант использует заметки о температурах и открытом космосе.',
+      kk: 'Төзімділік - қатал жағдайларда тірі қалу. Тек бірінші нұсқа температура мен ашық ғарыш туралы жазбаларды қолданады.',
     },
   },
   {
@@ -273,9 +273,9 @@ export const EXPRESSION = [
       'The study, which took place in 2019, focused on songbirds.',
     ],
     ex: {
-      en: 'The goal asks for the conclusion — what the researchers decided the results mean. Only the first choice states it.',
-      ru: 'Нужен вывод — то, как исследователи объяснили результаты. Его содержит только первый вариант.',
-      kk: 'Қорытынды керек — зерттеушілердің нәтижелерді қалай түсіндіргені. Оны тек бірінші нұсқа айтады.',
+      en: 'The goal asks for the conclusion - what the researchers decided the results mean. Only the first choice states it.',
+      ru: 'Нужен вывод - то, как исследователи объяснили результаты. Его содержит только первый вариант.',
+      kk: 'Қорытынды керек - зерттеушілердің нәтижелерді қалай түсіндіргені. Оны тек бірінші нұсқа айтады.',
     },
   },
   {
@@ -344,8 +344,8 @@ export const EXPRESSION = [
     ],
     ex: {
       en: 'An advantage over flood irrigation must compare the two methods in drip irrigation’s favor. Only the first choice does this (less water). The second choice is a disadvantage.',
-      ru: 'Преимущество над поливом затоплением — это сравнение в пользу капельного полива. Это делает только первый вариант (меньше воды). Второй вариант — недостаток.',
-      kk: 'Басымдық — тамшылатып суаруды жайып суарумен оның пайдасына салыстыру. Мұны тек бірінші нұсқа жасайды (су аз). Екінші нұсқа — кемшілік.',
+      ru: 'Преимущество над поливом затоплением - это сравнение в пользу капельного полива. Это делает только первый вариант (меньше воды). Второй вариант - недостаток.',
+      kk: 'Басымдық - тамшылатып суаруды жайып суарумен оның пайдасына салыстыру. Мұны тек бірінші нұсқа жасайды (су аз). Екінші нұсқа - кемшілік.',
     },
   },
   {
@@ -390,8 +390,8 @@ export const EXPRESSION = [
     ],
     ex: {
       en: 'A similarity must apply to BOTH animals. Only the family Camelidae is shared; the second choice shows a difference.',
-      ru: 'Сходство должно касаться ОБОИХ животных. Общее у них — семейство Camelidae; второй вариант показывает различие.',
-      kk: 'Ұқсастық ЕКІ жануарға да қатысты болуы керек. Ортақ белгі — Camelidae тұқымдасы; екінші нұсқа айырмашылықты көрсетеді.',
+      ru: 'Сходство должно касаться ОБОИХ животных. Общее у них - семейство Camelidae; второй вариант показывает различие.',
+      kk: 'Ұқсастық ЕКІ жануарға да қатысты болуы керек. Ортақ белгі - Camelidae тұқымдасы; екінші нұсқа айырмашылықты көрсетеді.',
     },
   },
   {
@@ -399,7 +399,7 @@ export const EXPRESSION = [
     skill: 'synthesis',
     d: 1,
     notes: [
-      'Wangari Maathai (1940–2011) was a Kenyan environmental activist.',
+      'Wangari Maathai (1940-2011) was a Kenyan environmental activist.',
       'She founded the Green Belt Movement in 1977.',
       'The movement has planted tens of millions of trees.',
       'In 2004, she became the first African woman to win the Nobel Peace Prize.',
@@ -436,8 +436,8 @@ export const EXPRESSION = [
     ],
     ex: {
       en: '"How they collected data" = the method. The second choice is the result, the third is the research question, and the fourth lacks what was measured.',
-      ru: '«Как собирали данные» — это метод. Второй вариант — результат, третий — вопрос исследования, в четвёртом нет того, что измеряли.',
-      kk: '«Деректерді қалай жинады» — бұл әдіс. Екінші нұсқа — нәтиже, үшіншісі — зерттеу сұрағы, төртіншісінде не өлшенгені жоқ.',
+      ru: '«Как собирали данные» - это метод. Второй вариант - результат, третий - вопрос исследования, в четвёртом нет того, что измеряли.',
+      kk: '«Деректерді қалай жинады» - бұл әдіс. Екінші нұсқа - нәтиже, үшіншісі - зерттеу сұрағы, төртіншісінде не өлшенгені жоқ.',
     },
   },
 ];

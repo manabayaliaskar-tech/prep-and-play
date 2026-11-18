@@ -1,6 +1,6 @@
 <!doctype html>
 <!-- Галерея эмоций Препи для разработки. Открыть: http://localhost:3000/tools/gallery-emotes.html
-     Параметры: ?only=e-wave,e-disco — только эти; ?big=1 — крупно; ?t=0.5 — остановить все анимации на доле цикла (0..1). -->
+     Параметры: ?only=e-wave,e-disco - только эти; ?big=1 - крупно; ?t=0.5 - остановить все анимации на доле цикла (0..1). -->
 <html lang="ru">
 <head>
 <meta charset="utf-8">
@@ -40,7 +40,7 @@
     return `<div class="c" data-id="${id}"><div class="row">${looks.map((o) => mascot('happy', '', o, { emote: id })).join('')}</div>
       <div class="t"><b>${NAMES[id]?.ru ?? id}</b> · ${NAMES[id]?.en} · ${NAMES[id]?.kk}<br><span class="r-${m.rarity}">${m.rarity}</span> · ${id} · ${e?.ms ?? '?'} мс ${m.icon}</div></div>`;
   }).join('');
-  // Остановить на доле цикла: каждая эмоция — своя длительность ms.
+  // Остановить на доле цикла: каждая эмоция - своя длительность ms.
   window.seek = (frac) => {
     for (const card of document.querySelectorAll('.c')) {
       const ms = EMOTES[card.dataset.id].ms;

@@ -1,5 +1,5 @@
 // Генератор заданий по истории: год события, век, что произошло раньше или позже, кто есть кто.
-// Ключ сложности — 1…3.
+// Ключ сложности - 1…3.
 
 import { hashString, pick, shuffle } from '../../core/random.js';
 import { L, poolQ } from '../gen.js';
@@ -39,14 +39,14 @@ function mcOf(rng, correct, wrong) {
 function yearTask(ctx, topic, d, set) {
   const { rng } = ctx;
   const e = pick(rng, set.events);
-  // Ловушки: годы соседних событий и близкие годы — чем выше сложность, тем ближе.
+  // Ловушки: годы соседних событий и близкие годы - чем выше сложность, тем ближе.
   const spread = d === 1 ? [25, 50, 100] : d === 2 ? [5, 10, 20] : [1, 2, 3, 5];
   const cands = new Set();
   for (const s of shuffle(spread, rng)) cands.add(e.year + (rng() < 0.5 ? s : -s));
   for (const x of shuffle(set.events, rng).slice(0, 3)) cands.add(x.year);
   cands.delete(e.year);
   const wrong = shuffle([...cands].filter((y) => y !== 0 && y <= 2025), rng).slice(0, 3);
-  // У недавних событий «будущие» годы отбрасываются — добираем варианты годами раньше события.
+  // У недавних событий «будущие» годы отбрасываются - добираем варианты годами раньше события.
   for (let k = 1; wrong.length < 3; k++) {
     const y = e.year - k * (d === 1 ? 10 : d === 2 ? 3 : 1);
     if (y !== 0 && !wrong.includes(y)) wrong.push(y);
@@ -54,7 +54,7 @@ function yearTask(ctx, topic, d, set) {
   const q = poolQ(topic, d, {
     kind: 'text',
     prompt: L(`In which year did this happen: ${e.name.en}?`, `В каком году произошло событие: ${e.name.ru}?`, `Бұл оқиға қай жылы болды: ${e.name.kk}?`),
-    ex: L(`${e.name.en} — ${yearText(e.year).en}.`, `${e.name.ru} — ${yearText(e.year).ru}.`, `${e.name.kk} — ${yearText(e.year).kk}.`),
+    ex: L(`${e.name.en} - ${yearText(e.year).en}.`, `${e.name.ru} - ${yearText(e.year).ru}.`, `${e.name.kk} - ${yearText(e.year).kk}.`),
     mc: mcOf(rng, yearText(e.year), wrong.map(yearText)),
   });
   q.id = `${topic}:y:${e.year}:${e.name.en}`;
@@ -70,7 +70,7 @@ function centuryTask(ctx, topic, d, set) {
   const q = poolQ(topic, d, {
     kind: 'text',
     prompt: L(`In which century did this happen: ${e.name.en}?`, `В каком веке произошло событие: ${e.name.ru}?`, `Бұл оқиға қай ғасырда болды: ${e.name.kk}?`),
-    ex: L(`${e.year} is in ${century(c).en}: years ${(c - 1) * 100 + 1}–${c * 100}.`, `${e.year} год — это ${century(c).ru}: годы ${(c - 1) * 100 + 1}–${c * 100}.`, `${e.year} жыл — ${century(c).kk}: ${(c - 1) * 100 + 1}–${c * 100} жылдар.`),
+    ex: L(`${e.year} is in ${century(c).en}: years ${(c - 1) * 100 + 1}-${c * 100}.`, `${e.year} год - это ${century(c).ru}: годы ${(c - 1) * 100 + 1}-${c * 100}.`, `${e.year} жыл - ${century(c).kk}: ${(c - 1) * 100 + 1}-${c * 100} жылдар.`),
     mc: mcOf(rng, century(c), wrong.map(century)),
   });
   q.id = `${topic}:c:${e.name.en}`;
@@ -88,7 +88,7 @@ function orderTask(ctx, topic, d, set) {
     if (sorted[1].year - sorted[0].year < gap || sorted[3].year - sorted[2].year < gap) continue;
     const first = rng() < 0.6;
     const right = first ? sorted[0] : sorted[3];
-    const line = (l) => sorted.map((x) => `${yearText(x.year)[l]} — ${x.name[l]}`).join('; ');
+    const line = (l) => sorted.map((x) => `${yearText(x.year)[l]} - ${x.name[l]}`).join('; ');
     const q = poolQ(topic, d, {
       kind: 'text',
       prompt: first
@@ -113,14 +113,14 @@ function personTask(ctx, topic, d, set) {
     prompt: fwd
       ? L(`Who was ${p.name.en}?`, `Кто такой ${p.name.ru}?`, `${p.name.kk} кім?`)
       : L(`Who is this: ${p.about.en}?`, `О ком речь: ${p.about.ru}?`, `Бұл кім туралы: ${p.about.kk}?`),
-    ex: L(`${p.name.en} — ${p.about.en}.`, `${p.name.ru} — ${p.about.ru}.`, `${p.name.kk} — ${p.about.kk}.`),
+    ex: L(`${p.name.en} - ${p.about.en}.`, `${p.name.ru} - ${p.about.ru}.`, `${p.name.kk} - ${p.about.kk}.`),
     mc: fwd ? mcOf(rng, p.about, wrong.map((x) => x.about)) : mcOf(rng, p.name, wrong.map((x) => x.name)),
   });
   q.id = `${topic}:p:${fwd ? 'f' : 'b'}:${p.name.en}`;
   return q;
 }
 
-/** Генератор по истории региона: kz — Казахстан, world — всемирная, ru — Россия; uz, kg, tj, az, am, by, md — страны региона. */
+/** Генератор по истории региона: kz - Казахстан, world - всемирная, ru - Россия; uz, kg, tj, az, am, by, md - страны региона. */
 export function timelineMaker(topic, region) {
   const set = SETS[region];
   return (ctx, d) => {

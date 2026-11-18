@@ -25,7 +25,7 @@ export const TOPIC_COUNT = 8;
 const tierName = (tier) => t(`adapt.tier${tier}`);
 const tierBadge = (stream) => `<span class="tier-dots" title="${t('adapt.level')}: ${tierName(stream.tier)}">${TIER_ICONS[stream.tier]}<i>${Array.from({ length: TIERS }, (_, i) => `<b class="${i <= stream.tier ? 'on' : ''}"></b>`).join('')}</i></span>`;
 
-/** Тренировка с адаптивной сложностью. spec — темы, tier — с какого уровня начать. */
+/** Тренировка с адаптивной сложностью. spec - темы, tier - с какого уровня начать. */
 export function runAdaptive(app, { title, spec, tier = 2, count = ADAPT_COUNT, exitTo, back }) {
   const stream = new AdaptiveStream({ rng: createRng(newSeed()), spec, tier });
   const startTier = stream.tier;
@@ -243,8 +243,8 @@ export function knowRoute(app, { course: id }) {
         <p class="topic-state st-${item.state}">${t(`know.st.${item.state}`)}</p>
         <div class="topic-stats">
           <div><b>${item.a}</b><span>${t('know.answers')}</span></div>
-          <div><b>${item.pct === null ? '—' : `${item.pct}%`}</b><span>${t('know.accuracy')}</span></div>
-          <div><b>${avg === null ? '—' : `${avg} ${t('pace.s')}`}</b><span>${t('know.speed', { n: target })}</span></div>
+          <div><b>${item.pct === null ? '-' : `${item.pct}%`}</b><span>${t('know.accuracy')}</span></div>
+          <div><b>${avg === null ? '-' : `${avg} ${t('pace.s')}`}</b><span>${t('know.speed', { n: target })}</span></div>
         </div>
         <p class="muted small">${t(`know.tip.${item.state}`)}</p>
       </div>`,
@@ -310,7 +310,7 @@ export function adaptRoute(app, { course: id }) {
     const tracks = trackId === 'all' ? course.tracks : [trackById(course, trackId)];
     const spec = tracks.flatMap((tr) => tr.spec);
     const p = getProfile();
-    // Стартовый уровень — по средней точности в выбранных темах.
+    // Стартовый уровень - по средней точности в выбранных темах.
     const stats = spec.map(([topic]) => p.skills[topic]).filter((s) => s?.a);
     const acc = stats.length ? stats.reduce((s, x) => s + x.c / x.a, 0) / stats.length : 0.5;
     const tier = Math.max(0, Math.min(TIERS - 1, Math.round(acc * (TIERS - 1)) - (stats.length ? 0 : 1)));

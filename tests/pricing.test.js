@@ -28,7 +28,7 @@ test('тарифы: Золото 2,99 $, Алмаз 3,99 $, Аметист 4,99 
   assert.equal(periodByMonths(2), null);
 });
 
-test('сроки и скидки: 3 месяца — 10%, 6 месяцев — 20%, год — 30%', () => {
+test('сроки и скидки: 3 месяца - 10%, 6 месяцев - 20%, год - 30%', () => {
   assert.deepEqual(PERIODS.map((p) => [p.months, p.off]), [[1, 0], [3, 10], [6, 20], [12, 30]]);
   // Цена в центах за 1, 3, 6 и 12 месяцев.
   const table = {
@@ -81,7 +81,7 @@ test('валюта определяется по часовому поясу, з
   assert.equal(guessCurrency('', 'kk-KZ'), 'KZT');
   assert.equal(guessCurrency('Europe/Berlin', 'de-DE'), 'EUR');
   assert.equal(guessCurrency('America/New_York', 'en-US'), 'USD');
-  assert.equal(guessCurrency('Asia/Tokyo', 'ja-JP'), 'USD', 'неизвестная страна — доллары');
+  assert.equal(guessCurrency('Asia/Tokyo', 'ja-JP'), 'USD', 'неизвестная страна - доллары');
   assert.equal(guessCurrency(), 'USD');
   for (const code of Object.keys(CURRENCIES)) {
     assert.ok(CURRENCIES[code].symbol.length > 0 && CURRENCIES[code].rate > 0, code);
@@ -98,7 +98,7 @@ test('язык при первом заходе: казахский, русск�
   assert.equal(detectLang('en-US', 'America/New_York'), 'en');
   assert.equal(detectLang('de-DE', 'Europe/Berlin'), 'en');
   assert.equal(detectLang('tr-TR', 'Europe/Istanbul'), 'en');
-  assert.equal(detectLang('', ''), 'ru', 'если о браузере ничего не известно — русский');
+  assert.equal(detectLang('', ''), 'ru', 'если о браузере ничего не известно - русский');
 });
 
 test('округление суммы в местной валюте', () => {

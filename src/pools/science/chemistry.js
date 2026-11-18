@@ -12,7 +12,7 @@ const DIV = '÷';
 /** Округлённые атомные массы, как в школьной таблице. */
 export const ATOM = { H: 1, C: 12, N: 14, O: 16, Na: 23, Mg: 24, Al: 27, S: 32, Cl: 35.5, K: 39, Ca: 40, Fe: 56, Cu: 64 };
 
-/** Вещества: формула по атомам. Сложность — по числу разных элементов и атомов. */
+/** Вещества: формула по атомам. Сложность - по числу разных элементов и атомов. */
 const SUBSTANCES = [
   [1, [['H', 2], ['O', 1]]],
   [1, [['C', 1], ['O', 2]]],
@@ -101,8 +101,8 @@ export function moles(ctx, d) {
       return poolQ('c.mole', d, {
         prompt: L(
           `What is the mass (in grams) of ${k} mol of ${formula(atoms)}? Its molar mass is ${M} g/mol.`,
-          `Какова масса (в граммах) ${k} моль ${formula(atoms)}? Молярная масса вещества — ${M} г/моль.`,
-          `${k} моль ${formula(atoms)} затының массасы (граммен) қандай? Заттың молярлық массасы — ${M} г/моль.`,
+          `Какова масса (в граммах) ${k} моль ${formula(atoms)}? Молярная масса вещества - ${M} г/моль.`,
+          `${k} моль ${formula(atoms)} затының массасы (граммен) қандай? Заттың молярлық массасы - ${M} г/моль.`,
         ),
         ex: steps(same('<i>m</i> = <i>n</i> · <i>M</i>'), same(`<i>m</i> = ${k} ${TIMES} ${M} = ${n(k * M)}`)),
         ...ask(ctx, k * M, [M, k + M, k * M + M, M / k].filter((x) => x !== k * M && Number.isInteger(x))),
@@ -111,8 +111,8 @@ export function moles(ctx, d) {
     return poolQ('c.mole', d, {
       prompt: L(
         `How many moles are there in ${n(k * M)} g of ${formula(atoms)}? Its molar mass is ${M} g/mol.`,
-        `Сколько моль содержится в ${n(k * M)} г ${formula(atoms)}? Молярная масса вещества — ${M} г/моль.`,
-        `${n(k * M)} г ${formula(atoms)} затында неше моль бар? Заттың молярлық массасы — ${M} г/моль.`,
+        `Сколько моль содержится в ${n(k * M)} г ${formula(atoms)}? Молярная масса вещества - ${M} г/моль.`,
+        `${n(k * M)} г ${formula(atoms)} затында неше моль бар? Заттың молярлық массасы - ${M} г/моль.`,
       ),
       ex: steps(same('<i>n</i> = <i>m</i> / <i>M</i>'), same(`<i>n</i> = ${n(k * M)} ${DIV} ${M} = ${k}`)),
       ...ask(ctx, k, [k + 1, k - 1, k * 2, k + 2].filter((x) => x !== k && x > 0)),
@@ -124,8 +124,8 @@ export function moles(ctx, d) {
     return poolQ('c.mole', d, {
       prompt: L(
         `What volume (in litres) do ${dec(k).en} mol of a gas occupy at standard conditions? The molar volume is 22.4 L/mol.`,
-        `Какой объём (в литрах) занимают ${dec(k).ru} моль газа при нормальных условиях? Молярный объём — 22,4 л/моль.`,
-        `Қалыпты жағдайда ${dec(k).kk} моль газ қандай көлем (литрмен) алады? Молярлық көлем — 22,4 л/моль.`,
+        `Какой объём (в литрах) занимают ${dec(k).ru} моль газа при нормальных условиях? Молярный объём - 22,4 л/моль.`,
+        `Қалыпты жағдайда ${dec(k).kk} моль газ қандай көлем (литрмен) алады? Молярлық көлем - 22,4 л/моль.`,
       ),
       ex: steps(
         same('<i>V</i> = <i>n</i> · <i>V</i><sub>m</sub>'),
@@ -148,9 +148,9 @@ export function moles(ctx, d) {
   const ans = k * ratio * toM;
   return poolQ('c.mole', d, {
     prompt: L(
-      `By the equation ${eqn}, what mass (in grams) of ${toName} is formed from ${mass} g of ${fromName}? Molar masses: ${fromName} — ${fromM} g/mol, ${toName} — ${toM} g/mol.`,
-      `По уравнению ${eqn} найди массу (в граммах) ${toName}, которая образуется из ${mass} г ${fromName}. Молярные массы: ${fromName} — ${fromM} г/моль, ${toName} — ${toM} г/моль.`,
-      `${eqn} теңдеуі бойынша ${mass} г ${fromName} затынан түзілетін ${toName} массасын (граммен) тап. Молярлық массалар: ${fromName} — ${fromM} г/моль, ${toName} — ${toM} г/моль.`,
+      `By the equation ${eqn}, what mass (in grams) of ${toName} is formed from ${mass} g of ${fromName}? Molar masses: ${fromName} - ${fromM} g/mol, ${toName} - ${toM} g/mol.`,
+      `По уравнению ${eqn} найди массу (в граммах) ${toName}, которая образуется из ${mass} г ${fromName}. Молярные массы: ${fromName} - ${fromM} г/моль, ${toName} - ${toM} г/моль.`,
+      `${eqn} теңдеуі бойынша ${mass} г ${fromName} затынан түзілетін ${toName} массасын (граммен) тап. Молярлық массалар: ${fromName} - ${fromM} г/моль, ${toName} - ${toM} г/моль.`,
     ),
     ex: steps(
       L(`Amount of ${fromName}: ${mass} ${DIV} ${fromM} = ${k} mol.`, `Количество ${fromName}: ${mass} ${DIV} ${fromM} = ${k} моль.`, `${fromName} мөлшері: ${mass} ${DIV} ${fromM} = ${k} моль.`),
@@ -168,10 +168,10 @@ export function moles(ctx, d) {
 export const CHEMISTRY_THEORY = [
   [1, T('Какой химический символ у железа?', 'Темірдің химиялық таңбасы қандай?', 'What is the chemical symbol of iron?'),
     'Fe', ['F', 'Fr', 'I'],
-    T('Железо — Fe (от латинского Ferrum). F — фтор, Fr — франций, I — иод.', 'Темір — Fe (латынша Ferrum). F — фтор, Fr — франций, I — иод.', 'Iron is Fe (from the Latin Ferrum). F is fluorine, Fr is francium, I is iodine.')],
+    T('Железо - Fe (от латинского Ferrum). F - фтор, Fr - франций, I - иод.', 'Темір - Fe (латынша Ferrum). F - фтор, Fr - франций, I - иод.', 'Iron is Fe (from the Latin Ferrum). F is fluorine, Fr is francium, I is iodine.')],
   [1, T('Какая формула у поваренной соли?', 'Ас тұзының формуласы қандай?', 'What is the formula of table salt?'),
     'NaCl', ['KCl', 'NaOH', 'CaCl₂'],
-    T('Поваренная соль — хлорид натрия NaCl.', 'Ас тұзы — натрий хлориді NaCl.', 'Table salt is sodium chloride, NaCl.')],
+    T('Поваренная соль - хлорид натрия NaCl.', 'Ас тұзы - натрий хлориді NaCl.', 'Table salt is sodium chloride, NaCl.')],
   [1, T('Какой газ поддерживает горение и необходим для дыхания?', 'Қай газ жануды қолдайды және тыныс алуға қажет?', 'Which gas supports burning and is needed for breathing?'),
     T('кислород', 'оттегі', 'oxygen'), [T('азот', 'азот', 'nitrogen'), T('углекислый газ', 'көмірқышқыл газы', 'carbon dioxide'), T('водород', 'сутегі', 'hydrogen')],
     T('Кислород O₂ поддерживает горение и участвует в дыхании. В воздухе его около 21%.', 'Оттегі O₂ жануды қолдайды және тыныс алуға қатысады. Ауада ол шамамен 21%.', 'Oxygen O₂ supports burning and takes part in breathing. It makes up about 21% of the air.')],
@@ -180,16 +180,16 @@ export const CHEMISTRY_THEORY = [
     T('В воздухе около 78% азота, 21% кислорода и около 1% остальных газов.', 'Ауада шамамен 78% азот, 21% оттегі және 1%-дай басқа газдар бар.', 'Air is about 78% nitrogen, 21% oxygen and about 1% other gases.')],
   [1, T('К какому классу веществ относится H₂SO₄?', 'H₂SO₄ қай заттар класына жатады?', 'To which class of compounds does H₂SO₄ belong?'),
     T('кислоты', 'қышқылдар', 'acids'), [T('основания', 'негіздер', 'bases'), T('соли', 'тұздар', 'salts'), T('оксиды', 'оксидтер', 'oxides')],
-    T('H₂SO₄ — серная кислота: в её составе атомы водорода и кислотный остаток SO₄.', 'H₂SO₄ — күкірт қышқылы: құрамында сутегі атомдары мен SO₄ қышқыл қалдығы бар.', 'H₂SO₄ is sulfuric acid: it consists of hydrogen atoms and the acid residue SO₄.')],
+    T('H₂SO₄ - серная кислота: в её составе атомы водорода и кислотный остаток SO₄.', 'H₂SO₄ - күкірт қышқылы: құрамында сутегі атомдары мен SO₄ қышқыл қалдығы бар.', 'H₂SO₄ is sulfuric acid: it consists of hydrogen atoms and the acid residue SO₄.')],
   [1, T('К какому классу веществ относится NaOH?', 'NaOH қай заттар класына жатады?', 'To which class of compounds does NaOH belong?'),
     T('основания', 'негіздер', 'bases'), [T('кислоты', 'қышқылдар', 'acids'), T('соли', 'тұздар', 'salts'), T('оксиды', 'оксидтер', 'oxides')],
-    T('NaOH — гидроксид натрия, растворимое основание (щёлочь): металл и группа OH.', 'NaOH — натрий гидроксиді, еритін негіз (сілті): металл және OH тобы.', 'NaOH is sodium hydroxide, a soluble base (alkali): a metal and the OH group.')],
+    T('NaOH - гидроксид натрия, растворимое основание (щёлочь): металл и группа OH.', 'NaOH - натрий гидроксиді, еритін негіз (сілті): металл және OH тобы.', 'NaOH is sodium hydroxide, a soluble base (alkali): a metal and the OH group.')],
   [2, T('Какую окраску приобретает лакмус в кислой среде?', 'Қышқыл ортада лакмус қандай түске боялады?', 'What colour does litmus turn in an acidic solution?'),
     T('красную', 'қызыл', 'red'), [T('синюю', 'көк', 'blue'), T('фиолетовую', 'күлгін', 'purple'), T('жёлтую', 'сары', 'yellow')],
-    T('Лакмус в кислой среде красный, в щелочной — синий, в нейтральной — фиолетовый.', 'Лакмус қышқыл ортада қызыл, сілтілік ортада көк, бейтарап ортада күлгін.', 'Litmus is red in acid, blue in alkali and purple in a neutral solution.')],
+    T('Лакмус в кислой среде красный, в щелочной - синий, в нейтральной - фиолетовый.', 'Лакмус қышқыл ортада қызыл, сілтілік ортада көк, бейтарап ортада күлгін.', 'Litmus is red in acid, blue in alkali and purple in a neutral solution.')],
   [2, T('Сколько электронов на внешнем уровне у атома натрия (порядковый номер 11)?', 'Натрий атомының (реттік нөмірі 11) сыртқы деңгейінде неше электрон бар?', 'How many electrons are in the outer shell of a sodium atom (atomic number 11)?'),
     '1', ['2', '3', '11'],
-    T('Электроны натрия распределены по уровням 2, 8, 1. На внешнем уровне один электрон — это номер группы.', 'Натрий электрондары деңгейлерге 2, 8, 1 болып бөлінген. Сыртқы деңгейде бір электрон — бұл топ нөмірі.', 'The electrons of sodium are arranged 2, 8, 1. There is one electron in the outer shell — the same as the group number.')],
+    T('Электроны натрия распределены по уровням 2, 8, 1. На внешнем уровне один электрон - это номер группы.', 'Натрий электрондары деңгейлерге 2, 8, 1 болып бөлінген. Сыртқы деңгейде бір электрон - бұл топ нөмірі.', 'The electrons of sodium are arranged 2, 8, 1. There is one electron in the outer shell - the same as the group number.')],
   [2, T('Как называется реакция, в которой из одного сложного вещества образуется несколько более простых?', 'Бір күрделі заттан бірнеше қарапайым зат түзілетін реакция қалай аталады?', 'What is the name of a reaction in which one compound breaks into several simpler substances?'),
     T('разложения', 'айырылу', 'decomposition'), [T('соединения', 'қосылу', 'combination'), T('замещения', 'орынбасу', 'substitution'), T('обмена', 'алмасу', 'exchange')],
     T('Реакция разложения: AB → A + B. Пример: CaCO₃ = CaO + CO₂.', 'Айырылу реакциясы: AB → A + B. Мысалы: CaCO₃ = CaO + CO₂.', 'Decomposition: AB → A + B. Example: CaCO₃ = CaO + CO₂.')],
@@ -199,23 +199,23 @@ export const CHEMISTRY_THEORY = [
   [2, T('Чему равна валентность кислорода в большинстве соединений?', 'Көптеген қосылыстарда оттегінің валенттілігі нешеге тең?', 'What is the valency of oxygen in most compounds?'),
     'II', ['I', 'III', 'IV'],
     T('Кислород в соединениях обычно двухвалентен: H₂O, CO₂, CaO.', 'Оттегі қосылыстарда әдетте екі валентті: H₂O, CO₂, CaO.', 'Oxygen is usually divalent in compounds: H₂O, CO₂, CaO.')],
-  [2, T('Какое из веществ — простое?', 'Қай зат жай зат болып табылады?', 'Which of these is an element (a simple substance)?'),
+  [2, T('Какое из веществ - простое?', 'Қай зат жай зат болып табылады?', 'Which of these is an element (a simple substance)?'),
     'O₂', ['H₂O', 'CO₂', 'NaCl'],
-    T('Простое вещество состоит из атомов одного элемента. O₂ — только кислород, остальные — соединения.', 'Жай зат бір элементтің атомдарынан тұрады. O₂ — тек оттегі, қалғандары — қосылыстар.', 'A simple substance consists of atoms of one element. O₂ is only oxygen; the others are compounds.')],
+    T('Простое вещество состоит из атомов одного элемента. O₂ - только кислород, остальные - соединения.', 'Жай зат бір элементтің атомдарынан тұрады. O₂ - тек оттегі, қалғандары - қосылыстар.', 'A simple substance consists of atoms of one element. O₂ is only oxygen; the others are compounds.')],
   [3, T('Какой тип химической связи в молекуле воды?', 'Су молекуласындағы химиялық байланыстың типі қандай?', 'What type of chemical bond is in a water molecule?'),
     T('ковалентная полярная', 'ковалентті полюсті', 'polar covalent'), [T('ионная', 'иондық', 'ionic'), T('ковалентная неполярная', 'ковалентті полюссіз', 'non-polar covalent'), T('металлическая', 'металдық', 'metallic')],
-    T('Связь между разными неметаллами (H и O) — ковалентная полярная: электроны смещены к кислороду.', 'Әртүрлі бейметалдар (H және O) арасындағы байланыс — ковалентті полюсті: электрондар оттегіге ығысқан.', 'A bond between different non-metals (H and O) is polar covalent: the electrons are shifted towards oxygen.')],
+    T('Связь между разными неметаллами (H и O) - ковалентная полярная: электроны смещены к кислороду.', 'Әртүрлі бейметалдар (H және O) арасындағы байланыс - ковалентті полюсті: электрондар оттегіге ығысқан.', 'A bond between different non-metals (H and O) is polar covalent: the electrons are shifted towards oxygen.')],
   [3, T('Как меняются металлические свойства элементов в периоде слева направо?', 'Периодта солдан оңға қарай элементтердің металдық қасиеттері қалай өзгереді?', 'How do the metallic properties of elements change from left to right across a period?'),
     T('ослабевают', 'әлсірейді', 'they weaken'), [T('усиливаются', 'күшейеді', 'they strengthen'), T('не меняются', 'өзгермейді', 'they do not change'), T('сначала усиливаются, затем ослабевают', 'алдымен күшейіп, сосын әлсірейді', 'they first strengthen, then weaken')],
     T('В периоде заряд ядра растёт, электроны удерживаются сильнее, поэтому металлические свойства ослабевают.', 'Периодта ядро заряды артады, электрондар күштірек ұсталады, сондықтан металдық қасиеттер әлсірейді.', 'Across a period the nuclear charge grows and electrons are held more tightly, so metallic properties weaken.')],
   [3, T('Какое вещество является окислителем в реакции 2Mg + O₂ = 2MgO?', '2Mg + O₂ = 2MgO реакциясында қай зат тотықтырғыш болып табылады?', 'Which substance is the oxidising agent in the reaction 2Mg + O₂ = 2MgO?'),
     'O₂', ['Mg', 'MgO', T('окислителя нет', 'тотықтырғыш жоқ', 'there is none')],
-    T('Кислород принимает электроны (его степень окисления меняется от 0 до −2), значит он окислитель. Магний отдаёт электроны — он восстановитель.', 'Оттегі электрондарды қабылдайды (тотығу дәрежесі 0-ден −2-ге өзгереді), демек ол — тотықтырғыш. Магний электрон береді — ол тотықсыздандырғыш.', 'Oxygen gains electrons (its oxidation state changes from 0 to −2), so it is the oxidising agent. Magnesium loses electrons — it is the reducing agent.')],
+    T('Кислород принимает электроны (его степень окисления меняется от 0 до −2), значит он окислитель. Магний отдаёт электроны - он восстановитель.', 'Оттегі электрондарды қабылдайды (тотығу дәрежесі 0-ден −2-ге өзгереді), демек ол - тотықтырғыш. Магний электрон береді - ол тотықсыздандырғыш.', 'Oxygen gains electrons (its oxidation state changes from 0 to −2), so it is the oxidising agent. Magnesium loses electrons - it is the reducing agent.')],
   [3, T('Какая среда у раствора с pH = 3?', 'pH = 3 болатын ерітіндінің ортасы қандай?', 'What kind of solution has pH = 3?'),
     T('кислая', 'қышқыл', 'acidic'), [T('щелочная', 'сілтілік', 'alkaline'), T('нейтральная', 'бейтарап', 'neutral'), T('слабощелочная', 'әлсіз сілтілік', 'slightly alkaline')],
-    T('pH меньше 7 — кислая среда, pH = 7 — нейтральная, pH больше 7 — щелочная.', 'pH 7-ден кіші — қышқыл орта, pH = 7 — бейтарап, pH 7-ден үлкен — сілтілік.', 'pH below 7 is acidic, pH = 7 is neutral, pH above 7 is alkaline.')],
+    T('pH меньше 7 - кислая среда, pH = 7 - нейтральная, pH больше 7 - щелочная.', 'pH 7-ден кіші - қышқыл орта, pH = 7 - бейтарап, pH 7-ден үлкен - сілтілік.', 'pH below 7 is acidic, pH = 7 is neutral, pH above 7 is alkaline.')],
 ];
 
-// Дополнительные вопросы — в science-more.js.
+// Дополнительные вопросы - в science-more.js.
 CHEMISTRY_THEORY.push(...CHEMISTRY_MORE);
 CHEMISTRY_THEORY.push(...CHEMISTRY_MORE2);

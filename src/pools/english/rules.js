@@ -31,38 +31,38 @@ export const RULES = {
   ),
   aan: L(
     'Use "a" before a consonant sound and "an" before a vowel sound, with singular countable nouns.',
-    'Перед согласным звуком ставится a, перед гласным — an. Оба артикля — только с исчисляемыми существительными в единственном числе.',
+    'Перед согласным звуком ставится a, перед гласным - an. Оба артикля - только с исчисляемыми существительными в единственном числе.',
     'Дауыссыз дыбыстың алдында a, дауысты дыбыстың алдында an қойылады. Екеуі де тек жекеше түрдегі саналатын зат есімдермен қолданылады.',
   ),
   someany: L(
     'Use "some" in positive sentences and offers, "any" in negatives and most questions.',
-    'Some употребляется в утверждениях и предложениях что-то взять, any — в отрицаниях и большинстве вопросов.',
+    'Some употребляется в утверждениях и предложениях что-то взять, any - в отрицаниях и большинстве вопросов.',
     'Some болымды сөйлемдер мен ұсыныстарда, any болымсыз сөйлемдер мен сұрақтардың көбінде қолданылады.',
   ),
   poss: L(
     'Before a noun use my, your, his, her, its, our, their. Without a noun use mine, yours, his, hers, ours, theirs.',
-    'Перед существительным ставятся my, your, his, her, its, our, their. Без существительного — mine, yours, his, hers, ours, theirs.',
-    'Зат есімнің алдында my, your, his, her, its, our, their қойылады. Зат есімсіз — mine, yours, his, hers, ours, theirs.',
+    'Перед существительным ставятся my, your, his, her, its, our, their. Без существительного - mine, yours, his, hers, ours, theirs.',
+    'Зат есімнің алдында my, your, his, her, its, our, their қойылады. Зат есімсіз - mine, yours, his, hers, ours, theirs.',
   ),
   subjpron: L(
     'The subject of a sentence is I, you, he, she, it, we, they.',
-    'Подлежащее в предложении — это I, you, he, she, it, we, they.',
-    'Сөйлемнің бастауышы — I, you, he, she, it, we, they.',
+    'Подлежащее в предложении - это I, you, he, she, it, we, they.',
+    'Сөйлемнің бастауышы - I, you, he, she, it, we, they.',
   ),
   thereis: L(
     'There is + singular noun, there are + plural noun.',
-    'There is — с единственным числом, there are — с множественным.',
-    'There is — жекеше түрмен, there are — көпше түрмен қолданылады.',
+    'There is - с единственным числом, there are - с множественным.',
+    'There is - жекеше түрмен, there are - көпше түрмен қолданылады.',
   ),
   timeprep: L(
     'Time: at + clock time (at nine), on + day or date (on Sunday), in + month, year, part of the day (in May, in 2010).',
-    'Время: at — с часами (at nine), on — с днями и датами (on Sunday), in — с месяцами, годами, частями дня (in May, in 2010).',
-    'Уақыт: at — сағатпен (at nine), on — күн мен датамен (on Sunday), in — ай, жыл, тәулік бөлігімен (in May, in 2010).',
+    'Время: at - с часами (at nine), on - с днями и датами (on Sunday), in - с месяцами, годами, частями дня (in May, in 2010).',
+    'Уақыт: at - сағатпен (at nine), on - күн мен датамен (on Sunday), in - ай, жыл, тәулік бөлігімен (in May, in 2010).',
   ),
   placeprep: L(
     'Place: in + city, country or closed space; on + surface; at + point (at the airport, at school).',
-    'Место: in — город, страна, замкнутое пространство; on — поверхность; at — точка (at the airport, at school).',
-    'Орын: in — қала, ел, жабық кеңістік; on — бет; at — нүкте (at the airport, at school).',
+    'Место: in - город, страна, замкнутое пространство; on - поверхность; at - точка (at the airport, at school).',
+    'Орын: in - қала, ел, жабық кеңістік; on - бет; at - нүкте (at the airport, at school).',
   ),
   bytransport: L(
     'Means of transport: by bus, by car, by train (but: on foot).',
@@ -70,14 +70,14 @@ export const RULES = {
     'Көлік түрі: by bus, by car, by train (бірақ: on foot).',
   ),
   pluralirr: L(
-    'Irregular plurals: child — children, tooth — teeth, woman — women, man — men, foot — feet.',
-    'Неправильное множественное число: child — children, tooth — teeth, woman — women, man — men, foot — feet.',
-    'Бұрыс көпше түр: child — children, tooth — teeth, woman — women, man — men, foot — feet.',
+    'Irregular plurals: child - children, tooth - teeth, woman - women, man - men, foot - feet.',
+    'Неправильное множественное число: child - children, tooth - teeth, woman - women, man - men, foot - feet.',
+    'Бұрыс көпше түр: child - children, tooth - teeth, woman - women, man - men, foot - feet.',
   ),
   muchmany: L(
-    'How much — with uncountable nouns and prices, how many — with countable nouns.',
-    'How much — с неисчисляемыми существительными и ценой, how many — с исчисляемыми.',
-    'How much — саналмайтын зат есімдермен және бағамен, how many — саналатын зат есімдермен қолданылады.',
+    'How much - with uncountable nouns and prices, how many - with countable nouns.',
+    'How much - с неисчисляемыми существительными и ценой, how many - с исчисляемыми.',
+    'How much - саналмайтын зат есімдермен және бағамен, how many - саналатын зат есімдермен қолданылады.',
   ),
   can: L(
     'After can, could, must, should the verb has no "to" and no ending; these verbs do not take -s.',
@@ -86,14 +86,14 @@ export const RULES = {
   ),
   wh: L(
     'What asks about a thing, who about a person, where about a place, when about time, how about manner.',
-    'What спрашивает о предмете, who — о человеке, where — о месте, when — о времени, how — о способе.',
-    'What — зат туралы, who — адам туралы, where — орын туралы, when — уақыт туралы, how — тәсіл туралы сұрайды.',
+    'What спрашивает о предмете, who - о человеке, where - о месте, when - о времени, how - о способе.',
+    'What - зат туралы, who - адам туралы, where - орын туралы, when - уақыт туралы, how - тәсіл туралы сұрайды.',
   ),
   // ----- A2 -----
   pastirr: L(
-    'Past Simple for a finished action at a known time (yesterday, last night, ago). Irregular verbs have a special second form: go — went, see — saw, do — did.',
-    'Past Simple — для законченного действия в известный момент (yesterday, last night, ago). У неправильных глаголов особая вторая форма: go — went, see — saw, do — did.',
-    'Past Simple — белгілі бір уақытта (yesterday, last night, ago) аяқталған іс-әрекет үшін. Бұрыс етістіктердің екінші түрі ерекше: go — went, see — saw, do — did.',
+    'Past Simple for a finished action at a known time (yesterday, last night, ago). Irregular verbs have a special second form: go - went, see - saw, do - did.',
+    'Past Simple - для законченного действия в известный момент (yesterday, last night, ago). У неправильных глаголов особая вторая форма: go - went, see - saw, do - did.',
+    'Past Simple - белгілі бір уақытта (yesterday, last night, ago) аяқталған іс-әрекет үшін. Бұрыс етістіктердің екінші түрі ерекше: go - went, see - saw, do - did.',
   ),
   did: L(
     'Past Simple questions and negatives use did / didn\'t + the base form of the verb.',
@@ -112,8 +112,8 @@ export const RULES = {
   ),
   goingto: L(
     'Use be going to + base form for plans that are already decided.',
-    'Be going to + глагол — для планов, которые уже решены.',
-    'Be going to + етістік — алдын ала шешілген жоспарлар үшін.',
+    'Be going to + глагол - для планов, которые уже решены.',
+    'Be going to + етістік - алдын ала шешілген жоспарлар үшін.',
   ),
   ppexp: L(
     'Present Perfect (have / has + past participle) is used for life experience with ever and never.',
@@ -121,19 +121,19 @@ export const RULES = {
     'Present Perfect (have / has + етістіктің үшінші түрі) ever және never сөздерімен өмірлік тәжірибе туралы айтқанда қолданылады.',
   ),
   comp: L(
-    'Comparatives: short adjectives take -er (faster, heavier), long ones take more (more difficult). Good — better, bad — worse.',
-    'Сравнительная степень: короткие прилагательные получают -er (faster, heavier), длинные — more (more difficult). Good — better, bad — worse.',
-    'Салыстырмалы шырай: қысқа сын есімдерге -er жалғанады (faster, heavier), ұзындарына more қосылады (more difficult). Good — better, bad — worse.',
+    'Comparatives: short adjectives take -er (faster, heavier), long ones take more (more difficult). Good - better, bad - worse.',
+    'Сравнительная степень: короткие прилагательные получают -er (faster, heavier), длинные - more (more difficult). Good - better, bad - worse.',
+    'Салыстырмалы шырай: қысқа сын есімдерге -er жалғанады (faster, heavier), ұзындарына more қосылады (more difficult). Good - better, bad - worse.',
   ),
   superl: L(
-    'Superlatives: the + -est for short adjectives (the tallest), the most for long ones. Good — the best.',
-    'Превосходная степень: the + -est у коротких прилагательных (the tallest), the most — у длинных. Good — the best.',
-    'Күшейтпелі шырай: қысқа сын есімдерде the + -est (the tallest), ұзындарында the most. Good — the best.',
+    'Superlatives: the + -est for short adjectives (the tallest), the most for long ones. Good - the best.',
+    'Превосходная степень: the + -est у коротких прилагательных (the tallest), the most - у длинных. Good - the best.',
+    'Күшейтпелі шырай: қысқа сын есімдерде the + -est (the tallest), ұзындарында the most. Good - the best.',
   ),
   quant: L(
     'Much and a little go with uncountable nouns, many and a few with countable nouns. A lot of works with both.',
-    'Much и a little — с неисчисляемыми существительными, many и a few — с исчисляемыми. A lot of подходит к обоим.',
-    'Much пен a little — саналмайтын, many мен a few — саналатын зат есімдермен қолданылады. A lot of екеуіне де сәйкес келеді.',
+    'Much и a little - с неисчисляемыми существительными, many и a few - с исчисляемыми. A lot of подходит к обоим.',
+    'Much пен a little - саналмайтын, many мен a few - саналатын зат есімдермен қолданылады. A lot of екеуіне де сәйкес келеді.',
   ),
   fixedprep: L(
     'Many adjectives and verbs take a fixed preposition that must be learned: interested in, good at, depend on, accused of, apologise for.',
@@ -157,12 +157,12 @@ export const RULES = {
   ),
   couldpast: L(
     'Could is the past form of can and describes ability in the past.',
-    'Could — прошедшая форма can, она описывает умение в прошлом.',
-    'Could — can етістігінің өткен шақ түрі, өткендегі қабілетті сипаттайды.',
+    'Could - прошедшая форма can, она описывает умение в прошлом.',
+    'Could - can етістігінің өткен шақ түрі, өткендегі қабілетті сипаттайды.',
   ),
   eding: L(
     'Adjectives in -ed describe how a person feels (bored, interested); adjectives in -ing describe what causes the feeling (boring, interesting).',
-    'Прилагательные на -ed описывают чувства человека (bored, interested), на -ing — то, что вызывает эти чувства (boring, interesting).',
+    'Прилагательные на -ed описывают чувства человека (bored, interested), на -ing - то, что вызывает эти чувства (boring, interesting).',
     '-ed жалғаулы сын есімдер адамның сезімін (bored, interested), -ing жалғаулылары сол сезімді тудыратын нәрсені (boring, interesting) сипаттайды.',
   ),
   gerund: L(
@@ -183,7 +183,7 @@ export const RULES = {
   ),
   yet: L(
     'Yet is used at the end of negatives and questions in the Present Perfect; already is used in positive sentences.',
-    'Yet ставится в конце отрицаний и вопросов в Present Perfect, already — в утверждениях.',
+    'Yet ставится в конце отрицаний и вопросов в Present Perfect, already - в утверждениях.',
     'Yet Present Perfect-тегі болымсыз сөйлем мен сұрақтың соңында, already болымды сөйлемде қолданылады.',
   ),
   pastperf: L(
@@ -223,8 +223,8 @@ export const RULES = {
   ),
   wish: L(
     'I wish / If only + Past Simple (or could) for a present wish; + Past Perfect for a regret about the past.',
-    'I wish / If only + Past Simple (или could) — желание о настоящем; + Past Perfect — сожаление о прошлом.',
-    'I wish / If only + Past Simple (немесе could) — осы шақ туралы тілек; + Past Perfect — өткенге өкініш.',
+    'I wish / If only + Past Simple (или could) - желание о настоящем; + Past Perfect - сожаление о прошлом.',
+    'I wish / If only + Past Simple (немесе could) - осы шақ туралы тілек; + Past Perfect - өткенге өкініш.',
   ),
   passive: L(
     'Passive voice: be in the right tense + past participle. It is used when the action matters more than who does it.',
@@ -243,8 +243,8 @@ export const RULES = {
   ),
   toing: L(
     'In "look forward to", "be used to", "object to" the word "to" is a preposition, so the verb takes -ing.',
-    'В выражениях look forward to, be used to, object to слово to — предлог, поэтому после него глагол с -ing.',
-    'Look forward to, be used to, object to тіркестерінде to — предлог, сондықтан одан кейін етістік -ing түрінде тұрады.',
+    'В выражениях look forward to, be used to, object to слово to - предлог, поэтому после него глагол с -ing.',
+    'Look forward to, be used to, object to тіркестерінде to - предлог, сондықтан одан кейін етістік -ing түрінде тұрады.',
   ),
   indirectq: L(
     'In indirect questions the word order is the same as in a statement: subject + verb, without do / did.',
@@ -283,9 +283,9 @@ export const RULES = {
     'Үшінші типті шартты сөйлем (өткендегі жалған жағдай): if + Past Perfect, would have + етістіктің үшінші түрі.',
   ),
   condmixed: L(
-    'Mixed conditional: a past condition with a present result — if + Past Perfect, would + base form.',
-    'Смешанное условное: условие в прошлом, результат в настоящем — if + Past Perfect, would + глагол.',
-    'Аралас шартты сөйлем: шарт өткенде, нәтиже осы шақта — if + Past Perfect, would + етістік.',
+    'Mixed conditional: a past condition with a present result - if + Past Perfect, would + base form.',
+    'Смешанное условное: условие в прошлом, результат в настоящем - if + Past Perfect, would + глагол.',
+    'Аралас шартты сөйлем: шарт өткенде, нәтиже осы шақта - if + Past Perfect, would + етістік.',
   ),
   condinv: L(
     'In formal conditionals "if" can be dropped and the auxiliary moves to the front: Had I known…, Should you need…, Were he to ask…',
@@ -314,12 +314,12 @@ export const RULES = {
   ),
   remember: L(
     'Remember / forget + to do = about a future duty. Remember / forget + doing = about a memory of the past.',
-    'Remember / forget + to do — о том, что нужно сделать. Remember / forget + doing — о воспоминании.',
-    'Remember / forget + to do — істелуге тиіс іс туралы. Remember / forget + doing — естелік туралы.',
+    'Remember / forget + to do - о том, что нужно сделать. Remember / forget + doing - о воспоминании.',
+    'Remember / forget + to do - істелуге тиіс іс туралы. Remember / forget + doing - естелік туралы.',
   ),
   whether: L(
     'Reported yes / no questions are introduced by if or whether, with statement word order.',
-    'Косвенные общие вопросы вводятся словами if или whether, порядок слов — как в утверждении.',
+    'Косвенные общие вопросы вводятся словами if или whether, порядок слов - как в утверждении.',
     'Жанама жалпы сұрақтар if немесе whether сөздерімен басталады, сөз тәртібі хабарлы сөйлемдегідей.',
   ),
   modalperf: L(
@@ -337,7 +337,7 @@ export const RULES = {
     'После despite и in spite of стоит существительное или форма с -ing, а не придаточное предложение.',
     'Despite пен in spite of сөздерінен кейін бағыныңқы сөйлем емес, зат есім немесе -ing түрі тұрады.',
   ),
-  // ----- C1–C2 -----
+  // ----- C1-C2 -----
   inversion: L(
     'After negative or limiting adverbials at the start of a sentence (never, not only, little, hardly, no sooner, not until) the auxiliary comes before the subject.',
     'После отрицательных и ограничительных оборотов в начале предложения (never, not only, little, hardly, no sooner, not until) вспомогательный глагол ставится перед подлежащим.',
@@ -345,8 +345,8 @@ export const RULES = {
   ),
   hardly: L(
     'Hardly / scarcely … when, no sooner … than: fixed pairs, with Past Perfect and inversion.',
-    'Hardly / scarcely … when, no sooner … than — устойчивые пары, с Past Perfect и инверсией.',
-    'Hardly / scarcely … when, no sooner … than — тұрақты жұптар, Past Perfect және инверсиямен қолданылады.',
+    'Hardly / scarcely … when, no sooner … than - устойчивые пары, с Past Perfect и инверсией.',
+    'Hardly / scarcely … when, no sooner … than - тұрақты жұптар, Past Perfect және инверсиямен қолданылады.',
   ),
   subjunctive: L(
     'After recommend, suggest, insist, demand + that the verb is in the base form for every person (that he be, that she go).',
@@ -364,9 +364,9 @@ export const RULES = {
     'Жіктелген сөйлемдер ең маңыздыны ерекшелейді: It was … that …; What I need is …',
   ),
   sosuch: L(
-    'So + adjective + be + subject … that; Such + be + noun phrase … that — emphatic inversion.',
-    'So + прилагательное + be + подлежащее … that; Such + be + существительное … that — эмфатическая инверсия.',
-    'So + сын есім + be + бастауыш … that; Such + be + зат есім … that — эмфатикалық инверсия.',
+    'So + adjective + be + subject … that; Such + be + noun phrase … that - emphatic inversion.',
+    'So + прилагательное + be + подлежащее … that; Such + be + существительное … that - эмфатическая инверсия.',
+    'So + сын есім + be + бастауыш … that; Such + be + зат есім … that - эмфатикалық инверсия.',
   ),
   rather: L(
     'Would rather / would sooner + base form (same subject); would rather + person + Past Simple (different subject).',
@@ -385,7 +385,7 @@ export const RULES = {
   ),
   butfor: L(
     'But for + noun = if it had not been for; the main clause takes would have + past participle.',
-    'But for + существительное = если бы не; в главной части — would have + третья форма глагола.',
+    'But for + существительное = если бы не; в главной части - would have + третья форма глагола.',
     'But for + зат есім = егер … болмағанда; басыңқы бөлікте would have + етістіктің үшінші түрі қолданылады.',
   ),
   asthough: L(
@@ -396,6 +396,6 @@ export const RULES = {
   wordform: L(
     'Look at the gap: decide which part of speech is needed and whether the meaning is positive or negative, then choose the right suffix or prefix.',
     'Посмотри на пропуск: определи, какая часть речи нужна и положительное или отрицательное значение, затем выбери суффикс или приставку.',
-    'Бос орынға қара: қай сөз табы керек екенін және мағынасы болымды ма, болымсыз ба — соны анықтап, жұрнақ немесе қосымшаны таңда.',
+    'Бос орынға қара: қай сөз табы керек екенін және мағынасы болымды ма, болымсыз ба - соны анықтап, жұрнақ немесе қосымшаны таңда.',
   ),
 };

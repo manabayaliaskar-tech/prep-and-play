@@ -64,7 +64,7 @@ function startReveal(app) {
     for (const el of app.querySelectorAll(REVEAL)) {
       if (el.dataset.rv || el.closest('.session')) continue;
       el.dataset.rv = '1';
-      // То, что видно сразу, не прячем — иначе экран мигнёт.
+      // То, что видно сразу, не прячем - иначе экран мигнёт.
       if (el.getBoundingClientRect().top < fold) continue;
       el.classList.add('rv');
       el.style.setProperty('--rv', String(n++ % 4));

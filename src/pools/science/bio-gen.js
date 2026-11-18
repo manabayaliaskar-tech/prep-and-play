@@ -1,5 +1,5 @@
-// Биология: генераторы по таблицам — классы животных, органы и системы органов,
-// органоиды клетки, витамины, учёные. Ключ сложности — 1…3.
+// Биология: генераторы по таблицам - классы животных, органы и системы органов,
+// органоиды клетки, витамины, учёные. Ключ сложности - 1…3.
 
 import { hashString, pick, shuffle } from '../../core/random.js';
 import { L, poolQ } from '../gen.js';
@@ -88,7 +88,7 @@ const NOTE = {
   'lays eggs but feeds its young with milk': L('it lays eggs but feeds its young with milk', 'откладывает яйца, но выкармливает детёнышей молоком', 'жұмыртқа салады, бірақ төлін сүтпен асырайды'),
   'cannot fly but has feathers and lays eggs': L('it cannot fly but has feathers and lays eggs', 'не летает, но покрыт перьями и откладывает яйца', 'ұшпайды, бірақ қауырсынмен жабылған және жұмыртқа салады'),
   'looks unusual but breathes with gills and has fins': L('it looks unusual but breathes with gills and has fins', 'выглядит необычно, но дышит жабрами и имеет плавники', 'түрі ерекше, бірақ желбезекпен тыныс алады, жүзбеқанаты бар'),
-  'has eight legs, insects have six': L('it has eight legs, while insects have six', 'у него восемь ног, а у насекомых — шесть', 'оның сегіз аяғы бар, ал жәндіктерде — алты'),
+  'has eight legs, insects have six': L('it has eight legs, while insects have six', 'у него восемь ног, а у насекомых - шесть', 'оның сегіз аяғы бар, ал жәндіктерде - алты'),
 };
 
 function animalTask(ctx, topic, d) {
@@ -102,7 +102,7 @@ function animalTask(ctx, topic, d) {
     const q = poolQ(topic, d, {
       kind: 'text',
       prompt: L(`Which class does the ${a.name.en} belong to?`, `К какому классу относится ${a.name.ru}?`, `${a.name.kk} қай класқа жатады?`),
-      ex: L(`The ${a.name.en} belongs to ${CLASSES[a.cls].en}${why ? `: ${why.en}` : ''}.`, `${a.name.ru} — ${CLASSES[a.cls].ru}${why ? `: ${why.ru}` : ''}.`, `${a.name.kk} — ${CLASSES[a.cls].kk}${why ? `: ${why.kk}` : ''}.`),
+      ex: L(`The ${a.name.en} belongs to ${CLASSES[a.cls].en}${why ? `: ${why.en}` : ''}.`, `${a.name.ru} - ${CLASSES[a.cls].ru}${why ? `: ${why.ru}` : ''}.`, `${a.name.kk} - ${CLASSES[a.cls].kk}${why ? `: ${why.kk}` : ''}.`),
       mc: mcOf(rng, CLASSES[a.cls], wrong.map((k) => CLASSES[k])),
     });
     q.id = `${topic}:class:${a.name.en}`;
@@ -121,8 +121,8 @@ function animalTask(ctx, topic, d) {
         : L('Which animal is the odd one out?', 'Какое животное лишнее?', 'Қай жануар артық?'),
     ex:
       mode === 'which'
-        ? L(`${right.name.en} — ${CLASSES[cls].en}.`, `${right.name.ru} — ${CLASSES[cls].ru}.`, `${right.name.kk} — ${CLASSES[cls].kk}.`)
-        : L(`${right.name.en} belongs to ${CLASSES[right.cls].en}; ${list('en')} — ${CLASSES[cls].en}.`, `${right.name.ru} — ${CLASSES[right.cls].ru}, а ${list('ru')} — ${CLASSES[cls].ru}.`, `${right.name.kk} — ${CLASSES[right.cls].kk}, ал ${list('kk')} — ${CLASSES[cls].kk}.`),
+        ? L(`${right.name.en} - ${CLASSES[cls].en}.`, `${right.name.ru} - ${CLASSES[cls].ru}.`, `${right.name.kk} - ${CLASSES[cls].kk}.`)
+        : L(`${right.name.en} belongs to ${CLASSES[right.cls].en}; ${list('en')} - ${CLASSES[cls].en}.`, `${right.name.ru} - ${CLASSES[right.cls].ru}, а ${list('ru')} - ${CLASSES[cls].ru}.`, `${right.name.kk} - ${CLASSES[right.cls].kk}, ал ${list('kk')} - ${CLASSES[cls].kk}.`),
     mc: mcOf(rng, right.name, wrong.map((a) => a.name)),
   });
   q.id = `${topic}:${mode}:${hashString([right, ...wrong].map((a) => a.name.en).sort().join())}`;
@@ -191,7 +191,7 @@ function organTask(ctx, topic, d) {
     const q = poolQ(topic, d, {
       kind: 'text',
       prompt: L(`Which organ system do the ${o.name.en} belong to?`, `К какой системе органов относится: ${o.name.ru}?`, `${o.name.kk} қай мүшелер жүйесіне жатады?`),
-      ex: L(`${o.name.en} — ${SYSTEMS[o.sys].en}.`, `${o.name.ru} — ${SYSTEMS[o.sys].ru}.`, `${o.name.kk} — ${SYSTEMS[o.sys].kk}.`),
+      ex: L(`${o.name.en} - ${SYSTEMS[o.sys].en}.`, `${o.name.ru} - ${SYSTEMS[o.sys].ru}.`, `${o.name.kk} - ${SYSTEMS[o.sys].kk}.`),
       mc: mcOf(rng, SYSTEMS[o.sys], wrong.map((k) => SYSTEMS[k])),
     });
     q.id = `${topic}:organ:${o.name.en}`;
@@ -203,7 +203,7 @@ function organTask(ctx, topic, d) {
   const q = poolQ(topic, d, {
     kind: 'text',
     prompt: L(`Which organ is part of ${SYSTEMS[o.sys].en}?`, `Какой орган входит в систему: ${SYSTEMS[o.sys].ru}?`, `Қай мүше «${SYSTEMS[o.sys].kk}» құрамына кіреді?`),
-    ex: L(`${o.name.en} — ${SYSTEMS[o.sys].en}.`, `${o.name.ru} — ${SYSTEMS[o.sys].ru}.`, `${o.name.kk} — ${SYSTEMS[o.sys].kk}.`),
+    ex: L(`${o.name.en} - ${SYSTEMS[o.sys].en}.`, `${o.name.ru} - ${SYSTEMS[o.sys].ru}.`, `${o.name.kk} - ${SYSTEMS[o.sys].kk}.`),
     mc: mcOf(rng, o.name, wrong.map((x) => x.name)),
   });
   q.id = `${topic}:sys:${hashString([o, ...wrong].map((x) => x.name.en).sort().join())}`;
@@ -305,7 +305,7 @@ const TABLES = [
 1|Charles Darwin|Чарльз Дарвин|Чарльз Дарвин|the theory of evolution by natural selection|теория эволюции путём естественного отбора|табиғи сұрыпталу арқылы эволюция теориясы
 1|Gregor Mendel|Грегор Мендель|Грегор Мендель|the laws of heredity|законы наследственности|тұқым қуалаушылық заңдары
 2|Louis Pasteur|Луи Пастер|Луи Пастер|vaccines and pasteurisation|вакцины и пастеризация|вакциналар мен пастерлеу
-2|Alexander Fleming|Александр Флеминг|Александр Флеминг|penicillin, the first antibiotic|пенициллин — первый антибиотик|пенициллин — алғашқы антибиотик
+2|Alexander Fleming|Александр Флеминг|Александр Флеминг|penicillin, the first antibiotic|пенициллин - первый антибиотик|пенициллин - алғашқы антибиотик
 2|Robert Hooke|Роберт Гук|Роберт Гук|the cell (he was first to describe it)|клетка (первым описал её)|жасуша (оны алғаш сипаттаған)
 2|Antonie van Leeuwenhoek|Антони ван Левенгук|Антони ван Левенгук|microorganisms seen through a microscope|микроорганизмы, увиденные в микроскоп|микроскоппен көрінген микроағзалар
 3|Watson and Crick|Уотсон и Крик|Уотсон мен Крик|the double helix structure of DNA|двойная спираль ДНК|ДНҚ-ның қос спиралі
@@ -313,7 +313,7 @@ const TABLES = [
 3|Carl Linnaeus|Карл Линней|Карл Линней|the system of naming species with two words|система двойных названий видов|түрлерді екі сөзбен атау жүйесі
 3|Ivan Pavlov|Иван Павлов|Иван Павлов|conditioned reflexes|условные рефлексы|шартты рефлекстер
 3|Ilya Mechnikov|Илья Мечников|Илья Мечников|phagocytosis (cells that swallow microbes)|фагоцитоз (клетки, поглощающие микробов)|фагоцитоз (микробтарды жұтатын жасушалар)
-2|Edward Jenner|Эдвард Дженнер|Эдвард Дженнер|the first vaccine, against smallpox|первая вакцина — против оспы|алғашқы вакцина — шешекке қарсы
+2|Edward Jenner|Эдвард Дженнер|Эдвард Дженнер|the first vaccine, against smallpox|первая вакцина - против оспы|алғашқы вакцина - шешекке қарсы
 2|Robert Koch|Роберт Кох|Роберт Кох|the bacterium that causes tuberculosis|возбудитель туберкулёза|туберкулездің қоздырғышы
 3|Jean-Baptiste Lamarck|Жан-Батист Ламарк|Жан-Батист Ламарк|the first complete theory of evolution|первая целостная теория эволюции|алғашқы тұтас эволюция теориясы
 3|Nikolai Vavilov|Николай Вавилов|Николай Вавилов|the centres of origin of cultivated plants|центры происхождения культурных растений|мәдени өсімдіктердің шығу орталықтары
@@ -331,9 +331,9 @@ function tableTask(ctx, topic, d, id) {
   const pool = t.pairs.filter((p) => p.d <= d);
   const p = pick(rng, pool);
   const wrong = shuffle(t.pairs.filter((x) => x !== p), rng).slice(0, 3);
-  // Для витаминов вопрос всегда «чего не хватает» — ответ слева.
+  // Для витаминов вопрос всегда «чего не хватает» - ответ слева.
   const forward = t.ask ? !t.back || rng() < 0.5 : false;
-  const ex = L(`${p.a.en} — ${p.b.en}.`, `${p.a.ru} — ${p.b.ru}.`, `${p.a.kk} — ${p.b.kk}.`);
+  const ex = L(`${p.a.en} - ${p.b.en}.`, `${p.a.ru} - ${p.b.ru}.`, `${p.a.kk} - ${p.b.kk}.`);
   const q = poolQ(topic, d, {
     kind: 'text',
     prompt: forward ? t.ask(p) : t.back(p),
@@ -356,8 +356,8 @@ const PARTS = {
 };
 
 /**
- * Генератор биологии. part: animals — классы животных; body — органы, системы и витамины;
- * cell — органоиды клетки и учёные.
+ * Генератор биологии. part: animals - классы животных; body - органы, системы и витамины;
+ * cell - органоиды клетки и учёные.
  */
 export function biologyMaker(topic, part) {
   return (ctx, d) => {
@@ -404,8 +404,8 @@ function crossTask(ctx, topic, d) {
     kind: 'text',
     prompt: L(
       `A is ${trait.dom.en} (dominant), a is ${trait.rec.en}. Parents ${p1} × ${p2}. What fraction of the offspring will be ${what.en.replace(/^with /, 'with ')}?`,
-      `A — ${trait.dom.ru} (доминантный признак), a — ${trait.rec.ru}. Родители ${p1} × ${p2}. Какая доля потомков будет ${what.ru}?`,
-      `A — ${trait.dom.kk} (доминантты белгі), a — ${trait.rec.kk}. Ата-аналар ${p1} × ${p2}. Ұрпақтың қандай үлесі ${what.kk} болады?`,
+      `A - ${trait.dom.ru} (доминантный признак), a - ${trait.rec.ru}. Родители ${p1} × ${p2}. Какая доля потомков будет ${what.ru}?`,
+      `A - ${trait.dom.kk} (доминантты белгі), a - ${trait.rec.kk}. Ата-аналар ${p1} × ${p2}. Ұрпақтың қандай үлесі ${what.kk} болады?`,
     ),
     ex: L(
       `Punnett square: ${square}. ${count} out of 4 → ${frac(count)}.`,
@@ -445,8 +445,8 @@ function dnaTask(ctx, topic, d) {
       ? L(`A DNA strand reads ${s}. Which mRNA is copied from it?`, `Участок цепи ДНК: ${s}. Какая и-РНК синтезируется на нём?`, `ДНҚ тізбегінің бөлігі: ${s}. Онда қандай и-РНҚ синтезделеді?`)
       : L(`A DNA strand reads ${s}. What is the complementary strand?`, `Участок цепи ДНК: ${s}. Какой будет комплементарная цепь?`, `ДНҚ тізбегінің бөлігі: ${s}. Комплементар тізбек қандай болады?`),
     ex: toRna
-      ? L('In RNA, A pairs with U (there is no T), T with A, G with C.', 'В РНК против A ставится U (тимина в РНК нет), против T — A, против G — C.', 'РНҚ-да A-ға қарсы U (РНҚ-да тимин жоқ), T-ға қарсы A, G-ге қарсы C тұрады.')
-      : L('Complementarity: A pairs with T, G pairs with C.', 'Комплементарность: A соединяется с T, G — с C.', 'Комплементарлық: A мен T, G мен C жұптасады.'),
+      ? L('In RNA, A pairs with U (there is no T), T with A, G with C.', 'В РНК против A ставится U (тимина в РНК нет), против T - A, против G - C.', 'РНҚ-да A-ға қарсы U (РНҚ-да тимин жоқ), T-ға қарсы A, G-ге қарсы C тұрады.')
+      : L('Complementarity: A pairs with T, G pairs with C.', 'Комплементарность: A соединяется с T, G - с C.', 'Комплементарлық: A мен T, G мен C жұптасады.'),
     mc: mcOf(rng, correct, wrong),
   });
   q.id = `${topic}:dna:${toRna ? 'r' : 'd'}:${s}`;

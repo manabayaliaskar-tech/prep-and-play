@@ -1,7 +1,7 @@
 {
-  "name": "Prep&Play — подготовка к экзаменам в виде игры",
+  "name": "Prep&Play - подготовка к экзаменам в виде игры",
   "short_name": "Prep&Play",
-  "description": "SAT, IELTS, TOEFL, ЕНТ, ЕГЭ, олимпиадная математика, языки и программирование — играя. RU / KZ / EN.",
+  "description": "SAT, IELTS, TOEFL, ЕНТ, ЕГЭ, олимпиадная математика, языки и программирование - играя. RU / KZ / EN.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

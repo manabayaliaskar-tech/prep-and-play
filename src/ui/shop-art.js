@@ -1,6 +1,6 @@
 // Рисунки магазина: кристалл-осколок (вторая валюта) и три сундука.
 
-/** Осколок — фиолетовый кристалл. */
+/** Осколок - фиолетовый кристалл. */
 export const shardHtml = (cls = '') => `<svg class="shard ${cls}" viewBox="0 0 24 24" aria-hidden="true">
   <path d="M12 1.5 L20 8 L16.5 21 L7.5 21 L4 8 Z" fill="#a78bfa" stroke="#6d28d9" stroke-width="1.4" stroke-linejoin="round"/>
   <path d="M12 1.5 L12 21 M4 8 L20 8 M12 8 L7.5 21 M12 8 L16.5 21" stroke="#6d28d9" stroke-width=".9" opacity=".55"/>
@@ -14,7 +14,7 @@ const CHEST = {
   mega: { body: '#0ea5e9', dark: '#075985', light: '#7dd3fc', band: '#e0f2fe', lock: '#ffffff', gem: '#22d3ee' },
 };
 
-/** Сундук: basic — деревянный, super — фиолетовый с золотом, mega — алмазный. open — крышка откинута. */
+/** Сундук: basic - деревянный, super - фиолетовый с золотом, mega - алмазный. open - крышка откинута. */
 export function chestSvg(id, { open = false, cls = '' } = {}) {
   const c = CHEST[id] ?? CHEST.basic;
   const lid = open

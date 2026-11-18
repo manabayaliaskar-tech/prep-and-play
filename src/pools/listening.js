@@ -1,14 +1,14 @@
 // Аудирование для IELTS и TOEFL: авторские диалоги, монологи и лекции. Озвучивает голос браузера,
-// у разных говорящих — разные голоса (если на устройстве их несколько). Вопросы к одной записи идут подряд.
-// Объяснение ответа — цитата из записи (стенограмма открывается после ответа).
+// у разных говорящих - разные голоса (если на устройстве их несколько). Вопросы к одной записи идут подряд.
+// Объяснение ответа - цитата из записи (стенограмма открывается после ответа).
 
 import { pick, shuffle } from '../core/random.js';
 import { L, poolQ } from './gen.js';
 
 const say = (s, t) => ({ s, t });
-/** Первый вариант — правильный, при показе варианты перемешиваются. */
+/** Первый вариант - правильный, при показе варианты перемешиваются. */
 const mc = (question, choices, quote) => ({ type: 'mc', question, choices, quote });
-/** Ответ — число (вводится с клавиатуры), как в заданиях IELTS на заполнение формы. */
+/** Ответ - число (вводится с клавиатуры), как в заданиях IELTS на заполнение формы. */
 const num = (question, value, quote) => ({ type: 'num', question, value, quote });
 
 export const LISTENING = {
@@ -243,7 +243,7 @@ export const LISTENING = {
         say('A', 'Tamgaly contains around five thousand petroglyphs, that is, images cut or scratched into the surface of the rock. The oldest are thought to date from the Bronze Age, roughly the second half of the second millennium BCE, but people kept adding new images for centuries afterwards.'),
         say('A', 'The most famous figures are the so-called “sun-headed” beings: human figures whose heads are surrounded by rays or circles. Researchers still argue about what they represent. Some see them as gods, others as priests in ritual costumes.'),
         say('A', 'Now, how do we date images that contain no organic material? We can’t use radiocarbon dating directly. Instead, archaeologists compare the style of the images with objects from nearby burials that can be dated, and they study the dark coating, called desert varnish, that slowly forms on the rock after a surface is cut.'),
-        say('A', 'Notice that the images are not spread evenly. They are concentrated around a central canyon, which suggests that this place had a special meaning — perhaps it was used for ceremonies, and not just for passing through.'),
+        say('A', 'Notice that the images are not spread evenly. They are concentrated around a central canyon, which suggests that this place had a special meaning - perhaps it was used for ceremonies, and not just for passing through.'),
       ],
       qs: [
         num('In what year did Tamgaly become a UNESCO World Heritage Site?', 2004, 'It became a UNESCO World Heritage Site in two thousand and four.'),

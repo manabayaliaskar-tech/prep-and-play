@@ -1,6 +1,6 @@
 // Арифметика: сложение и вычитание, умножение и деление, порядок действий,
 // отрицательные числа, делимость, числовые закономерности.
-// Каждый генератор: (ctx, d) → задание. ctx = { rng, mcOnly }, d — сложность 1…3.
+// Каждый генератор: (ctx, d) → задание. ctx = { rng, mcOnly }, d - сложность 1…3.
 
 import { MINUS, gcd } from '../../core/format.js';
 import { pick, randomInt, shuffle } from '../../core/random.js';
@@ -99,7 +99,7 @@ export function mul(ctx, d) {
         L(
           `Division undoes multiplication: ${a} ${TIMES} ${b} = ${a * b}, so ${a * b} ${DIV} ${a} = ${b}.`,
           `Деление обратно умножению: ${a} ${TIMES} ${b} = ${a * b}, значит ${a * b} ${DIV} ${a} = ${b}.`,
-          `Бөлу — көбейтуге кері амал: ${a} ${TIMES} ${b} = ${a * b}, демек ${a * b} ${DIV} ${a} = ${b}.`,
+          `Бөлу - көбейтуге кері амал: ${a} ${TIMES} ${b} = ${a * b}, демек ${a * b} ${DIV} ${a} = ${b}.`,
         ),
       ),
       ...ask(ctx, b, [b + 1, b - 1, b + 2, a]),
@@ -260,7 +260,7 @@ export function neg(ctx, d) {
       return poolQ('m.neg', d, {
         prompt: calc(`${a} ${MINUS} (${MINUS}${b})`),
         ex: steps(
-          L('Subtracting a negative number is the same as adding.', 'Вычесть отрицательное число — то же, что прибавить положительное.', 'Теріс санды азайту — оң санды қосумен бірдей.'),
+          L('Subtracting a negative number is the same as adding.', 'Вычесть отрицательное число - то же, что прибавить положительное.', 'Теріс санды азайту - оң санды қосумен бірдей.'),
           same(`${a} ${MINUS} (${MINUS}${b}) = ${a} + ${b} = ${a + b}`),
         ),
         ...ask(ctx, a + b, [a - b, b - a, -(a + b), a + b + 1].filter((x) => x !== a + b)),
@@ -295,7 +295,7 @@ export function divis(ctx, d) {
   const { rng } = ctx;
   if (d === 1) {
     const k = pick(rng, [3, 9]);
-    // Одно число делится на k, остальные три — нет.
+    // Одно число делится на k, остальные три - нет.
     const good = k * randomInt(rng, 12, 110);
     const wrong = [];
     while (wrong.length < 3) {

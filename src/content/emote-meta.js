@@ -1,5 +1,5 @@
 // Эмоции и танцы Препи в магазине: редкость, значок для уведомлений и названия (ru / en / kk).
-// Рисунки и анимации — src/ui/art/emotes.js и styles/parts/emotes.css.
+// Рисунки и анимации - src/ui/art/emotes.js и styles/parts/emotes.css.
 
 export const META = [
   { id: 'e-wave', rarity: 'common', icon: '👋' },

@@ -1,5 +1,5 @@
 // Генераторы заданий по географии: страны и столицы, части света, сравнение гор, рек, озёр и стран,
-// области Казахстана и его соседи. Ключ сложности — 1…3.
+// области Казахстана и его соседи. Ключ сложности - 1…3.
 
 import { hashString, pick, shuffle } from '../../core/random.js';
 import { L, poolQ } from '../gen.js';
@@ -43,7 +43,7 @@ export function worldMaker(topic) {
     for (let attempt = 0; attempt < 10; attempt++) {
       const c = pick(rng, pool);
       const mode = pick(rng, c.cont === 'x' ? ['cap', 'country'] : ['cap', 'cap', 'country', 'cont']);
-      // Ловушки — из той же части света, если там хватает стран.
+      // Ловушки - из той же части света, если там хватает стран.
       const same = COUNTRIES.filter((x) => x !== c && x.cont === c.cont);
       const near = same.length >= 6 ? same : COUNTRIES.filter((x) => x !== c);
       let q;
@@ -52,7 +52,7 @@ export function worldMaker(topic) {
         q = poolQ(topic, d, {
           kind: 'text',
           prompt: L(`What is the capital of ${c.name.en}?`, `Какая столица у страны ${c.name.ru}?`, `${c.name.kk} елінің астанасы қай қала?`),
-          ex: L(`The capital of ${c.name.en} is ${c.capital.en}.`, `Столица страны ${c.name.ru} — ${c.capital.ru}.`, `${c.name.kk} елінің астанасы — ${c.capital.kk}.`),
+          ex: L(`The capital of ${c.name.en} is ${c.capital.en}.`, `Столица страны ${c.name.ru} - ${c.capital.ru}.`, `${c.name.kk} елінің астанасы - ${c.capital.kk}.`),
           mc: mcOf(rng, c.capital, wrong.map((x) => x.capital)),
         });
       } else if (mode === 'country') {
@@ -60,7 +60,7 @@ export function worldMaker(topic) {
         q = poolQ(topic, d, {
           kind: 'text',
           prompt: L(`${c.capital.en} is the capital of which country?`, `Столицей какой страны является ${c.capital.ru}?`, `${c.capital.kk} қай елдің астанасы?`),
-          ex: L(`${c.capital.en} is the capital of ${c.name.en}.`, `${c.capital.ru} — столица страны ${c.name.ru}.`, `${c.capital.kk} — ${c.name.kk} елінің астанасы.`),
+          ex: L(`${c.capital.en} is the capital of ${c.name.en}.`, `${c.capital.ru} - столица страны ${c.name.ru}.`, `${c.capital.kk} - ${c.name.kk} елінің астанасы.`),
           mc: mcOf(rng, c.name, wrong.map((x) => x.name)),
         });
       } else {
@@ -68,7 +68,7 @@ export function worldMaker(topic) {
         q = poolQ(topic, d, {
           kind: 'text',
           prompt: L(`On which continent is ${c.name.en}?`, `В какой части света находится ${c.name.ru}?`, `${c.name.kk} дүниенің қай бөлігінде орналасқан?`),
-          ex: L(`${c.name.en} is in ${contName(c.cont).en}; its capital is ${c.capital.en}.`, `${c.name.ru} — это ${contName(c.cont).ru}, столица — ${c.capital.ru}.`, `${c.name.kk} — ${contName(c.cont).kk}, астанасы — ${c.capital.kk}.`),
+          ex: L(`${c.name.en} is in ${contName(c.cont).en}; its capital is ${c.capital.en}.`, `${c.name.ru} - это ${contName(c.cont).ru}, столица - ${c.capital.ru}.`, `${c.name.kk} - ${contName(c.cont).kk}, астанасы - ${c.capital.kk}.`),
           mc: mcOf(rng, contName(c.cont), wrong.map(contName)),
         });
       }
@@ -122,7 +122,7 @@ export function recordsMaker(topic) {
       const [best, second] = sorted;
       const ratio = wantMax ? best.value / second.value : second.value / best.value;
       if (ratio < Math.max(rec.ratio, gap)) continue;
-      const list = (l) => [...four].sort((a, b) => b.value - a.value).map((x) => `${x.name[l]} — ${fmt(x.value)} ${rec.unit[l]}`).join('; ');
+      const list = (l) => [...four].sort((a, b) => b.value - a.value).map((x) => `${x.name[l]} - ${fmt(x.value)} ${rec.unit[l]}`).join('; ');
       const q = poolQ(topic, d, {
         kind: 'text',
         prompt: wantMax ? rec.max : rec.min,
@@ -153,9 +153,9 @@ export function kazakhstanMaker(topic) {
           kind: 'text',
           prompt:
             mode === 'centre'
-              ? L(`What is the administrative centre of ${r.name.en}?`, `Какой город — административный центр: ${r.name.ru}?`, `${r.name.kk} әкімшілік орталығы қай қала?`)
+              ? L(`What is the administrative centre of ${r.name.en}?`, `Какой город - административный центр: ${r.name.ru}?`, `${r.name.kk} әкімшілік орталығы қай қала?`)
               : L(`${r.centre.en} is the centre of which region?`, `Центром какой области является ${r.centre.ru}?`, `${r.centre.kk} қай облыстың орталығы?`),
-          ex: L(`${r.name.en}: centre — ${r.centre.en}.`, `${r.name.ru}: центр — ${r.centre.ru}.`, `${r.name.kk}: орталығы — ${r.centre.kk}.`),
+          ex: L(`${r.name.en}: centre - ${r.centre.en}.`, `${r.name.ru}: центр - ${r.centre.ru}.`, `${r.name.kk}: орталығы - ${r.centre.kk}.`),
           mc: mode === 'centre' ? mcOf(rng, r.centre, wrong.map((x) => x.centre)) : mcOf(rng, r.name, wrong.map((x) => x.name)),
         });
         q.id = `${topic}:${mode}:${r.name.en}`;

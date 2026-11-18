@@ -72,14 +72,14 @@ test('английский: банк корректен, у каждого за�
       total += 1;
       const label = `${topic}: ${sentence}`;
       assert.ok(level >= 1 && level <= 6, label);
-      assert.ok(/_{3,}/.test(sentence), `нет пропуска — ${label}`);
-      assert.equal(sentence.match(/_{3,}/g).length, 1, `пропуск должен быть один — ${label}`);
-      assert.ok(!seen.has(sentence), `повтор — ${label}`);
+      assert.ok(/_{3,}/.test(sentence), `нет пропуска - ${label}`);
+      assert.equal(sentence.match(/_{3,}/g).length, 1, `пропуск должен быть один - ${label}`);
+      assert.ok(!seen.has(sentence), `повтор - ${label}`);
       seen.add(sentence);
       assert.equal(wrong.length, 3, label);
-      assert.equal(new Set([correct, ...wrong]).size, 4, `повтор вариантов — ${label}`);
-      if (Array.isArray(ref)) assert.ok(ref.length === 2 && ref.every((r) => r.length >= 2), `перевод — ${label}`);
-      else assert.ok(RULES[ref], `нет правила «${ref}» — ${label}`);
+      assert.equal(new Set([correct, ...wrong]).size, 4, `повтор вариантов - ${label}`);
+      if (Array.isArray(ref)) assert.ok(ref.length === 2 && ref.every((r) => r.length >= 2), `перевод - ${label}`);
+      else assert.ok(RULES[ref], `нет правила «${ref}» - ${label}`);
     }
   }
   assert.ok(total >= 220, `заданий: ${total}`);
@@ -114,7 +114,7 @@ const count = (from, to, fn) => {
   for (let i = from; i <= to; i++) if (fn(i)) k += 1;
   return k;
 };
-/** Число кратчайших путей по сетке — динамикой, без формулы. */
+/** Число кратчайших путей по сетке - динамикой, без формулы. */
 function gridPaths(w, h) {
   const row = Array(w + 1).fill(1);
   for (let y = 1; y <= h; y++) for (let x = 1; x <= w; x++) row[x] += row[x - 1];
@@ -218,7 +218,7 @@ const BRUTE = {
   },
 };
 
-/** Числовое значение ответа задания: для вариантов — по тексту правильного варианта. */
+/** Числовое значение ответа задания: для вариантов - по тексту правильного варианта. */
 function answerValue(q) {
   if (q.type === 'spr') return q.value;
   const raw = text(q.choices[q.answer]);
@@ -297,16 +297,16 @@ test('банки знаний: 4 разных варианта, тексты и 
       total += 1;
       const label = `${name}: ${text(question, 'ru')}`;
       assert.ok([1, 2, 3].includes(d), label);
-      // Одинаковая формулировка допустима (например, «Где нужна запятая?»), повтор задания целиком — нет.
+      // Одинаковая формулировка допустима (например, «Где нужна запятая?»), повтор задания целиком - нет.
       const key = `${text(question, 'ru')}|${text(correct, 'ru')}`;
-      assert.ok(!seen.has(key), `повтор задания — ${label}`);
+      assert.ok(!seen.has(key), `повтор задания - ${label}`);
       seen.add(key);
       assert.equal(wrong.length, 3, label);
       for (const l of LANGS) {
-        assert.ok(text(question, l).length > 5, `вопрос на ${l} — ${label}`);
-        assert.ok(text(ex, l).length > 20, `разбор на ${l} — ${label}`);
+        assert.ok(text(question, l).length > 5, `вопрос на ${l} - ${label}`);
+        assert.ok(text(ex, l).length > 20, `разбор на ${l} - ${label}`);
         const options = [correct, ...wrong].map((c) => text(c, l));
-        assert.equal(new Set(options).size, 4, `повтор вариантов на ${l} — ${label}`);
+        assert.equal(new Set(options).size, 4, `повтор вариантов на ${l} - ${label}`);
         assert.ok(options.every((o) => o.length > 0), label);
       }
     }
@@ -337,7 +337,7 @@ test('у каждого банка заданий есть значок для �
 });
 
 test('физика и химия: ответы расчётных задач сходятся с формулами', () => {
-  // Каждое задание с вводом ответа уже проверено: показанный ответ засчитывается. Здесь — выборочные формулы.
+  // Каждое задание с вводом ответа уже проверено: показанный ответ засчитывается. Здесь - выборочные формулы.
   for (const id of ['p.kin', 'p.dyn', 'p.energy', 'p.elec', 'p.heat', 'p.wave', 'c.molar', 'c.mole', 'i.num', 'i.units', 'i.logic', 'i.algo']) {
     for (const d of [1, 2, 3]) {
       for (let s = 0; s < 120; s++) {
@@ -364,12 +364,12 @@ test('иностранные языки: по 10 заданий на урове�
       const label = `${name}: ${text(question, 'ru')}`;
       assert.ok(level >= 1 && level <= 6, label);
       const key = `${text(question, 'ru')}|${text(correct, 'ru')}`;
-      assert.ok(!seen.has(key), `повтор — ${label}`);
+      assert.ok(!seen.has(key), `повтор - ${label}`);
       seen.add(key);
-      if (typeof question === 'string') assert.equal(question.match(/_{3,}/g)?.length, 1, `нужен ровно один пропуск — ${label}`);
+      if (typeof question === 'string') assert.equal(question.match(/_{3,}/g)?.length, 1, `нужен ровно один пропуск - ${label}`);
       for (const l of LANGS) {
-        assert.equal(new Set([correct, ...wrong].map((c) => text(c, l))).size, 4, `повтор вариантов (${l}) — ${label}`);
-        assert.ok(text(ex, l).length > 20, `разбор (${l}) — ${label}`);
+        assert.equal(new Set([correct, ...wrong].map((c) => text(c, l))).size, 4, `повтор вариантов (${l}) - ${label}`);
+        assert.ok(text(ex, l).length > 20, `разбор (${l}) - ${label}`);
       }
     }
   }

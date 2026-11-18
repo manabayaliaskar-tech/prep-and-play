@@ -95,7 +95,7 @@ route('/explain/:id', (params) => explainRoute(app, params));
 route('/premium', () => premiumScreen(app));
 
 on('profile', () => {
-  // Ежедневные задания: за каждое выполненное — опыт и уведомление (один раз).
+  // Ежедневные задания: за каждое выполненное - опыт и уведомление (один раз).
   const fresh = claimQuests(getProfile(), dayKey());
   for (const quest of fresh) {
     const gained = addXp(quest.reward);
@@ -115,7 +115,7 @@ on('profile', () => {
 });
 document.addEventListener('routechange', renderTopbar);
 
-// Достижения, полученные одновременно, показываем вместе: до двух — по отдельности, больше — одним уведомлением.
+// Достижения, полученные одновременно, показываем вместе: до двух - по отдельности, больше - одним уведомлением.
 let freshAch = [];
 on('achievement', (id) => {
   const a = ACHIEVEMENTS.find((x) => x.id === id);
@@ -144,7 +144,7 @@ on('streakRescued', (count) => {
   toast(`<span class="toast-icon">🔥</span><span><small>${t('rescue.done')}</small><b>${t('home.streak', { n: count })}</b></span>`, { kind: 'level', duration: 5200 });
 });
 
-// Новая ступень сезона — короткое ненавязчивое уведомление.
+// Новая ступень сезона - короткое ненавязчивое уведомление.
 on('seasonTier', (tier) => {
   const id = seasonId();
   toast(`<span class="toast-icon">${themeOf(id).icon}</span><span><small>${t('season.title', { name: seasonName(id) })}</small><b>${t('season.tierUp', { n: tier })}</b></span>`, { kind: 'achievement', duration: 3200 });
@@ -180,7 +180,7 @@ startCoinify(document.body);
 startEmojify(document.body);
 installFxDefs();
 document.addEventListener('routechange', () => stopSpeech());
-// Открыли как приложение с экрана «Домой» — для достижения «Всегда под рукой».
+// Открыли как приложение с экрана «Домой» - для достижения «Всегда под рукой».
 if (isStandalone() && !getProfile().counters.app) getProfile().counters.app = 1;
 syncAchievements();
 startMotion(app);

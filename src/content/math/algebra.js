@@ -1,5 +1,5 @@
 // Домен «Алгебра»: линейные уравнения, функции, модели, системы, неравенства.
-// Каждый генератор: (ctx, d) → задание. ctx = { rng, mcOnly }, d — сложность 1…3.
+// Каждый генератор: (ctx, d) → задание. ctx = { rng, mcOnly }, d - сложность 1…3.
 
 import { pick, randomInt } from '../../core/random.js';
 import { MINUS, linear, num, v } from '../../core/format.js';
@@ -219,14 +219,14 @@ export function linModel(ctx, d) {
     prompt: `${c.setup(f, r)} The total cost <i>C</i>, in dollars, for ${X} ${c.unit} is given by <i>C</i> = ${f} + ${r}${X}. What is the best interpretation of ${askRate ? r : f} in this context?`,
     ex: steps(
       st(
-        `In <i>C</i> = ${f} + ${r}${X}, the number multiplied by ${X} (${r}) is the amount added for each ${c.one} — the rate.`,
-        `В <i>C</i> = ${f} + ${r}${X} число при ${X} (${r}) — это сколько добавляется за каждую единицу, то есть цена за единицу.`,
-        `<i>C</i> = ${f} + ${r}${X} өрнегінде ${X}-ке көбейтілген сан (${r}) — әр бірлік үшін қосылатын сома, яғни бірлік бағасы.`,
+        `In <i>C</i> = ${f} + ${r}${X}, the number multiplied by ${X} (${r}) is the amount added for each ${c.one} - the rate.`,
+        `В <i>C</i> = ${f} + ${r}${X} число при ${X} (${r}) - это сколько добавляется за каждую единицу, то есть цена за единицу.`,
+        `<i>C</i> = ${f} + ${r}${X} өрнегінде ${X}-ке көбейтілген сан (${r}) - әр бірлік үшін қосылатын сома, яғни бірлік бағасы.`,
       ),
       st(
-        `The constant term (${f}) is paid no matter what ${X} is — the one-time fee.`,
-        `Свободный член (${f}) платится при любом ${X} — это разовая плата.`,
-        `Бос мүше (${f}) ${X}-ке тәуелсіз төленеді — бұл бір реттік төлем.`,
+        `The constant term (${f}) is paid no matter what ${X} is - the one-time fee.`,
+        `Свободный член (${f}) платится при любом ${X} - это разовая плата.`,
+        `Бос мүше (${f}) ${X}-ке тәуелсіз төленеді - бұл бір реттік төлем.`,
       ),
     ),
     mc: makeMc(rng, correct, wrong, (s) => s),
@@ -280,7 +280,7 @@ export function systems(ctx, d) {
     const items = [
       st(
         `Eliminate ${X}: multiply the first equation by ${p(a2)} and the second by ${p(a1)}, then subtract.`,
-        `Исключим ${X}: умножим первое уравнение на ${p(a2)}, второе — на ${p(a1)} и вычтем.`,
+        `Исключим ${X}: умножим первое уравнение на ${p(a2)}, второе - на ${p(a1)} и вычтем.`,
         `${X}-ті жоямыз: бірінші теңдеуді ${p(a2)} санына, екіншісін ${p(a1)} санына көбейтіп, азайтамыз.`,
       ),
       st(
@@ -316,7 +316,7 @@ export function systems(ctx, d) {
     ex: steps(
       st(
         `Two linear equations have no solution when their lines are parallel: the ${X}- and ${Y}-coefficients are proportional, but the constants are not.`,
-        `Система двух линейных уравнений не имеет решений, когда прямые параллельны: коэффициенты при ${X} и ${Y} пропорциональны, а свободные члены — нет.`,
+        `Система двух линейных уравнений не имеет решений, когда прямые параллельны: коэффициенты при ${X} и ${Y} пропорциональны, а свободные члены - нет.`,
         `Екі сызықтық теңдеудің шешімі болмайды, егер түзулер параллель болса: ${X} пен ${Y} коэффициенттері пропорционал, ал бос мүшелер пропорционал емес.`,
       ),
       st(
@@ -395,8 +395,8 @@ export function inequalities(ctx, d) {
     ex: steps(
       st(
         `If ${N} is the number of boxes: ${F0} + ${w}${N} ≤ ${num(W)}.`,
-        `Пусть ${N} — число коробок: ${F0} + ${w}${N} ≤ ${num(W)}.`,
-        `${N} — жәшіктер саны болсын: ${F0} + ${w}${N} ≤ ${num(W)}.`,
+        `Пусть ${N} - число коробок: ${F0} + ${w}${N} ≤ ${num(W)}.`,
+        `${N} - жәшіктер саны болсын: ${F0} + ${w}${N} ≤ ${num(W)}.`,
       ),
       st(
         `${w}${N} ≤ ${num(W - F0)}, so ${N} ≤ ${num(W - F0)} ÷ ${w} ≈ ${q.toFixed(2)}.`,
@@ -405,7 +405,7 @@ export function inequalities(ctx, d) {
       ),
       st(
         `The number of boxes must be a whole number, so the maximum is ${ans} (rounding up would exceed the limit).`,
-        `Число коробок — целое, поэтому максимум ${ans} (если округлить вверх, лифт будет перегружен).`,
+        `Число коробок - целое, поэтому максимум ${ans} (если округлить вверх, лифт будет перегружен).`,
         `Жәшіктер саны бүтін сан болуы керек, сондықтан ең көбі ${ans} (жоғары дөңгелектесек, лифт асқын жүктеледі).`,
       ),
     ),

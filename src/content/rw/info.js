@@ -1,5 +1,5 @@
 // Information and Ideas: Central Ideas, Command of Evidence (Textual и Quantitative), Inferences.
-// Все тексты авторские; числа в таблицах — учебные. Первый вариант — правильный.
+// Все тексты авторские; числа в таблицах - учебные. Первый вариант - правильный.
 
 import { INFER, MAIN, QUANT } from './prompts.js';
 
@@ -22,7 +22,7 @@ export const INFO = [
     ],
     ex: {
       en: 'All three sentences are about otters using and keeping stones. The other choices are either too narrow or not stated.',
-      ru: 'Все три предложения — о том, как каланы используют и хранят камни. Остальные варианты слишком узкие или не следуют из текста.',
+      ru: 'Все три предложения - о том, как каланы используют и хранят камни. Остальные варианты слишком узкие или не следуют из текста.',
       kk: 'Үш сөйлем де теңіз құндыздарының тасты қолдануы мен сақтауы туралы. Қалған нұсқалар тым тар не мәтінде айтылмаған.',
     },
   },
@@ -50,7 +50,7 @@ export const INFO = [
     skill: 'central',
     d: 2,
     passage:
-      'Daniyar had always believed that his younger sister was simply lucky: she won drawing prizes without seeming to try, and every teacher remembered her name. But when he found the stack of drawings hidden under her bed—dozens of them, each covered with her careful corrections—he realized that what he had called luck was something else entirely.',
+      'Daniyar had always believed that his younger sister was simply lucky: she won drawing prizes without seeming to try, and every teacher remembered her name. But when he found the stack of drawings hidden under her bed-dozens of them, each covered with her careful corrections-he realized that what he had called luck was something else entirely.',
     prompt: MAIN,
     choices: [
       'Daniyar realizes that his sister’s success comes from hard work rather than luck.',
@@ -60,8 +60,8 @@ export const INFO = [
     ],
     ex: {
       en: 'Dozens of corrected drawings show hidden effort, and Daniyar understands that it was not luck. That change in his understanding is the main idea.',
-      ru: 'Десятки исправленных рисунков — это скрытый труд, и Данияр понимает, что дело не в удаче. Главная мысль — эта перемена в его понимании.',
-      kk: 'Ондаған түзетілген сурет — жасырын еңбек, және Данияр мұның сәттілік емес екенін түсінеді. Негізгі ой — оның түсінігінің өзгеруі.',
+      ru: 'Десятки исправленных рисунков - это скрытый труд, и Данияр понимает, что дело не в удаче. Главная мысль - эта перемена в его понимании.',
+      kk: 'Ондаған түзетілген сурет - жасырын еңбек, және Данияр мұның сәттілік емес екенін түсінеді. Негізгі ой - оның түсінігінің өзгеруі.',
     },
   },
   {
@@ -98,7 +98,7 @@ export const INFO = [
     ],
     ex: {
       en: 'Old belief → new evidence (adult neurons in the hippocampus) → new research. The text never says exercise is "the most important factor."',
-      ru: 'Старое мнение → новые данные (новые нейроны у взрослых) → новые исследования. Текст не утверждает, что спорт — «главный фактор».',
+      ru: 'Старое мнение → новые данные (новые нейроны у взрослых) → новые исследования. Текст не утверждает, что спорт - «главный фактор».',
       kk: 'Ескі пікір → жаңа дерек (ересектерде жаңа нейрондар) → жаңа зерттеулер. Мәтін спортты «ең маңызды фактор» деп айтпайды.',
     },
   },
@@ -117,7 +117,7 @@ export const INFO = [
     ],
     ex: {
       en: 'The text stresses size and variety of landscapes. It compares Kazakhstan with Western Europe, not all of Europe, and never says deserts dominate.',
-      ru: 'Текст подчёркивает размер и разнообразие ландшафтов. Сравнение — с Западной Европой, а не со всей Европой, и про преобладание пустынь не сказано.',
+      ru: 'Текст подчёркивает размер и разнообразие ландшафтов. Сравнение - с Западной Европой, а не со всей Европой, и про преобладание пустынь не сказано.',
       kk: 'Мәтін аумақтың үлкендігі мен ландшафт алуандығын атап өтеді. Салыстыру бүкіл Еуропамен емес, Батыс Еуропамен, шөлдердің басымдығы туралы айтылмаған.',
     },
   },
@@ -126,7 +126,7 @@ export const INFO = [
     skill: 'central',
     d: 2,
     passage:
-      'When the Hubble Space Telescope was launched in 1990, its first images were blurry because its main mirror had been ground to slightly the wrong shape. Rather than replace the mirror, engineers designed corrective optics—essentially eyeglasses for the telescope—which astronauts installed in 1993. Hubble went on to produce some of the sharpest images of space ever taken.',
+      'When the Hubble Space Telescope was launched in 1990, its first images were blurry because its main mirror had been ground to slightly the wrong shape. Rather than replace the mirror, engineers designed corrective optics-essentially eyeglasses for the telescope-which astronauts installed in 1993. Hubble went on to produce some of the sharpest images of space ever taken.',
     prompt: MAIN,
     choices: [
       'A flaw in Hubble’s mirror was fixed with added optics, after which the telescope produced excellent images.',
@@ -155,8 +155,8 @@ export const INFO = [
     ],
     ex: {
       en: 'The hypothesis is about recognizing faces and remembering threats. Only the mask experiment tests exactly that.',
-      ru: 'Гипотеза — об узнавании лиц и запоминании угрозы. Это проверяет только эксперимент с масками.',
-      kk: 'Гипотеза — бет-әлпетті тану және қауіпті есте сақтау туралы. Мұны тек маскалармен жасалған тәжірибе тексереді.',
+      ru: 'Гипотеза - об узнавании лиц и запоминании угрозы. Это проверяет только эксперимент с масками.',
+      kk: 'Гипотеза - бет-әлпетті тану және қауіпті есте сақтау туралы. Мұны тек маскалармен жасалған тәжірибе тексереді.',
     },
   },
   {
@@ -192,9 +192,9 @@ export const INFO = [
       'Many cities in Central Asia relied on irrigation canals.',
     ],
     ex: {
-      en: 'If the canals were rebuilt and the city kept prospering, the invasion could not be the main cause of decline — this weakens the claim.',
-      ru: 'Если каналы восстановили и город ещё долго процветал, то нашествие не могло быть главной причиной упадка — это ослабляет утверждение.',
-      kk: 'Егер арналар қалпына келтіріліп, қала ұзақ гүлденсе, шапқыншылық құлдыраудың басты себебі бола алмайды — бұл тұжырымды әлсіретеді.',
+      en: 'If the canals were rebuilt and the city kept prospering, the invasion could not be the main cause of decline - this weakens the claim.',
+      ru: 'Если каналы восстановили и город ещё долго процветал, то нашествие не могло быть главной причиной упадка - это ослабляет утверждение.',
+      kk: 'Егер арналар қалпына келтіріліп, қала ұзақ гүлденсе, шапқыншылық құлдыраудың басты себебі бола алмайды - бұл тұжырымды әлсіретеді.',
     },
   },
   {
@@ -277,8 +277,8 @@ export const INFO = [
     ],
     ex: {
       en: 'Almaty has 102 mm, the largest value. Astana (22 mm) has the least, so the other statements are false.',
-      ru: 'У Алматы 102 мм — это максимум. Меньше всех у Астаны (22 мм), поэтому остальные утверждения неверны.',
-      kk: 'Алматыда 102 мм — ең көп мән. Ең азы Астанада (22 мм), сондықтан қалған тұжырымдар қате.',
+      ru: 'У Алматы 102 мм - это максимум. Меньше всех у Астаны (22 мм), поэтому остальные утверждения неверны.',
+      kk: 'Алматыда 102 мм - ең көп мән. Ең азы Астанада (22 мм), сондықтан қалған тұжырымдар қате.',
     },
   },
   {
@@ -305,8 +305,8 @@ export const INFO = [
     ],
     ex: {
       en: 'Support for "more sleep → higher scores" needs a comparison between groups. The second choice gives one number only, and the last one is false (the top score is 83).',
-      ru: 'Чтобы подтвердить «больше сна → выше баллы», нужно сравнить группы. Второй вариант даёт одно число, а последний неверен (максимум — 83).',
-      kk: '«Ұйқы көп → балл жоғары» тұжырымын растау үшін топтарды салыстыру керек. Екінші нұсқада бір ғана сан, ал соңғысы қате (ең жоғары — 83).',
+      ru: 'Чтобы подтвердить «больше сна → выше баллы», нужно сравнить группы. Второй вариант даёт одно число, а последний неверен (максимум - 83).',
+      kk: '«Ұйқы көп → балл жоғары» тұжырымын растау үшін топтарды салыстыру керек. Екінші нұсқада бір ғана сан, ал соңғысы қате (ең жоғары - 83).',
     },
   },
   {
@@ -334,7 +334,7 @@ export const INFO = [
     ex: {
       en: 'A "dramatic recovery" is shown best by the change from the lowest to the highest value. The third and fourth choices are false.',
       ru: '«Резкое восстановление» лучше всего показывает рост от минимального значения к максимальному. Третий и четвёртый варианты неверны.',
-      kk: '«Күрт қалпына келуді» ең жақсы көрсететін — ең аз мәннен ең көп мәнге дейінгі өсу. Үшінші және төртінші нұсқалар қате.',
+      kk: '«Күрт қалпына келуді» ең жақсы көрсететін - ең аз мәннен ең көп мәнге дейінгі өсу. Үшінші және төртінші нұсқалар қате.',
     },
   },
   {
@@ -420,7 +420,7 @@ export const INFO = [
     ],
     ex: {
       en: 'The claim compares practice tests with two methods COMBINED: 27 + 17 = 44, and 48 > 44.',
-      ru: 'Сравнение — с двумя методами ВМЕСТЕ: 27 + 17 = 44, и 48 > 44.',
+      ru: 'Сравнение - с двумя методами ВМЕСТЕ: 27 + 17 = 44, и 48 > 44.',
       kk: 'Салыстыру екі әдістің ЖИЫНТЫҒЫМЕН: 27 + 17 = 44, ал 48 > 44.',
     },
   },
@@ -458,8 +458,8 @@ export const INFO = [
     ],
     ex: {
       en: 'Both groups studied 60 minutes total; only the schedule differed. So the spaced schedule likely explains the better memory. "Never useful" is too extreme.',
-      ru: 'Обе группы занимались по 60 минут, отличалось только расписание. Значит, лучшую память объясняет распределение занятий. «Never useful» — слишком категорично.',
-      kk: 'Екі топ та барлығы 60 минут оқыды, тек кесте өзгеше болды. Демек жақсы есте сақтауды сабақтың бөлінуі түсіндіреді. «Never useful» — тым кесімді.',
+      ru: 'Обе группы занимались по 60 минут, отличалось только расписание. Значит, лучшую память объясняет распределение занятий. «Never useful» - слишком категорично.',
+      kk: 'Екі топ та барлығы 60 минут оқыды, тек кесте өзгеше болды. Демек жақсы есте сақтауды сабақтың бөлінуі түсіндіреді. «Never useful» - тым кесімді.',
     },
   },
   {
@@ -476,9 +476,9 @@ export const INFO = [
       'obsidian is the most common stone in the region.',
     ],
     ex: {
-      en: 'If obsidian cannot form there but was found there, people must have carried it in — by travel or trade.',
-      ru: 'Если обсидиан там не образуется, но его нашли, значит, его принесли — путешествуя или торгуя.',
-      kk: 'Егер обсидиан ол жерде түзілмесе, бірақ табылса, оны адамдар әкелген — саяхат не сауда арқылы.',
+      en: 'If obsidian cannot form there but was found there, people must have carried it in - by travel or trade.',
+      ru: 'Если обсидиан там не образуется, но его нашли, значит, его принесли - путешествуя или торгуя.',
+      kk: 'Егер обсидиан ол жерде түзілмесе, бірақ табылса, оны адамдар әкелген - саяхат не сауда арқылы.',
     },
   },
   {
@@ -534,8 +534,8 @@ export const INFO = [
     ],
     ex: {
       en: 'Fuel became expensive at the same time glassmaking disappeared, so fuel costs may be part of the reason. "May have contributed" is appropriately cautious.',
-      ru: 'Топливо подорожало как раз тогда, когда стеклоделие исчезло, — значит, цены на топливо могли быть одной из причин. «May have contributed» — осторожная и уместная формулировка.',
-      kk: 'Отын шыны жасау жоғалған кезде қымбаттады — демек отын бағасы себептердің бірі болуы мүмкін. «May have contributed» — сақ әрі орынды тұжырым.',
+      ru: 'Топливо подорожало как раз тогда, когда стеклоделие исчезло, - значит, цены на топливо могли быть одной из причин. «May have contributed» - осторожная и уместная формулировка.',
+      kk: 'Отын шыны жасау жоғалған кезде қымбаттады - демек отын бағасы себептердің бірі болуы мүмкін. «May have contributed» - сақ әрі орынды тұжырым.',
     },
   },
   {
@@ -552,9 +552,9 @@ export const INFO = [
       'means that every language borrowed the word from the same neighbor.',
     ],
     ex: {
-      en: 'The languages are unrelated, and "m" is easy for babies — so the similarity probably comes from babies’ first sounds, not a common ancestor.',
-      ru: 'Языки не родственны, а звук «м» легко даётся младенцам, — значит, сходство, скорее всего, объясняется первыми звуками детей, а не общим предком.',
-      kk: 'Тілдер туыс емес, ал «м» дыбысын нәрестелер оңай айтады — демек ұқсастық ортақ тегінен емес, нәрестенің алғашқы дыбыстарынан болуы ықтимал.',
+      en: 'The languages are unrelated, and "m" is easy for babies - so the similarity probably comes from babies’ first sounds, not a common ancestor.',
+      ru: 'Языки не родственны, а звук «м» легко даётся младенцам, - значит, сходство, скорее всего, объясняется первыми звуками детей, а не общим предком.',
+      kk: 'Тілдер туыс емес, ал «м» дыбысын нәрестелер оңай айтады - демек ұқсастық ортақ тегінен емес, нәрестенің алғашқы дыбыстарынан болуы ықтимал.',
     },
   },
   {
@@ -566,9 +566,9 @@ export const INFO = [
     prompt: INFER,
     choices: ['catching food in the water.', 'flying long distances.', 'keeping warm on land.', 'building nests.'],
     ex: {
-      en: 'Wings help them swim fast, and they hunt in the ocean — so the wings mainly help them catch food in water.',
-      ru: 'Крылья помогают быстро плавать, а охотятся пингвины в океане, — значит, крылья нужны в основном для ловли добычи в воде.',
-      kk: 'Қанаттар жылдам жүзуге көмектеседі, ал пингвиндер мұхитта аң аулайды — демек қанаттар негізінен суда қорек аулауға керек.',
+      en: 'Wings help them swim fast, and they hunt in the ocean - so the wings mainly help them catch food in water.',
+      ru: 'Крылья помогают быстро плавать, а охотятся пингвины в океане, - значит, крылья нужны в основном для ловли добычи в воде.',
+      kk: 'Қанаттар жылдам жүзуге көмектеседі, ал пингвиндер мұхитта аң аулайды - демек қанаттар негізінен суда қорек аулауға керек.',
     },
   },
 ];

@@ -1,5 +1,5 @@
 // Анимированные объяснения тем: какая анимация к какой теме относится.
-// Сами анимации — в screens/explain.js.
+// Сами анимации - в screens/explain.js.
 
 export const EXPLAINERS = [
   { id: 'balance', icon: '⚖️', topics: ['m.lineq'] },

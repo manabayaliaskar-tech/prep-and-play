@@ -21,7 +21,7 @@ export function flameBadgeHtml(streak = currentStreak()) {
   return `<span class="badge flame-badge f-${flameOf(streak).id}" title="${title}">${flameSvg(streak)} ${t('home.streak', { n: streak })}${mult > 1 ? `<span class="mult-tag">×${mult} XP</span>` : ''}</span>`;
 }
 
-/** Карточка «Огонёк погас — верни его сегодня». */
+/** Карточка «Огонёк погас - верни его сегодня». */
 export function rescueCardHtml(p = getProfile()) {
   const r = rescueState(p, dayKey(), todayXp());
   if (!r) return '';

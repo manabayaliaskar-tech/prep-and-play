@@ -1,5 +1,5 @@
 // Craft and Structure: Words in Context, Text Structure and Purpose, Cross-Text Connections.
-// Все тексты авторские. Первый вариант — правильный.
+// Все тексты авторские. Первый вариант - правильный.
 
 import { PURPOSE, STRUCT, WORD, cross } from './prompts.js';
 
@@ -13,8 +13,8 @@ export const CRAFT = [
     ['complete', 'abandon', 'postpone', 'imitate'],
     {
       en: '"Despite the heavy rain... managed to" signals success, so the runners finished: "complete."',
-      ru: '«Despite the heavy rain... managed to» говорит об успехе: бегуны смогли закончить — «complete».',
-      kk: '«Despite the heavy rain... managed to» сәттілікті білдіреді: жүгірушілер жарысты аяқтады — «complete».',
+      ru: '«Despite the heavy rain... managed to» говорит об успехе: бегуны смогли закончить - «complete».',
+      kk: '«Despite the heavy rain... managed to» сәттілікті білдіреді: жүгірушілер жарысты аяқтады - «complete».',
     },
   ),
   w(
@@ -35,8 +35,8 @@ export const CRAFT = [
     ['lucid', 'obscure', 'lengthy', 'tentative'],
     {
       en: 'If beginners could follow it easily, the explanation was very clear: "lucid." "Obscure" means the opposite.',
-      ru: 'Если даже новички легко поняли, объяснение было очень ясным — «lucid». «Obscure» значит противоположное.',
-      kk: 'Жаңадан бастағандар да оңай түсінсе, түсіндірме өте анық болған — «lucid». «Obscure» — керісінше мағына.',
+      ru: 'Если даже новички легко поняли, объяснение было очень ясным - «lucid». «Obscure» значит противоположное.',
+      kk: 'Жаңадан бастағандар да оңай түсінсе, түсіндірме өте анық болған - «lucid». «Obscure» - керісінше мағына.',
     },
   ),
   w(
@@ -46,8 +46,8 @@ export const CRAFT = [
     ['distantly', 'closely', 'directly', 'recently'],
     {
       en: '"Although they look identical" sets up a contrast, and splitting five million years ago means the relation is weak: "distantly."',
-      ru: '«Although they look identical» задаёт контраст, а разделение пять миллионов лет назад означает дальнее родство — «distantly».',
-      kk: '«Although they look identical» қарсылықты білдіреді, ал бес миллион жыл бұрын бөлінуі алыс туыстықты көрсетеді — «distantly».',
+      ru: '«Although they look identical» задаёт контраст, а разделение пять миллионов лет назад означает дальнее родство - «distantly».',
+      kk: '«Although they look identical» қарсылықты білдіреді, ал бес миллион жыл бұрын бөлінуі алыс туыстықты көрсетеді - «distantly».',
     },
   ),
   w(
@@ -57,8 +57,8 @@ export const CRAFT = [
     ['deferred', 'announced', 'celebrated', 'reversed'],
     {
       en: '"Until more data could be collected" means the decision was put off for later: "deferred."',
-      ru: '«Until more data could be collected» — решение отложили на потом: «deferred».',
-      kk: '«Until more data could be collected» — шешім кейінге қалдырылды: «deferred».',
+      ru: '«Until more data could be collected» - решение отложили на потом: «deferred».',
+      kk: '«Until more data could be collected» - шешім кейінге қалдырылды: «deferred».',
     },
   ),
   w(
@@ -68,8 +68,8 @@ export const CRAFT = [
     ['evenhanded', 'sensational', 'dismissive', 'nostalgic'],
     {
       en: 'Presenting all sides fairly without pushing an opinion is "evenhanded" (balanced, fair).',
-      ru: 'Показывать все стороны и не навязывать мнение — значит быть беспристрастным: «evenhanded».',
-      kk: 'Барлық тарапты көрсетіп, пікір таңбау — әділ, бейтарап болу: «evenhanded».',
+      ru: 'Показывать все стороны и не навязывать мнение - значит быть беспристрастным: «evenhanded».',
+      kk: 'Барлық тарапты көрсетіп, пікір таңбау - әділ, бейтарап болу: «evenhanded».',
     },
   ),
   w(
@@ -101,8 +101,8 @@ export const CRAFT = [
     ['subdued', 'vivid', 'chaotic', 'popular'],
     {
       en: '"But" contrasts bright colors with soft grays and browns, so the later work was muted: "subdued."',
-      ru: '«But» противопоставляет яркие цвета мягким серым и коричневым — поздние работы стали приглушёнными: «subdued».',
-      kk: '«But» жарқын түстерді жұмсақ сұр мен қоңырға қарсы қояды — кейінгі жұмыстар күңгірт болды: «subdued».',
+      ru: '«But» противопоставляет яркие цвета мягким серым и коричневым - поздние работы стали приглушёнными: «subdued».',
+      kk: '«But» жарқын түстерді жұмсақ сұр мен қоңырға қарсы қояды - кейінгі жұмыстар күңгірт болды: «subdued».',
     },
   ),
   w(
@@ -112,8 +112,8 @@ export const CRAFT = [
     ['nominal', 'profound', 'immediate', 'violent'],
     {
       en: '"Changing little in practice" means the effects existed in name only: "nominal." "Profound" would agree with the first group, not contrast with it.',
-      ru: '«Changing little in practice» — влияние было лишь формальным: «nominal». «Profound» совпадало бы с мнением первой группы, а здесь контраст.',
-      kk: '«Changing little in practice» — әсері тек атымен ғана болған: «nominal». «Profound» бірінші топтың пікірімен сәйкес келер еді, ал мұнда қарсылық бар.',
+      ru: '«Changing little in practice» - влияние было лишь формальным: «nominal». «Profound» совпадало бы с мнением первой группы, а здесь контраст.',
+      kk: '«Changing little in practice» - әсері тек атымен ғана болған: «nominal». «Profound» бірінші топтың пікірімен сәйкес келер еді, ал мұнда қарсылық бар.',
     },
   ),
   w(
@@ -123,8 +123,8 @@ export const CRAFT = [
     ['persistence', 'impatience', 'modesty', 'carelessness'],
     {
       en: 'Working for years and refusing to give up describes "persistence."',
-      ru: 'Годами работать и не сдаваться — это настойчивость: «persistence».',
-      kk: 'Жылдар бойы жұмыс істеп, берілмеу — табандылық: «persistence».',
+      ru: 'Годами работать и не сдаваться - это настойчивость: «persistence».',
+      kk: 'Жылдар бойы жұмыс істеп, берілмеу - табандылық: «persistence».',
     },
   ),
   w(
@@ -134,8 +134,8 @@ export const CRAFT = [
     ['unreliable', 'omniscient', 'sympathetic', 'anonymous'],
     {
       en: 'A narrator whose account "cannot be fully trusted" is "unreliable."',
-      ru: 'Рассказчик, которому «нельзя полностью доверять», — ненадёжный: «unreliable».',
-      kk: 'Айтқанына «толық сенуге болмайтын» баяндаушы — сенімсіз: «unreliable».',
+      ru: 'Рассказчик, которому «нельзя полностью доверять», - ненадёжный: «unreliable».',
+      kk: 'Айтқанына «толық сенуге болмайтын» баяндаушы - сенімсіз: «unreliable».',
     },
   ),
   w(
@@ -156,8 +156,8 @@ export const CRAFT = [
     ['discarding', 'endorsing', 'restating', 'inventing'],
     {
       en: '"Rather than... entirely" contrasts with keeping and refining the theory, so the missing word means throwing it away: "discarding."',
-      ru: '«Rather than... entirely» противопоставлено сохранению и уточнению теории — значит, пропущено «отбросить»: «discarding».',
-      kk: '«Rather than... entirely» теорияны сақтап, нақтылауға қарсы қойылған — демек «лақтырып тастау»: «discarding».',
+      ru: '«Rather than... entirely» противопоставлено сохранению и уточнению теории - значит, пропущено «отбросить»: «discarding».',
+      kk: '«Rather than... entirely» теорияны сақтап, нақтылауға қарсы қойылған - демек «лақтырып тастау»: «discarding».',
     },
   ),
   {
@@ -194,8 +194,8 @@ export const CRAFT = [
     ],
     ex: {
       en: 'Sentence 1: an old assumption. Sentence 2 ("However"): a finding against it. Sentence 3: a suggested explanation.',
-      ru: 'Предложение 1 — старое предположение. Предложение 2 («However») — находка, которая ему противоречит. Предложение 3 — возможное объяснение.',
-      kk: '1-сөйлем — бұрынғы болжам. 2-сөйлем («However») — оған қайшы нәтиже. 3-сөйлем — ықтимал түсініктеме.',
+      ru: 'Предложение 1 - старое предположение. Предложение 2 («However») - находка, которая ему противоречит. Предложение 3 - возможное объяснение.',
+      kk: '1-сөйлем - бұрынғы болжам. 2-сөйлем («However») - оған қайшы нәтиже. 3-сөйлем - ықтимал түсініктеме.',
     },
   },
   {
@@ -203,7 +203,7 @@ export const CRAFT = [
     skill: 'structure',
     d: 2,
     passage:
-      'Aigerim had practiced the piece a hundred times, but when she sat down at the piano in the silent concert hall, her hands felt like someone else’s. She looked at the keys as if seeing them for the first time. Then, from somewhere in the third row, she heard her grandmother cough softly—the same small cough that had interrupted every practice session at home—and her fingers began to move.',
+      'Aigerim had practiced the piece a hundred times, but when she sat down at the piano in the silent concert hall, her hands felt like someone else’s. She looked at the keys as if seeing them for the first time. Then, from somewhere in the third row, she heard her grandmother cough softly-the same small cough that had interrupted every practice session at home-and her fingers began to move.',
     prompt: PURPOSE,
     choices: [
       'To show how a familiar sound helps a nervous character begin to perform',
@@ -213,7 +213,7 @@ export const CRAFT = [
     ],
     ex: {
       en: 'Aigerim freezes, then hears the cough she knows from home, and only then starts playing. The text is about that moment of comfort.',
-      ru: 'Айгерим теряется, слышит знакомый с детства кашель бабушки — и только тогда начинает играть. Текст об этом моменте поддержки.',
+      ru: 'Айгерим теряется, слышит знакомый с детства кашель бабушки - и только тогда начинает играть. Текст об этом моменте поддержки.',
       kk: 'Әйгерім абдырап қалады, үйден таныс әжесінің жөтелін естиді де, сонда ғана ойнай бастайды. Мәтін осы демеу сәті туралы.',
     },
   },
@@ -250,9 +250,9 @@ export const CRAFT = [
       'It introduces a counterargument that the text later rejects.',
     ],
     ex: {
-      en: 'Sentence 1: the steppe "can seem empty." Sentence 2 ("In reality") shows it is full of life — it corrects that impression.',
-      ru: 'Предложение 1: степь «кажется пустой». Предложение 2 («In reality») показывает, что она полна жизни, — то есть исправляет это впечатление.',
-      kk: '1-сөйлем: дала «бос көрінеді». 2-сөйлем («In reality») оның тіршілікке толы екенін көрсетеді — яғни сол әсерді түзетеді.',
+      en: 'Sentence 1: the steppe "can seem empty." Sentence 2 ("In reality") shows it is full of life - it corrects that impression.',
+      ru: 'Предложение 1: степь «кажется пустой». Предложение 2 («In reality») показывает, что она полна жизни, - то есть исправляет это впечатление.',
+      kk: '1-сөйлем: дала «бос көрінеді». 2-сөйлем («In reality») оның тіршілікке толы екенін көрсетеді - яғни сол әсерді түзетеді.',
     },
   },
   {
@@ -270,7 +270,7 @@ export const CRAFT = [
     ],
     ex: {
       en: 'Every sentence is about simulations and how they help before launch. The other choices mention topics the text never discusses.',
-      ru: 'Каждое предложение — о симуляциях и их пользе перед запуском. Остальные варианты называют темы, которых в тексте нет.',
+      ru: 'Каждое предложение - о симуляциях и их пользе перед запуском. Остальные варианты называют темы, которых в тексте нет.',
       kk: 'Әр сөйлем симуляциялар және олардың ұшыру алдындағы пайдасы туралы. Қалған нұсқалар мәтінде жоқ тақырыптарды атайды.',
     },
   },
@@ -279,7 +279,7 @@ export const CRAFT = [
     skill: 'structure',
     d: 2,
     passage:
-      'Many people think of bread as a product of farming. In fact, archaeologists in Jordan have found charred remains of flatbread baked about 14,400 years ago—thousands of years before humans began growing crops. The discovery suggests that people made bread from wild grains long before agriculture began.',
+      'Many people think of bread as a product of farming. In fact, archaeologists in Jordan have found charred remains of flatbread baked about 14,400 years ago-thousands of years before humans began growing crops. The discovery suggests that people made bread from wild grains long before agriculture began.',
     prompt: STRUCT,
     choices: [
       'It presents a common belief, offers a discovery that contradicts it, and states what the discovery suggests.',
@@ -298,7 +298,7 @@ export const CRAFT = [
     skill: 'structure',
     d: 3,
     passage:
-      'The old clock in the hallway had stopped years ago at a quarter past four, and no one in the family had ever tried to fix it. Guests sometimes asked about it. “It keeps the right time twice a day,” Grandfather would say, and then he would change the subject—usually to the weather, which, unlike the clock, could always be relied upon to change.',
+      'The old clock in the hallway had stopped years ago at a quarter past four, and no one in the family had ever tried to fix it. Guests sometimes asked about it. “It keeps the right time twice a day,” Grandfather would say, and then he would change the subject-usually to the weather, which, unlike the clock, could always be relied upon to change.',
     prompt: PURPOSE,
     choices: [
       'To suggest, through Grandfather’s joking reply, that the stopped clock holds a meaning he prefers not to discuss',
@@ -307,9 +307,9 @@ export const CRAFT = [
       'To describe the weather in the region where the family lives',
     ],
     ex: {
-      en: 'No one fixes the clock, and Grandfather jokes and quickly changes the subject — hints that the clock matters to him in a way he avoids explaining.',
-      ru: 'Часы никто не чинит, а дедушка отшучивается и сразу меняет тему — намёк на то, что часы для него что-то значат, но говорить об этом он не хочет.',
-      kk: 'Сағатты ешкім жөндемейді, ал ата әзілдеп, тақырыпты бірден өзгертеді — сағаттың ол үшін маңызды екенін, бірақ ол бұл туралы айтқысы келмейтінін меңзейді.',
+      en: 'No one fixes the clock, and Grandfather jokes and quickly changes the subject - hints that the clock matters to him in a way he avoids explaining.',
+      ru: 'Часы никто не чинит, а дедушка отшучивается и сразу меняет тему - намёк на то, что часы для него что-то значат, но говорить об этом он не хочет.',
+      kk: 'Сағатты ешкім жөндемейді, ал ата әзілдеп, тақырыпты бірден өзгертеді - сағаттың ол үшін маңызды екенін, бірақ ол бұл туралы айтқысы келмейтінін меңзейді.',
     },
   },
   {
@@ -362,8 +362,8 @@ export const CRAFT = [
     ],
     ex: {
       en: 'Text 2 uses skin impressions (direct evidence) to argue that adults were mostly scaly, which challenges the feather argument in Text 1.',
-      ru: 'Текст 2 опирается на отпечатки кожи (прямое доказательство) и говорит, что взрослые особи были в основном чешуйчатыми, — это возражение Тексту 1.',
-      kk: '2-мәтін тері іздеріне (тікелей дәлелге) сүйеніп, ересектердің негізінен қабыршақты болғанын айтады — бұл 1-мәтінге қарсы дәлел.',
+      ru: 'Текст 2 опирается на отпечатки кожи (прямое доказательство) и говорит, что взрослые особи были в основном чешуйчатыми, - это возражение Тексту 1.',
+      kk: '2-мәтін тері іздеріне (тікелей дәлелге) сүйеніп, ересектердің негізінен қабыршақты болғанын айтады - бұл 1-мәтінге қарсы дәлел.',
     },
   },
   {
@@ -431,7 +431,7 @@ export const CRAFT = [
       },
       {
         label: 'Text 2',
-        text: 'Reviving extinct species would cost enormous sums of money. Ecologist Ana Lopez argues that the same funds could protect many endangered species that still exist—a far more certain way to help ecosystems.',
+        text: 'Reviving extinct species would cost enormous sums of money. Ecologist Ana Lopez argues that the same funds could protect many endangered species that still exist-a far more certain way to help ecosystems.',
       },
     ],
     prompt: cross('the proposal described in Text 1'),

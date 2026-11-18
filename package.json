@@ -1,7 +1,7 @@
 {
   "name": "prep-and-play",
   "version": "1.0.0",
-  "description": "Prep&Play — подготовка к цифровому SAT в виде игры: карта уровней, боссы, пробный экзамен, дуэли. RU / EN / KZ.",
+  "description": "Prep&Play - подготовка к цифровому SAT в виде игры: карта уровней, боссы, пробный экзамен, дуэли. RU / EN / KZ.",
   "private": true,
   "type": "module",
   "scripts": {

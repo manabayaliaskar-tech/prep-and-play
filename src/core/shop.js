@@ -49,7 +49,7 @@ export function priceOf(g, day = dayKey()) {
 
 // ---------- Выдача товара ----------
 
-/** Выдать товар: одежду сразу надеть, предмет комнаты — поставить, эмоцию — выбрать победной, если её ещё нет. */
+/** Выдать товар: одежду сразу надеть, предмет комнаты - поставить, эмоцию - выбрать победной, если её ещё нет. */
 function grant(g, p) {
   p.owned = [...new Set([...(p.owned ?? []), g.id])];
   if (g.kind === 'wear') {
@@ -64,7 +64,7 @@ function grant(g, p) {
 }
 
 /**
- * Покупка за монеты. Возвращает { ok: true, price, sets } (sets — только что собранные наборы)
+ * Покупка за монеты. Возвращает { ok: true, price, sets } (sets - только что собранные наборы)
  * или { ok: false, reason: 'notForSale' | 'owned' | 'coins' }.
  */
 export function buyItem(id, day = dayKey()) {
@@ -140,7 +140,7 @@ export function wearSet(set, p = getProfile()) {
   return outfit;
 }
 
-/** Набор, который сейчас надет целиком (все его вещи гардероба на Препи), — он даёт бонус к монетам. */
+/** Набор, который сейчас надет целиком (все его вещи гардероба на Препи), - он даёт бонус к монетам. */
 export function activeSet(profile = getProfile(), outfit = getOutfit(profile)) {
   return (
     SETS.find((set) => {
@@ -168,12 +168,12 @@ export const NEW_CHANCE = 0.8;
 
 export const boxById = (id) => BOXES.find((b) => b.id === id) ?? null;
 
-/** Что может выпасть в сундуке: все продающиеся товары его редкостей (включая уже купленные — они станут осколками). */
+/** Что может выпасть в сундуке: все продающиеся товары его редкостей (включая уже купленные - они станут осколками). */
 export function boxPool(box) {
   return shopGoods().filter((g) => box.odds[g.rarity]);
 }
 
-/** Через сколько открытий этого сундука легендарка гарантирована (null — у сундука нет гарантии). */
+/** Через сколько открытий этого сундука легендарка гарантирована (null - у сундука нет гарантии). */
 export function pityLeft(box, profile = getProfile()) {
   if (!box.pity) return null;
   return Math.max(1, box.pity - (profile.pity?.[box.id] ?? 0));
@@ -181,8 +181,8 @@ export function pityLeft(box, profile = getProfile()) {
 
 /**
  * Открывает сундук: списывает монеты (если не бесплатный) и выдаёт товар.
- * Редкость — по шансам сундука (на последнем открытии до гарантии — легендарка). Новая вещь выпадает с шансом NEW_CHANCE,
- * иначе — повторка, которая превращается в осколки. Возвращает { ok, item, dup, shards, sets }.
+ * Редкость - по шансам сундука (на последнем открытии до гарантии - легендарка). Новая вещь выпадает с шансом NEW_CHANCE,
+ * иначе - повторка, которая превращается в осколки. Возвращает { ok, item, dup, shards, sets }.
  */
 export function openBox(boxId, rng = Math.random, { free = false } = {}) {
   const box = boxById(boxId);
@@ -308,7 +308,7 @@ export function passGood(seasonId, tier, kind, rarity) {
   return shuffle(list, rng)[0];
 }
 
-/** Выдать вещь бесплатно (награда пасса). Если она уже есть — превращается в осколки. */
+/** Выдать вещь бесплатно (награда пасса). Если она уже есть - превращается в осколки. */
 export function grantFree(id) {
   const g = goodById(id);
   const p = getProfile();

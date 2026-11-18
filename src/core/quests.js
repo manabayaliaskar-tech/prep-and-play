@@ -1,11 +1,11 @@
 // Ежедневные задания: каждый день три задания из списка, одинаковые для всех в этот день.
-// За выполненное задание — награда опытом (выдаётся один раз).
+// За выполненное задание - награда опытом (выдаётся один раз).
 
 import { createRng, hashString, shuffle } from './random.js';
 
 export const QUESTS_PER_DAY = 3;
 
-/** value(day) — текущий прогресс по счётчикам дня из профиля (profile.today). */
+/** value(day) - текущий прогресс по счётчикам дня из профиля (profile.today). */
 export const QUESTS = [
   { id: 'answer', icon: '✏️', goal: 20, reward: 30, value: (d) => d.answered },
   { id: 'correct', icon: '✅', goal: 15, reward: 30, value: (d) => d.correct },

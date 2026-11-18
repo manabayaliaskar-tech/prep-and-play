@@ -178,10 +178,10 @@ export function powers(ctx, d) {
     return poolQ('m.pow', d, {
       prompt: calc(`${a}<sup>${k}</sup>`),
       ex: steps(
-        L(`A power is a product of equal factors: here there are ${k} of them.`, `Степень — это произведение одинаковых множителей: здесь их ${k}.`, `Дәреже — бірдей көбейткіштердің көбейтіндісі: мұнда олар ${k}.`),
+        L(`A power is a product of equal factors: here there are ${k} of them.`, `Степень - это произведение одинаковых множителей: здесь их ${k}.`, `Дәреже - бірдей көбейткіштердің көбейтіндісі: мұнда олар ${k}.`),
         same(`${Array(k).fill(a).join(` ${TIMES} `)} = ${n(ans)}`),
       ),
-      ...ask(ctx, ans, [why(a * k, L('You multiplied the base by the exponent. A power means multiplying the base by itself.', 'Ты умножил основание на показатель. Степень — это умножение основания само на себя.', 'Негізді көрсеткішке көбейттің. Дәреже — негізді өзіне-өзі көбейту.')), why(a ** (k - 1), L('One factor too few: count the multipliers again.', 'Одного множителя не хватает: пересчитай множители.', 'Бір көбейткіш жетпейді: көбейткіштерді қайта сана.')), a ** (k + 1), ans + a]),
+      ...ask(ctx, ans, [why(a * k, L('You multiplied the base by the exponent. A power means multiplying the base by itself.', 'Ты умножил основание на показатель. Степень - это умножение основания само на себя.', 'Негізді көрсеткішке көбейттің. Дәреже - негізді өзіне-өзі көбейту.')), why(a ** (k - 1), L('One factor too few: count the multipliers again.', 'Одного множителя не хватает: пересчитай множители.', 'Бір көбейткіш жетпейді: көбейткіштерді қайта сана.')), a ** (k + 1), ans + a]),
     });
   }
   if (d === 2) {
@@ -200,8 +200,8 @@ export function powers(ctx, d) {
         ex: steps(
           L(
             'When multiplying powers with the same base, add the exponents; when dividing, subtract them.',
-            'При умножении степеней с одинаковым основанием показатели складываются, при делении — вычитаются.',
-            'Негіздері бірдей дәрежелерді көбейткенде көрсеткіштер қосылады, бөлгенде — азайтылады.',
+            'При умножении степеней с одинаковым основанием показатели складываются, при делении - вычитаются.',
+            'Негіздері бірдей дәрежелерді көбейткенде көрсеткіштер қосылады, бөлгенде - азайтылады.',
           ),
           same(`${X} = ${m} + ${k} ${MINUS} ${j} = ${ans}`),
         ),
@@ -417,8 +417,8 @@ export function systems(ctx, d) {
     ex: steps(
       L(
         `Multiply the first equation by ${Math.abs(b2)} and the second by ${b1}, then add them to eliminate ${Y}.`,
-        `Умножим первое уравнение на ${Math.abs(b2)}, второе на ${b1} и сложим — ${Y} исчезнет.`,
-        `Бірінші теңдеуді ${Math.abs(b2)}-ге, екіншісін ${b1}-ге көбейтіп қосамыз — ${Y} жойылады.`,
+        `Умножим первое уравнение на ${Math.abs(b2)}, второе на ${b1} и сложим - ${Y} исчезнет.`,
+        `Бірінші теңдеуді ${Math.abs(b2)}-ге, екіншісін ${b1}-ге көбейтіп қосамыз - ${Y} жойылады.`,
       ),
       same(`${a1 * Math.abs(b2) + a2 * b1}${X} = ${n(c1 * Math.abs(b2) + c2 * b1)}, ${X} = ${n(x)}`),
       L(`Substitute into the first equation: ${Y} = ${n(y)}.`, `Подставим в первое уравнение: ${Y} = ${n(y)}.`, `Бірінші теңдеуге қоямыз: ${Y} = ${n(y)}.`),

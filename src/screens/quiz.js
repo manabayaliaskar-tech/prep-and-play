@@ -1,5 +1,5 @@
 // Квиз «Всё обо всём»: вопросы из разных предметов подряд.
-// Режимы: классика (10 вопросов, сложность 1–10), блиц (60 секунд), выживание (3 жизни, сложность растёт),
+// Режимы: классика (10 вопросов, сложность 1-10), блиц (60 секунд), выживание (3 жизни, сложность растёт),
 // свой квиз (выбранные предметы) и квиз дня (одинаковый для всех).
 // Вопросы, которые игрок уже видел, запоминаются и не выдаются снова, пока есть новые.
 
@@ -115,7 +115,7 @@ function subjectsHtml(log) {
         ${rows
           .map((r) => {
             const pct = Math.round((r.correct / r.total) * 100);
-            // Цвет программирования почти чёрный — в тёмной теме полоса была бы не видна.
+            // Цвет программирования почти чёрный - в тёмной теме полоса была бы не видна.
             const color = r.pool === 'code' ? '#64748b' : (POOLS[r.pool]?.color ?? '#7c3aed');
             return `<div class="qb-row" style="--c:${color}">
               <span class="qb-icon" aria-hidden="true">${esc(POOLS[r.pool]?.icon ?? '❓')}</span>
@@ -130,7 +130,7 @@ function subjectsHtml(log) {
 }
 
 export function quizRoute(app, params = {}) {
-  // Квиз по одному предмету — из облачка ведущего: запускается сразу, сохранённый набор «Своего квиза» не меняется.
+  // Квиз по одному предмету - из облачка ведущего: запускается сразу, сохранённый набор «Своего квиза» не меняется.
   const subject = params.subject && QUIZ_POOLS.includes(params.subject) ? params.subject : null;
   let mode = QUIZ_MODES.some((m) => m.id === params.mode) ? params.mode : storage.get('quizMode', 'classic');
   if (!QUIZ_MODES.some((m) => m.id === mode)) mode = 'classic';
@@ -267,7 +267,7 @@ export function quizRoute(app, params = {}) {
           subtitle: t('quiz.result', { c: run.correct, n: QUIZ_COUNT, level: DAILY_QUIZ_LEVEL }),
           stars: starsFor(run.correct, QUIZ_COUNT),
           xp: run.xp + bonus,
-          stats: [...baseStats(run), { icon: '🎁', label: t('quiz.dailyBonus'), value: first ? `+${DAILY_BONUS} XP` : '—' }],
+          stats: [...baseStats(run), { icon: '🎁', label: t('quiz.dailyBonus'), value: first ? `+${DAILY_BONUS} XP` : '-' }],
           extraHtml: `${extra}<p class="muted small quiz-daily-note">${t('quiz.dailyNote')}</p>`,
           log: run.log,
           actions: [
@@ -290,10 +290,10 @@ export function quizRoute(app, params = {}) {
     const r = records();
     if (id === 'classic') {
       const best = Object.values(r.quiz);
-      return best.length ? `${Math.max(...best)}/${QUIZ_COUNT}` : '—';
+      return best.length ? `${Math.max(...best)}/${QUIZ_COUNT}` : '-';
     }
-    if (id === 'blitz') return r.quizBlitz || '—';
-    if (id === 'survival') return r.quizSurvival || '—';
+    if (id === 'blitz') return r.quizBlitz || '-';
+    if (id === 'survival') return r.quizSurvival || '-';
     if (id === 'daily') return r.quizDaily[dayKey()] !== undefined ? `✔ ${r.quizDaily[dayKey()]}/${QUIZ_COUNT}` : t('quiz.dailyNew');
     return `${pools.length}/${QUIZ_POOLS.length}`;
   };

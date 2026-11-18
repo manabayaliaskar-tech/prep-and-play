@@ -1,12 +1,12 @@
-// Маскот Prep&Play — Препи 2.0: объёмный светящийся шар с ручками, ножками и орбитальным кольцом.
+// Маскот Prep&Play - Препи 2.0: объёмный светящийся шар с ручками, ножками и орбитальным кольцом.
 // Цвета берутся из темы (--mascot-hi, --mascot-1, --mascot-2), поэтому Препи меняется вместе с оформлением.
 // Глаза моргают и следят за курсором (переменные --lx/--ly задаёт ui/motion.js).
 //
 // mascot(настроение, класс, наряд, { form, pose }):
-//   настроения — happy, wow, sad, win, think, sleep, love, laugh, cool, angry, shy, confused, cry,
+//   настроения - happy, wow, sad, win, think, sleep, love, laugh, cool, angry, shy, confused, cry,
 //                proud, dizzy, wink, scared, starstruck, sick, ghost (а также neutral → happy, lose → sad);
-//   формы (зависят от серии) — buff (качок), blaze (огненный), sick (заболел), ghost (призрак), tomb (призрак над надгробием).
-// Система координат: viewBox 0 0 140 150, тело — круг (70, 80) r 48. Рисунки вещей — в ./art/.
+//   формы (зависят от серии) - buff (качок), blaze (огненный), sick (заболел), ghost (призрак), tomb (призрак над надгробием).
+// Система координат: viewBox 0 0 140 150, тело - круг (70, 80) r 48. Рисунки вещей - в ./art/.
 
 import { COLORS, getOutfit } from '../core/wardrobe.js';
 import { auraBack, auraFront } from './art/auras.js';
@@ -19,9 +19,9 @@ let uid = 0;
 
 // ---------- Глаза ----------
 
-/** Открытый глаз: белок, радужка с градиентом, зрачок и два блика. dx/dy — куда смотрит. */
+/** Открытый глаз: белок, радужка с градиентом, зрачок и два блика. dx/dy - куда смотрит. */
 function eyeOpen(id, cx, cy, { rx = 11, ry = 13, ir = 8, dx = 0, dy = 0, shine = 1 } = {}) {
-  // Мультяшный глаз: белок, тёмный зрачок-овал и два блика (без обводки и радужки — так Препи добрее).
+  // Мультяшный глаз: белок, тёмный зрачок-овал и два блика (без обводки и радужки - так Препи добрее).
   const px = cx + 1 + dx;
   const py = cy + 2 + dy;
   const prx = ir * 0.8;
@@ -36,7 +36,7 @@ function eyeOpen(id, cx, cy, { rx = 11, ry = 13, ir = 8, dx = 0, dy = 0, shine =
   </g>`;
 }
 
-/** Веко поверх открытого глаза: half — полуприкрыт, angry — нахмурен, sad — грустно опущен. side: -1 левый глаз, 1 правый. */
+/** Веко поверх открытого глаза: half - полуприкрыт, angry - нахмурен, sad - грустно опущен. side: -1 левый глаз, 1 правый. */
 function lid(id, cx, cy, kind, side) {
   let a;
   let b;
@@ -122,7 +122,7 @@ const browsHtml = (kind) =>
 
 // ---------- Рот ----------
 
-// Открытый рот: форма (по ней обрезаются язык и зубы), язык [cx, cy, rx, ry], верхние зубы — y верхней кромки.
+// Открытый рот: форма (по ней обрезаются язык и зубы), язык [cx, cy, rx, ry], верхние зубы - y верхней кромки.
 const OPEN_MOUTHS = {
   grin: { shape: '<path d="M56 96 Q70 116 84 96 Q70 99 56 96 Z"/>', tongue: [70, 108, 9, 5], teeth: 93.5 },
   laugh: { shape: '<path d="M52 92 Q70 125 88 92 Q70 98 52 92 Z"/>', tongue: [70, 115, 12, 7.5], teeth: 89.5 },
@@ -155,7 +155,7 @@ function mouthHtml(id, kind) {
 
 // ---------- Руки ----------
 
-// Позы: для каждой руки — путь от плеча к кисти [x0 y0 cx cy x1 y1]; front — кисть лежит на лице (рука спрятана за телом).
+// Позы: для каждой руки - путь от плеча к кисти [x0 y0 cx cy x1 y1]; front - кисть лежит на лице (рука спрятана за телом).
 const POSES = {
   rest: { L: [27, 92, 14, 100, 19, 112], R: [113, 92, 126, 100, 121, 112] },
   droop: { L: [28, 96, 20, 110, 26, 121], R: [112, 96, 120, 110, 114, 121] },
@@ -202,10 +202,10 @@ function sleeve(a, thick, [fill, line]) {
   return `<path d="${d}" stroke="${line}" stroke-width="${thick + 4}" fill="none" stroke-linecap="round"/><path d="${d}" stroke="${fill}" stroke-width="${thick + 1}" fill="none" stroke-linecap="round"/><circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="${(thick / 2 + 1.5).toFixed(1)}" fill="${fill}" stroke="${line}" stroke-width="1.6"/>`;
 }
 
-// Позы, где кисть лежала на лице, заменяются похожими — у рук теперь нет отдельных ладошек.
+// Позы, где кисть лежала на лице, заменяются похожими - у рук теперь нет отдельных ладошек.
 const POSE_SWAP = { chin: 'rest', cover: 'droop', belly: 'hips', thumb: 'wave' };
 
-/** Руки за телом (рисуются до тела). Если в руке вещь — правая рука её держит: кончик руки рисуется поверх вещи. */
+/** Руки за телом (рисуются до тела). Если в руке вещь - правая рука её держит: кончик руки рисуется поверх вещи. */
 function arms(poseId, { buff = false, holding = null, sleeves = null } = {}) {
   let pose = POSES[POSE_SWAP[poseId] ?? poseId] ?? POSES.rest;
   if (holding && !['up', 'flex', 'open'].includes(poseId)) pose = { ...pose, R: POSES.hold.R, wave: false };
@@ -308,7 +308,7 @@ const SHIVER = `<g class="fx-shiver" stroke="#60a5fa" stroke-width="2.4" fill="n
 const GLINT = `<path class="fx-glint" d="M104 46 l2 6 l6 2 l-6 2 l-2 6 l-2 -6 l-6 -2 l6 -2 Z" fill="#fff" stroke="#facc15" stroke-width="1"/>`;
 const BIG_HEARTS = `<g class="fx-hearts">${heartAt(14, 40, 8, '#f43f5e')}${heartAt(128, 30, 9, '#fb7185')}${heartAt(118, 6, 6, '#fda4af')}${heartAt(26, 14, 5.5, '#f472b6')}${heartAt(6, 78, 5, '#fb7185')}</g>`;
 
-/** Как ярко показывается каждое настроение: tint — оттенок всего тела, back — за спиной, front — спереди. */
+/** Как ярко показывается каждое настроение: tint - оттенок всего тела, back - за спиной, front - спереди. */
 const MOOD_FX = {
   happy: { back: glow('#fde68a', 60, 0.16) },
   win: { back: rays('#facc15') + glow('#fde047', 58, 0.2), front: confetti },
@@ -329,7 +329,7 @@ const MOOD_FX = {
   confused: { back: glow('#ddd6fe', 58, 0.2) },
 };
 
-/** Веки рисуются цветом тела — при оттенке эмоции их нужно подкрасить так же, иначе останутся светлые пятна. */
+/** Веки рисуются цветом тела - при оттенке эмоции их нужно подкрасить так же, иначе останутся светлые пятна. */
 function tintLids(html, id, tint) {
   if (!tint) return html;
   return html.replace(new RegExp(`<path d="([^"]+)" fill="url\\(#${id}b\\)"/>`, 'g'), (m, d) => `${m}<path d="${d}" fill="${tint[0]}" opacity="${tint[1]}"/>`);
@@ -360,8 +360,8 @@ const TOMB = `<g class="tomb">
 // ---------- Сборка ----------
 
 /**
- * Препи целиком (SVG). mood — настроение, cls — CSS-классы, outfit — наряд по слотам (по умолчанию — надетый),
- * opts.form — форма по серии, opts.pose — поза рук вместо позы настроения, opts.emote — танец/эмоция (CSS-анимация).
+ * Препи целиком (SVG). mood - настроение, cls - CSS-классы, outfit - наряд по слотам (по умолчанию - надетый),
+ * opts.form - форма по серии, opts.pose - поза рук вместо позы настроения, opts.emote - танец/эмоция (CSS-анимация).
  */
 export function mascot(mood = 'happy', cls = '', outfit = getOutfit(), opts = {}) {
   const id = `pp${++uid}`;

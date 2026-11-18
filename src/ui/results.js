@@ -83,7 +83,7 @@ export function renderResults(app, build) {
   data.afterRender?.(app);
 }
 
-/** Числа «набегают» от нуля, звёзды загораются по одной со звуком, новый рекорд — фанфары. */
+/** Числа «набегают» от нуля, звёзды загораются по одной со звуком, новый рекорд - фанфары. */
 export function animateResults(root, data = {}) {
   const reduce = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const targets = [...root.querySelectorAll('.result-stat b, .xp-earned')];

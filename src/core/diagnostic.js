@@ -1,5 +1,5 @@
 // Диагностика на старте: короткий тест по всем выбранным предметам курса (или по уровням, если курс по уровням).
-// Показывает сильные и слабые стороны и с чего начать. Баллы экзамена не предсказывает — только честные проценты.
+// Показывает сильные и слабые стороны и с чего начать. Баллы экзамена не предсказывает - только честные проценты.
 
 import { buildTopicSet } from '../pools/stream.js';
 import { TOPICS } from '../pools/topics.js';
@@ -47,7 +47,7 @@ export function diagQuestions(course, trackIds, rng) {
 
 /**
  * Итог по журналу ответов: проценты по предметам и темам, рекомендованный уровень (для курса по уровням).
- * log — [{ question, correct }].
+ * log - [{ question, correct }].
  */
 export function diagResult(course, log) {
   const byTrack = new Map();
@@ -72,7 +72,7 @@ export function diagResult(course, log) {
   const c = log.filter((e) => e.correct).length;
   const result = { tracks, topics, c, n: log.length, pct: log.length ? Math.round((c / log.length) * 100) : 0 };
   if (course.leveled) {
-    // Начинать стоит с первого уровня, где ошибся. Всё верно — с последнего проверенного.
+    // Начинать стоит с первого уровня, где ошибся. Всё верно - с последнего проверенного.
     const firstMiss = tracks.find((x) => x.c < x.n);
     result.level = (firstMiss ?? tracks.at(-1))?.id ?? course.tracks[0].id;
   } else {

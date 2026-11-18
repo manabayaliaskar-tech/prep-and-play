@@ -163,7 +163,7 @@ test('переводы: каждый ключ интерфейса есть на
   for (const file of sourceFiles('src')) {
     for (const m of readFileSync(file, 'utf8').matchAll(/\bt\(\s*'([a-zA-Z0-9_.]+)'/g)) used.add(m[1]);
   }
-  // Ключи, которые собираются в коде из частей, — их поиск по тексту не находит.
+  // Ключи, которые собираются в коде из частей, - их поиск по тексту не находит.
   const dynamic = [
     'nav.home', 'nav.practice', 'nav.exams', 'nav.olymp', 'nav.code', 'nav.profile', 'nav.premium',
     'premium.limitDay', 'premium.unlimited', 'premium.tutorLimit', 'quiz.easy', 'quiz.medium', 'quiz.hard',

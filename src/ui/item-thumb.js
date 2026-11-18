@@ -1,5 +1,5 @@
 // Миниатюры вещей для витрины магазина и гардероба: сама вещь, нарисованная на силуэте Препи
-// и обрезанная по своему месту (шапка — сверху, обувь — снизу и т. д.).
+// и обрезанная по своему месту (шапка - сверху, обувь - снизу и т. д.).
 
 import { COLORS, itemById } from '../core/wardrobe.js';
 import { AURA_BACK, AURA_SHAPES } from './art/auras.js';
@@ -23,7 +23,7 @@ const EYES = `<g fill="var(--thumb-ink, #cfc6fb)"><ellipse cx="53" cy="76" rx="9
 
 const wrap = (slot, view, inner, extra = '') => `<svg class="item-thumb thumb-${slot}" viewBox="${view}" aria-hidden="true" ${extra}>${inner}</svg>`;
 
-/** Миниатюра вещи (SVG). Если рисунка нет — значок вещи. */
+/** Миниатюра вещи (SVG). Если рисунка нет - значок вещи. */
 export function itemThumb(it) {
   if (typeof it === 'string') it = itemById(it);
   if (!it) return '';

@@ -100,7 +100,7 @@ export function satHomeScreen(app) {
             <h2>${t('home.scoreTitle')}</h2>
             <p class="muted">${lastExam ? t('home.scoreLast', { date: lastExam.date }) : t('home.scoreNone')}</p>
           </div>
-          <div class="score-preview-value">${lastExam ? (lastExam.total ?? lastExam.rw ?? lastExam.math) : '—'}</div>
+          <div class="score-preview-value">${lastExam ? (lastExam.total ?? lastExam.rw ?? lastExam.math) : '-'}</div>
           <a class="btn btn-primary" href="#/exam">📝 ${t('home.takeExam')}</a>
         </div>
 

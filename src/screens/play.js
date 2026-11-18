@@ -29,11 +29,11 @@ const PRAISE_KEYS = ['fb.praise1', 'fb.praise2', 'fb.praise3', 'fb.praise4', 'fb
  *  title, questions (массив) или stream + difficultyAt(i),
  *  lives, boss { icon, name }, timeLimit (сек), quick (быстрый режим без паузы на разбор),
  *  silent (тест: без подсказки «верно/неверно», разбор только в конце),
- *  catalog (сессия из каталога сама запоминает, что продолжать), review (повтор ошибок — не записывать их заново),
- *  hints (кнопка подсказки; по умолчанию — кроме теста и быстрых режимов),
+ *  catalog (сессия из каталога сама запоминает, что продолжать), review (повтор ошибок - не записывать их заново),
+ *  hints (кнопка подсказки; по умолчанию - кроме теста и быстрых режимов),
  *  limit (сколько заданий в режиме stream), onAnswer(q, correct) → 'up' | 'down' | null (адаптивная сложность),
  *  badge() → html значка в шапке (например, текущий уровень сложности),
- *  pace (кнопка «темп экзамена»: время на каждый вопрос; по умолчанию — в обычных тренировках),
+ *  pace (кнопка «темп экзамена»: время на каждый вопрос; по умолчанию - в обычных тренировках),
  *  exitTo, onFinish(run, { reason }) → функция build для экрана результатов.
  */
 export function runSession(app, config) {
@@ -58,7 +58,7 @@ export function runSession(app, config) {
     onFinish,
   } = config;
   const total = questions ? questions.length : limit;
-  // Заголовок может быть функцией — тогда он переводится заново при смене языка.
+  // Заголовок может быть функцией - тогда он переводится заново при смене языка.
   const titleText = () => (typeof title === 'function' ? title() : title);
   const run = createRun({ lives, bossHp: boss ? 100 : null });
   const state = {
@@ -167,7 +167,7 @@ export function runSession(app, config) {
       el.hearts.innerHTML = Array.from({ length: run.maxLives }, (_, i) => `<span class="heart ${i < run.lives ? '' : 'lost'}">❤</span>`).join('');
     }
     if (el.timer) {
-      // Короткие режимы показывают секунды, длинные тесты — минуты и секунды.
+      // Короткие режимы показывают секунды, длинные тесты - минуты и секунды.
       el.timer.textContent = `⏱ ${timeLimit > 120 ? formatTime(state.timeLeft * 1000) : state.timeLeft}`;
       el.timer.classList.toggle('is-low', state.timeLeft <= 10);
     }
@@ -218,7 +218,7 @@ export function runSession(app, config) {
     updateHud();
   }
 
-  /** Подсказка: убирает два неверных варианта или показывает первый шаг решения. Опыт за ответ — вдвое меньше. */
+  /** Подсказка: убирает два неверных варианта или показывает первый шаг решения. Опыт за ответ - вдвое меньше. */
   function applyHint(fresh) {
     const q = state.q;
     if (q.type === 'mc') {
@@ -262,7 +262,7 @@ export function runSession(app, config) {
     el.save.title = on ? t('saved.remove') : t('saved.add');
   }
 
-  /** Темп экзамена: полоска времени на текущий вопрос. Когда время вышло — ответ засчитывается как неверный. */
+  /** Темп экзамена: полоска времени на текущий вопрос. Когда время вышло - ответ засчитывается как неверный. */
   function startPace() {
     stopPace();
     if (!el.paceBar) return;
@@ -565,7 +565,7 @@ export function runSession(app, config) {
   };
 }
 
-/** «Твой ответ» и, если ошибка типичная, — откуда она берётся. */
+/** «Твой ответ» и, если ошибка типичная, - откуда она берётся. */
 export function whyHtml(q, response) {
   const yours = responseHtml(q, response);
   if (!yours) return '';

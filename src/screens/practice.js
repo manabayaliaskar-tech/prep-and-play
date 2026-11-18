@@ -18,7 +18,7 @@ import { courseBadge } from './hub.js';
 import { baseStats, celebrate, runSession } from './play.js';
 
 export const TRAIN_COUNT = 10;
-/** Куда ведёт кнопка «назад» из тренировки: для разделов с общей страницей — на неё. */
+/** Куда ведёт кнопка «назад» из тренировки: для разделов с общей страницей - на неё. */
 const GROUP_HOME = { daily: '/practice', code: '/code' };
 
 /** Сохраняет результат тренировки. Возвращает запись с лучшими показателями. */

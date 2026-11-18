@@ -1,6 +1,6 @@
-// Банк заданий по английскому языку, уровни A1–C2 (1…6).
+// Банк заданий по английскому языку, уровни A1-C2 (1…6).
 // Запись: [уровень, предложение с пропуском, правильный вариант, [три неправильных], разбор].
-// Разбор — ключ правила из rules.js либо перевод слова [по-русски, по-казахски].
+// Разбор - ключ правила из rules.js либо перевод слова [по-русски, по-казахски].
 // Все предложения авторские.
 
 const A1 = 1;
@@ -29,10 +29,10 @@ export const BANK = {
     [A1, 'How ______ sisters do you have?', 'many', ['much', 'old', 'long'], 'muchmany'],
     [A1, '______ is your name?', 'What', ['Who', 'Where', 'How'], 'wh'],
     [A1, '______ do you live?', 'Where', ['What', 'Who', 'Whose'], 'wh'],
-    [A2, 'Whose bag is this? — It is ______.', 'mine', ['my', 'me', 'I'], 'poss'],
+    [A2, 'Whose bag is this? - It is ______.', 'mine', ['my', 'me', 'I'], 'poss'],
     [A2, 'I am not hungry, and my sister is not hungry ______.', 'either', ['too', 'also', 'neither'], ['тоже (в отрицании)', 'да (болымсыз сөйлемде)']],
     [A2, 'There ______ any milk in the fridge.', "isn't", ["aren't", "don't", 'not'], 'thereis'],
-    [A2, '______ book is this? — It is Dana\'s.', 'Whose', ['Who', 'Which one', 'Whom'], 'wh'],
+    [A2, '______ book is this? - It is Dana\'s.', 'Whose', ['Who', 'Which one', 'Whom'], 'wh'],
   ],
 
   // ---------- Времена ----------
@@ -94,7 +94,7 @@ export const BANK = {
     [B1, 'There is ______ time left, so we have to hurry.', 'little', ['few', 'a few', 'many'], 'quant'],
     [B2, 'She plays ______ violin beautifully.', 'the', ['a', 'an', 'one'], 'theinstr'],
     [B2, 'Each of the students ______ a laptop.', 'has', ['have', 'are having', 'having'], ['each of + множественное число требует глагола в единственном числе', 'each of + көпше түрден кейін етістік жекеше түрде тұрады']],
-    [B2, 'This is by ______ the best restaurant in town.', 'far', ['much', 'very', 'more'], ['by far — «безусловно, намного» перед превосходной степенью', 'by far — күшейтпелі шырайдың алдында «әлдеқайда, сөзсіз»']],
+    [B2, 'This is by ______ the best restaurant in town.', 'far', ['much', 'very', 'more'], ['by far - «безусловно, намного» перед превосходной степенью', 'by far - күшейтпелі шырайдың алдында «әлдеқайда, сөзсіз»']],
   ],
 
   // ---------- Предлоги ----------
@@ -135,7 +135,7 @@ export const BANK = {
     [B2, "You ______ have told me earlier! Now it's too late.", 'should', ['must', 'can', 'would to'], 'modalperf'],
     [B2, 'She ______ have forgotten about the meeting; she never forgets anything.', "can't", ["mustn't", "shouldn't", "needn't"], 'modalperf'],
     [B2, "They ______ have left already; their car isn't here.", 'must', ['should', 'can', 'would'], 'modalperf'],
-    [B2, 'You ______ have brought flowers, but thank you — it is very kind.', "needn't", ["mustn't", "couldn't", "can't"], 'modalperf'],
+    [B2, 'You ______ have brought flowers, but thank you - it is very kind.', "needn't", ["mustn't", "couldn't", "can't"], 'modalperf'],
   ],
 
   // ---------- Конструкции: условные, пассив, формы глагола, косвенная речь ----------
@@ -230,13 +230,13 @@ export const BANK = {
     [B1, "I can't ______ to buy a new phone; it's too expensive.", 'afford', ['allow', 'avoid', 'admit'], ['позволить себе', 'қалтасы көтеру, мүмкіндігі болу']],
     [B1, "He ______ the exam although he hadn't studied much.", 'passed', ['missed', 'lost', 'spent'], ['сдал (успешно)', 'сәтті тапсырды']],
     [B1, 'Smoking can seriously ______ your health.', 'damage', ['injure', 'wound', 'spoil'], ['наносить вред', 'зиян келтіру']],
-    [B1, 'The government plans to ______ taxes next year.', 'raise', ['rise', 'grow', 'lift up'], ['повышать (raise — переходный глагол, rise — непереходный)', 'көтеру (raise — сабақты, rise — салт етістік)']],
+    [B1, 'The government plans to ______ taxes next year.', 'raise', ['rise', 'grow', 'lift up'], ['повышать (raise - переходный глагол, rise - непереходный)', 'көтеру (raise - сабақты, rise - салт етістік)']],
     [B2, 'The new law had a ______ effect on sales: they doubled in a month.', 'dramatic', ['slight', 'vague', 'mild'], ['резкий, значительный', 'күрт, айтарлықтай']],
     [B2, 'Scientists have made a major ______ in cancer research.', 'breakthrough', ['breakdown', 'outbreak', 'breakup'], ['прорыв', 'серпіліс, үлкен жетістік']],
     [B2, 'The evidence was not ______ enough to convict him.', 'convincing', ['convinced', 'convenient', 'conventional'], ['убедительный', 'нанымды']],
     [B2, 'She has a ______ for languages; she picks them up very quickly.', 'gift', ['present', 'donation', 'prize'], ['дар, способность', 'дарын, қабілет']],
     [B2, 'The city council decided to ______ the old factory into a museum.', 'convert', ['invert', 'divert', 'revert'], ['превратить, переоборудовать', 'айналдыру, қайта жабдықтау']],
-    [B2, 'Prices have risen ______ over the past year — by almost 40%.', 'sharply', ['slightly', 'hardly', 'barely'], ['резко', 'күрт']],
+    [B2, 'Prices have risen ______ over the past year - by almost 40%.', 'sharply', ['slightly', 'hardly', 'barely'], ['резко', 'күрт']],
     [B2, 'The lecture was so ______ that half the audience left early.', 'tedious', ['thrilling', 'tense', 'tender'], ['утомительный, скучный', 'жалықтыратын, іш пыстыратын']],
     [B2, 'We need to ______ the problem before it gets worse.', 'tackle', ['tickle', 'tumble', 'tremble'], ['взяться за решение', 'шешуге кірісу']],
     [C1, 'The minister\'s speech was deliberately ______, so nobody understood his real position.', 'ambiguous', ['ambitious', 'anonymous', 'unanimous'], ['двусмысленный', 'екіұшты']],
@@ -250,10 +250,10 @@ export const BANK = {
     [C2, "The critic's ______ review left the young director in tears.", 'scathing', ['soothing', 'seething', 'sprawling'], ['разгромный, уничтожающий', 'өткір сынға толы, аяусыз']],
     [C2, 'His explanation was so ______ that we were none the wiser.', 'convoluted', ['conducive', 'congenial', 'concise'], ['запутанный', 'шым-шытырық, түсініксіз']],
     [C2, 'She has an ______ knowledge of medieval history.', 'encyclopaedic', ['ephemeral', 'erratic', 'elusive'], ['энциклопедический', 'энциклопедиялық, жан-жақты']],
-    [C2, 'The treaty was meant to ______ tensions between the two states.', 'defuse', ['diffuse', 'infuse', 'refuse'], ['разрядить (обстановку); не путать с diffuse — «рассеивать»', 'шиеленісті бәсеңдету; diffuse («тарату») сөзімен шатастырма']],
+    [C2, 'The treaty was meant to ______ tensions between the two states.', 'defuse', ['diffuse', 'infuse', 'refuse'], ['разрядить (обстановку); не путать с diffuse - «рассеивать»', 'шиеленісті бәсеңдету; diffuse («тарату») сөзімен шатастырма']],
     [C2, 'The politician tried to ______ the issue rather than answer directly.', 'sidestep', ['overstep', 'undercut', 'outweigh'], ['уклониться, обойти', 'жалтару, айналып өту']],
     [C2, 'The practice, once rare, has become ______.', 'ubiquitous', ['iniquitous', 'ambiguous', 'fortuitous'], ['повсеместный', 'барлық жерде кездесетін']],
-    [C2, 'A ______ of evidence suggests that sleep affects memory.', 'wealth', ['fortune', 'treasure', 'richness'], ['a wealth of — «множество, обилие»', 'a wealth of — «мол, көп»']],
+    [C2, 'A ______ of evidence suggests that sleep affects memory.', 'wealth', ['fortune', 'treasure', 'richness'], ['a wealth of - «множество, обилие»', 'a wealth of - «мол, көп»']],
     [C2, 'He was ______ by the sheer scale of the task.', 'daunted', ['vaunted', 'flaunted', 'taunted'], ['обескуражен, напуган', 'жасқанды, қаймықты']],
     [C2, 'The report was a ______ indictment of the prison system.', 'damning', ['dooming', 'cursing', 'blaming'], ['изобличающий, убийственный', 'әшкерелейтін, айыптайтын']],
     [C2, 'Her memoir is refreshingly ______ about her failures.', 'candid', ['candied', 'cunning', 'cordial'], ['откровенный', 'ашық, шынайы']],
@@ -262,32 +262,32 @@ export const BANK = {
 
   // ---------- Фразовые глаголы, сочетания слов, идиомы ----------
   'e.phrasal': [
-    [A2, 'The plane ______ at 7 p.m., so we must be at the airport by five.', 'takes off', ['gets up', 'puts on', 'turns off'], ['take off — взлетать', 'take off — ұшып көтерілу']],
-    [A2, 'I usually ______ at seven o\'clock on school days.', 'get up', ['get on', 'get in', 'get out'], ['get up — вставать с постели', 'get up — төсектен тұру']],
-    [B1, 'Please ______ your shoes before you come in.', 'take off', ['turn off', 'give up', 'look up'], ['take off — снимать (одежду, обувь)', 'take off — шешу (киімді, аяқ киімді)']],
-    [B1, 'The doctor told him to ______ smoking because of his cough.', 'give up', ['give in', 'put on', 'take up'], ['give up — бросить (привычку)', 'give up — тастау (әдетті)']],
-    [B1, "Can you ______ the music? It's too loud.", 'turn down', ['turn up', 'turn on', 'turn into'], ['turn down — убавить звук', 'turn down — дыбысын бәсеңдету']],
-    [B1, 'We ______ of petrol in the middle of the road.', 'ran out', ['ran away', 'ran into', 'ran over'], ['run out of — закончиться (о запасе)', 'run out of — таусылу (қор туралы)']],
-    [B1, 'Could you ______ my cat while I am on holiday?', 'look after', ['look for', 'look up', 'look into'], ['look after — присматривать', 'look after — қарау, бағу']],
-    [B2, 'The meeting has been ______ until next Friday.', 'put off', ['put out', 'put up', 'put away'], ['put off — отложить', 'put off — кейінге қалдыру']],
-    [B2, "I can't ______ his rude behaviour any longer.", 'put up with', ['put down to', 'get on with', 'come up with'], ['put up with — мириться, терпеть', 'put up with — төзу, шыдау']],
-    [B2, 'She ______ a brilliant idea for the project.', 'came up with', ['came down with', 'kept up with', 'got away with'], ['come up with — придумать', 'come up with — ойлап табу']],
-    [B2, 'He ______ his father: both are tall and stubborn.', 'takes after', ['looks after', 'takes over', 'looks up'], ['take after — быть похожим (на родственника)', 'take after — тартып туу, ұқсау']],
-    [B2, 'The negotiations ______ after only two days.', 'broke down', ['broke out', 'broke in', 'broke up with'], ['break down — провалиться, потерпеть неудачу', 'break down — сәтсіз аяқталу']],
-    [C1, 'The news came as a ______ from the blue.', 'bolt', ['flash', 'bang', 'shot'], ['a bolt from the blue — «как гром среди ясного неба»', 'a bolt from the blue — «ашық күнгі найзағайдай»']],
-    [C1, 'We need to ______ the pros and cons before deciding.', 'weigh up', ['wear out', 'wind up', 'work off'], ['weigh up — взвесить, оценить', 'weigh up — таразылау, бағалау']],
-    [C1, 'She ______ a strong resemblance to her grandmother.', 'bears', ['holds', 'carries', 'keeps'], ['bear a resemblance — иметь сходство', 'bear a resemblance — ұқсастығы болу']],
-    [C1, 'The project is still in its ______.', 'infancy', ['childhood', 'youth', 'cradle'], ['in its infancy — в зачаточном состоянии', 'in its infancy — бастапқы кезеңде']],
-    [C1, 'He ______ to the occasion and delivered a brilliant speech.', 'rose', ['raised', 'lifted', 'climbed'], ['rise to the occasion — оказаться на высоте', 'rise to the occasion — сын сағатта мүдірмеу']],
-    [C1, 'The decision ______ a heated debate.', 'sparked', ['lit', 'burned', 'flamed'], ['spark a debate — вызвать спор', 'spark a debate — пікірталас тудыру']],
-    [C1, 'They finally ______ a compromise after hours of talks.', 'reached', ['caught', 'did', 'took'], ['reach a compromise — прийти к компромиссу', 'reach a compromise — мәмілеге келу']],
-    [C2, 'The new evidence threw a ______ in the works.', 'spanner', ['hammer', 'screw', 'nail'], ['throw a spanner in the works — «вставить палки в колёса»', 'throw a spanner in the works — «істі бүлдіру, кедергі келтіру»']],
-    [C2, "He has a ______ to pick with you about yesterday's meeting.", 'bone', ['fish', 'stone', 'stick'], ['have a bone to pick — иметь претензию, неприятный разговор', 'have a bone to pick — реніші, айтар сөзі болу']],
-    [C2, 'After months of talks, they are back to ______ one.', 'square', ['circle', 'point', 'stage'], ['back to square one — снова в исходной точке', 'back to square one — қайтадан бастапқы нүктеде']],
-    [C2, 'She passed the exam with flying ______.', 'colours', ['flags', 'wings', 'stars'], ['with flying colours — блестяще, с отличием', 'with flying colours — өте жақсы, үздік']],
-    [C2, 'I took his promise with a ______ of salt.', 'pinch', ['piece', 'spoon', 'drop'], ['take with a pinch of salt — относиться с недоверием', 'take with a pinch of salt — сенімсіздікпен қарау']],
-    [C2, 'The scandal was only the tip of the ______.', 'iceberg', ['mountain', 'needle', 'tongue'], ['the tip of the iceberg — верхушка айсберга', 'the tip of the iceberg — айсбергтің ұшы ғана']],
-    [C2, "Don't beat about the ______ — tell me what happened.", 'bush', ['tree', 'garden', 'hedge'], ['beat about the bush — ходить вокруг да около', 'beat about the bush — айналсоқтап, тура айтпау']],
+    [A2, 'The plane ______ at 7 p.m., so we must be at the airport by five.', 'takes off', ['gets up', 'puts on', 'turns off'], ['take off - взлетать', 'take off - ұшып көтерілу']],
+    [A2, 'I usually ______ at seven o\'clock on school days.', 'get up', ['get on', 'get in', 'get out'], ['get up - вставать с постели', 'get up - төсектен тұру']],
+    [B1, 'Please ______ your shoes before you come in.', 'take off', ['turn off', 'give up', 'look up'], ['take off - снимать (одежду, обувь)', 'take off - шешу (киімді, аяқ киімді)']],
+    [B1, 'The doctor told him to ______ smoking because of his cough.', 'give up', ['give in', 'put on', 'take up'], ['give up - бросить (привычку)', 'give up - тастау (әдетті)']],
+    [B1, "Can you ______ the music? It's too loud.", 'turn down', ['turn up', 'turn on', 'turn into'], ['turn down - убавить звук', 'turn down - дыбысын бәсеңдету']],
+    [B1, 'We ______ of petrol in the middle of the road.', 'ran out', ['ran away', 'ran into', 'ran over'], ['run out of - закончиться (о запасе)', 'run out of - таусылу (қор туралы)']],
+    [B1, 'Could you ______ my cat while I am on holiday?', 'look after', ['look for', 'look up', 'look into'], ['look after - присматривать', 'look after - қарау, бағу']],
+    [B2, 'The meeting has been ______ until next Friday.', 'put off', ['put out', 'put up', 'put away'], ['put off - отложить', 'put off - кейінге қалдыру']],
+    [B2, "I can't ______ his rude behaviour any longer.", 'put up with', ['put down to', 'get on with', 'come up with'], ['put up with - мириться, терпеть', 'put up with - төзу, шыдау']],
+    [B2, 'She ______ a brilliant idea for the project.', 'came up with', ['came down with', 'kept up with', 'got away with'], ['come up with - придумать', 'come up with - ойлап табу']],
+    [B2, 'He ______ his father: both are tall and stubborn.', 'takes after', ['looks after', 'takes over', 'looks up'], ['take after - быть похожим (на родственника)', 'take after - тартып туу, ұқсау']],
+    [B2, 'The negotiations ______ after only two days.', 'broke down', ['broke out', 'broke in', 'broke up with'], ['break down - провалиться, потерпеть неудачу', 'break down - сәтсіз аяқталу']],
+    [C1, 'The news came as a ______ from the blue.', 'bolt', ['flash', 'bang', 'shot'], ['a bolt from the blue - «как гром среди ясного неба»', 'a bolt from the blue - «ашық күнгі найзағайдай»']],
+    [C1, 'We need to ______ the pros and cons before deciding.', 'weigh up', ['wear out', 'wind up', 'work off'], ['weigh up - взвесить, оценить', 'weigh up - таразылау, бағалау']],
+    [C1, 'She ______ a strong resemblance to her grandmother.', 'bears', ['holds', 'carries', 'keeps'], ['bear a resemblance - иметь сходство', 'bear a resemblance - ұқсастығы болу']],
+    [C1, 'The project is still in its ______.', 'infancy', ['childhood', 'youth', 'cradle'], ['in its infancy - в зачаточном состоянии', 'in its infancy - бастапқы кезеңде']],
+    [C1, 'He ______ to the occasion and delivered a brilliant speech.', 'rose', ['raised', 'lifted', 'climbed'], ['rise to the occasion - оказаться на высоте', 'rise to the occasion - сын сағатта мүдірмеу']],
+    [C1, 'The decision ______ a heated debate.', 'sparked', ['lit', 'burned', 'flamed'], ['spark a debate - вызвать спор', 'spark a debate - пікірталас тудыру']],
+    [C1, 'They finally ______ a compromise after hours of talks.', 'reached', ['caught', 'did', 'took'], ['reach a compromise - прийти к компромиссу', 'reach a compromise - мәмілеге келу']],
+    [C2, 'The new evidence threw a ______ in the works.', 'spanner', ['hammer', 'screw', 'nail'], ['throw a spanner in the works - «вставить палки в колёса»', 'throw a spanner in the works - «істі бүлдіру, кедергі келтіру»']],
+    [C2, "He has a ______ to pick with you about yesterday's meeting.", 'bone', ['fish', 'stone', 'stick'], ['have a bone to pick - иметь претензию, неприятный разговор', 'have a bone to pick - реніші, айтар сөзі болу']],
+    [C2, 'After months of talks, they are back to ______ one.', 'square', ['circle', 'point', 'stage'], ['back to square one - снова в исходной точке', 'back to square one - қайтадан бастапқы нүктеде']],
+    [C2, 'She passed the exam with flying ______.', 'colours', ['flags', 'wings', 'stars'], ['with flying colours - блестяще, с отличием', 'with flying colours - өте жақсы, үздік']],
+    [C2, 'I took his promise with a ______ of salt.', 'pinch', ['piece', 'spoon', 'drop'], ['take with a pinch of salt - относиться с недоверием', 'take with a pinch of salt - сенімсіздікпен қарау']],
+    [C2, 'The scandal was only the tip of the ______.', 'iceberg', ['mountain', 'needle', 'tongue'], ['the tip of the iceberg - верхушка айсберга', 'the tip of the iceberg - айсбергтің ұшы ғана']],
+    [C2, "Don't beat about the ______ - tell me what happened.", 'bush', ['tree', 'garden', 'hedge'], ['beat about the bush - ходить вокруг да около', 'beat about the bush - айналсоқтап, тура айтпау']],
   ],
 
   // ---------- Словообразование ----------

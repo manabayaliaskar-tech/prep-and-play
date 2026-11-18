@@ -1,6 +1,6 @@
 // Каталог сайта: три раздела (экзамены, олимпиадная математика, ежедневная практика),
-// в каждом — курсы, в каждом курсе — дорожки (предметы или уровни).
-// Дорожка — это просто список тем из общих банков (src/pools), поэтому новый экзамен
+// в каждом - курсы, в каждом курсе - дорожки (предметы или уровни).
+// Дорожка - это просто список тем из общих банков (src/pools), поэтому новый экзамен
 // добавляется описанием в этом файле, без изменения игрового движка.
 
 import { englishSpec } from '../pools/english/index.js';
@@ -50,16 +50,16 @@ export const GROUPS = [
     color: '#22c55e',
     name: L('Daily practice', 'Ежедневная практика', 'Күнделікті жаттығу'),
     desc: L(
-      'Math, languages and sciences at any level — a little every day.',
-      'Математика, языки и естественные науки на любом уровне — понемногу каждый день.',
-      'Кез келген деңгейдегі математика, тілдер және жаратылыстану — күн сайын аздап.',
+      'Math, languages and sciences at any level - a little every day.',
+      'Математика, языки и естественные науки на любом уровне - понемногу каждый день.',
+      'Кез келген деңгейдегі математика, тілдер және жаратылыстану - күн сайын аздап.',
     ),
   },
 ];
 
 // ---------- Наборы тем ----------
 
-/** Математика по классам: 1–11 класс и три уровня после школы. Сложность внутри темы — 1…3. */
+/** Математика по классам: 1-11 класс и три уровня после школы. Сложность внутри темы - 1…3. */
 const G = (en, ru, kk) => L(en, ru, kk);
 const MATH_GRADES = [
   [G('Counting to 10', 'Счёт до 10', '10-ға дейін санау'), G('Adding and subtracting within 10', 'Сложение и вычитание в пределах 10', '10 көлемінде қосу және азайту'),
@@ -132,7 +132,7 @@ const D = {
 
 const track = (id, icon, name, desc, spec, test = null) => ({ id, icon, name, desc, spec, test });
 
-// Английский: уровни европейской шкалы. Ключ в наборе тем — номер уровня от 1 (A1) до 6 (C2).
+// Английский: уровни европейской шкалы. Ключ в наборе тем - номер уровня от 1 (A1) до 6 (C2).
 const ENGLISH_LEVELS = [
   ['A1', L('Beginner', 'Начальный', 'Бастапқы'), L('To be, Present Simple, first words', 'To be, Present Simple, первые слова', 'To be, Present Simple, алғашқы сөздер')],
   ['A2', L('Elementary', 'Элементарный', 'Қарапайым'), L('Past and future, comparison, everyday vocabulary', 'Прошедшее и будущее, сравнение, бытовая лексика', 'Өткен және келер шақ, салыстыру, тұрмыстық лексика')],
@@ -147,7 +147,7 @@ const englishTrack = (levels, test) =>
   track('english', 'EN', N.english, L('Grammar and vocabulary', 'Грамматика и лексика', 'Грамматика және лексика'), englishSpec(levels), test);
 
 // ---------- Предметы экзаменов: одни и те же наборы тем для разных стран ----------
-// Ключ 0 у банков знаний — задания любой сложности.
+// Ключ 0 у банков знаний - задания любой сложности.
 
 const ALL = [1, 2, 3];
 /** Генераторы по хронологии к банкам истории. */
@@ -180,7 +180,7 @@ const SUBJECT = {
       [...(HISTORY_GEN[topic] ? [[topic, [0]], [HISTORY_GEN[topic], ALL]] : [[topic, [0]]]), ...(topic === 'h.world' ? [] : [['h.world', [0]], ['h.wt', [1, 2]]])], { count: topic === 'h.world' ? 12 : 15, minutes: 20 }),
 };
 
-// Олимпиадная математика: три уровня. Ключ в наборе тем — номер уровня.
+// Олимпиадная математика: три уровня. Ключ в наборе тем - номер уровня.
 const OLYMP_TOPICS = ['o.count', 'o.digit', 'o.div', 'o.pigeon', 'o.sum', 'o.games', 'o.logic', 'o.geom', 'o.rem', 'o.fact', 'o.paths'];
 const OLYMP_LEVELS = [
   [L('Logic and counting', 'Логика и подсчёт', 'Логика және санау'), L('Truth-tellers, liars and careful counting', 'Рыцари, лжецы и аккуратный подсчёт', 'Ақиқатшылар, өтірікшілер және мұқият санау'), 1, ['o.logic', 'o.count']],
@@ -194,7 +194,7 @@ const OLYMP_LEVELS = [
   [L('Clever sums', 'Хитрые суммы', 'Қызықты қосындылар'), L('Gauss’s trick and telescoping sums', 'Приём Гаусса и телескопические суммы', 'Гаусс тәсілі және телескоптық қосындылар'), 2, ['o.sum']],
   [L('Digits and factorials', 'Цифры и факториалы', 'Цифрлар мен факториалдар'), L('Zeros at the end of n! and digit puzzles', 'Нули в конце n! и задачи на цифры', 'n! соңындағы нөлдер және цифр есептері'), 3, ['o.fact', 'o.digit']],
   [L('Equations in integers', 'Уравнения в целых числах', 'Бүтін сандардағы теңдеулер'), L('Diophantine equations', 'Диофантовы уравнения', 'Диофант теңдеулері'), 3, ['o.eq', 'o.div']],
-  [L('Grades 9–11: regional round', '9–11 классы: областной этап', '9–11 сыныптар: облыстық кезең'), L('Number theory and combinatorics', 'Теория чисел и комбинаторика', 'Сандар теориясы және комбинаторика'), 3, ['o.rem', 'o.div', 'o.count', 'o.paths', 'o.sum', 'o.pigeon']],
+  [L('Grades 9-11: regional round', '9-11 классы: областной этап', '9-11 сыныптар: облыстық кезең'), L('Number theory and combinatorics', 'Теория чисел и комбинаторика', 'Сандар теориясы және комбинаторика'), 3, ['o.rem', 'o.div', 'o.count', 'o.paths', 'o.sum', 'o.pigeon']],
   [L('Grand final', 'Финал', 'Финал'), L('The hardest problems of every type', 'Самые трудные задачи всех типов', 'Барлық түрдегі ең қиын есептер'), 3, null],
 ];
 
@@ -263,9 +263,9 @@ export const COURSES = [
     name: L('SAT', 'SAT', 'SAT'),
     full: L('Digital SAT', 'Цифровой SAT', 'Цифрлық SAT'),
     about: L(
-      'Admission test for universities in the USA and other countries: Reading and Writing, and Math. Score 400–1600. Here it is a full game: a map with bosses, duels, a mock test with a score estimate.',
-      'Экзамен для поступления в вузы США и других стран: Reading and Writing и Math. Балл — от 400 до 1600. Здесь это целая игра: карта с боссами, дуэли, пробный экзамен с прогнозом балла.',
-      'АҚШ пен басқа елдердің ЖОО-ларына түсу емтиханы: Reading and Writing және Math. Балл — 400-ден 1600-ге дейін. Мұнда бұл — тұтас ойын: босстары бар карта, жекпе-жектер, балл болжамы бар сынақ емтиханы.',
+      'Admission test for universities in the USA and other countries: Reading and Writing, and Math. Score 400-1600. Here it is a full game: a map with bosses, duels, a mock test with a score estimate.',
+      'Экзамен для поступления в вузы США и других стран: Reading and Writing и Math. Балл - от 400 до 1600. Здесь это целая игра: карта с боссами, дуэли, пробный экзамен с прогнозом балла.',
+      'АҚШ пен басқа елдердің ЖОО-ларына түсу емтиханы: Reading and Writing және Math. Балл - 400-ден 1600-ге дейін. Мұнда бұл - тұтас ойын: босстары бар карта, жекпе-жектер, балл болжамы бар сынақ емтиханы.',
     ),
     tracks: [],
   },
@@ -285,8 +285,8 @@ export const COURSES = [
     official: { label: 'ielts.org', url: 'https://www.ielts.org/' },
     tracks: [
       track('reading', '📖', L('Reading', 'Reading (чтение)', 'Reading (оқылым)'), L('Texts with True / False / Not Given and multiple-choice questions', 'Тексты с вопросами True / False / Not Given и с выбором ответа', 'True / False / Not Given және жауап таңдау сұрақтары бар мәтіндер'), [['r.ielts', [1]]], { count: 15, minutes: 25 }),
-      track('listening', '🎧', N.listening, L('Forms, tours, discussions and lectures read aloud', 'Анкеты, экскурсии, обсуждения и лекции — на слух', 'Сауалнамалар, экскурсиялар, талқылаулар мен дәрістер — тыңдап'), [['li.ielts', [1]]], { count: 13, minutes: 20 }),
-      track('grammar', 'B2', L('Grammar and vocabulary, B2–C1', 'Грамматика и лексика, B2–C1', 'Грамматика және лексика, B2–C1'), L('The level needed for band 6.5–7.5', 'Уровень, который нужен для оценки 6.5–7.5', '6.5–7.5 бағасына қажет деңгей'), englishSpec([4, 5]), { count: 20, minutes: 15 }),
+      track('listening', '🎧', N.listening, L('Forms, tours, discussions and lectures read aloud', 'Анкеты, экскурсии, обсуждения и лекции - на слух', 'Сауалнамалар, экскурсиялар, талқылаулар мен дәрістер - тыңдап'), [['li.ielts', [1]]], { count: 13, minutes: 20 }),
+      track('grammar', 'B2', L('Grammar and vocabulary, B2-C1', 'Грамматика и лексика, B2-C1', 'Грамматика және лексика, B2-C1'), L('The level needed for band 6.5-7.5', 'Уровень, который нужен для оценки 6.5-7.5', '6.5-7.5 бағасына қажет деңгей'), englishSpec([4, 5]), { count: 20, minutes: 15 }),
     ],
     soon: [N.speaking, N.writing],
   },
@@ -307,7 +307,7 @@ export const COURSES = [
     tracks: [
       track('reading', '📖', L('Reading', 'Reading (чтение)', 'Reading (оқылым)'), L('Academic texts: facts, words in context, inference', 'Академические тексты: факты, слова в контексте, выводы', 'Академиялық мәтіндер: фактілер, контекстегі сөздер, қорытындылар'), [['r.toefl', [1]]], { count: 10, minutes: 18 }),
       track('listening', '🎧', N.listening, L('Campus conversations and academic lectures', 'Разговоры в университете и академические лекции', 'Университеттегі әңгімелер және академиялық дәрістер'), [['li.toefl', [1]]], { count: 11, minutes: 15 }),
-      track('grammar', 'B2', L('Grammar and vocabulary, B2–C1', 'Грамматика и лексика, B2–C1', 'Грамматика және лексика, B2–C1'), L('Structures and words of academic English', 'Конструкции и слова академического английского', 'Академиялық ағылшын тілінің құрылымдары мен сөздері'), englishSpec([4, 5]), { count: 20, minutes: 15 }),
+      track('grammar', 'B2', L('Grammar and vocabulary, B2-C1', 'Грамматика и лексика, B2-C1', 'Грамматика және лексика, B2-C1'), L('Structures and words of academic English', 'Конструкции и слова академического английского', 'Академиялық ағылшын тілінің құрылымдары мен сөздері'), englishSpec([4, 5]), { count: 20, minutes: 15 }),
     ],
     soon: [N.speaking, N.writing],
   },
@@ -339,8 +339,8 @@ export const COURSES = [
     full: L('Unified National Testing, Kazakhstan', 'Единое национальное тестирование, Казахстан', 'Ұлттық бірыңғай тестілеу, Қазақстан'),
     about: L(
       'The admission exam for universities in Kazakhstan. Three compulsory subjects (History of Kazakhstan, mathematical literacy, reading literacy) and two profile subjects. The maximum is 140 points.',
-      'Экзамен для поступления в вузы Казахстана. Три обязательных предмета (история Казахстана, математическая грамотность, грамотность чтения) и два профильных. Максимум — 140 баллов.',
-      'Қазақстан ЖОО-ларына түсу емтиханы. Үш міндетті пән (Қазақстан тарихы, математикалық сауаттылық, оқу сауаттылығы) және екі бейіндік пән. Ең жоғары балл — 140.',
+      'Экзамен для поступления в вузы Казахстана. Три обязательных предмета (история Казахстана, математическая грамотность, грамотность чтения) и два профильных. Максимум - 140 баллов.',
+      'Қазақстан ЖОО-ларына түсу емтиханы. Үш міндетті пән (Қазақстан тарихы, математикалық сауаттылық, оқу сауаттылығы) және екі бейіндік пән. Ең жоғары балл - 140.',
     ),
     official: { label: 'testcenter.kz', url: 'https://testcenter.kz/' },
     tracks: [
@@ -367,7 +367,7 @@ export const COURSES = [
     full: L('Unified State Exam, Russia', 'Единый государственный экзамен, Россия', 'Бірыңғай мемлекеттік емтихан, Ресей'),
     about: L(
       'The school-leaving and university admission exam in Russia. Russian language and mathematics (basic or profile level) are compulsory, other subjects are chosen by the student.',
-      'Выпускной и вступительный экзамен в России. Обязательные предметы — русский язык и математика (базовая или профильная), остальные сдаются по выбору.',
+      'Выпускной и вступительный экзамен в России. Обязательные предметы - русский язык и математика (базовая или профильная), остальные сдаются по выбору.',
       'Ресейдегі бітіру және ЖОО-ға түсу емтиханы. Орыс тілі мен математика (базалық немесе бейіндік) міндетті, қалған пәндер таңдау бойынша тапсырылады.',
     ),
     official: { label: 'fipi.ru', url: 'https://fipi.ru/' },
@@ -447,8 +447,8 @@ export const COURSES = [
     full: L('University admission tests, Uzbekistan', 'Вступительные тесты в вузы, Узбекистан', 'ЖОО-ға түсу тесттері, Өзбекстан'),
     about: L(
       'Admission tests for universities in Uzbekistan: compulsory subjects (native language, mathematics, history of Uzbekistan) and two profile subjects. The maximum is 189 points.',
-      'Вступительные тесты в вузы Узбекистана: обязательные предметы (родной язык, математика, история Узбекистана) и два профильных. Максимум — 189 баллов.',
-      'Өзбекстан ЖОО-ларына түсу тесттері: міндетті пәндер (ана тілі, математика, Өзбекстан тарихы) және екі бейіндік пән. Ең жоғары балл — 189.',
+      'Вступительные тесты в вузы Узбекистана: обязательные предметы (родной язык, математика, история Узбекистана) и два профильных. Максимум - 189 баллов.',
+      'Өзбекстан ЖОО-ларына түсу тесттері: міндетті пәндер (ана тілі, математика, Өзбекстан тарихы) және екі бейіндік пән. Ең жоғары балл - 189.',
     ),
     tracks: [
       track('mathbase', '🧮', L('Mathematics (compulsory block)', 'Математика (обязательный блок)', 'Математика (міндетті блок)'), D.mathAll, MATH_BASIC, { count: 10, minutes: 20 }),
@@ -519,8 +519,8 @@ export const COURSES = [
     full: L('State Examination Center exams, Azerbaijan', 'Экзамены Государственного экзаменационного центра, Азербайджан', 'Мемлекеттік емтихан орталығының емтихандары, Әзербайжан'),
     about: L(
       'School-leaving and university admission exams in Azerbaijan, held by the State Examination Center (DİM). The maximum admission score is 700 points.',
-      'Выпускные и вступительные экзамены в Азербайджане. Их проводит Государственный экзаменационный центр (DİM). На вступительном экзамене максимум — 700 баллов.',
-      'Әзербайжандағы бітіру және түсу емтихандары. Оларды Мемлекеттік емтихан орталығы (DİM) өткізеді. Түсу емтиханында ең жоғары балл — 700.',
+      'Выпускные и вступительные экзамены в Азербайджане. Их проводит Государственный экзаменационный центр (DİM). На вступительном экзамене максимум - 700 баллов.',
+      'Әзербайжандағы бітіру және түсу емтихандары. Оларды Мемлекеттік емтихан орталығы (DİM) өткізеді. Түсу емтиханында ең жоғары балл - 700.',
     ),
     official: { label: 'dim.gov.az', url: 'https://dim.gov.az/' },
     tracks: [
@@ -590,7 +590,7 @@ export const COURSES = [
     full: L('Non-standard problems by level', 'Нестандартные задачи по уровням', 'Деңгейлер бойынша стандартты емес есептер'),
     about: L(
       'Problems that are solved by an idea, not by a formula: counting, divisibility, pigeonhole principle, extreme cases. Every problem has a worked solution.',
-      'Задачи, которые решаются идеей, а не формулой: подсчёты, делимость, принцип Дирихле, крайние случаи. У каждой задачи — подробное решение.',
+      'Задачи, которые решаются идеей, а не формулой: подсчёты, делимость, принцип Дирихле, крайние случаи. У каждой задачи - подробное решение.',
       'Формуламен емес, идеямен шешілетін есептер: санау, бөлінгіштік, Дирихле принципі, шеткі жағдайлар. Әр есептің толық шешімі бар.',
     ),
     tracks: OLYMP_LEVELS.map(([name, desc, d, topics], i) =>
@@ -605,11 +605,11 @@ export const COURSES = [
     color: '#22c55e',
     leveled: true,
     name: L('Mathematics', 'Математика', 'Математика'),
-    full: L('Grades 1–11 and beyond', '1–11 классы и дальше', '1–11 сыныптар және одан әрі'),
+    full: L('Grades 1-11 and beyond', '1-11 классы и дальше', '1-11 сыныптар және одан әрі'),
     about: L(
       'A section for every school grade from 1 to 11 and three levels after school, up to limits and integrals. Algebra, geometry and trigonometry are all included. Problems are generated endlessly, each with a step-by-step solution.',
-      'Раздел для каждого класса с 1-го по 11-й и три уровня после школы — вплоть до пределов и интегралов. Алгебра, геометрия и тригонометрия — всё внутри. Задачи создаются бесконечно, у каждой — пошаговое решение.',
-      '1-ден 11-ге дейінгі әр сыныпқа арналған бөлім және мектептен кейінгі үш деңгей — шектер мен интегралдарға дейін. Алгебра, геометрия және тригонометрия — бәрі ішінде. Есептер шексіз құрастырылады, әрқайсысының қадамдық шешімі бар.',
+      'Раздел для каждого класса с 1-го по 11-й и три уровня после школы - вплоть до пределов и интегралов. Алгебра, геометрия и тригонометрия - всё внутри. Задачи создаются бесконечно, у каждой - пошаговое решение.',
+      '1-ден 11-ге дейінгі әр сыныпқа арналған бөлім және мектептен кейінгі үш деңгей - шектер мен интегралдарға дейін. Алгебра, геометрия және тригонометрия - бәрі ішінде. Есептер шексіз құрастырылады, әрқайсысының қадамдық шешімі бар.',
     ),
     tracks: [
       ...MATH_GRADES.map(([name, desc, spec], i) => ({ ...track(`g${i + 1}`, String(i + 1), name, desc, spec), kicker: gradeKicker(i + 1) })),
@@ -624,11 +624,11 @@ export const COURSES = [
     leveled: true,
     cefr: true,
     name: L('English', 'Английский язык', 'Ағылшын тілі'),
-    full: L('Levels A1–C2', 'Уровни A1–C2', 'A1–C2 деңгейлері'),
+    full: L('Levels A1-C2', 'Уровни A1-C2', 'A1-C2 деңгейлері'),
     about: L(
       'Grammar and vocabulary at six levels of the European scale, from beginner (A1) to proficient (C2). Every answer comes with a rule in your language.',
-      'Грамматика и лексика на шести уровнях европейской шкалы: от начального (A1) до свободного владения (C2). К каждому ответу — правило на твоём языке.',
-      'Еуропалық шкаланың алты деңгейіндегі грамматика мен лексика: бастауыштан (A1) еркін меңгеруге (C2) дейін. Әр жауапқа — өз тіліңдегі ереже.',
+      'Грамматика и лексика на шести уровнях европейской шкалы: от начального (A1) до свободного владения (C2). К каждому ответу - правило на твоём языке.',
+      'Еуропалық шкаланың алты деңгейіндегі грамматика мен лексика: бастауыштан (A1) еркін меңгеруге (C2) дейін. Әр жауапқа - өз тіліңдегі ереже.',
     ),
     tracks: ENGLISH_LEVELS.map(([code, name, desc], i) => track(code.toLowerCase(), code, name, desc, englishSpec([i + 1]))),
   },
@@ -640,11 +640,11 @@ export const COURSES = [
     leveled: true,
     cefr: true,
     name: L('Spanish', 'Испанский язык', 'Испан тілі'),
-    full: L('Levels A1–C2', 'Уровни A1–C2', 'A1–C2 деңгейлері'),
+    full: L('Levels A1-C2', 'Уровни A1-C2', 'A1-C2 деңгейлері'),
     about: L(
       'Grammar and vocabulary from the first words to the subjunctive. Every answer comes with a rule in your language.',
-      'Грамматика и лексика: от первых слов до сослагательного наклонения. К каждому ответу — правило на твоём языке.',
-      'Грамматика мен лексика: алғашқы сөздерден шартты райға дейін. Әр жауапқа — өз тіліңдегі ереже.',
+      'Грамматика и лексика: от первых слов до сослагательного наклонения. К каждому ответу - правило на твоём языке.',
+      'Грамматика мен лексика: алғашқы сөздерден шартты райға дейін. Әр жауапқа - өз тіліңдегі ереже.',
     ),
     tracks: SIX.map((code, i) => track(code.toLowerCase(), code, LEVEL_NAMES[i], LANG_DESC.es[i], langSpec('es', i + 1))),
   },
@@ -656,11 +656,11 @@ export const COURSES = [
     leveled: true,
     cefr: true,
     name: L('French', 'Французский язык', 'Француз тілі'),
-    full: L('Levels A1–C2', 'Уровни A1–C2', 'A1–C2 деңгейлері'),
+    full: L('Levels A1-C2', 'Уровни A1-C2', 'A1-C2 деңгейлері'),
     about: L(
       'Grammar and vocabulary from être and avoir to the subjunctive. Every answer comes with a rule in your language.',
-      'Грамматика и лексика: от être и avoir до subjonctif. К каждому ответу — правило на твоём языке.',
-      'Грамматика мен лексика: être мен avoir-дан subjonctif-ке дейін. Әр жауапқа — өз тіліңдегі ереже.',
+      'Грамматика и лексика: от être и avoir до subjonctif. К каждому ответу - правило на твоём языке.',
+      'Грамматика мен лексика: être мен avoir-дан subjonctif-ке дейін. Әр жауапқа - өз тіліңдегі ереже.',
     ),
     tracks: SIX.map((code, i) => track(code.toLowerCase(), code, LEVEL_NAMES[i], LANG_DESC.fr[i], langSpec('fr', i + 1))),
   },
@@ -672,11 +672,11 @@ export const COURSES = [
     leveled: true,
     cefr: true,
     name: L('Chinese', 'Китайский язык', 'Қытай тілі'),
-    full: L('HSK levels 1–6', 'Уровни HSK 1–6', 'HSK 1–6 деңгейлері'),
+    full: L('HSK levels 1-6', 'Уровни HSK 1-6', 'HSK 1-6 деңгейлері'),
     about: L(
       'Characters with pinyin, measure words and the main grammar patterns, level by level as in the HSK exam.',
-      'Иероглифы с пиньинем, счётные слова и главные грамматические конструкции — по уровням, как в экзамене HSK.',
-      'Пиньинь жазылған иероглифтер, мөлшер сөздер және негізгі грамматикалық құрылымдар — HSK емтиханындағыдай деңгейлер бойынша.',
+      'Иероглифы с пиньинем, счётные слова и главные грамматические конструкции - по уровням, как в экзамене HSK.',
+      'Пиньинь жазылған иероглифтер, мөлшер сөздер және негізгі грамматикалық құрылымдар - HSK емтиханындағыдай деңгейлер бойынша.',
     ),
     tracks: [1, 2, 3, 4, 5, 6].map((k) => track(`hsk${k}`, `HSK${k}`, HSK_NAMES[k - 1], HSK_DESC[k - 1], langSpec('zh', k))),
   },
@@ -691,7 +691,7 @@ export const COURSES = [
     full: L('Thirteen levels', 'Тринадцать уровней', 'Он үш деңгей'),
     about: L(
       'Motion, forces, energy, heat, electricity and waves, plus units, formulas and great physicists. Calculation problems are generated endlessly and come with a step-by-step solution.',
-      'Движение, силы, энергия, тепло, электричество и волны, а ещё единицы, формулы и великие физики. Расчётные задачи создаются бесконечно, у каждой — пошаговое решение.',
+      'Движение, силы, энергия, тепло, электричество и волны, а ещё единицы, формулы и великие физики. Расчётные задачи создаются бесконечно, у каждой - пошаговое решение.',
       'Қозғалыс, күштер, энергия, жылу, электр және толқындар, сондай-ақ бірліктер, формулалар және ұлы физиктер. Есептер шексіз құрастырылады, әрқайсысының қадамдық шешімі бар.',
     ),
     tracks: [
@@ -705,7 +705,7 @@ export const COURSES = [
       track('p8', '8', L('Newton’s laws', 'Законы Ньютона', 'Ньютон заңдары'), L('Forces, momentum, friction', 'Силы, импульс, трение', 'Күштер, импульс, үйкеліс'), [['p.dyn', [2, 3]]]),
       track('p9', '9', L('Oscillations and waves', 'Колебания и волны', 'Тербелістер мен толқындар'), L('Period, frequency, wavelength', 'Период, частота, длина волны', 'Период, жиілік, толқын ұзындығы'), [['p.wave', [1, 2]]]),
       track('p10', '10', L('Conservation of energy', 'Закон сохранения энергии', 'Энергияның сақталу заңы'), L('Energy transformations and heat balance', 'Превращения энергии и тепловой баланс', 'Энергияның түрленуі және жылу балансы'), [['p.energy', [2, 3]], ['p.heat', [3]]]),
-      track('p11', '11', L('Electrodynamics and optics', 'Электродинамика и оптика', 'Электродинамика және оптика'), L('Joule heating, lenses, light', 'Закон Джоуля — Ленца, линзы, свет', 'Джоуль — Ленц заңы, линзалар, жарық'), [['p.elec', [3]], ['p.wave', [3]]]),
+      track('p11', '11', L('Electrodynamics and optics', 'Электродинамика и оптика', 'Электродинамика және оптика'), L('Joule heating, lenses, light', 'Закон Джоуля - Ленца, линзы, свет', 'Джоуль - Ленц заңы, линзалар, жарық'), [['p.elec', [3]], ['p.wave', [3]]]),
       track('p12', '12', L('Great physicists', 'Великие физики', 'Ұлы физиктер'), L('Laws, discoveries and their authors', 'Законы, открытия и их авторы', 'Заңдар, ашылулар және олардың авторлары'), [['p.facts', [1, 2, 3]], ['p.theory', [2, 3]]]),
       track('p13', '🎓', L('Exam prep', 'Подготовка к экзамену', 'Емтиханға дайындық'), L('The hardest problems from every topic', 'Самые трудные задачи по всем темам', 'Барлық тақырып бойынша ең қиын есептер'), [['p.kin', [3]], ['p.dyn', [3]], ['p.energy', [3]], ['p.elec', [3]], ['p.heat', [3]], ['p.wave', [3]], ['p.facts', [3]], ['p.theory', [3]]], { count: 15, minutes: 25 }),
     ],
@@ -826,7 +826,7 @@ export const COURSES = [
     full: L('Nine levels', 'Девять уровней', 'Тоғыз деңгей'),
     about: L(
       'Key dates, events and people: from the Saka and the Kazakh Khanate to independence, and world history from Ancient Greece to the present day.',
-      'Главные даты, события и личности: от саков и Казахского ханства до независимости и всемирная история — от Древней Греции до наших дней.',
+      'Главные даты, события и личности: от саков и Казахского ханства до независимости и всемирная история - от Древней Греции до наших дней.',
       'Басты даталар, оқиғалар мен тұлғалар: сақтар мен Қазақ хандығынан тәуелсіздікке дейін және Ежелгі Грекиядан бүгінге дейінгі дүниежүзі тарихы.',
     ),
     tracks: [
@@ -857,15 +857,15 @@ export const COURSES = [
     full: L('Fourteen levels', 'Четырнадцать уровней', 'Он төрт деңгей'),
     about: L(
       `${about.en} Each question is a short program: read it and say what it prints. The answers are computed by actually running the code.`,
-      `${about.ru} Каждое задание — короткая программа: прочитай её и скажи, что она выведет. Ответы получены настоящим запуском кода.`,
-      `${about.kk} Әр тапсырма — қысқа бағдарлама: оны оқып, не шығаратынын айт. Жауаптар кодты шынымен іске қосу арқылы алынған.`,
+      `${about.ru} Каждое задание - короткая программа: прочитай её и скажи, что она выведет. Ответы получены настоящим запуском кода.`,
+      `${about.kk} Әр тапсырма - қысқа бағдарлама: оны оқып, не шығаратынын айт. Жауаптар кодты шынымен іске қосу арқылы алынған.`,
     ),
     tracks: [
       track('l1', '1', L('Arithmetic', 'Арифметика', 'Арифметика'), L('The order of operations in code', 'Порядок действий в коде', 'Кодтағы амалдар реті'), [[`${lang}.vars`, [1]], ['code.terms', [1]]], { count: 10, minutes: 15 }),
       track('l2', '2', L('Variables', 'Переменные', 'Айнымалылар'), L('Assigning and changing values', 'Присваивание и изменение значений', 'Мәндерді меншіктеу және өзгерту'), [[`${lang}.vars`, [2]], ['code.theory', [1]]], { count: 10, minutes: 15 }),
       track('l3', '3', L('Division and remainder', 'Деление и остаток', 'Бөлу және қалдық'), L('Integer division and the % operator', 'Целочисленное деление и операция %', 'Бүтін бөлу және % амалы'), [[`${lang}.vars`, [3]], ['code.terms', [1]]], { count: 10, minutes: 15 }),
       track('l4', '4', L('The first if', 'Первое условие', 'Алғашқы шарт'), L('if and else', 'if и else', 'if және else'), [[`${lang}.cond`, [1]], ['code.theory', [1]]], { count: 10, minutes: 15 }),
-      track('l5', '5', L('Chains of conditions', 'Цепочки условий', 'Шарттар тізбегі'), L('if – else if – else', 'if – else if – else', 'if – else if – else'), [[`${lang}.cond`, [2]], ['code.terms', [2]]], { count: 10, minutes: 15 }),
+      track('l5', '5', L('Chains of conditions', 'Цепочки условий', 'Шарттар тізбегі'), L('if - else if - else', 'if - else if - else', 'if - else if - else'), [[`${lang}.cond`, [2]], ['code.terms', [2]]], { count: 10, minutes: 15 }),
       track('l6', '6', L('Logical operators', 'Логические операции', 'Логикалық амалдар'), L('and, or and comparisons', 'and, or и сравнения', 'and, or және салыстырулар'), [[`${lang}.cond`, [3]], ['code.theory', [2]]], { count: 10, minutes: 15 }),
       track('l7', '7', L('The for loop', 'Цикл for', 'for циклі'), L('Repeating and adding up', 'Повторение и суммирование', 'Қайталау және қосу'), [[`${lang}.loop`, [1]], ['code.terms', [2]]], { count: 10, minutes: 15 }),
       track('l8', '8', L('Counters and products', 'Счётчики и произведения', 'Санауыштар мен көбейтінділер'), L('Loops with steps and multiplication', 'Циклы с шагом и умножением', 'Қадамы бар және көбейтетін циклдер'), [[`${lang}.loop`, [2]]], { count: 10, minutes: 15 }),

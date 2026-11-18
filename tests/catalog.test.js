@@ -77,7 +77,7 @@ test('каталог: тренировка и тест собираются бе
 
 test('уровни математики идут от простого к сложному', () => {
   const tracks = courseById('math').tracks;
-  // 1 класс — счёт до 10, 11 класс — производная, после школы — пределы и интегралы.
+  // 1 класс - счёт до 10, 11 класс - производная, после школы - пределы и интегралы.
   assert.deepEqual(tracks[0].spec, [['m.early', [1]]]);
   assert.ok(tracks[10].spec.some(([topic]) => topic === 'm.deriv'));
   assert.ok(tracks.at(-1).spec.some(([topic]) => topic === 'm.integral'));
@@ -101,7 +101,7 @@ test('чтение: вопросы одного текста идут подря
     // Каждый текст идёт одним блоком: число «смен текста» равно числу разных текстов минус один.
     const runs = passages.filter((id, i) => i === 0 || id !== passages[i - 1]).length;
     assert.equal(runs, new Set(passages).size, `${exam}: текст должен идти блоком`);
-    assert.ok(new Set(passages).size >= 6, `${exam}: за 40 вопросов — не меньше шести текстов`);
+    assert.ok(new Set(passages).size >= 6, `${exam}: за 40 вопросов - не меньше шести текстов`);
     for (const q of order) {
       assert.ok(q.passage.length > 400 && q.passageLabel);
       assert.ok(q.choices.length === 3 || q.choices.length === 4);
@@ -225,7 +225,7 @@ test('квиз: вопросы из разных предметов подряд
   }
   const ids = (seed) => buildQuiz({ rng: createRng(seed), level: 5 }).map((q) => q.id);
   assert.deepEqual(ids(11), ids(11));
-  // Математика: сложность 1 — 2 класс, сложность 10 — 11 класс.
+  // Математика: сложность 1 - 2 класс, сложность 10 - 11 класс.
   assert.deepEqual(quizSubjects(1)[0].spec, courseById('math').tracks[1].spec);
   assert.deepEqual(quizSubjects(10)[0].spec, courseById('math').tracks[10].spec);
   assert.deepEqual([1, 5, 10].map(englishLevel), [1, 3, 6]);
@@ -238,7 +238,7 @@ test('квиз: рекорд на каждой сложности не ухуд�
   assert.equal(saveQuizResult(3, 10), true);
   assert.deepEqual(getProfile().records.quiz, { 7: 8, 3: 10 });
   let got = new Set(evaluateAchievements(getProfile()));
-  assert.ok(got.has('quiz') && !got.has('quizmaster'), '10 из 10 на сложности 3 — ещё не мастер');
+  assert.ok(got.has('quiz') && !got.has('quizmaster'), '10 из 10 на сложности 3 - ещё не мастер');
   saveQuizResult(8, 10);
   got = new Set(evaluateAchievements(getProfile()));
   assert.ok(got.has('quizmaster'));

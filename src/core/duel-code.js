@@ -46,7 +46,7 @@ export function decodeDuel(code) {
   }
 }
 
-/** Кто победил: больше правильных, при равенстве — быстрее. */
+/** Кто победил: больше правильных, при равенстве - быстрее. */
 export function duelOutcome(me, them) {
   if (me.correct !== them.correct) return me.correct > them.correct ? 'win' : 'lose';
   if (Math.abs(me.timeMs - them.timeMs) < 1000) return 'draw';

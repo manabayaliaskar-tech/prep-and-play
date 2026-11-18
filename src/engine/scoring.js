@@ -23,14 +23,14 @@ export function routeAfterModule1(items) {
   return ratio >= ROUTE_THRESHOLD ? 'hard' : 'easy';
 }
 
-/** Балл раздела 200–800 (шаг 10). */
+/** Балл раздела 200-800 (шаг 10). */
 export function sectionScore(module1, module2, route) {
   const perf = 0.5 * weightedRatio(module1) + 0.5 * weightedRatio(module2);
   const raw = route === 'hard' ? 380 + 420 * perf : 200 + 420 * perf;
   return Math.min(800, Math.max(200, Math.round(raw / 10) * 10));
 }
 
-/** Сложности заданий модуля: первый — смешанный, второй — по маршруту. */
+/** Сложности заданий модуля: первый - смешанный, второй - по маршруту. */
 export function moduleDifficulties(moduleIndex, route, count) {
   const pattern = moduleIndex === 0 ? [1, 2, 3] : route === 'hard' ? [2, 3, 3] : [1, 1, 2];
   return Array.from({ length: count }, (_, i) => pattern[i % pattern.length]);

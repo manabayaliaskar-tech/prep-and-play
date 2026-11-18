@@ -151,7 +151,7 @@ export function bindQuestion(root, q, { onChange = () => {}, onSubmit = () => {}
 export function correctAnswerHtml(q) {
   if (q.type === 'spr') return `<b>${esc(tx(q.display))}</b>`;
   const text = q.section === 'math' ? tx(q.choices[q.answer]) : esc(tx(q.choices[q.answer]));
-  return `<b>${LETTERS[q.answer]}</b> — ${text}`;
+  return `<b>${LETTERS[q.answer]}</b> - ${text}`;
 }
 
 /** Ответ ученика в виде текста (для «Твой ответ: …»). */
@@ -160,7 +160,7 @@ export function responseHtml(q, response) {
   if (q.type === 'spr') return `<b>${esc(String(response))}</b>`;
   const c = q.choices[response];
   if (c === undefined) return '';
-  return `<b>${LETTERS[response]}</b> — ${q.section === 'math' ? tx(c) : esc(tx(c))}`;
+  return `<b>${LETTERS[response]}</b> - ${q.section === 'math' ? tx(c) : esc(tx(c))}`;
 }
 
 /** Типичная ошибка, к которой ведёт выбранный (или введённый) неверный ответ, если она известна. */

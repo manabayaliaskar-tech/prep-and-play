@@ -1,5 +1,5 @@
 // Формулировки вопросов в стиле цифрового SAT (Reading and Writing).
-// Договорённость в банке заданий: ПЕРВЫЙ вариант в choices — правильный.
+// Договорённость в банке заданий: ПЕРВЫЙ вариант в choices - правильный.
 // При показе варианты перемешиваются.
 
 export const CONV = 'Which choice completes the text so that it conforms to the conventions of Standard English?';

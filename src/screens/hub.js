@@ -1,4 +1,4 @@
-// Главная: приветствие, цель дня, «продолжить» и три раздела сайта —
+// Главная: приветствие, цель дня, «продолжить» и три раздела сайта -
 // экзамены, олимпиадная математика, ежедневная практика.
 
 import { EXPLAINERS } from '../content/explainers.js';
@@ -108,7 +108,7 @@ export function questsCard(profile = getProfile(), day = dayKey()) {
     </section>`;
 }
 
-/** Задания дня — компактной строкой в шапке главной: значок, полоска, прогресс и награда. */
+/** Задания дня - компактной строкой в шапке главной: значок, полоска, прогресс и награда. */
 function heroQuestsHtml(p) {
   const quests = questState(p, dayKey());
   return `<div class="hero-quests" aria-label="${t('quest.title')}"><span class="hq-title">🎁 ${t('quest.title')}:</span>${quests
@@ -133,9 +133,9 @@ export function quizHero(p = getProfile(), day = dayKey()) {
         <h2>${t('quiz.title')}</h2>
         <p>${t('hub.quizHero')}</p>
         <div class="qh-chips">
-          ${chip('🎯', t('quiz.mode.classic'), classic.length ? `${Math.max(...classic)}/10` : '—')}
-          ${chip('⚡', t('quiz.mode.blitz'), r.quizBlitz || '—')}
-          ${chip('❤️', t('quiz.mode.survival'), r.quizSurvival || '—')}
+          ${chip('🎯', t('quiz.mode.classic'), classic.length ? `${Math.max(...classic)}/10` : '-')}
+          ${chip('⚡', t('quiz.mode.blitz'), r.quizBlitz || '-')}
+          ${chip('❤️', t('quiz.mode.survival'), r.quizSurvival || '-')}
         </div>
         <div class="qh-actions">
           <a class="btn btn-xl qh-play" href="#/quiz/classic">▶ ${t('hub.quizPlay')}</a>

@@ -9,7 +9,7 @@ import { IELTS_MORE, TOEFL_MORE } from './reading-more.js';
 
 const TFNG = ['True', 'False', 'Not Given'];
 const tf = (statement, answer, ex) => ({ type: 'tfng', statement, answer, ex });
-/** Первый вариант — правильный, при показе варианты перемешиваются. */
+/** Первый вариант - правильный, при показе варианты перемешиваются. */
 const mc = (question, choices, ex) => ({ type: 'mc', question, choices, ex });
 
 export const READING = {
@@ -80,7 +80,7 @@ export const READING = {
         )),
         mc('In which year was the air-filled tyre introduced?', ['1888', '1885', '1870', '1817'], L(
           'The safety bicycle appeared in 1885, and the tyre came "three years later": 1885 + 3 = 1888.',
-          '«Безопасный велосипед» появился в 1885 году, а шина — «три года спустя»: 1885 + 3 = 1888.',
+          '«Безопасный велосипед» появился в 1885 году, а шина - «три года спустя»: 1885 + 3 = 1888.',
           '«Қауіпсіз велосипед» 1885 жылы пайда болды, ал шина «үш жылдан кейін» шықты: 1885 + 3 = 1888.',
         )),
         mc('Why were early pedal machines called "boneshakers"?', [
@@ -102,7 +102,7 @@ export const READING = {
         'Many students believe that the best way to prepare for an exam is to study late into the night. Research on memory suggests the opposite. While we sleep, the brain does not simply rest: it replays what was learned during the day and moves it into long-term storage. In several experiments, people who slept after learning a list of words remembered more of them than people who stayed awake for the same number of hours. Sleep also seems to help with understanding, not just with remembering. Volunteers who were taught a mathematical task were more likely to discover a hidden shortcut after a night of sleep. Short daytime naps can bring some of the same benefits, although they do not replace a full night. For these reasons, researchers advise students to spread their revision over several days and to protect their sleep before an exam.',
       qs: [
         tf('According to the text, the brain is inactive during sleep.', 1, L(
-          'False: the text says the brain "does not simply rest" — it replays what was learned.',
+          'False: the text says the brain "does not simply rest" - it replays what was learned.',
           'False: в тексте сказано, что мозг «не просто отдыхает», а заново проигрывает выученное.',
           'False: мәтінде ми «жай ғана демалмайды», үйренгенін қайталайды делінген.',
         )),
@@ -209,8 +209,8 @@ export const READING = {
           'Railways replaced the caravans.',
         ], L(
           'The text links the decline to Europeans learning "to reach Asia by sea". Railways belong to modern projects.',
-          'Упадок связан с тем, что европейцы научились «добираться до Азии морем». Железные дороги — это уже современные проекты.',
-          'Құлдырау еуропалықтардың «Азияға теңіз арқылы жетуді» үйренуімен байланысты. Темір жолдар — қазіргі жобалар.',
+          'Упадок связан с тем, что европейцы научились «добираться до Азии морем». Железные дороги - это уже современные проекты.',
+          'Құлдырау еуропалықтардың «Азияға теңіз арқылы жетуді» үйренуімен байланысты. Темір жолдар - қазіргі жобалар.',
         )),
         mc('According to historians, what else moved along the Silk Road besides goods?', [
           'Religions, languages and technologies',
@@ -281,7 +281,7 @@ export const READING = {
           '«Жүгіру ұзақтығы қашықтықты көрсетеді: ара неғұрлым ұзақ билесе, гүлдер соғұрлым алыс».',
         )),
         mc('The word "curious" in the first sentence is closest in meaning to', ['strange', 'dangerous', 'quick', 'silent'], L(
-          'Here "curious" means unusual, strange — the movement puzzled scientists for a long time.',
+          'Here "curious" means unusual, strange - the movement puzzled scientists for a long time.',
           'Здесь curious означает «необычный, странный»: это движение долго оставалось загадкой для учёных.',
           'Мұнда curious «ерекше, оғаш» дегенді білдіреді: бұл қимыл ғалымдар үшін ұзақ уақыт жұмбақ болды.',
         )),
@@ -292,8 +292,8 @@ export const READING = {
           'That the dance is a way of cooling the hive',
         ], L(
           'He "showed that the dance is a message" about the direction and distance of food.',
-          'Он «показал, что танец — это сообщение» о направлении и расстоянии до пищи.',
-          'Ол «бидің хабар екенін» — қорек бағыты мен қашықтығы туралы хабар екенін көрсетті.',
+          'Он «показал, что танец - это сообщение» о направлении и расстоянии до пищи.',
+          'Ол «бидің хабар екенін» - қорек бағыты мен қашықтығы туралы хабар екенін көрсетті.',
         )),
         mc('According to the passage, the direction of the food is given in relation to', ['the sun', 'the hive entrance', 'the wind', 'the nearest tree'], L(
           'The angle of the run "tells the other bees the direction of the food in relation to the sun".',
@@ -306,9 +306,9 @@ export const READING = {
           'They believed bees communicated by sound.',
           'They thought the dance was a sign of illness.',
         ], L(
-          '"For a long time nobody knew what this behaviour meant" — so the behaviour was known, but not its meaning.',
-          '«Долгое время никто не знал, что означает это поведение» — значит, само поведение было известно, а его смысл нет.',
-          '«Ұзақ уақыт бойы бұл мінез-құлықтың мәнін ешкім білмеді» — демек, қимылдың өзі белгілі болған, ал мағынасы белгісіз еді.',
+          '"For a long time nobody knew what this behaviour meant" - so the behaviour was known, but not its meaning.',
+          '«Долгое время никто не знал, что означает это поведение» - значит, само поведение было известно, а его смысл нет.',
+          '«Ұзақ уақыт бойы бұл мінез-құлықтың мәнін ешкім білмеді» - демек, қимылдың өзі белгілі болған, ал мағынасы белгісіз еді.',
         )),
       ],
     },
@@ -335,8 +335,8 @@ export const READING = {
           'had to be thrown away after printing',
         ], L(
           '"Reusable" = able to be used again: the same metal letters were rearranged for each new page.',
-          'Reusable — «многоразовый»: одни и те же металлические буквы переставляли для каждой новой страницы.',
-          'Reusable — «қайта қолдануға болатын»: бір металл әріптерді әр жаңа бетке қайта теретін.',
+          'Reusable - «многоразовый»: одни и те же металлические буквы переставляли для каждой новой страницы.',
+          'Reusable - «қайта қолдануға болатын»: бір металл әріптерді әр жаңа бетке қайта теретін.',
         )),
         mc('According to the passage, how did printing help scholars?', [
           'They could work with identical copies of a text.',
@@ -456,8 +456,8 @@ export const READING = {
           'were hidden from robbers',
         ], L(
           '"To change hands" means to pass from one owner to another, that is, to be sold or exchanged.',
-          'To change hands — «переходить из рук в руки», то есть продаваться или обмениваться.',
-          'To change hands — «қолдан қолға өту», яғни сатылу немесе айырбасталу.',
+          'To change hands - «переходить из рук в руки», то есть продаваться или обмениваться.',
+          'To change hands - «қолдан қолға өту», яғни сатылу немесе айырбасталу.',
         )),
         mc('Why did cities such as Samarkand become rich?', [
           'Traders exchanged goods there.',
@@ -477,7 +477,7 @@ export const READING = {
         ], L(
           '"Even more important than the goods were the things that travelled with them: religions, languages, technologies and scientific knowledge."',
           '«Ещё важнее товаров было то, что путешествовало вместе с ними: религии, языки, технологии и научные знания».',
-          '«Тауарлардан да маңыздысы — олармен бірге тараған нәрселер: діндер, тілдер, технологиялар және ғылыми білім».',
+          '«Тауарлардан да маңыздысы - олармен бірге тараған нәрселер: діндер, тілдер, технологиялар және ғылыми білім».',
         )),
       ],
     },
@@ -493,14 +493,14 @@ export const READING = {
           'Fish are easier to find near the shore',
           'Calcium is found only near the surface',
         ], L(
-          'The algae "use sunlight to produce food" — this partnership "explains why reefs grow mainly in shallow, clear water".',
-          'Водоросли «используют солнечный свет для производства пищи» — поэтому рифы растут в мелкой прозрачной воде.',
-          'Балдырлар «қорек өндіру үшін күн сәулесін пайдаланады» — сондықтан рифтер таяз, мөлдір суда өседі.',
+          'The algae "use sunlight to produce food" - this partnership "explains why reefs grow mainly in shallow, clear water".',
+          'Водоросли «используют солнечный свет для производства пищи» - поэтому рифы растут в мелкой прозрачной воде.',
+          'Балдырлар «қорек өндіру үшін күн сәулесін пайдаланады» - сондықтан рифтер таяз, мөлдір суда өседі.',
         )),
         mc('The word "expels" is closest in meaning to', ['pushes out', 'feeds', 'protects', 'divides'], L(
           '"Expels" means forces out: the coral gets rid of its algae.',
-          'Expels — «выталкивает, изгоняет»: коралл избавляется от водорослей.',
-          'Expels — «сыртқа итеріп шығарады»: маржан балдырлардан арылады.',
+          'Expels - «выталкивает, изгоняет»: коралл избавляется от водорослей.',
+          'Expels - «сыртқа итеріп шығарады»: маржан балдырлардан арылады.',
         )),
         mc('What can be inferred about bleached coral?', [
           'It is not necessarily dead',
@@ -509,8 +509,8 @@ export const READING = {
           'It always dies within a day',
         ], L(
           'The passage says the coral "can recover" if temperatures return to normal quickly, so bleached coral is not necessarily dead.',
-          'В тексте сказано, что коралл «может восстановиться», если температура быстро нормализуется, — значит, он не обязательно погиб.',
-          'Мәтінде температура тез қалпына келсе, маржан «қалпына келе алады» делінген — демек, ол міндетті түрде өлмеген.',
+          'В тексте сказано, что коралл «может восстановиться», если температура быстро нормализуется, - значит, он не обязательно погиб.',
+          'Мәтінде температура тез қалпына келсе, маржан «қалпына келе алады» делінген - демек, ол міндетті түрде өлмеген.',
         )),
         mc('What does the coral provide to the algae?', [
           'Shelter and nutrients',
@@ -523,9 +523,9 @@ export const READING = {
           '«Маржан оларға баспана мен қоректік заттар береді».',
         )),
         mc('About how much of the ocean floor do coral reefs cover?', ['Less than one percent', 'About a quarter', 'About half', 'More than ten percent'], L(
-          '"Coral reefs cover less than one percent of the ocean floor" — a quarter is the share of species they shelter.',
-          '«Рифы покрывают меньше одного процента дна океана», а четверть — это доля видов, которые там живут.',
-          '«Рифтер мұхит түбінің бір пайызынан азын алып жатыр», ал төрттен бірі — ондағы түрлердің үлесі.',
+          '"Coral reefs cover less than one percent of the ocean floor" - a quarter is the share of species they shelter.',
+          '«Рифы покрывают меньше одного процента дна океана», а четверть - это доля видов, которые там живут.',
+          '«Рифтер мұхит түбінің бір пайызынан азын алып жатыр», ал төрттен бірі - ондағы түрлердің үлесі.',
         )),
       ],
     },
@@ -533,7 +533,7 @@ export const READING = {
       id: 'gutenberg',
       title: 'The Printing Revolution',
       text:
-        'Before the middle of the fifteenth century, books in Europe were copied by hand, a process so slow that a single Bible could take a scribe more than a year. Around 1450, Johannes Gutenberg combined several existing technologies — movable metal type, oil-based ink and a press adapted from those used for making wine — into a practical printing system. Within fifty years, printing shops had spread to more than two hundred European cities, and millions of books were in circulation. Because printed copies were identical, scholars in different countries could refer to exactly the same text. Printing also made pamphlets cheap enough for ordinary people, and new ideas could now spread faster than authorities were able to control them.',
+        'Before the middle of the fifteenth century, books in Europe were copied by hand, a process so slow that a single Bible could take a scribe more than a year. Around 1450, Johannes Gutenberg combined several existing technologies - movable metal type, oil-based ink and a press adapted from those used for making wine - into a practical printing system. Within fifty years, printing shops had spread to more than two hundred European cities, and millions of books were in circulation. Because printed copies were identical, scholars in different countries could refer to exactly the same text. Printing also made pamphlets cheap enough for ordinary people, and new ideas could now spread faster than authorities were able to control them.',
       qs: [
         mc('According to the passage, Gutenberg\'s main achievement was', [
           'combining existing technologies into a working system',
@@ -557,8 +557,8 @@ export const READING = {
         )),
         mc('The word "circulation" is closest in meaning to', ['use among people', 'storage', 'translation', 'production'], L(
           '"In circulation" means passing from person to person, being used.',
-          'In circulation — «в обращении», то есть переходят из рук в руки.',
-          'In circulation — «айналымда», яғни қолдан қолға өтеді.',
+          'In circulation - «в обращении», то есть переходят из рук в руки.',
+          'In circulation - «айналымда», яғни қолдан қолға өтеді.',
         )),
         mc('What can be inferred about authorities after the invention of printing?', [
           'They found it harder to control the spread of ideas',
@@ -580,15 +580,15 @@ export const READING = {
   ],
 };
 
-// Длинные тексты ближе к настоящему экзамену — в отдельном файле.
+// Длинные тексты ближе к настоящему экзамену - в отдельном файле.
 READING.ielts.push(...IELTS_MORE);
 READING.toefl.push(...TOEFL_MORE);
 
 const TFNG_PROMPT = (statement) =>
   L(
-    `True, False or Not Given? — ${statement}`,
-    `Верно (True), неверно (False) или в тексте об этом не сказано (Not Given)? — ${statement}`,
-    `Дұрыс (True), бұрыс (False) немесе мәтінде айтылмаған (Not Given)? — ${statement}`,
+    `True, False or Not Given? - ${statement}`,
+    `Верно (True), неверно (False) или в тексте об этом не сказано (Not Given)? - ${statement}`,
+    `Дұрыс (True), бұрыс (False) немесе мәтінде айтылмаған (Not Given)? - ${statement}`,
   );
 
 function build(topic, prefix, passage, index, round, rng) {
@@ -614,7 +614,7 @@ function build(topic, prefix, passage, index, round, rng) {
 
 /**
  * Генератор чтения: выдаёт вопросы одного текста подряд, затем берёт следующий текст.
- * source — ключ экзамена из READING ('ielts', 'toefl') или свой список текстов на трёх языках.
+ * source - ключ экзамена из READING ('ielts', 'toefl') или свой список текстов на трёх языках.
  */
 export function readingMaker(topic, source) {
   const passages = typeof source === 'string' ? READING[source] : source;
