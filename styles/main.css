@@ -14759,6 +14759,362 @@ svg.mascot.emote .emo-popper-r {
   filter: url(#pp-3d);
 }
 
+/* ---------- Анимации тем: плавность и новые сцены ---------- */
+
+/* Пока ползунок тянут или идёт анимация в JS — без CSS-переходов, чтобы картинка не отставала. */
+.ex-live * {
+  transition: none !important;
+}
+
+.ex-slider {
+  grid-template-columns: minmax(70px, auto) minmax(0, 1fr) 64px;
+}
+
+@media (max-width: 560px) {
+  .ex-slider {
+    grid-template-columns: minmax(0, 1fr) 58px;
+  }
+}
+
+.ex-toggles .btn {
+  min-width: 46px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ex-buttons .btn.is-on {
+  color: #fff;
+  background: var(--primary);
+  border-color: transparent;
+}
+
+/* Цвета: на элемент ставится exc-*, а штрих и заливка берут currentColor. */
+.exc-p { color: var(--primary); }
+.exc-a { color: var(--accent); }
+.exc-o { color: var(--orange); }
+.exc-b { color: var(--blue); }
+.exc-g { color: var(--green); }
+.exc-k { color: var(--pink); }
+.exc-y { color: var(--yellow); }
+.exc-r { color: var(--red); }
+.exc-m { color: var(--muted); }
+
+.ex-stage text.tc {
+  fill: currentColor;
+}
+
+.ex-stage text.ex-start {
+  text-anchor: start;
+}
+
+.ex-stage text.ex-end {
+  text-anchor: end;
+}
+
+.ex-stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ex-fill {
+  fill: currentColor;
+}
+
+.ex-dash {
+  stroke-dasharray: 5 4;
+}
+
+.ex-faint {
+  opacity: 0.45;
+}
+
+.ex-cut {
+  stroke: var(--card);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.ex-part {
+  fill: var(--primary);
+  opacity: 0.85;
+}
+
+.ex-ring2 {
+  fill: none;
+  stroke: var(--primary);
+}
+
+.ex-ring2.alt {
+  stroke: var(--accent);
+}
+
+.ex-pbar {
+  fill: currentColor;
+  transition:
+    y 0.35s var(--ease-out),
+    height 0.35s var(--ease-out);
+}
+
+.ex-chip {
+  fill: var(--line);
+  transition: fill 0.25s;
+}
+
+.ex-chip.mid {
+  fill: color-mix(in srgb, var(--green) 45%, var(--card));
+}
+
+.ex-stage text.ex-chipt,
+.ex-stage text.ex-cartt {
+  fill: var(--ink) !important;
+  font-size: 11px;
+}
+
+.ex-hit {
+  fill: transparent;
+  cursor: grab;
+  touch-action: none;
+}
+
+.ex-hit:active {
+  cursor: grabbing;
+}
+
+.ex-wire {
+  fill: none;
+  stroke: var(--muted-2);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.ex-res {
+  fill: color-mix(in srgb, var(--orange) 30%, var(--card));
+  stroke: var(--orange);
+  stroke-width: 2;
+}
+
+.ex-batt {
+  stroke: var(--ink);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.ex-batt.thin {
+  stroke-width: 2.5;
+}
+
+.ex-glow {
+  fill: var(--yellow);
+  filter: blur(6px);
+}
+
+.ex-bulb {
+  stroke: var(--muted-2);
+  stroke-width: 2;
+}
+
+.ex-fil {
+  fill: none;
+  stroke: var(--orange);
+  stroke-width: 1.5;
+}
+
+.ex-lens {
+  fill: color-mix(in srgb, var(--blue) 22%, transparent);
+  stroke: var(--blue);
+  stroke-width: 1.5;
+}
+
+.ex-ball {
+  fill: var(--orange);
+  stroke: var(--card);
+  stroke-width: 2;
+}
+
+.ex-cart {
+  fill: color-mix(in srgb, var(--primary) 35%, var(--card));
+  stroke: var(--primary);
+  stroke-width: 2;
+}
+
+.ex-wheel {
+  fill: var(--ink);
+}
+
+.ex-cyl {
+  fill: color-mix(in srgb, var(--blue) 6%, transparent);
+  stroke: var(--ink);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.ex-piston {
+  fill: var(--muted-2);
+}
+
+.ex-rod {
+  stroke: var(--muted-2);
+  stroke-width: 5;
+}
+
+.ex-thermo {
+  fill: var(--line);
+}
+
+.ex-beaker {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.ex-stage text.ex-ion {
+  fill: var(--ink) !important;
+  font-size: 10px;
+}
+
+.ex-stage text.ex-ion.oh {
+  fill: var(--blue) !important;
+}
+
+.ex-atom {
+  stroke: var(--ink);
+  stroke-width: 1;
+}
+
+.at-H { fill: #fff; }
+.at-O { fill: var(--red); }
+.at-N { fill: var(--blue); }
+.at-Mg { fill: var(--muted-2); }
+
+.ex-sun circle {
+  fill: var(--yellow);
+}
+
+.ex-rays line {
+  stroke: var(--yellow);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.ex-leaf {
+  fill: var(--green);
+}
+
+.ex-vein {
+  fill: none;
+  stroke: color-mix(in srgb, var(--green) 50%, #000);
+  stroke-width: 1.5;
+}
+
+.ex-bubble {
+  fill: none;
+  stroke: var(--green);
+  stroke-width: 1.5;
+}
+
+.ex-pcell {
+  stroke: var(--card);
+  stroke-width: 2;
+  transition: fill 0.35s ease;
+}
+
+.ex-pcell.dom,
+.ex-pea.dom {
+  fill: color-mix(in srgb, var(--yellow) 75%, var(--card));
+}
+
+.ex-pcell.rec,
+.ex-pea.rec {
+  fill: color-mix(in srgb, var(--green) 65%, var(--card));
+}
+
+.ex-pea {
+  stroke: var(--ink);
+  stroke-width: 1;
+}
+
+.ex-earth {
+  fill: color-mix(in srgb, var(--blue) 30%, var(--card));
+  stroke: var(--blue);
+  stroke-width: 2;
+}
+
+.ex-night {
+  fill: #0b1530;
+  opacity: 0.55;
+}
+
+.ex-city {
+  stroke: var(--card);
+  stroke-width: 1.5;
+}
+
+.ex-city.c0 { fill: var(--red); }
+.ex-city.c1 { fill: var(--blue); }
+.ex-city.c2 { fill: var(--orange); }
+.ex-city.c3 { fill: var(--green); }
+.ex-city.c4 { fill: var(--pink); }
+.ex-city.c5 { fill: var(--accent); }
+
+.ex-lamp {
+  fill: var(--line);
+  stroke: var(--line-strong);
+  stroke-width: 2;
+  transition:
+    fill 0.3s ease,
+    filter 0.3s ease;
+}
+
+.ex-lamp.on {
+  fill: var(--yellow);
+  filter: drop-shadow(0 0 6px var(--yellow));
+}
+
+.ex-sortbar {
+  transition: transform 0.38s var(--ease-out);
+}
+
+.ex-sortbar rect {
+  fill: var(--primary);
+  transition: fill 0.25s ease;
+}
+
+.ex-sortbar rect.cmp {
+  fill: var(--orange);
+}
+
+.ex-sortbar rect.swp {
+  fill: var(--pink);
+}
+
+.ex-sortbar rect.ok {
+  fill: var(--green);
+}
+
+.ex-rect {
+  fill: color-mix(in srgb, var(--primary) 35%, transparent);
+  stroke: var(--primary);
+  stroke-width: 1;
+}
+
+.ex-area {
+  fill: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ex-sortbar,
+  .ex-sortbar rect,
+  .ex-pbar,
+  .ex-pcell,
+  .ex-lamp,
+  .ex-chip {
+    transition: none;
+  }
+}
+
 /* ---------- Препи Пасс ---------- */
 .pass-scene { display: block; width: 100%; height: 100%; }
 .pass-scene .ps-fall { animation: ps-fall var(--d, 6s) linear infinite; animation-delay: var(--delay, 0s); }
