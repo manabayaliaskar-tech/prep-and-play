@@ -213,10 +213,12 @@ export function hubScreen(app) {
             <button type="button" class="prepi-dress-btn" aria-label="${t('wear.title')}">👗</button>
           </div>
           <div class="hero-text">
-            <p class="hero-kicker">${name ? t('home.helloName', { name }) : t('home.hello')}</p>
-            ${streakRiskHtml(streak, xpToday)}
-            <h1>${t('hub.title')}</h1>
-            <p class="muted">${t('hub.subtitle')}</p>
+            <div class="hero-title">
+              <p class="hero-kicker">${name ? t('home.helloName', { name }) : t('home.hello')}</p>
+              ${streakRiskHtml(streak, xpToday)}
+              <h1>${t('hub.title')}</h1>
+              <p class="muted">${t('hub.subtitle')}</p>
+            </div>
             <div class="hero-badges">
               <span class="badge">⭐ ${t('home.level', { n: lvl.level })}</span>
               ${flameBadgeHtml(streak)}

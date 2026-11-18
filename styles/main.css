@@ -15483,3 +15483,21 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
 .goal-bar i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--primary), var(--pink)); }
 .goal-badge.is-done .goal-bar i { background: var(--green); }
 @media (max-width: 720px) { .hero-shop { margin-right: 0; } }
+/* Телефон: заголовок рядом с Препи, магазин под ними на всю ширину */
+@media (max-width: 720px) {
+  .hero-card { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: 'mascot title' 'shop shop' 'badges badges'; }
+  .hero-card .hero-text { display: contents; }
+  .hero-card .hero-title { grid-area: title; align-self: center; }
+  .hero-card .hero-title h1 { font-size: 1.35rem; margin: 2px 0 4px; }
+  .hero-card .hero-title p.muted { font-size: 0.82rem; margin: 0; }
+  .hero-card .hero-badges { grid-area: badges; }
+  .hero-shop { grid-template-columns: auto 1fr; grid-template-areas: 'top deals' 'coins deals'; justify-items: start; align-items: center; gap: 8px 12px; padding: 14px 16px; }
+  .hero-shop-top { grid-area: top; flex-direction: row; gap: 8px; font-size: 1.05rem; }
+  .hero-shop-bag { font-size: 2rem; }
+  .hero-shop-coins { grid-area: coins; font-size: 0.95rem; padding: 3px 12px; }
+  .hero-shop-deals { grid-area: deals; display: flex; justify-self: end; gap: 6px; }
+  .hero-shop .mini-deal { width: 46px; height: 46px; }
+  .hero-shop .mini-deal .item-thumb { width: 40px; height: 40px; }
+}
+@media (max-width: 380px) { .hero-shop-deals .mini-deal:nth-child(3) { display: none; } }
+@media (max-width: 720px) { .hero-shop-top b { white-space: nowrap; } }
