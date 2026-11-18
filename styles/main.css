@@ -15519,3 +15519,7 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
   .hero-card { grid-template-areas: 'mascot title' 'shop shop' 'badges badges' 'quests quests'; }
   .hero-card .hero-quests { grid-area: quests; margin-top: 0; }
 }
+.hero-quests { align-items: center; }
+.hq-title { font-size: 0.74rem; font-weight: 900; color: var(--muted); margin-right: 2px; }
+.hq-name { font-weight: 800; white-space: nowrap; }
+@media (max-width: 720px) { .hq-title { width: 100%; } }

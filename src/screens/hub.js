@@ -111,10 +111,10 @@ export function questsCard(profile = getProfile(), day = dayKey()) {
 /** Задания дня — компактной строкой в шапке главной: значок, полоска, прогресс и награда. */
 function heroQuestsHtml(p) {
   const quests = questState(p, dayKey());
-  return `<div class="hero-quests" aria-label="${t('quest.title')}">${quests
+  return `<div class="hero-quests" aria-label="${t('quest.title')}"><span class="hq-title">🎁 ${t('quest.title')}:</span>${quests
     .map(({ quest, value, done }) => {
       const name = t(`quest.${quest.id}`, { n: quest.goal });
-      return `<span class="hq ${done ? 'is-done' : ''}" title="${esc(name)}" aria-label="${esc(name)}: ${value}/${quest.goal}"><span class="hq-icon" aria-hidden="true">${done ? '✔' : quest.icon}</span><span class="hq-bar"><i style="width:${Math.round((value / quest.goal) * 100)}%"></i></span><small>${value}/${quest.goal}</small><b>+${quest.reward}</b></span>`;
+      return `<span class="hq ${done ? 'is-done' : ''}" title="${esc(name)}" aria-label="${esc(name)}: ${value}/${quest.goal}"><span class="hq-icon" aria-hidden="true">${done ? '✔' : quest.icon}</span><span class="hq-name">${esc(name)}</span><span class="hq-bar"><i style="width:${Math.round((value / quest.goal) * 100)}%"></i></span><small>${value}/${quest.goal}</small><b>+${quest.reward}</b></span>`;
     })
     .join('')}</div>`;
 }
