@@ -8,7 +8,7 @@ import { navigate } from '../core/router.js';
 import { skillName } from '../content/labels.js';
 import { esc } from '../ui/dom.js';
 import { mascot } from '../ui/mascot.js';
-import { courseBadge, courseCard } from './hub.js';
+import { courseBadge } from './hub.js';
 import { isPinned, pinButton } from '../core/pins.js';
 import { weakCardHtml } from './review.js';
 import { cardsCardHtml } from './cards.js';
@@ -94,7 +94,7 @@ function courseHero(course) {
     </div>`;
 }
 
-/** Экзамены: на компьютере - сетка карточек, на телефоне - карточка с первыми 6 разделами и «+N». */
+/** Экзамены: карточка экзамена с первыми 6 разделами и «+N» (на всех устройствах). */
 function examList(list) {
   const phone = list
     .map(
@@ -104,7 +104,7 @@ function examList(list) {
       </div>`,
     )
     .join('');
-  return `<div class="course-grid desktop-only">${list.map(courseCard).join('')}</div><div class="phone-only exam-list">${phone}</div>`;
+  return `<div class="exam-list">${phone}</div>`;
 }
 
 export function examsScreen(app) {
@@ -187,8 +187,7 @@ export function practiceHubScreen(app, groupId = 'daily') {
           <div class="practice-course" style="--c:${course.color}">
             ${pinButton(course.id, t(isPinned(course.id) ? 'pin.remove' : 'pin.add'))}
             <a class="practice-course-head" href="#${courseHref(course)}">${courseBadge(course)}<span class="course-text"><b>${esc(tx(course.name))}</b><small>${esc(tx(course.full))}</small></span></a>
-            ${course.tracks.length ? levelChips(course, { limit: 6, cls: 'phone-only' }) : ''}
-            <div class="desktop-only">${tracksHtml(course)}</div>
+            ${course.tracks.length ? levelChips(course, { limit: 6 }) : tracksHtml(course)}
           </div>`,
           )
           .join('')}

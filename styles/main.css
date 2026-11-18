@@ -15658,3 +15658,13 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
   .practice-course .level-chips { margin-top: 10px; }
 }
 @media (max-width: 720px) { .exam-list { gap: 12px; } .exam-list .level-chips { margin-top: 10px; } }
+/* «Практика» и «Экзамены» на всех устройствах: компактные плашки уровней; экзамены - сеткой карточек */
+.exam-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; margin-bottom: 18px; }
+.exam-list .practice-course { margin: 0; }
+.practice-course .level-chips, .exam-list .level-chips { margin-top: 12px; }
+@media (max-width: 720px) { .exam-list { grid-template-columns: 1fr; } }
+/* Ровные ряды уровней на всех устройствах; на широких карточках плашки не растягиваются больше ~76px */
+.level-chips { display: grid; grid-template-columns: repeat(var(--cols, 6), minmax(0, 1fr)); gap: 6px; max-width: calc(var(--cols, 6) * 76px); }
+.level-chips .level-chip { min-width: 0; padding: 7px 2px 5px; }
+.level-chips .level-chip span { font-size: 0.6rem; white-space: nowrap; }
+@media (max-width: 720px) { .level-chips { max-width: none; } }
