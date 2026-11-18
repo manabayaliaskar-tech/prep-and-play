@@ -83,6 +83,8 @@ export function satHomeScreen(app) {
           ).join('')}
         </div>
 
+        <a class="learn-card lc-sheets xm-sheet" href="#/sheet/sat"><span class="learn-icon" aria-hidden="true">📄</span><span><b>${t('sheet.title')} SAT</b><small>${t('sheet.examDesc')}</small></span></a>
+
         <div class="score-preview">
           <div>
             <h2>${t('home.scoreTitle')}</h2>

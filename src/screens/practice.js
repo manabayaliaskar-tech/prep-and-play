@@ -154,7 +154,7 @@ export function trackRoute(app, { course: courseId, track: trackId }) {
           <p class="muted">${esc(tx(track.desc))}</p>
           ${rec?.runs ? `<div class="record">${rec.boss ? '👑 ' : ''}★ ${rec.best}/3 · ${t('cat.bestPct', { n: rec.pct })} · ${t('cat.runs', { n: rec.runs })}</div>` : ''}
           <div class="topic-chips center">${topics.map((id) => `<span class="topic-chip">${esc(tx(skillName(id)))}</span>`).join('')}</div>
-          ${lessonTopics(topics).length ? `<button type="button" class="btn btn-soft btn-sm theory-btn">📖 ${t('lesson.theory')}</button>` : ''}
+          ${lessonTopics(topics).length ? `<div class="theory-row"><button type="button" class="btn btn-soft btn-sm theory-btn">📖 ${t('lesson.theory')}</button><a class="btn btn-soft btn-sm" href="#/sheet/${course.id}/${track.id}">📄 ${t('sheet.title')}</a></div>` : ''}
           <div class="start-options">
             <button type="button" class="option-card start-train"><b>▶ ${t('pr.train')}</b><span>${t('pr.trainDesc', { n: TRAIN_COUNT })}</span></button>
             <button type="button" class="option-card start-boss ${rec?.boss ? 'is-beaten' : ''}"><span class="option-boss" aria-hidden="true">${boss.icon}</span><b>⚔️ ${t('pr.boss')}${rec?.boss ? ' 👑' : ''}</b><span>${esc(t('pr.bossDesc', { name: tx(boss.name) }))}</span></button>

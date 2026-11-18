@@ -95,6 +95,10 @@ const examPathRoute = lazy(load_examHome, 'examPathRoute');
 const examSurvivalRoute = lazy(load_examHome, 'examSurvivalRoute');
 const examTheoryRoute = lazy(load_examHome, 'examTheoryRoute');
 
+const load_sheets = () => import('./screens/sheets.js');
+const sheetsRoute = lazy(load_sheets, 'sheetsRoute');
+const sheetRoute = lazy(load_sheets, 'sheetRoute');
+
 const app = document.getElementById('app');
 
 // Общие разделы
@@ -145,6 +149,9 @@ route('/adapt/:course', (params) => adaptRoute(app, params));
 route('/saved', () => savedRoute(app));
 route('/ielts-full', () => fullReadRoute(app));
 route('/explain', () => explainIndexRoute(app));
+route('/sheets', () => sheetsRoute(app));
+route('/sheet/:course', (params) => sheetRoute(app, params));
+route('/sheet/:course/:track', (params) => sheetRoute(app, params));
 route('/explain/:id', (params) => explainRoute(app, params));
 route('/premium', () => premiumScreen(app));
 

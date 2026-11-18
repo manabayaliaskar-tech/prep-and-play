@@ -35,6 +35,7 @@ export function learnRowHtml() {
     ${card('/explain', '🎬', t('explain.title'), t('hub.explainDesc', { n: EXPLAINERS.length }), 'lc-explain')}
     ${card('/c/ielts/listening', '🎧', t('hub.listen'), t('hub.listenDesc'), 'lc-listen')}
     ${card('/saved', '🔖', t('saved.title'), saved ? t('hub.savedN', { n: saved }) : t('hub.savedDesc'), 'lc-saved')}
+    ${card('/sheets', '📄', t('sheet.indexTitle'), t('sheet.short'), 'lc-sheets')}
   </div>`;
 }
 

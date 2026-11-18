@@ -199,6 +199,7 @@ export function examHomeScreen(app, course) {
 
         <h2 class="section-title">${t('xm.tools')}</h2>
         ${courseToolsHtml(course)}
+        <a class="learn-card lc-sheets xm-sheet" href="#/sheet/${course.id}"><span class="learn-icon" aria-hidden="true">📄</span><span><b>${t('sheet.title')} ${esc(tx(course.name))}</b><small>${t('sheet.examDesc')}</small></span></a>
         ${fullReadCardHtml(course)}
         ${cardsCardHtml(course)}
 
