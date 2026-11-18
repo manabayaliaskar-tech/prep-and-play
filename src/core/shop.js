@@ -297,3 +297,30 @@ export function collectionStats(profile = getProfile(), kind = null) {
 }
 
 export { ITEMS };
+
+// ---------- Препи Пасс ----------
+
+/** Вещь магазина для «Золотой» дорожки пасса: одна и та же весь сезон для этого уровня. */
+export function passGood(seasonId, tier, kind, rarity) {
+  const list = shopGoods(kind).filter((g) => g.rarity === rarity);
+  if (!list.length) return null;
+  const rng = createRng(seedOf(`pass:${seasonId}:${tier}`));
+  return shuffle(list, rng)[0];
+}
+
+/** Выдать вещь бесплатно (награда пасса). Если она уже есть — превращается в осколки. */
+export function grantFree(id) {
+  const g = goodById(id);
+  const p = getProfile();
+  if (!g) return null;
+  if (hasGood(g, p)) {
+    const shards = SHARD_PRICES[g.rarity] / 2;
+    p.shards = (p.shards ?? 0) + shards;
+    saveProfile();
+    return { item: g, dup: true, shards };
+  }
+  grant(g, p);
+  const sets = claimSets(p);
+  saveProfile();
+  return { item: g, dup: false, sets };
+}
