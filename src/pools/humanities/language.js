@@ -3,6 +3,7 @@
 // как на экзамене.
 
 import { R, T } from '../bank.js';
+import { RUSSIAN_MORE2, SOCIAL_MORE2 } from './humanities-more2.js';
 
 export const RUSSIAN = [
   // ----- Орфография -----
@@ -143,3 +144,7 @@ export const SOCIAL = [
     T('с 18 лет', '18 жастан', 'at 18'), [T('с 14 лет', '14 жастан', 'at 14'), T('с 16 лет', '16 жастан', 'at 16'), T('с 21 года', '21 жастан', 'at 21')],
     T('По общему правилу полная дееспособность наступает с 18 лет. Раньше она может наступить, например, при вступлении в брак.', 'Жалпы ереже бойынша толық әрекет қабілеттілігі 18 жастан басталады. Ол ертерек, мысалы, некеге тұрғанда басталуы мүмкін.', 'As a general rule full legal capacity begins at 18. It can come earlier, for example on marriage.')],
 ];
+
+// Дополнительные вопросы — в humanities-more2.js.
+RUSSIAN.push(...RUSSIAN_MORE2);
+SOCIAL.push(...SOCIAL_MORE2);
