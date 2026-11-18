@@ -72,7 +72,10 @@ export function courseCard(course) {
 
 /** Плитки уровней: номер или название и звёзды за лучший результат. */
 export function levelChips(course) {
-  return `<div class="level-chips">${course.tracks
+  // Равные ряды без «хвоста»: столько колонок, чтобы последний ряд не был почти пустым (на телефоне).
+  const n = course.tracks.length;
+  const cols = Math.ceil(n / Math.ceil(n / 7));
+  return `<div class="level-chips" style="--cols:${cols}">${course.tracks
     .map((track) => {
       const rec = trackRecord(course, track);
       const best = rec?.best ?? 0;

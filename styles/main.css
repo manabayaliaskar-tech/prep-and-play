@@ -15642,3 +15642,10 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
 }
 .more-pop a:hover, .more-pop button:hover { background: var(--primary-l); }
 @media (max-width: 900px) { .more-menu { display: block; } }
+/* Телефон: уровни курса ровными рядами на всю ширину, без одинокого последнего */
+@media (max-width: 720px) {
+  .level-chips { display: grid; grid-template-columns: repeat(var(--cols, 6), minmax(0, 1fr)); gap: 6px; }
+  .level-chips .level-chip { min-width: 0; padding: 7px 2px 5px; border-radius: 12px; }
+  .level-chips .level-chip b { font-size: 0.95rem; }
+  .level-chips .level-chip span { font-size: 0.55rem; letter-spacing: -0.5px; white-space: nowrap; }
+}
