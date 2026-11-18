@@ -20,17 +20,19 @@ let uid = 0;
 // ---------- Глаза ----------
 
 /** Открытый глаз: белок, радужка с градиентом, зрачок и два блика. dx/dy — куда смотрит. */
-function eyeOpen(id, cx, cy, { rx = 12, ry = 14, ir = 8, dx = 0, dy = 1, shine = 1 } = {}) {
+function eyeOpen(id, cx, cy, { rx = 11, ry = 13, ir = 8, dx = 0, dy = 0, shine = 1 } = {}) {
+  // Мультяшный глаз: белок, тёмный зрачок-овал и два блика (без обводки и радужки — так Препи добрее).
+  const px = cx + 1 + dx;
+  const py = cy + 2 + dy;
+  const prx = ir * 0.8;
+  const pry = Math.min(ry * 0.62, ir * 1.02);
   return `<g class="eye">
     <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#fff"/>
-    <path d="M${cx - rx} ${cy} A${rx} ${ry} 0 0 1 ${cx + rx} ${cy} A${rx} ${ry * 0.72} 0 0 0 ${cx - rx} ${cy} Z" fill="${INK}" opacity=".08"/>
     <g class="pupils">
-      <circle cx="${cx + dx}" cy="${cy + dy}" r="${ir}" fill="url(#${id}i)"/>
-      <circle cx="${cx + dx}" cy="${cy + dy}" r="${(ir * 0.5).toFixed(1)}" fill="${INK}"/>
-      <circle cx="${(cx + dx + ir * 0.38).toFixed(1)}" cy="${(cy + dy - ir * 0.42).toFixed(1)}" r="${(ir * 0.36 * shine).toFixed(1)}" fill="#fff"/>
-      <circle cx="${(cx + dx - ir * 0.34).toFixed(1)}" cy="${(cy + dy + ir * 0.44).toFixed(1)}" r="${(ir * 0.17 * shine).toFixed(1)}" fill="#fff" opacity=".85"/>
+      <ellipse cx="${px}" cy="${py}" rx="${prx.toFixed(1)}" ry="${pry.toFixed(1)}" fill="${INK}"/>
+      <circle cx="${(px + prx * 0.42).toFixed(1)}" cy="${(py - pry * 0.5).toFixed(1)}" r="${(2.6 * shine).toFixed(1)}" fill="#fff"/>
+      <circle cx="${(px - prx * 0.45).toFixed(1)}" cy="${(py + pry * 0.45).toFixed(1)}" r="${(1.2 * shine).toFixed(1)}" fill="#fff" opacity=".8"/>
     </g>
-    <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="none" stroke="${INK}" stroke-width="1.6" opacity=".5"/>
   </g>`;
 }
 
@@ -116,7 +118,7 @@ const BROWS = {
   flat: ['M44 56 L61 55', 'M79 55 L96 56'],
 };
 const browsHtml = (kind) =>
-  BROWS[kind] ? `<g class="brows" stroke="${INK}" stroke-width="4" fill="none" stroke-linecap="round">${BROWS[kind].map((d) => `<path d="${d}"/>`).join('')}</g>` : '';
+  BROWS[kind] ? `<g class="brows" stroke="${INK}" stroke-width="3.2" fill="none" stroke-linecap="round">${BROWS[kind].map((d) => `<path d="${d}"/>`).join('')}</g>` : '';
 
 // ---------- Рот ----------
 
@@ -172,7 +174,7 @@ const POSES = {
 };
 
 const hand = (x, y, cls = '') =>
-  `<g class="hand ${cls}"><circle cx="${x}" cy="${y}" r="7" fill="var(--mascot-1)" stroke="var(--mascot-2)" stroke-width="1.6"/><circle cx="${x - 2}" cy="${y - 2.2}" r="2.2" fill="#fff" opacity=".45"/></g>`;
+  `<g class="hand ${cls}"><circle cx="${x}" cy="${y}" r="6.3" fill="var(--mascot-1)" stroke="var(--mascot-2)" stroke-width="1.6"/><circle cx="${x - 2}" cy="${y - 2.2}" r="2.2" fill="#fff" opacity=".45"/></g>`;
 
 function armPath([x0, y0, cx, cy, x1, y1], thick) {
   const d = `M${x0} ${y0} Q${cx} ${cy} ${x1} ${y1}`;
@@ -180,7 +182,7 @@ function armPath([x0, y0, cx, cy, x1, y1], thick) {
 }
 
 /** Руки за телом (рисуются до тела) и кисти (после). Если в руке вещь — правая рука её держит. */
-function arms(poseId, { buff = false, holding = null } = {}) {
+function arms(poseId, { buff = false, holding = null, tuck = true } = {}) {
   let pose = POSES[poseId] ?? POSES.rest;
   if (holding && !['up', 'flex', 'open'].includes(poseId)) pose = { ...pose, R: POSES.hold.R, front: pose.front?.filter(([x]) => x < 70), thumb: false, wave: false };
   if (holding && pose.front?.length && !pose.L) pose = { ...pose, L: POSES.rest.L };
@@ -191,8 +193,11 @@ function arms(poseId, { buff = false, holding = null } = {}) {
     const a = pose[side];
     if (!a) continue;
     const isR = side === 'R';
-    back += `<g class="arm arm-${side.toLowerCase()} ${isR && pose.wave ? 'is-waving' : ''}">${armPath(a, thick)}${pose.flex || buff ? `<circle cx="${(a[0] + a[2]) / 2 + (isR ? 2 : -2)}" cy="${(a[1] + a[3]) / 2 - 3}" r="${buff ? 9.5 : 6}" fill="var(--mascot-1)" stroke="var(--mascot-2)" stroke-width="1.6"/>` : ''}</g>`;
-    const [hx, hy] = [a[4], a[5]];
+    // Обычно рук не видно — только ладошки рядом с телом; длинные руки — у качка и в танцах.
+    const showArm = buff || !tuck;
+    back += `<g class="arm arm-${side.toLowerCase()} ${isR && pose.wave ? 'is-waving' : ''}">${showArm ? armPath(a, thick) : ''}${showArm && (pose.flex || buff) ? `<circle cx="${(a[0] + a[2]) / 2 + (isR ? 2 : -2)}" cy="${(a[1] + a[3]) / 2 - 3}" r="${buff ? 9.5 : 6}" fill="var(--mascot-1)" stroke="var(--mascot-2)" stroke-width="1.6"/>` : ''}</g>`;
+    const k = showArm ? 0 : 0.38;
+    const [hx, hy] = [+(a[4] + (a[0] - a[4]) * k).toFixed(1), +(a[5] + (a[1] - a[5]) * k).toFixed(1)];
     if (isR && holding) front += `<g class="held" transform="translate(${hx} ${hy})">${holding}</g>`;
     front += hand(hx, hy, `hand-${side.toLowerCase()} ${isR && pose.wave ? 'is-waving' : ''}`);
     if (isR && pose.thumb) front += `<path d="M${hx - 1} ${hy - 6} q1 -9 5 -8 q3 1 -1 9" fill="var(--mascot-1)" stroke="var(--mascot-2)" stroke-width="1.6"/>`;
@@ -204,7 +209,7 @@ function arms(poseId, { buff = false, holding = null } = {}) {
 // ---------- Настроения ----------
 
 const MOODS = {
-  happy: { eyes: 'open', brows: 'soft', mouth: 'grin', pose: 'rest' },
+  happy: { eyes: 'open', brows: null, mouth: 'grin', pose: 'rest' },
   wow: { eyes: 'big', brows: 'up', mouth: 'o', pose: 'open' },
   sad: { eyes: 'sad', brows: 'sad', mouth: 'frown', pose: 'droop', extra: ['tear'] },
   win: { eyes: 'happy', brows: 'up', mouth: 'laugh', pose: 'up', extra: ['sparkles'] },
@@ -217,9 +222,9 @@ const MOODS = {
   shy: { eyes: 'down', brows: 'sad', mouth: 'wavy', pose: 'cover', blush: 2 },
   confused: { eyes: 'odd', brows: 'think', mouth: 'wavy', pose: 'scratch', extra: ['question'] },
   cry: { eyes: 'squeeze', brows: 'sad', mouth: 'wail', pose: 'open', extra: ['streams'] },
-  proud: { eyes: 'happy', brows: 'soft', mouth: 'smile', pose: 'hips', extra: ['sparkles'] },
+  proud: { eyes: 'happy', brows: null, mouth: 'smile', pose: 'hips', extra: ['sparkles'] },
   dizzy: { eyes: 'spiral', brows: null, mouth: 'wavy', pose: 'droop', extra: ['stars'] },
-  wink: { eyes: 'wink', brows: 'soft', mouth: 'grin', pose: 'thumb' },
+  wink: { eyes: 'wink', brows: null, mouth: 'grin', pose: 'thumb' },
   scared: { eyes: 'tiny', brows: 'up', mouth: 'scared', pose: 'open', extra: ['sweat'] },
   starstruck: { eyes: 'star', brows: 'up', mouth: 'laugh', pose: 'up', extra: ['sparkles'] },
   sick: { eyes: 'half', brows: 'sad', mouth: 'flat', pose: 'droop', extra: ['sweat', 'thermo'] },
@@ -294,7 +299,7 @@ export function mascot(mood = 'happy', cls = '', outfit = getOutfit(), opts = {}
   const buff = form === 'buff';
   const held = HAND[outfit.hand] ?? '';
   const poseId = opts.pose ?? (buff ? 'flex' : m.pose);
-  const { back: armsBack, front: armsFront } = arms(poseId, { buff, holding: emote ? null : held || null });
+  const { back: armsBack, front: armsFront } = arms(poseId, { buff, holding: emote ? null : held || null, tuck: !emote });
   const head = outfit.head === 'cap' ? CAP : (HEAD[outfit.head] ?? '');
   const formHead = head ? '' : buff ? SWEATBAND : form === 'sick' ? ICEPACK : '';
   const blush = m.blush === 2
@@ -312,7 +317,7 @@ export function mascot(mood = 'happy', cls = '', outfit = getOutfit(), opts = {}
   const feet = ghosty
     ? ''
     : FEET[outfit.feet] ??
-      `<g class="feet"><ellipse cx="55" cy="130" rx="12.5" ry="7" fill="url(#${id}f)" stroke="var(--mascot-2)" stroke-width="1.6"/><ellipse cx="85" cy="130" rx="12.5" ry="7" fill="url(#${id}f)" stroke="var(--mascot-2)" stroke-width="1.6"/><ellipse cx="51" cy="128" rx="4" ry="2" fill="#fff" opacity=".35"/><ellipse cx="81" cy="128" rx="4" ry="2" fill="#fff" opacity=".35"/></g>`;
+      `<g class="feet"><ellipse cx="57" cy="128.5" rx="10" ry="5.5" fill="url(#${id}f)" stroke="var(--mascot-2)" stroke-width="1.4"/><ellipse cx="83" cy="128.5" rx="10" ry="5.5" fill="url(#${id}f)" stroke="var(--mascot-2)" stroke-width="1.4"/></g>`;
 
   const body = `<g class="mascot-body">
       ${form === 'blaze' ? BLAZE_BACK : ''}
