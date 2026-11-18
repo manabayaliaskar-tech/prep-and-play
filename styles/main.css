@@ -15744,3 +15744,27 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
   .explain-chips::-webkit-scrollbar { display: none; }
   .explain-chip { flex: none; padding: 6px 12px; font-size: 13px; }
 }
+
+/* ===== Анимации тем: компактные карточки ===== */
+.explain-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 168px), 1fr)); gap: 10px; }
+.explain-card { gap: 4px; padding: 12px 14px; border-radius: 16px; align-content: start; }
+.explain-card b { font-size: 14px; line-height: 1.25; }
+.explain-card small { font-size: 12px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.explain-index .explain-icon { font-size: 1.5rem; }
+.explain-card:hover { transform: translateY(-3px); }
+@media (min-width: 1024px) {
+  .explain-card { grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; row-gap: 2px; align-items: center; }
+  .explain-card .explain-icon { grid-row: span 2; }
+  .explain-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+  .explain-card b { overflow-wrap: anywhere; }
+}
+@media (max-width: 1023px) {
+  .explain-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); }
+}
+@media (max-width: 720px) {
+  .explain-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .explain-card { padding: 10px 12px; border-radius: 14px; }
+  .explain-card b { font-size: 13px; }
+  .explain-card small { font-size: 11px; }
+  .explain-index .explain-icon { font-size: 1.3rem; }
+}
