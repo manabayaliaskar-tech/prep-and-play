@@ -221,14 +221,11 @@ export function hubScreen(app) {
               <span class="badge">⭐ ${t('home.level', { n: lvl.level })}</span>
               ${flameBadgeHtml(streak)}
               <span class="badge">⚡ ${p.xp} XP</span>
+              <span class="badge goal-badge ${xpToday >= DAILY_GOAL ? 'is-done' : ''}" title="${t('home.goal')}">🎯 <b>${Math.min(xpToday, DAILY_GOAL)}/${DAILY_GOAL}</b> ${xpToday >= DAILY_GOAL ? t('home.goalDone') : t('home.goal')}<span class="goal-bar"><i style="width:${Math.round((Math.min(xpToday, DAILY_GOAL) / DAILY_GOAL) * 100)}%"></i></span></span>
               ${nextChestBadge()}
             </div>
           </div>
           ${heroShopHtml(p)}
-          <div class="goal">
-            ${ring(xpToday, DAILY_GOAL)}
-            <div class="goal-text"><b>${Math.min(xpToday, DAILY_GOAL)}/${DAILY_GOAL}</b><span>${xpToday >= DAILY_GOAL ? t('home.goalDone') : t('home.goal')}</span></div>
-          </div>
         </div>
 
         ${rescueCardHtml(p)}
