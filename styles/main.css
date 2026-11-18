@@ -15523,3 +15523,16 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
 .hq-title { font-size: 0.74rem; font-weight: 900; color: var(--muted); margin-right: 2px; }
 .hq-name { font-weight: 800; white-space: nowrap; }
 @media (max-width: 720px) { .hq-title { width: 100%; } }
+/* Кнопка гардероба — под Препи, с подписью, не закрывает питомца */
+.prepi-stage { display: grid; justify-items: center; }
+.prepi-stage .prepi-dress-btn {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: -4px;
+  padding: 3px 10px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.prepi-stage .prepi-dress-btn small { font-size: 0.68rem; font-weight: 800; }

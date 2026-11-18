@@ -221,7 +221,7 @@ export function hubScreen(app) {
         <div class="hero-card">
           <div class="hero-mascot prepi-stage">
             <button type="button" class="prepi-poke" aria-label="${t('prepi.poke')}">${mascot(moodOf(p).mascot, 'mascot-xl float', undefined, { form: moodOf(p).form })}</button>
-            <button type="button" class="prepi-dress-btn" aria-label="${t('wear.title')}">👗</button>
+            <button type="button" class="prepi-dress-btn" aria-label="${t('wear.title')}">👗 <small>${t('wear.title')}</small></button>
           </div>
           <div class="hero-text">
             <div class="hero-title">
