@@ -2,6 +2,9 @@
 // экзамены, олимпиадная математика, ежедневная практика.
 
 import { EXPLAINERS } from '../content/explainers.js';
+import { todaySteps } from '../core/today.js';
+import { dueMistakes, getMistakes } from '../core/review.js';
+import { getPlan, readiness } from '../core/plan.js';
 import { maybeStartTour } from '../ui/tour.js';
 import { bindQuizHost, quizHostHtml } from '../ui/quiz-host.js';
 import { COURSES, GROUPS, courseById, courseHref, courseStars, coursesIn, trackById, trackHref, trackRecord } from '../catalog/index.js';
@@ -14,14 +17,11 @@ import { DAILY_GOAL, currentStreak, getProfile, levelInfo, todayXp } from '../co
 import { esc } from '../ui/dom.js';
 import { mascot } from '../ui/mascot.js';
 import { homeCourses, isPinned, pinButton } from '../core/pins.js';
-import { reviewCardHtml } from './review.js';
-import { planCardHtml } from './plan.js';
 import { nextChestBadge, openChestModal, rewardCardsHtml } from './report.js';
 import { openWardrobe } from '../ui/wardrobe-ui.js';
 import { bindPoke } from '../ui/prepi-poke.js';
 import { flameSvg } from '../core/economy.js';
 import { seasonCardHtml } from './season.js';
-import { todayCardHtml } from './today.js';
 import { getSaved } from '../core/saved.js';
 import { bindLife, flameBadgeHtml, giftCardHtml, moodOf, rescueCardHtml } from './prepi-life.js';
 import { dailyDeals } from '../core/shop.js';
@@ -185,16 +185,42 @@ export async function startInstall() {
   }
 }
 
-function continueCard() {
-  const last = getProfile().last;
-  if (!last) return '';
-  if (last.course === 'sat') {
-    return `<a class="continue-card" href="#/sat"><span class="cc-icon">▶</span><span class="cc-text"><small>${t('hub.continue')}</small><b>SAT</b></span><span class="cc-go">▶</span></a>`;
+/**
+ * «На сегодня» — одна строка компактных плиток вместо четырёх карточек: продолжить, план дня, ошибки, план экзамена.
+ * Лишние плитки прячутся сами (нет ошибок — нет плитки; план составлен — показывается готовность).
+ */
+function todayStripHtml(p) {
+  const tiles = [];
+  const last = p.last;
+  if (last) {
+    let href = '#/sat';
+    let name = 'SAT';
+    if (last.course !== 'sat') {
+      const course = courseById(last.course);
+      const track = course ? trackById(course, last.track) : null;
+      if (course && track) {
+        href = `#${trackHref(course, track)}`;
+        name = `${tx(course.name)} · ${tx(track.name)}`;
+      } else href = '';
+    }
+    if (href) tiles.push(`<a class="ts-tile ts-continue" href="${href}"><span class="ts-icon">▶</span><span class="ts-text"><small>${t('hub.continue')}</small><b>${esc(name)}</b></span></a>`);
   }
-  const course = courseById(last.course);
-  const track = trackById(course, last.track);
-  if (!course || !track) return '';
-  return `<a class="continue-card" href="#${trackHref(course, track)}"><span class="cc-icon">▶</span><span class="cc-text"><small>${t('hub.continue')}</small><b>${esc(tx(course.name))} · ${esc(tx(track.name))}</b></span><span class="cc-go">▶</span></a>`;
+  const steps = todaySteps(p, { xpToday: todayXp(), goal: DAILY_GOAL });
+  const done = steps.filter((x) => x.done).length;
+  tiles.push(`<a class="ts-tile ts-today ${done === steps.length ? 'is-done' : ''}" href="#/today"><span class="ts-icon">${done === steps.length ? '✅' : '🧭'}</span><span class="ts-text"><small>${t('strip.today')}</small><b>${done}/${steps.length}</b></span></a>`);
+  const mistakes = getMistakes();
+  if (mistakes.length) {
+    const due = dueMistakes(dayKey()).length;
+    tiles.push(`<a class="ts-tile ${due ? 'has-badge' : 'is-done'}" href="#/mistakes"><span class="ts-icon">🔁</span><span class="ts-text"><small>${t('strip.mistakes')}</small><b>${due ? t('strip.due', { n: due }) : '✔'}</b></span>${due ? `<span class="ts-badge">${due}</span>` : ''}</a>`);
+  }
+  const plan = getPlan();
+  const pc = plan ? courseById(plan.course) : null;
+  tiles.push(
+    pc
+      ? `<a class="ts-tile ts-plan" href="#/plan"><span class="ts-icon">📅</span><span class="ts-text"><small>${esc(tx(pc.name))}</small><b>${t('strip.ready', { n: readiness(pc) })}</b></span></a>`
+      : `<a class="ts-tile ts-plan ts-dashed" href="#/plan"><span class="ts-icon">📅</span><span class="ts-text"><small>${t('strip.plan')}</small><b>${t('strip.planMake')}</b></span></a>`,
+  );
+  return `<div class="today-strip" style="--n:${tiles.length}">${tiles.join('')}</div>`;
 }
 
 const HOME_EXAMS = ['sat', 'ent', 'ege', 'ielts', 'toefl', 'oge'];
@@ -256,7 +282,7 @@ export function hubScreen(app) {
 
         ${giftCardHtml(p)}
 
-        ${todayCardHtml(p)}
+        ${todayStripHtml(p)}
 
         ${quizHero(p)}
 
@@ -264,14 +290,11 @@ export function hubScreen(app) {
           ${seasonCardHtml(p)}
         </div>
 
-        ${continueCard() ? `<div class="continue-row single">${continueCard()}</div>` : ''}
 
         ${rewardCardsHtml()}
 
-        ${planCardHtml()}
 
 
-        ${reviewCardHtml()}
 
         <section class="block">
           ${head(group('daily'), t('hub.open'), dailyBlock.hidden)}

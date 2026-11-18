@@ -15685,3 +15685,30 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
   .exam-list { grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)); }
 }
 @media (min-width: 1024px) { .exam-list { grid-template-columns: 1fr; } }
+
+/* ===== Главная: полоса «На сегодня» (вместо четырёх карточек) ===== */
+.today-strip { display: grid; grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr)); gap: 10px; margin: 14px 0 18px; }
+.ts-tile {
+  position: relative; display: flex; align-items: center; gap: 10px; min-width: 0;
+  padding: 10px 12px; border-radius: 14px; background: var(--card); border: 1.5px solid var(--line);
+  color: var(--ink); text-decoration: none; transition: transform .15s, box-shadow .15s, border-color .15s;
+}
+.ts-tile:hover { transform: translateY(-2px); border-color: var(--primary); box-shadow: 0 8px 18px color-mix(in srgb, var(--primary) 16%, transparent); }
+.ts-icon { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; font-size: 17px; background: var(--primary-l); }
+.ts-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
+.ts-text small { color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ts-text b { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ts-continue { background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 55%, #14b8a6)); border-color: transparent; color: #fff; }
+.ts-continue .ts-icon { background: rgba(255, 255, 255, .22); color: #fff; }
+.ts-continue .ts-text small { color: rgba(255, 255, 255, .85); }
+.ts-tile.is-done { background: linear-gradient(135deg, color-mix(in srgb, var(--green) 13%, var(--card)), var(--card)); border-color: color-mix(in srgb, var(--green) 45%, var(--line)); }
+.ts-tile.is-done .ts-icon { background: color-mix(in srgb, var(--green) 18%, var(--card)); }
+.ts-dashed { border-style: dashed; background: transparent; }
+.ts-badge { position: absolute; top: -7px; right: -5px; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--red); color: #fff; font-size: 11px; font-weight: 800; display: grid; place-items: center; box-shadow: 0 0 0 2px var(--bg); }
+@media (max-width: 720px) {
+  .today-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 10px 0 14px; }
+  .ts-tile { padding: 9px 10px; gap: 8px; }
+  .ts-icon { width: 30px; height: 30px; font-size: 15px; }
+  .ts-text b { font-size: 13px; }
+  .today-strip[style*="--n:3"] .ts-tile:first-child { grid-column: 1 / -1; }
+}
