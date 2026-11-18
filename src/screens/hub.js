@@ -71,21 +71,24 @@ export function courseCard(course) {
 }
 
 /** Плитки уровней: номер или название и звёзды за лучший результат. */
-export function levelChips(course, { limit = 0, cls = '' } = {}) {
-  // Равные ряды без «хвоста»: столько колонок, чтобы последний ряд не был почти пустым (на телефоне).
+export function levelChips(course, { limit = 0, cls = '', named = false } = {}) {
+  // Равные ряды без «хвоста»: столько колонок, чтобы последний ряд не был почти пустым.
   // limit — показать только первые уровни, а остальные спрятать за плашкой «+N →» (ведёт на страницу курса).
+  // named — с коротким названием уровня (для компьютера): не больше 3 рядов.
   const all = course.tracks;
   const shown = limit && all.length > limit ? all.slice(0, limit) : all;
   const rest = all.length - shown.length;
   const n = shown.length + (rest ? 1 : 0);
-  const cols = Math.ceil(n / Math.ceil(n / 7));
-  return `<div class="level-chips ${cls}" style="--cols:${cols}">${shown
+  const rows = n <= 3 ? 1 : n <= 8 ? 2 : 3;
+  const cols = named ? Math.ceil(n / rows) : Math.ceil(n / Math.ceil(n / 7));
+  return `<div class="level-chips ${named ? 'is-named' : ''} ${cls}" style="--cols:${cols}">${shown
     .map((track) => {
       const rec = trackRecord(course, track);
       const best = rec?.best ?? 0;
-      return `<a class="level-chip ${best ? 'done' : ''} ${rec?.boss ? 'has-crown' : ''}" href="#${trackHref(course, track)}" title="${esc(tx(track.name))}"><b>${esc(track.icon)}</b><span>${'★'.repeat(best)}${'☆'.repeat(3 - best)}</span></a>`;
+      const stars = `<span class="lc-stars">${'★'.repeat(best)}${'☆'.repeat(3 - best)}</span>`;
+      return `<a class="level-chip ${best ? 'done' : ''} ${rec?.boss ? 'has-crown' : ''}" href="#${trackHref(course, track)}" title="${esc(tx(track.name))}"><b>${esc(track.icon)}</b>${named ? `<span class="lc-name">${esc(tx(track.name))}</span>` : ''}${stars}</a>`;
     })
-    .join('')}${rest ? `<a class="level-chip level-more" href="#${courseHref(course)}" aria-label="${t('cat.allLevels', { n: all.length })}"><b>+${rest}</b><span>→</span></a>` : ''}</div>`;
+    .join('')}${rest ? `<a class="level-chip level-more" href="#${courseHref(course)}" aria-label="${t('cat.allLevels', { n: all.length })}"><b>+${rest}</b>${named ? `<span class="lc-name">${t('cat.allLevels', { n: all.length })}</span>` : ''}<span class="lc-stars">→</span></a>` : ''}</div>`;
 }
 
 /** Карточка «Задания дня»: три задания с полосками прогресса и наградой. */

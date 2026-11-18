@@ -94,13 +94,17 @@ function courseHero(course) {
     </div>`;
 }
 
+/** Уровни курса: на телефоне и iPad — 6 компактных плашек и «+N», на компьютере — с названиями (9, или все 10), не больше 3 рядов. */
+const chipsBoth = (course) =>
+  levelChips(course, { limit: 6, cls: 'lc-compact' }) + levelChips(course, { limit: course.tracks.length === 10 ? 10 : 9, named: true, cls: 'lc-wide' });
+
 /** Экзамены: карточка экзамена с первыми 6 разделами и «+N» (на всех устройствах). */
 function examList(list) {
   const phone = list
     .map(
       (course) => `<div class="practice-course" style="--c:${course.color}">
         <a class="practice-course-head" href="#${courseHref(course)}">${courseBadge(course)}<span class="course-text"><b>${esc(tx(course.name))}</b><small>${esc(tx(course.full))}</small></span></a>
-        ${course.tracks.length ? levelChips(course, { limit: 6 }) : ''}
+        ${course.tracks.length ? chipsBoth(course) : ''}
       </div>`,
     )
     .join('');
@@ -187,7 +191,7 @@ export function practiceHubScreen(app, groupId = 'daily') {
           <div class="practice-course" style="--c:${course.color}">
             ${pinButton(course.id, t(isPinned(course.id) ? 'pin.remove' : 'pin.add'))}
             <a class="practice-course-head" href="#${courseHref(course)}">${courseBadge(course)}<span class="course-text"><b>${esc(tx(course.name))}</b><small>${esc(tx(course.full))}</small></span></a>
-            ${course.tracks.length ? levelChips(course, { limit: 6 }) : tracksHtml(course)}
+            ${course.tracks.length ? chipsBoth(course) : tracksHtml(course)}
           </div>`,
           )
           .join('')}

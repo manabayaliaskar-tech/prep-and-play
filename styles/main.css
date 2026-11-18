@@ -15668,3 +15668,20 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
 .level-chips .level-chip { min-width: 0; padding: 7px 2px 5px; }
 .level-chips .level-chip span { font-size: 0.6rem; white-space: nowrap; }
 @media (max-width: 720px) { .level-chips { max-width: none; } }
+/* Компьютер: уровни с короткими названиями (до 3 рядов); телефон и iPad: компактные плашки */
+.level-chips.lc-wide { display: none; }
+@media (min-width: 1024px) {
+  .level-chips.lc-compact { display: none; }
+  .level-chips.lc-wide { display: grid; max-width: none; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr)); gap: 8px; }
+  .lc-wide .level-chip { flex-direction: row; justify-content: flex-start; align-items: center; gap: 8px; padding: 8px 10px; text-align: left; }
+  .lc-wide .level-chip b { flex: none; font-size: 1rem; }
+  .lc-wide .lc-name { flex: 1; min-width: 0; font-size: 0.8rem; font-weight: 800; line-height: 1.2; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .lc-wide .lc-stars { flex: none; font-size: 0.6rem; }
+  .exam-list { grid-template-columns: repeat(auto-fill, minmax(460px, 1fr)); }
+}
+@media (min-width: 1024px) {
+  .level-chips.lc-wide .level-chip .lc-name { font-size: 0.8rem; font-weight: 800; color: var(--ink); letter-spacing: 0; white-space: normal; }
+  .level-chips.lc-wide .level-chip .lc-stars { font-size: 0.62rem; letter-spacing: 0; }
+  .exam-list { grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)); }
+}
+@media (min-width: 1024px) { .exam-list { grid-template-columns: 1fr; } }
