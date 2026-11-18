@@ -96,6 +96,7 @@ export function shopRoute(app, params = {}) {
   let rarity = 'all';
   let owned = 'all';
   let tryId = null;
+  let trySetId = null;
   let celebrate = false;
 
   const render = () => {
@@ -104,10 +105,11 @@ export function shopRoute(app, params = {}) {
     const outfit = getOutfit(p);
     const room = getRoom(p);
     const tried = tryId ? goodById(tryId) : null;
-    const previewOutfit = tried?.kind === 'wear' ? { ...outfit, [tried.slot]: tried.id } : outfit;
+    const triedSet = trySetId ? SETS.find((x) => x.id === trySetId) ?? null : null;
+    const previewOutfit = triedSet ? setOutfit(triedSet, outfit) : tried?.kind === 'wear' ? { ...outfit, [tried.slot]: tried.id } : outfit;
     const previewRoom = tried?.kind === 'room' ? { ...room, [tried.slot]: tried.id } : room;
     const emote = tried?.kind === 'emote' ? tried.id : celebrate ? getEmote(p) : null;
-    const mood = celebrate ? 'starstruck' : tried && !hasGood(tried, p) ? 'wow' : 'happy';
+    const mood = celebrate ? 'starstruck' : triedSet ? (setProgress(triedSet, p).done ? 'proud' : 'wow') : tried && !hasGood(tried, p) ? 'wow' : 'happy';
     const deals = dailyDeals(day);
     const dealOf = (id) => deals.find((d) => d.id === id) ?? null;
     const set = activeSet(p, outfit);
@@ -158,7 +160,7 @@ export function shopRoute(app, params = {}) {
           <div class="ggrid deals">${deals.map((d) => card(goodById(d.id), { big: true })).join('')}</div>
         </section>
         <section class="s3-block week-set r-legendary">
-          <div class="ws-prepi">${mascot('proud', 'mascot-set float', setOutfit(ws, outfit))}</div>
+          <button type="button" class="ws-prepi" data-tryset="${ws.id}" aria-label="${t('shop3.trySet')}">${mascot('proud', 'mascot-set float', setOutfit(ws, outfit))}</button>
           <div class="ws-text">
             <span class="ws-kicker">⭐ ${t('shop3.weekSet')}</span>
             <h2>${set?.id === ws.id ? '✔ ' : ''}${t(`set.${ws.id}`)}</h2>
@@ -214,7 +216,7 @@ export function shopRoute(app, params = {}) {
           const offer = setPrice(s, p, day);
           const isActive = set?.id === s.id;
           return `<article class="set3 ${pr.claimed ? 'is-done' : ''} ${isActive ? 'is-active' : ''}">
-            <div class="set3-prepi" data-tryset="${s.id}">${mascot(isActive ? 'proud' : 'happy', 'mascot-set', setOutfit(s, outfit))}</div>
+            <div class="set3-prepi" data-tryset="${s.id}" role="button" tabindex="0" title="${t('shop3.trySet')}">${mascot(isActive ? 'proud' : 'happy', 'mascot-set', setOutfit(s, outfit))}</div>
             <div class="set3-body">
               <div class="set3-top"><h3>${t(`set.${s.id}`)}</h3><span class="set-count">${pr.got}/${pr.total}</span></div>
               <small class="muted">${pr.claimed ? `✔ ${t('shop.setDone')}` : t('shop.setReward', { n: s.coins })} · ${isActive ? `<b class="set-bonus-on">+${SET_BONUS}% 🪙 ${t('shop3.bonusOn')}</b>` : t('shop3.bonusIf', { b: SET_BONUS })}</small>
@@ -248,7 +250,17 @@ export function shopRoute(app, params = {}) {
 
     // ---------- Панель примерки ----------
     let tryPanel;
-    if (tried) {
+    if (triedSet) {
+      const pr = setProgress(triedSet, p);
+      const offer = setPrice(triedSet, p, day);
+      let actions = '';
+      if (offer?.missing.length) actions += p.coins >= offer.price ? `<button type="button" class="btn btn-primary set-buy" data-set="${triedSet.id}">${t('shop3.buyMissing', { n: offer.missing.length })} ${coin(offer.price)}</button>` : `<button type="button" class="btn btn-soft" disabled>${t('shop.short', { n: offer.price - p.coins })}</button>`;
+      if (pr.done && set?.id !== triedSet.id) actions += `<button type="button" class="btn btn-primary set-wear" data-set="${triedSet.id}">${t('shop3.wearSet')}</button>`;
+      if (set?.id === triedSet.id) actions += `<span class="gc-state is-on">✔ ${t('shop3.setOn')}</span>`;
+      tryPanel = `
+        <div class="try-item r-legendary"><span class="try-art try-set">🧩</span><div><b>${t(`set.${triedSet.id}`)}</b><small>${t('shop3.tab.sets')} · ${pr.got}/${pr.total}</small><small>${t('shop3.bonusIf', { b: SET_BONUS })}</small></div></div>
+        <div class="try-actions">${actions}<button type="button" class="link-btn try-reset">${t('shop.reset')}</button></div>`;
+    } else if (tried) {
       const has = hasGood(tried, p);
       const price = forSale(tried) ? priceOf(tried, day) : 0;
       const shardPrice = SHARD_PRICES[tried.rarity];
@@ -273,8 +285,8 @@ export function shopRoute(app, params = {}) {
     app.innerHTML = `
       <section class="page shop3 tab-${tab}">
         <div class="s3-layout">
-          <aside class="s3-stage r-${tried?.rarity ?? 'none'}">
-            <div class="s3-scene ${tried ? 'is-trying' : ''} ${celebrate ? 'is-celebrating' : ''}">${scene(previewRoom, mascot(mood, 'mascot-stage', previewOutfit, { emote }), { compact: false })}</div>
+          <aside class="s3-stage r-${triedSet ? 'legendary' : (tried?.rarity ?? 'none')}">
+            <div class="s3-scene ${tried || triedSet ? 'is-trying' : ''} ${celebrate ? 'is-celebrating' : ''}">${scene(previewRoom, mascot(mood, 'mascot-stage', previewOutfit, { emote }), { compact: false })}</div>
             <div class="s3-try">${tryPanel}</div>
           </aside>
           <div class="s3-main">
@@ -308,6 +320,7 @@ export function shopRoute(app, params = {}) {
         const g = goodById(b.dataset.try);
         if (!g) return;
         tryId = tryId === g.id ? null : g.id;
+        trySetId = null;
         celebrate = false;
         sfx.tap();
         render();
@@ -341,18 +354,21 @@ export function shopRoute(app, params = {}) {
         render();
       }),
     );
+    app.querySelectorAll('[data-tryset]').forEach((b) => b.addEventListener('keydown', (e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), b.click())));
     app.querySelectorAll('[data-tryset]').forEach((b) =>
       b.addEventListener('click', () => {
-        const s = SETS.find((x) => x.id === b.dataset.tryset);
-        const first = s?.items.find((id) => !hasGood(id)) ?? s?.items[0];
-        if (first) {
-          tryId = first;
-          render();
-        }
+        // Примерить набор целиком: Препи надевает все его вещи сразу.
+        trySetId = trySetId === b.dataset.tryset ? null : b.dataset.tryset;
+        tryId = null;
+        celebrate = false;
+        sfx.tap();
+        render();
+        if (trySetId && window.matchMedia('(max-width: 900px)').matches) app.querySelector('.s3-stage')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }),
     );
     app.querySelector('.try-reset')?.addEventListener('click', () => {
       tryId = null;
+      trySetId = null;
       render();
     });
     app.querySelector('.act-wear')?.addEventListener('click', () => {
@@ -391,6 +407,7 @@ export function shopRoute(app, params = {}) {
         announceSets(res.sets);
         syncAchievements();
         tryId = null;
+        trySetId = null;
         celebrateNow();
       }),
     );
@@ -402,6 +419,7 @@ export function shopRoute(app, params = {}) {
         syncAchievements();
         sfx.select();
         tryId = null;
+        trySetId = null;
         render();
       }),
     );

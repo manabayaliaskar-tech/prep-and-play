@@ -14534,3 +14534,7 @@ svg.mascot.emote .emo-popper-r {
 }
 .profile-room .profile-room-label { top: 10px; bottom: auto; }
 .profile-room .room-prepi { height: 52%; }
+.try-set { font-size: 2rem; }
+.ws-prepi { border: 0; background: none; padding: 0; cursor: pointer; }
+.set3-prepi { transition: transform 0.2s var(--ease-spring, ease); }
+.set3-prepi:hover, .ws-prepi:hover { transform: scale(1.05); }
