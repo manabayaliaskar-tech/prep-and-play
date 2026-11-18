@@ -13,7 +13,8 @@
 import { getLang, t, tx } from '../core/i18n.js';
 import { getProfile, saveProfile } from '../core/profile.js';
 import { navigate } from '../core/router.js';
-import { EXPLAINERS, explainerById } from '../content/explainers.js';
+import { EXPLAIN_SUBJECTS, EXPLAINERS, explainerById } from '../content/explainers.js';
+import { storage } from '../core/storage.js';
 import { skillName } from '../content/labels.js';
 import { L } from '../pools/gen.js';
 import { esc } from '../ui/dom.js';
@@ -1512,22 +1513,55 @@ function sortStep(st) {
 
 // ---------- Страницы ----------
 
+/** Разделы страницы анимаций: иконка и название. */
+const SUBJ = {
+  algebra: ['🧮', () => t('explain.s.algebra')],
+  geometry: ['📐', () => t('explain.s.geometry')],
+  higher: ['∫', () => t('explain.s.higher')],
+  physics: ['⚛️', () => t('explain.s.physics')],
+  chemistry: ['🧪', () => t('explain.s.chemistry')],
+  biology: ['🧬', () => t('explain.s.biology')],
+  cs: ['💻', () => t('explain.s.cs')],
+  geo: ['🌍', () => t('explain.s.geo')],
+};
+
+const explainCard = (e, i) => `<a class="explain-card" href="#/explain/${e.id}" style="--i:${Math.min(i, 16)}">
+            <span class="explain-icon" aria-hidden="true">${e.icon}</span>
+            <b>${esc(tx(SCENES[e.id].title))}</b>
+            <small>${e.topics.map((id) => esc(tx(skillName(id)))).join(' · ')}</small>
+          </a>`;
+
 export function explainIndexRoute(app) {
   const render = () => {
+    let pick = storage.get('explainSubj', 'all');
+    if (pick !== 'all' && !SUBJ[pick]) pick = 'all';
+    const shown = EXPLAIN_SUBJECTS.filter((s) => pick === 'all' || s === pick);
+    const chip = (id, label, n) =>
+      `<button type="button" class="explain-chip ${pick === id ? 'on' : ''}" data-subj="${id}" aria-pressed="${pick === id}">${label} <span>${n}</span></button>`;
     app.innerHTML = `
       <section class="page explain-index">
         <div class="page-head">
           <h1>🎬 ${t('explain.title')}</h1>
           <p class="muted">${t('explain.desc')}</p>
         </div>
-        <div class="explain-grid">${EXPLAINERS.map(
-          (e, i) => `<a class="explain-card" href="#/explain/${e.id}" style="--i:${Math.min(i, 16)}">
-            <span class="explain-icon" aria-hidden="true">${e.icon}</span>
-            <b>${esc(tx(SCENES[e.id].title))}</b>
-            <small>${e.topics.map((id) => esc(tx(skillName(id)))).join(' · ')}</small>
-          </a>`,
-        ).join('')}</div>
+        <div class="explain-chips" role="toolbar">
+          ${chip('all', t('explain.all'), EXPLAINERS.length)}
+          ${EXPLAIN_SUBJECTS.map((s) => chip(s, `${SUBJ[s][0]} ${SUBJ[s][1]()}`, EXPLAINERS.filter((e) => e.subj === s).length)).join('')}
+        </div>
+        ${shown
+          .map((s) => {
+            const list = EXPLAINERS.filter((e) => e.subj === s);
+            return `<h2 class="section-title explain-subj">${SUBJ[s][0]} ${SUBJ[s][1]()} <small>${list.length}</small></h2>
+        <div class="explain-grid">${list.map(explainCard).join('')}</div>`;
+          })
+          .join('')}
       </section>`;
+    app.querySelectorAll('.explain-chip').forEach((b) =>
+      b.addEventListener('click', () => {
+        storage.set('explainSubj', b.dataset.subj);
+        render();
+      }),
+    );
   };
   render();
   return { relabel: render };

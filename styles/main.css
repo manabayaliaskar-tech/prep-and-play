@@ -15725,3 +15725,22 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
 .exam-more-btn:hover { border-color: var(--primary); color: var(--primary); }
 .exam-folds:not(.show-all) .em-less, .exam-folds.show-all .em-more { display: none; }
 @media (prefers-reduced-motion: reduce) { .exam-folds.show-all .exam-fold.is-extra { animation: none; } }
+
+/* ===== Анимации тем: кнопки предметов и разделы ===== */
+.explain-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 6px; }
+.explain-chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px;
+  border: 1.5px solid var(--line); background: var(--card); color: var(--ink); font: inherit; font-weight: 700; font-size: 14px; cursor: pointer;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.explain-chip span { font-size: 12px; font-weight: 800; color: var(--muted); }
+.explain-chip:hover { border-color: var(--primary); }
+.explain-chip.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+.explain-chip.on span { color: rgba(255, 255, 255, .85); }
+.explain-subj { display: flex; align-items: baseline; gap: 8px; margin-top: 22px; }
+.explain-subj small { font-size: 14px; color: var(--muted); font-weight: 700; }
+@media (max-width: 720px) {
+  .explain-chips { flex-wrap: nowrap; overflow-x: auto; padding: 2px 0 6px; scrollbar-width: none; }
+  .explain-chips::-webkit-scrollbar { display: none; }
+  .explain-chip { flex: none; padding: 6px 12px; font-size: 13px; }
+}
