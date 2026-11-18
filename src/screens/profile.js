@@ -1,6 +1,7 @@
 // Профиль: уровень, общая статистика, прогресс по разделам, точность по темам,
 // карта навыков по всем предметам, активность за неделю, рекорды, экзамены (каждый свёрнут), настройки.
 
+import { notesInNav, setNotesInNav } from '../ui/topbar.js';
 import { navigate } from '../core/router.js';
 import { startTour } from '../ui/tour.js';
 import { COURSES, courseHref, practiceKey } from '../catalog/index.js';
@@ -414,6 +415,7 @@ ${achievementsPanel(p)}
         <div class="panel settings">
           <h2>${t('profile.settings')}</h2>
           <label class="toggle"><input type="checkbox" class="sound-input" ${p.sound ? 'checked' : ''}/><span>${t('profile.sound')}</span></label>
+          <label class="toggle"><input type="checkbox" class="notes-nav-input" ${notesInNav() ? 'checked' : ''}/><span>🔖 ${t('profile.notesNav')}</span></label>
           <label class="volume"><span>🔊 ${t('profile.volume')}</span><input type="range" class="volume-input" min="0" max="100" step="5" value="${Math.round(getVolume() * 100)}" ${p.sound ? '' : 'disabled'}/></label>
           <a class="btn btn-soft" href="#/saved">🔖 ${t('saved.title')}</a>
           <button type="button" class="btn btn-soft tour-btn">🎓 ${t('tour.replay')}</button>
@@ -427,6 +429,7 @@ ${achievementsPanel(p)}
       saveProfile();
       toast(`✅ ${t('profile.saved')}`, { kind: 'good' });
     });
+    app.querySelector('.notes-nav-input')?.addEventListener('change', (e) => setNotesInNav(e.target.checked));
     app.querySelector('.sound-input').addEventListener('change', (e) => {
       p.sound = e.target.checked;
       saveProfile();

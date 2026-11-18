@@ -15606,3 +15606,5 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
   .pc-shade { background: linear-gradient(90deg, rgba(15, 12, 41, 0.8), rgba(15, 12, 41, 0.35)); }
 }
 @media (prefers-reduced-motion: reduce) { .pc-reward.is-ready, .pc-claim { animation: none; } }
+.notes-tip { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 14px; padding: 12px 14px; border-radius: 16px; background: color-mix(in srgb, var(--primary) 10%, var(--card)); border: 1px solid color-mix(in srgb, var(--primary) 30%, var(--line)); }
+.notes-tip span { flex: 1 1 240px; font-weight: 700; }

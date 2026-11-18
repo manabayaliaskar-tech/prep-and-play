@@ -1,5 +1,6 @@
 // Верхняя панель: логотип, разделы сайта, серия дней, уровень, язык, звук.
 
+import { storage } from '../core/storage.js';
 import { animateCoin, coinHtml } from './coin.js';
 import { LANGS, getLang, setLang, t } from '../core/i18n.js';
 import { currentStreak, getProfile, levelInfo, saveProfile } from '../core/profile.js';
@@ -26,6 +27,13 @@ export function bindLangSwitches() {
 /** Сколько монет было при прошлой отрисовке: если стало больше - монета в панели подпрыгивает. */
 let shownCoins = null;
 
+/** Пункт «Заметки» в главном меню — по желанию (включается в профиле или по подсказке на странице «Сохранённое»). */
+export const notesInNav = () => storage.get('navNotes', false) === true;
+export function setNotesInNav(on) {
+  storage.set('navNotes', Boolean(on));
+  renderTopbar();
+}
+
 export function renderTopbar() {
   const el = document.getElementById('topbar');
   if (!el) return;
@@ -49,6 +57,7 @@ export function renderTopbar() {
         ${item('/c/olymp', 'nav.olymp', '🏆', group === 'olymp')}
         ${item('/code', 'nav.code', '💻', group === 'code')}
         ${item('/profile', 'nav.profile', '👤', path.startsWith('/profile') || path.startsWith('/achievements'))}
+        ${notesInNav() ? item('/saved', 'nav.notes', '🔖', path.startsWith('/saved')) : ''}
       </nav>
       <div class="top-stats">
         <span class="stat-chip streak ${streak ? 'is-on' : ''}" title="${t('top.streak')}${streakMultiplier(streak) > 1 ? ` · ×${streakMultiplier(streak)} XP` : ''}">${flameSvg(streak)} <b>${streak}</b></span>
@@ -58,14 +67,14 @@ export function renderTopbar() {
           <span class="lvl-bar" aria-hidden="true"><i style="width:${Math.round((lvl.into / lvl.need) * 100)}%"></i></span>
         </span>
       </div>
-      <a class="icon-btn saved-link ${path.startsWith('/saved') ? 'is-active' : ''}" href="#/saved" aria-label="${t('saved.title')}" title="${t('saved.title')}">🔖</a>
-      ${langSwitchHtml()}
+      ${notesInNav() ? '' : `<a class="icon-btn saved-link ${path.startsWith('/saved') ? 'is-active' : ''}" href="#/saved" aria-label="${t('saved.title')}" title="${t('saved.title')}">🔖</a>`}
       <a class="icon-btn premium-link ${path.startsWith('/premium') ? 'is-active' : ''}" href="#/premium" aria-label="${t('nav.premium')}" title="${t('nav.premium')}">💎</a>
       <div class="theme-menu">
         <button type="button" class="icon-btn theme-btn" aria-label="${t('theme.title')}" title="${t('theme.title')}" aria-haspopup="true" aria-expanded="false">🎨</button>
         <div class="theme-pop" hidden><p class="theme-pop-title">${t('theme.pick')}</p>${themePickerHtml()}</div>
       </div>
       <button type="button" class="icon-btn sound-toggle" aria-label="${t('top.sound')}" title="${t('top.sound')}">${p.sound ? '🔊' : '🔇'}</button>
+      ${langSwitchHtml()}
     </div>`;
   if (coinMove) animateCoin(el.querySelector('.stat-chip.coins .coin'), coinMove);
   el.querySelector('.sound-toggle').addEventListener('click', () => {

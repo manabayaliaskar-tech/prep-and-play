@@ -1,6 +1,8 @@
 // «Сохранённое»: задания в закладках и заметки к ним. Можно открыть задание, поправить заметку,
 // убрать из закладок и потренироваться на всех сохранённых сразу.
 
+import { storage } from '../core/storage.js';
+import { notesInNav, setNotesInNav } from '../ui/topbar.js';
 import { t, tx } from '../core/i18n.js';
 import { getSaved, removeSaved, setNote } from '../core/saved.js';
 import { createRng, newSeed, shuffle } from '../core/random.js';
@@ -32,6 +34,10 @@ function preview(q) {
 }
 
 export function savedRoute(app) {
+  // Часто заходишь в «Сохранённое» — один раз предложим добавить «Заметки» в главное меню.
+  const visits = storage.get('savedVisits', 0) + 1;
+  storage.set('savedVisits', visits);
+  let notesTip = visits >= 3 && !notesInNav() && !storage.get('notesTipDone', false);
   let session = null;
   let filter = 'all';
   let query = '';
@@ -83,6 +89,7 @@ export function savedRoute(app) {
             <p class="muted">${t('saved.desc')}</p>
           </div>
         </div>
+        ${notesTip ? `<div class="notes-tip"><span>💡 ${t('notes.tip')}</span><button type="button" class="btn btn-primary btn-sm notes-add">${t('notes.add')}</button><button type="button" class="link-btn notes-no">${t('notes.no')}</button></div>` : ''}
         ${
           all.length
             ? `<div class="saved-tools">
@@ -134,6 +141,14 @@ export function savedRoute(app) {
   }
 
   function bind(list) {
+    const tipDone = (on) => {
+      storage.set('notesTipDone', true);
+      notesTip = false;
+      if (on) setNotesInNav(true);
+      app.querySelector('.notes-tip')?.remove();
+    };
+    app.querySelector('.notes-add')?.addEventListener('click', () => tipDone(true));
+    app.querySelector('.notes-no')?.addEventListener('click', () => tipDone(false));
     const search = app.querySelector('.saved-search');
     search?.addEventListener('input', () => {
       query = search.value;
