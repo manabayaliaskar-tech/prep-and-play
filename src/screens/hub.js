@@ -1,6 +1,7 @@
 // Главная: приветствие, цель дня, «продолжить» и три раздела сайта —
 // экзамены, олимпиадная математика, ежедневная практика.
 
+import { EXPLAINERS } from '../content/explainers.js';
 import { maybeStartTour } from '../ui/tour.js';
 import { bindQuizHost, quizHostHtml } from '../ui/quiz-host.js';
 import { COURSES, GROUPS, courseById, courseHref, courseStars, coursesIn, trackById, trackHref, trackRecord } from '../catalog/index.js';
@@ -29,7 +30,7 @@ function learnRowHtml() {
   const saved = getSaved().length;
   const card = (href, icon, title, desc, cls = '') => `<a class="learn-card ${cls}" href="#${href}"><span class="learn-icon" aria-hidden="true">${icon}</span><span><b>${title}</b><small>${desc}</small></span></a>`;
   return `<div class="learn-row">
-    ${card('/explain', '🎬', t('explain.title'), t('hub.explainDesc'), 'lc-explain')}
+    ${card('/explain', '🎬', t('explain.title'), t('hub.explainDesc', { n: EXPLAINERS.length }), 'lc-explain')}
     ${card('/c/ielts/listening', '🎧', t('hub.listen'), t('hub.listenDesc'), 'lc-listen')}
     ${card('/saved', '🔖', t('saved.title'), saved ? t('hub.savedN', { n: saved }) : t('hub.savedDesc'), 'lc-saved')}
   </div>`;
