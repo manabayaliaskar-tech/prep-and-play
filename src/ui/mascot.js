@@ -173,36 +173,57 @@ const POSES = {
   hold: { L: [27, 92, 14, 100, 19, 112], R: [113, 92, 128, 99, 123, 106] },
 };
 
-const hand = (x, y, cls = '') =>
-  `<g class="hand ${cls}"><circle cx="${x}" cy="${y}" r="6.3" fill="var(--mascot-1)" stroke="var(--mascot-2)" stroke-width="1.6"/><circle cx="${x - 2}" cy="${y - 2.2}" r="2.2" fill="#fff" opacity=".45"/></g>`;
+const quad = ([x0, y0, cx, cy, x1, y1], t) => [
+  (1 - t) ** 2 * x0 + 2 * (1 - t) * t * cx + t * t * x1,
+  (1 - t) ** 2 * y0 + 2 * (1 - t) * t * cy + t * t * y1,
+];
 
+/** Пухлая рука: контур, заливка и блик. Конец скруглён, без отдельной ладошки. */
 function armPath([x0, y0, cx, cy, x1, y1], thick) {
   const d = `M${x0} ${y0} Q${cx} ${cy} ${x1} ${y1}`;
-  return `<path d="${d}" stroke="var(--mascot-2)" stroke-width="${thick + 3}" fill="none" stroke-linecap="round"/><path d="${d}" stroke="var(--mascot-1)" stroke-width="${thick}" fill="none" stroke-linecap="round"/>`;
+  return `<path d="${d}" stroke="var(--mascot-2)" stroke-width="${thick + 3}" fill="none" stroke-linecap="round"/><path d="${d}" stroke="var(--mascot-1)" stroke-width="${thick}" fill="none" stroke-linecap="round"/><path d="${d}" stroke="#fff" stroke-width="${(thick / 4).toFixed(1)}" fill="none" stroke-linecap="round" opacity=".28" transform="translate(-1.2 -1.6)"/>`;
 }
 
-/** Руки за телом (рисуются до тела) и кисти (после). Если в руке вещь — правая рука её держит. */
-function arms(poseId, { buff = false, holding = null, tuck = true } = {}) {
-  let pose = POSES[poseId] ?? POSES.rest;
-  if (holding && !['up', 'flex', 'open'].includes(poseId)) pose = { ...pose, R: POSES.hold.R, front: pose.front?.filter(([x]) => x < 70), thumb: false, wave: false };
-  if (holding && pose.front?.length && !pose.L) pose = { ...pose, L: POSES.rest.L };
-  const thick = buff ? 13 : 10;
+// Рукава костюмов: цвет рукава и его контура (верхняя часть руки окрашивается под костюм).
+const SLEEVES = {
+  hoodie: ['#38bdf8', '#0369a1'], tuxedo: ['#1f2937', '#030712'], superhero: ['#2563eb', '#1e3a8a'], kimono: ['#e11d48', '#881337'],
+  spacesuit: ['#f1f5f9', '#64748b'], labcoat: ['#f8fafc', '#94a3b8'], jersey: ['#16a34a', '#14532d'], knightarmor: ['#cbd5e1', '#475569'],
+  overalls: ['#fde047', '#a16207'], raincoat: ['#facc15', '#a16207'], sweater: ['#dc2626', '#7f1d1d'], piratecoat: ['#9f1239', '#4c0519'],
+  wizardrobe: ['#312e81', '#1e1b4b'], chefcoat: ['#ffffff', '#94a3b8'], ninjagi: ['#334155', '#0f172a'], pyjamas: ['#bfdbfe', '#2563eb'],
+  schooluniform: ['#1e3a8a', '#172554'], tracksuit: ['#10b981', '#065f46'], princessdress: ['#fbcfe8', '#9d174d'], hawaiian: ['#0891b2', '#164e63'],
+  trenchcoat: ['#d4a373', '#7c4a1e'],
+};
+
+/** Рукав: часть руки от плеча до t = 0.62 в цвете костюма, с манжетой. */
+function sleeve(a, thick, [fill, line]) {
+  const [mx, my] = quad(a, 0.62);
+  const [cx, cy] = quad(a, 0.31);
+  const d = `M${a[0]} ${a[1]} Q${(2 * cx - (a[0] + mx) / 2).toFixed(1)} ${(2 * cy - (a[1] + my) / 2).toFixed(1)} ${mx.toFixed(1)} ${my.toFixed(1)}`;
+  return `<path d="${d}" stroke="${line}" stroke-width="${thick + 4}" fill="none" stroke-linecap="round"/><path d="${d}" stroke="${fill}" stroke-width="${thick + 1}" fill="none" stroke-linecap="round"/><circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="${(thick / 2 + 1.5).toFixed(1)}" fill="${fill}" stroke="${line}" stroke-width="1.6"/>`;
+}
+
+// Позы, где кисть лежала на лице, заменяются похожими — у рук теперь нет отдельных ладошек.
+const POSE_SWAP = { chin: 'rest', cover: 'droop', belly: 'hips', thumb: 'wave' };
+
+/** Руки за телом (рисуются до тела). Если в руке вещь — правая рука её держит: кончик руки рисуется поверх вещи. */
+function arms(poseId, { buff = false, holding = null, sleeves = null } = {}) {
+  let pose = POSES[POSE_SWAP[poseId] ?? poseId] ?? POSES.rest;
+  if (holding && !['up', 'flex', 'open'].includes(poseId)) pose = { ...pose, R: POSES.hold.R, wave: false };
+  const thick = buff ? 16 : 13;
   let back = '';
   let front = '';
   for (const side of ['L', 'R']) {
     const a = pose[side];
     if (!a) continue;
     const isR = side === 'R';
-    // Обычно рук не видно — только ладошки рядом с телом; длинные руки — у качка и в танцах.
-    const showArm = buff || !tuck;
-    back += `<g class="arm arm-${side.toLowerCase()} ${isR && pose.wave ? 'is-waving' : ''}">${showArm ? armPath(a, thick) : ''}${showArm && (pose.flex || buff) ? `<circle cx="${(a[0] + a[2]) / 2 + (isR ? 2 : -2)}" cy="${(a[1] + a[3]) / 2 - 3}" r="${buff ? 9.5 : 6}" fill="var(--mascot-1)" stroke="var(--mascot-2)" stroke-width="1.6"/>` : ''}</g>`;
-    const k = showArm ? 0 : 0.38;
-    const [hx, hy] = [+(a[4] + (a[0] - a[4]) * k).toFixed(1), +(a[5] + (a[1] - a[5]) * k).toFixed(1)];
-    if (isR && holding) front += `<g class="held" transform="translate(${hx} ${hy})">${holding}</g>`;
-    front += hand(hx, hy, `hand-${side.toLowerCase()} ${isR && pose.wave ? 'is-waving' : ''}`);
-    if (isR && pose.thumb) front += `<path d="M${hx - 1} ${hy - 6} q1 -9 5 -8 q3 1 -1 9" fill="var(--mascot-1)" stroke="var(--mascot-2)" stroke-width="1.6"/>`;
+    const bicep = pose.flex || buff ? `<circle cx="${(a[0] + a[2]) / 2 + (isR ? 2 : -2)}" cy="${(a[1] + a[3]) / 2 - 3}" r="${buff ? 10.5 : 7}" fill="var(--mascot-1)" stroke="var(--mascot-2)" stroke-width="1.6"/>` : '';
+    back += `<g class="arm arm-${side.toLowerCase()} ${isR && pose.wave ? 'is-waving' : ''}">${armPath(a, thick)}${sleeves ? sleeve(a, thick, sleeves) : bicep}</g>`;
+    if (isR && holding) {
+      const [tx, ty] = quad(a, 0.72);
+      front += `<g class="held" transform="translate(${a[4]} ${a[5]})">${holding}</g>`;
+      front += `<g class="arm-tip">${armPath([+tx.toFixed(1), +ty.toFixed(1), (tx + a[4]) / 2, (ty + a[5]) / 2, a[4], a[5]], thick)}</g>`;
+    }
   }
-  for (const [x, y] of pose.front ?? []) front += hand(x, y);
   return { back, front };
 }
 
@@ -299,7 +320,7 @@ export function mascot(mood = 'happy', cls = '', outfit = getOutfit(), opts = {}
   const buff = form === 'buff';
   const held = HAND[outfit.hand] ?? '';
   const poseId = opts.pose ?? (buff ? 'flex' : m.pose);
-  const { back: armsBack, front: armsFront } = arms(poseId, { buff, holding: emote ? null : held || null, tuck: !emote });
+  const { back: armsBack, front: armsFront } = arms(poseId, { buff, holding: emote ? null : held || null, sleeves: SLEEVES[outfit.body] ?? null });
   const head = outfit.head === 'cap' ? CAP : (HEAD[outfit.head] ?? '');
   const formHead = head ? '' : buff ? SWEATBAND : form === 'sick' ? ICEPACK : '';
   const blush = m.blush === 2
