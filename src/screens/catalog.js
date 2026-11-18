@@ -1,6 +1,6 @@
 // Каталог: список экзаменов, страница курса (экзамен или набор уровней), раздел «Ежедневная практика».
 
-import { learnRowHtml } from './hub.js';
+import { learnRowHtml, levelChips } from './hub.js';
 import { mockCardHtml } from './mock.js';
 import { courseById, courseHref, coursesIn, groupById, levelLabel, trackHref, trackRecord } from '../catalog/index.js';
 import { t, tx } from '../core/i18n.js';
@@ -174,7 +174,8 @@ export function practiceHubScreen(app, groupId = 'daily') {
           <div class="practice-course" style="--c:${course.color}">
             ${pinButton(course.id, t(isPinned(course.id) ? 'pin.remove' : 'pin.add'))}
             <a class="practice-course-head" href="#${courseHref(course)}">${courseBadge(course)}<span class="course-text"><b>${esc(tx(course.name))}</b><small>${esc(tx(course.full))}</small></span></a>
-            ${tracksHtml(course)}
+            ${course.tracks.length ? levelChips(course, { limit: 6, cls: 'phone-only' }) : ''}
+            <div class="desktop-only">${tracksHtml(course)}</div>
           </div>`,
           )
           .join('')}
