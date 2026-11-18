@@ -15712,3 +15712,16 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
   .ts-text b { font-size: 13px; }
   .today-strip[style*="--n:3"] .ts-tile:first-child { grid-column: 1 / -1; }
 }
+
+/* ===== Профиль: первые 6 экзаменов и «Ещё N» ===== */
+.exam-folds:not(.show-all) .exam-fold.is-extra { display: none; }
+.exam-folds.show-all .exam-fold.is-extra { animation: exam-in .25s ease both; }
+@keyframes exam-in { from { opacity: 0; transform: translateY(-4px); } }
+.exam-more-btn {
+  justify-self: center; align-self: center; margin-top: 2px; padding: 8px 18px; border-radius: 999px;
+  border: 1.5px dashed var(--line-strong); background: var(--card); color: var(--ink); font: inherit; font-weight: 700; font-size: 14px; cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.exam-more-btn:hover { border-color: var(--primary); color: var(--primary); }
+.exam-folds:not(.show-all) .em-less, .exam-folds.show-all .em-more { display: none; }
+@media (prefers-reduced-motion: reduce) { .exam-folds.show-all .exam-fold.is-extra { animation: none; } }

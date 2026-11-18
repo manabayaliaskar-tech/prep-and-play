@@ -29,6 +29,7 @@ import { startInstall } from './hub.js';
 import { getVolume, setVolume, sfx } from '../core/sound.js';
 import { mascot } from '../ui/mascot.js';
 import { esc } from '../ui/dom.js';
+import { storage } from '../core/storage.js';
 import { openModal, toast } from '../ui/overlay.js';
 import { themePickerHtml } from '../ui/theme-picker.js';
 import { courseBadge } from './hub.js';
@@ -341,14 +342,16 @@ function examsSection(p, satValues) {
   const exams = COURSES.filter((c) => c.group === 'exams' && (c.tracks.length || c.id === 'sat'));
   const rows = exams.map((course) => ({ course, ready: readiness(course, p) }));
   rows.sort((a, b) => b.ready - a.ready);
+  const extra = rows.length - EXAMS_SHOWN;
+  const open = storage.get('profileExamsAll', false) === true;
   return `
     <h2 class="section-title">${t('profile.examsTitle')}</h2>
     <p class="muted small">${t('profile.examsHint')}</p>
-    <div class="exam-folds">
+    <div class="exam-folds ${open ? 'show-all' : ''}">
       ${rows
         .map(
-          ({ course, ready }) => `
-        <details class="exam-fold" data-exam="${course.id}" style="--c:${course.color}">
+          ({ course, ready }, i) => `
+        <details class="exam-fold ${i >= EXAMS_SHOWN ? 'is-extra' : ''}" data-exam="${course.id}" style="--c:${course.color}">
           <summary>
             ${courseBadge(course)}
             <span class="course-text"><b>${esc(tx(course.name))}</b><small>${esc(tx(course.full))}</small></span>
@@ -358,7 +361,22 @@ function examsSection(p, satValues) {
         </details>`,
         )
         .join('')}
+      ${extra > 0 ? `<button type="button" class="exam-more-btn" aria-expanded="${open}"><span class="em-more">${t('profile.examsMore', { n: extra })} ▾</span><span class="em-less">${t('profile.examsLess')} ▴</span></button>` : ''}
     </div>`;
+}
+
+/** Сколько экзаменов показывать сразу; остальные раскрываются кнопкой «Ещё N». */
+const EXAMS_SHOWN = 6;
+
+function bindExamMore(app) {
+  const btn = app.querySelector('.exam-more-btn');
+  btn?.addEventListener('click', () => {
+    const box = btn.closest('.exam-folds');
+    const on = box.classList.toggle('show-all');
+    btn.setAttribute('aria-expanded', String(on));
+    storage.set('profileExamsAll', on);
+    if (!on) box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  });
 }
 
 export function profileScreen(app) {
@@ -436,6 +454,7 @@ ${achievementsPanel(p)}
       app.querySelector('.volume-input').disabled = !p.sound;
     });
     app.querySelector('.prepi-dress').addEventListener('click', () => openWardrobe(render));
+    bindExamMore(app);
     app.querySelectorAll('.exam-fold[data-exam]').forEach((el) => bindChart(el, progressPoints(el.dataset.exam)));
     app.querySelector('.install-btn')?.addEventListener('click', startInstall);
     app.querySelector('.volume-input').addEventListener('change', (e) => {
