@@ -18,6 +18,8 @@ import { esc, formatTime } from '../ui/dom.js';
 import { mascot } from '../ui/mascot.js';
 import { bindQuestion, correctAnswerHtml, questionHtml, responseHtml, wrongReason } from '../ui/question.js';
 import { openReference } from '../ui/reference.js';
+import { openCalculator } from '../ui/calculator.js';
+import { openModal } from '../ui/overlay.js';
 import { renderResults } from '../ui/results.js';
 import { mountSolution } from '../ui/solution.js';
 import { lessonFor } from '../content/lessons/index.js';
@@ -111,7 +113,7 @@ export function runSession(app, config) {
               </div>`
             : ''
         }
-        <div class="session-title"><span>${esc(titleText())}</span><span class="q-counter"></span><button type="button" class="link-btn ref-btn" hidden>📏 ${t('ref.short')}</button><button type="button" class="link-btn save-btn" aria-pressed="false" title="${t('saved.add')}" aria-label="${t('saved.add')}">🔖</button>${hints ? `<button type="button" class="link-btn hint-btn" title="${t('hint.btn')}" aria-label="${t('hint.btn')}">💡<span class="hint-label"> ${t('hint.btn')}</span></button>` : ''}${langSwitchHtml('mini')}</div>
+        <div class="session-title"><span>${esc(titleText())}</span><span class="q-counter"></span><button type="button" class="link-btn ref-btn" hidden>📏 ${t('ref.short')}</button><button type="button" class="link-btn calc-btn" hidden title="${t('calc.title')}" aria-label="${t('calc.title')}">🧮<span class="hint-label"> ${t('calc.short')}</span></button><button type="button" class="link-btn save-btn" aria-pressed="false" title="${t('saved.add')}" aria-label="${t('saved.add')}">🔖</button>${hints ? `<button type="button" class="link-btn hint-btn" title="${t('hint.btn')}" aria-label="${t('hint.btn')}">💡<span class="hint-label"> ${t('hint.btn')}</span></button>` : ''}${langSwitchHtml('mini')}</div>
         ${pace ? '<div class="pace-bar" hidden><i></i></div>' : ''}
         <main class="q-area"></main>
         <footer class="answer-bar"><div class="answer-bar-inner"><span class="hud-prepi" aria-hidden="true">${mascot(silent ? 'think' : 'happy', 'mascot-xs')}</span><button type="button" class="btn btn-primary btn-lg btn-check" disabled>${checkLabel()}</button></div></footer>
@@ -131,9 +133,10 @@ export function runSession(app, config) {
     el.check = app.querySelector('.btn-check');
     el.sheet = app.querySelector('.sheet');
     el.ref = app.querySelector('.ref-btn');
+    el.calc = app.querySelector('.calc-btn');
     el.prepi = app.querySelector('.hud-prepi');
     el.hint = app.querySelector('.hint-btn');
-    el.hint?.addEventListener('click', useHint);
+    el.hint?.addEventListener('click', () => askHelp('hint', useHint));
     el.badge = app.querySelector('.badge-chip');
     el.pace = app.querySelector('.pace-chip');
     el.paceBar = app.querySelector('.pace-bar');
@@ -154,7 +157,8 @@ export function runSession(app, config) {
     });
     app.querySelector('.hud-close').addEventListener('click', () => navigate(exitTo));
     el.check.addEventListener('click', () => (state.phase === 'answer' ? check() : proceed()));
-    el.ref.addEventListener('click', openReference);
+    el.ref.addEventListener('click', () => askHelp('ref', () => openReference({ answerInput: el.area.querySelector('.spr-input') })));
+    el.calc.addEventListener('click', () => openCalculator({ answerInput: el.area.querySelector('.spr-input') }));
     updateHud();
   }
 
@@ -193,6 +197,7 @@ export function runSession(app, config) {
     // Слово на иностранном языке можно послушать (кнопка 🔊 рядом с ним).
     if (q.voice?.now) el.area.querySelector('.passage p')?.insertAdjacentHTML('beforeend', ` ${sayButton(q.voice.now, q.voice.lang)}`);
     el.ref.hidden = q.section !== 'math' || Boolean(q.local);
+    el.calc.hidden = q.section !== 'math';
     syncSave();
     state.binder = bindQuestion(el.area, q, {
       onChange: (r) => {
@@ -293,6 +298,29 @@ export function runSession(app, config) {
     state.paceTimer = null;
   }
 
+  /**
+   * Формулы и подсказка - помощь: перед первой в задании спрашиваем, точно ли открыть.
+   * Задание с помощью помечается в итогах и не даёт звёзд.
+   */
+  function askHelp(kind, open) {
+    if (state.phase !== 'answer' || state.helped) return open();
+    openModal({
+      title: kind === 'ref' ? `📏 ${t('help.refTitle')}` : `💡 ${t('help.hintTitle')}`,
+      body: `<div class="help-confirm">${mascot('think', 'mascot-sm')}<p>${t('help.text')}</p></div>`,
+      actions: [
+        { label: `💪 ${t('help.self')}`, primary: true },
+        {
+          label: kind === 'ref' ? `📏 ${t('help.showRef')}` : `💡 ${t('help.showHint')}`,
+          onClick: () => {
+            state.helped = true;
+            el.session?.classList.add('is-helped');
+            open();
+          },
+        },
+      ],
+    });
+  }
+
   function useHint() {
     if (state.phase !== 'answer' || state.hint) return;
     state.hint = true;
@@ -308,6 +336,8 @@ export function runSession(app, config) {
     state.phase = 'answer';
     state.last = null;
     state.hint = false;
+    state.helped = false;
+    el.session?.classList.remove('is-helped');
     state.hidden = null;
     if (!silent && state.index > 0) setPrepi(run.combo >= 3 ? 'wow' : 'happy');
     state.q = questions ? questions[state.index] : stream.next(difficultyAt(run.answered));
@@ -333,8 +363,8 @@ export function runSession(app, config) {
     const response = timeout ? null : state.binder.response;
     const correct = !timeout && checkAnswer(q, response);
     const timeMs = performance.now() - state.qStart;
-    const result = applyAnswer(run, { question: q, correct, response, timeMs });
-    if (state.hint && result.xp > 0) {
+    const result = applyAnswer(run, { question: q, correct, response, timeMs, helped: state.helped || state.hint });
+    if ((state.hint || state.helped) && result.xp > 0) {
       const cut = Math.ceil(result.xp / 2);
       result.xp -= cut;
       run.xp -= cut;
@@ -587,6 +617,7 @@ export function baseStats(run) {
     { icon: '✅', label: t('res.correct'), value: `${run.correct}/${run.answered}` },
     { icon: '🎯', label: t('res.accuracy'), value: `${run.answered ? Math.round((run.correct / run.answered) * 100) : 0}%` },
     { icon: '🔥', label: t('res.bestCombo'), value: run.bestCombo },
+    ...(run.log.some((e) => e.helped) ? [{ icon: '💪', label: t('help.clean'), value: `${run.clean}/${run.answered}` }] : []),
     ...(speed ? [{ icon: '⏱', label: t('speed.avg'), value: `${speed.avg} ${t('pace.s')}` }, { icon: '⚡', label: t('speed.inPace'), value: `${speed.fast}/${speed.n}` }] : []),
   ];
 }

@@ -285,7 +285,7 @@ export function examLevelRoute(app, { exam, track: trackId, n: nRaw }) {
           won = run.bossHp === 0;
           saveBossResult(course, track, won);
         } else {
-          stars = starsFor(run.correct, LEVEL_Q);
+          stars = starsFor(run.clean, LEVEL_Q);
           const st = pathStore(course);
           st[track.id] ??= {};
           st[track.id][n] = Math.max(st[track.id][n] ?? 0, stars);

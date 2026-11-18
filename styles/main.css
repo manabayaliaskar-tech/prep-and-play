@@ -15945,3 +15945,63 @@ a.xp-node:hover { transform: translateY(-2px) scale(1.04); }
 @media (max-width: 1023px) { .catalog .exam-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; } }
 @media (max-width: 720px) { .catalog .exam-list { grid-template-columns: 1fr; gap: 12px; } }
 .home .hero-badges .lvl-xp-badge { display: inline-flex; align-items: center; gap: 6px; }
+
+/* ===== Научный калькулятор ===== */
+.calc {
+  --ck-bg: #1b1838; --ck-key: #2a2650; --ck-key-2: #352f66; --ck-ink: #f4f2ff; --ck-op: #7c5cff; --ck-eq: linear-gradient(135deg, #22c55e, #14b8a6);
+  display: grid; gap: 10px; padding: 14px; border-radius: 22px; outline: none; min-width: 0;
+  background: radial-gradient(120% 80% at 0% 0%, #2b2560, var(--ck-bg) 60%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 14px 30px rgba(20, 16, 50, .35);
+}
+.calc.shake { animation: calc-shake .35s; }
+@keyframes calc-shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+.calc-screen {
+  display: grid; gap: 4px; padding: 10px 12px; border-radius: 16px; color: var(--ck-ink);
+  background: linear-gradient(180deg, rgba(0, 0, 0, .35), rgba(0, 0, 0, .15)); box-shadow: inset 0 2px 6px rgba(0, 0, 0, .35);
+}
+.calc-top { display: flex; justify-content: space-between; align-items: center; }
+.calc-mode { font: inherit; font-size: 11px; font-weight: 800; letter-spacing: .08em; padding: 3px 8px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, .25); background: rgba(255, 255, 255, .08); color: #c9bfff; cursor: pointer; }
+.calc-hist-label { font-size: 11px; color: rgba(255, 255, 255, .45); text-transform: uppercase; letter-spacing: .08em; }
+.calc-history { display: grid; gap: 2px; max-height: 76px; overflow-y: auto; scrollbar-width: thin; }
+.calc-h { display: flex; justify-content: space-between; gap: 8px; font: inherit; font-size: 12px; color: rgba(255, 255, 255, .6); background: none; border: 0; padding: 1px 2px; cursor: pointer; text-align: left; border-radius: 6px; }
+.calc-h span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.calc-h b { color: #b9f5d0; }
+.calc-h:hover { background: rgba(255, 255, 255, .08); }
+.calc-expr { width: 100%; min-width: 0; font: inherit; font-size: 1.6rem; font-weight: 800; text-align: right; color: var(--ck-ink); background: none; border: 0; outline: none; padding: 2px 0; caret-color: #8b7bff; font-variant-numeric: tabular-nums; }
+.calc-preview { min-height: 1.2em; text-align: right; font-size: .95rem; color: #9ee6bd; font-weight: 700; }
+.calc-preview.bad { color: #ff8a95; }
+.calc-keys { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 7px; }
+.calc-key {
+  font: inherit; font-weight: 800; font-size: 1rem; padding: 11px 0; border-radius: 13px; border: 0; cursor: pointer; color: var(--ck-ink);
+  background: var(--ck-key); box-shadow: 0 3px 0 rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .07);
+  transition: transform .08s, filter .15s;
+}
+.calc-key:hover { filter: brightness(1.18); }
+.calc-key:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0, 0, 0, .35); }
+.calc-key.is-num { background: var(--ck-key-2); font-size: 1.12rem; }
+.calc-key.is-fn { font-size: .86rem; color: #cfc6ff; }
+.calc-key.is-op { background: var(--ck-op); color: #fff; font-size: 1.2rem; }
+.calc-key.is-clear { background: #e5484d; color: #fff; }
+.calc-key.is-eq { background: var(--ck-eq); color: #fff; font-size: 1.3rem; }
+.calc-key.is-on { background: #f5b301; color: #2a1d00; }
+.calc-to-answer { justify-self: stretch; }
+.modal.modal-wide { width: min(980px, 100%); }
+.ref-wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 340px); gap: 16px; align-items: start; }
+.ref-wrap .ref-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+@media (max-width: 760px) { .ref-wrap { grid-template-columns: 1fr; } .ref-wrap .calc { order: -1; } }
+
+/* Подтверждение перед помощью и метки в итогах */
+.help-confirm { display: flex; align-items: center; gap: 12px; }
+.help-confirm p { margin: 0; line-height: 1.5; }
+.session.is-helped .hint-btn, .session.is-helped .ref-btn { color: var(--orange-ink); }
+.help-marks { margin: 14px 0; padding: 14px 16px; border-radius: 16px; background: var(--card); border: 1.5px solid var(--line); }
+.hm-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.hm { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; font-weight: 900; font-style: normal; font-size: 14px; }
+.hm-ok { background: var(--green-l); color: var(--green-d); }
+.hm-help { background: var(--gold-l); color: var(--gold-ink); }
+.hm-bad { background: var(--red-l); color: var(--red-d); }
+.hm-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font-size: 13px; color: var(--muted); }
+.hm-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.hm-legend .hm { width: 22px; height: 22px; font-size: 11px; border-radius: 6px; }
+.help-marks p { margin: 8px 0 0; }
+.calc-to-answer[hidden] { display: none; }

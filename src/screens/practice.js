@@ -23,16 +23,17 @@ export const TRAIN_COUNT = 10;
 const GROUP_HOME = { daily: '/practice', code: '/code' };
 
 /** Сохраняет результат тренировки. Возвращает запись с лучшими показателями. */
-export function saveTrackResult(course, track, { correct, total }, today = dayKey()) {
+export function saveTrackResult(course, track, { correct, total, clean = correct }, today = dayKey()) {
   const p = getProfile();
   const key = practiceKey(course, track);
   const rec = (p.practice[key] ??= { best: 0, runs: 0, pct: 0, last: null });
   rec.runs += 1;
-  rec.best = Math.max(rec.best, starsFor(correct, total));
+  // Звёзды - только за задания без подсказок и формул (clean).
+  rec.best = Math.max(rec.best, starsFor(clean, total));
   rec.pct = Math.max(rec.pct, total ? Math.round((correct / total) * 100) : 0);
   rec.last = today;
   p.last = { course: course.id, track: track.id };
-  if (starsFor(correct, total) >= 2) todayStats(today).stars2 += 1;
+  if (starsFor(clean, total) >= 2) todayStats(today).stars2 += 1;
   return rec;
 }
 
@@ -85,8 +86,8 @@ export function trackRoute(app, { course: courseId, track: trackId }) {
       exitTo: trackHref(course, track),
       onFinish: (run, { reason }) => {
         // Задания, до которых не дошла очередь в тесте на время, считаются неверными.
-        const stars = starsFor(run.correct, count);
-        saveTrackResult(course, track, { correct: run.correct, total: count });
+        const stars = starsFor(run.clean, count);
+        saveTrackResult(course, track, { correct: run.correct, total: count, clean: run.clean });
         saveProfile();
         celebrate(stars >= 1);
         return () => ({

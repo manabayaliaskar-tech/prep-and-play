@@ -14,6 +14,16 @@ export function starsHtml(stars, max = 3) {
 }
 
 /** Список заданий с разбором; каждое раскрывается по нажатию. */
+/** Метки по каждому заданию: сам / с подсказкой / ошибка. */
+function marksHtml(log) {
+  const mark = (e) => (!e.correct ? ['bad', '✗', t('help.markWrong')] : e.helped ? ['help', '💡', t('help.markHelp')] : ['ok', '✓', t('help.markSelf')]);
+  return `<div class="help-marks">
+    <div class="hm-row">${log.map((e, i) => { const [c, s, l] = mark(e); return `<span class="hm hm-${c}" title="#${i + 1} · ${l}">${s}</span>`; }).join('')}</div>
+    <div class="hm-legend"><span><i class="hm hm-ok">✓</i> ${t('help.markSelf')}</span><span><i class="hm hm-help">💡</i> ${t('help.markHelp')}</span><span><i class="hm hm-bad">✗</i> ${t('help.markWrong')}</span></div>
+    <p class="muted small">${t('help.starsNote')}</p>
+  </div>`;
+}
+
 export function reviewHtml(log, { onlyWrong = true } = {}) {
   const items = log.map((entry, i) => ({ ...entry, n: i + 1 })).filter((e) => !onlyWrong || !e.correct);
   if (!items.length) return '';
@@ -24,7 +34,7 @@ export function reviewHtml(log, { onlyWrong = true } = {}) {
         .map(
           (e) => `
         <details class="review-item ${e.correct ? 'ok' : 'bad'}" data-n="${e.n - 1}">
-          <summary><span class="review-mark">${e.correct ? '✓' : '✗'}</span><span>#${e.n} · ${esc(tx(skillName(e.question.skill)))}</span><span class="review-open">${t('res.open')}</span></summary>
+          <summary><span class="review-mark">${e.correct ? (e.helped ? '💡' : '✓') : '✗'}</span><span>#${e.n} · ${esc(tx(skillName(e.question.skill)))}</span><span class="review-open">${t('res.open')}</span></summary>
           <div class="review-body"></div>
         </details>`,
         )
@@ -75,6 +85,7 @@ export function renderResults(app, build) {
           )
           .join('')}
       </div>
+      ${data.log?.some((e) => e.helped) ? marksHtml(data.log) : ''}
       ${data.log ? reviewHtml(data.log, { onlyWrong: data.reviewOnlyWrong ?? true }) : ''}
     </section>`;
   app.querySelectorAll('[data-res-action]').forEach((b) => b.addEventListener('click', () => data.actions[Number(b.dataset.resAction)].onClick?.()));

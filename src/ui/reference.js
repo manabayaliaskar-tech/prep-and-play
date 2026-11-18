@@ -2,13 +2,16 @@
 
 import { t } from '../core/i18n.js';
 import { openModal } from './overlay.js';
+import { bindCalculator, calculatorHtml } from './calculator.js';
 
 const R = (formula, en) => `<div class="ref-item"><div class="ref-formula">${formula}</div><div class="ref-name">${en}</div></div>`;
 
-export function openReference() {
+export function openReference({ answerInput = null } = {}) {
   openModal({
     title: `📏 ${t('ref.title')}`,
     body: `
+      <div class="ref-wrap">
+      <div class="ref-side">
       <div class="ref-grid">
         ${R('<i>A</i> = π<i>r</i><sup>2</sup>, <i>C</i> = 2π<i>r</i>', 'Circle: area, circumference')}
         ${R('<i>A</i> = <i>ℓw</i>', 'Rectangle: area')}
@@ -26,6 +29,10 @@ export function openReference() {
         ${R('<i>x</i> = (−<i>b</i> ± √(<i>b</i><sup>2</sup> − 4<i>ac</i>)) / 2<i>a</i>', 'Quadratic formula (not on the official sheet - memorize it!)')}
       </div>
       <p class="muted small">${t('ref.note')}</p>
-      <a class="btn btn-soft" href="https://www.desmos.com/calculator" target="_blank" rel="noopener">🧮 ${t('ref.desmos')}</a>`,
+      </div>
+      ${calculatorHtml()}
+      </div>`,
   });
+  bindCalculator(document.getElementById('modal-root'), { answerInput });
+  document.querySelector('#modal-root .modal')?.classList.add('modal-wide');
 }

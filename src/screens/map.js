@@ -142,7 +142,7 @@ export function levelRoute(app, { zone: zoneId, n: nRaw, skipLesson = false }) {
     questions,
     exitTo: '/map',
     onFinish: (run) => {
-      const stars = starsFor(run.correct, LEVEL_SIZE);
+      const stars = starsFor(run.clean, LEVEL_SIZE);
       const p = getProfile();
       const key = levelKey(zone.id, n);
       const before = p.map.stars[key] ?? 0;

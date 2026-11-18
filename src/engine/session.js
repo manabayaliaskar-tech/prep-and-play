@@ -13,6 +13,7 @@ export function createRun({ lives = null, bossHp = null } = {}) {
   return {
     answered: 0,
     correct: 0,
+    clean: 0,
     combo: 0,
     bestCombo: 0,
     lives,
@@ -25,13 +26,15 @@ export function createRun({ lives = null, bossHp = null } = {}) {
   };
 }
 
-export function applyAnswer(run, { question, correct, response = null, timeMs = 0 }) {
+export function applyAnswer(run, { question, correct, response = null, timeMs = 0, helped = false }) {
   run.answered += 1;
   run.timeMs += timeMs;
   let xp = 0;
   let damage = 0;
   if (correct) {
     run.correct += 1;
+    // Решено без подсказки и без формул - только такие задания дают звёзды.
+    if (!helped) run.clean = (run.clean ?? 0) + 1;
     run.combo += 1;
     run.bestCombo = Math.max(run.bestCombo, run.combo);
     xp = XP_RULES.base + (XP_RULES.difficultyBonus[question.d] ?? 0) + comboBonus(run.combo);
@@ -44,7 +47,7 @@ export function applyAnswer(run, { question, correct, response = null, timeMs = 
     if (run.lives !== null) run.lives = Math.max(0, run.lives - 1);
   }
   run.xp += xp;
-  run.log.push({ question, correct, response, timeMs });
+  run.log.push({ question, correct, response, timeMs, helped });
   return {
     xp,
     damage,
