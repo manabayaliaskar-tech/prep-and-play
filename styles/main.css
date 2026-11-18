@@ -15790,3 +15790,32 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
   .explain-index .explain-chips + .explain-subj { margin-top: 18px; }
   .catalog .practice-course { padding: 18px; }
 }
+
+/* ===== Главная: уровень с опытом, задания дня в полосе ===== */
+.lvl-xp-badge { gap: 6px; }
+.lvl-xp-badge .lx-num { font-weight: 700; color: var(--muted); font-size: .92em; }
+button.ts-tile { font: inherit; text-align: left; cursor: pointer; width: 100%; }
+.ts-quests .ts-text { flex: 1; }
+.ts-caret { margin-left: auto; color: var(--muted); font-size: 12px; transition: transform .2s; }
+.ts-quests[aria-expanded="true"] { border-color: var(--primary); }
+.ts-quests[aria-expanded="true"] .ts-caret { transform: rotate(180deg); }
+.ts-rings { display: inline-flex; gap: 3px; margin-left: 4px; vertical-align: middle; }
+.ts-rings i {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: conic-gradient(var(--primary) calc(var(--p) * 1%), color-mix(in srgb, var(--primary) 18%, transparent) 0);
+}
+.ts-rings i.on { background: var(--green); }
+.ts-pop { margin: -6px 0 18px; animation: exam-in .2s ease both; }
+.ts-pop[hidden] { display: none; }
+.ts-pop .quests { margin: 0; }
+.ts-pop-link { display: inline-block; margin-top: 8px; font-weight: 700; font-size: 14px; color: var(--primary); text-decoration: none; }
+@media (max-width: 720px) {
+  .ts-caret { display: none; }
+  .lvl-xp-badge .goal-bar { width: 44px; }
+}
+.hub .hero-badges .lvl-xp-badge, .hub .hero-badges .goal-badge { display: inline-flex; align-items: center; gap: 6px; }
+@media (max-width: 720px) {
+  .hub .hero-card .hero-badges { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .hub .hero-badges .lvl-xp-badge, .hub .hero-badges .goal-badge { flex-wrap: wrap; gap: 2px 5px; border-radius: 16px; padding: 7px 10px; font-size: .82rem; }
+  .hub .hero-badges .goal-bar { width: 100%; margin-top: 4px; }
+}

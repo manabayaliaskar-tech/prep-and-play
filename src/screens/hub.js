@@ -2,7 +2,6 @@
 // экзамены, олимпиадная математика, ежедневная практика.
 
 import { EXPLAINERS } from '../content/explainers.js';
-import { todaySteps } from '../core/today.js';
 import { dueMistakes, getMistakes } from '../core/review.js';
 import { getPlan, readiness } from '../core/plan.js';
 import { maybeStartTour } from '../ui/tour.js';
@@ -17,13 +16,13 @@ import { DAILY_GOAL, currentStreak, getProfile, levelInfo, todayXp } from '../co
 import { esc } from '../ui/dom.js';
 import { mascot } from '../ui/mascot.js';
 import { homeCourses, isPinned, pinButton } from '../core/pins.js';
-import { nextChestBadge, openChestModal, rewardCardsHtml } from './report.js';
+import { openChestModal, rewardCardsHtml } from './report.js';
 import { openWardrobe } from '../ui/wardrobe-ui.js';
 import { bindPoke } from '../ui/prepi-poke.js';
 import { flameSvg } from '../core/economy.js';
 import { seasonCardHtml } from './season.js';
 import { getSaved } from '../core/saved.js';
-import { bindLife, flameBadgeHtml, giftCardHtml, moodOf, rescueCardHtml } from './prepi-life.js';
+import { bindLife, giftCardHtml, moodOf, rescueCardHtml } from './prepi-life.js';
 import { dailyDeals } from '../core/shop.js';
 import { goodThumb } from '../ui/goods-ui.js';
 import { coinHtml } from '../ui/coin.js';
@@ -118,17 +117,6 @@ export function questsCard(profile = getProfile(), day = dayKey()) {
     </section>`;
 }
 
-/** Задания дня - компактной строкой в шапке главной: значок, полоска, прогресс и награда. */
-function heroQuestsHtml(p) {
-  const quests = questState(p, dayKey());
-  return `<div class="hero-quests" aria-label="${t('quest.title')}"><span class="hq-title">🎁 ${t('quest.title')}:</span>${quests
-    .map(({ quest, value, done }) => {
-      const name = t(`quest.${quest.id}`, { n: quest.goal });
-      return `<span class="hq ${done ? 'is-done' : ''}" title="${esc(name)}" aria-label="${esc(name)}: ${value}/${quest.goal}"><span class="hq-icon" aria-hidden="true">${done ? '✔' : quest.icon}</span><span class="hq-name">${esc(name)}</span><span class="hq-bar"><i style="width:${Math.round((value / quest.goal) * 100)}%"></i></span><small>${value}/${quest.goal}</small><b>+${quest.reward}</b></span>`;
-    })
-    .join('')}</div>`;
-}
-
 /** Большая карточка квиза: Препи-ведущий с колесом фортуны, рекорды и кнопки режимов. */
 export function quizHero(p = getProfile(), day = dayKey()) {
   const r = p.records ?? {};
@@ -205,9 +193,11 @@ function todayStripHtml(p) {
     }
     if (href) tiles.push(`<a class="ts-tile ts-continue" href="${href}"><span class="ts-icon">▶</span><span class="ts-text"><small>${t('hub.continue')}</small><b>${esc(name)}</b></span></a>`);
   }
-  const steps = todaySteps(p, { xpToday: todayXp(), goal: DAILY_GOAL });
-  const done = steps.filter((x) => x.done).length;
-  tiles.push(`<a class="ts-tile ts-today ${done === steps.length ? 'is-done' : ''}" href="#/today"><span class="ts-icon">${done === steps.length ? '✅' : '🧭'}</span><span class="ts-text"><small>${t('strip.today')}</small><b>${done}/${steps.length}</b></span></a>`);
+  const quests = questState(p, dayKey());
+  const qDone = quests.filter((q) => q.done).length;
+  const next = quests.find((q) => !q.done);
+  const rings = quests.map((q) => `<i class="${q.done ? 'on' : ''}" style="--p:${Math.round((q.value / q.quest.goal) * 100)}"></i>`).join('');
+  tiles.push(`<button type="button" class="ts-tile ts-quests ${next ? '' : 'is-done'}" aria-expanded="false"><span class="ts-icon">${next ? '🎁' : '🎉'}</span><span class="ts-text"><small>${t('quest.title')} ${qDone}/${quests.length} <span class="ts-rings" aria-hidden="true">${rings}</span></small><b>${next ? `${esc(t(`quest.${next.quest.id}`, { n: next.quest.goal }))} · ${next.value}/${next.quest.goal}` : t('quest.allDone')}</b></span><span class="ts-caret" aria-hidden="true">▾</span></button>`);
   const mistakes = getMistakes();
   if (mistakes.length) {
     const due = dueMistakes(dayKey()).length;
@@ -220,7 +210,8 @@ function todayStripHtml(p) {
       ? `<a class="ts-tile ts-plan" href="#/plan"><span class="ts-icon">📅</span><span class="ts-text"><small>${esc(tx(pc.name))}</small><b>${t('strip.ready', { n: readiness(pc) })}</b></span></a>`
       : `<a class="ts-tile ts-plan ts-dashed" href="#/plan"><span class="ts-icon">📅</span><span class="ts-text"><small>${t('strip.plan')}</small><b>${t('strip.planMake')}</b></span></a>`,
   );
-  return `<div class="today-strip" style="--n:${tiles.length}">${tiles.join('')}</div>`;
+  return `<div class="today-strip" style="--n:${tiles.length}">${tiles.join('')}</div>
+        <div class="ts-pop" hidden>${questsCard(p)}<a class="ts-pop-link" href="#/today">🧭 ${t('strip.today')} →</a></div>`;
 }
 
 const HOME_EXAMS = ['sat', 'ent', 'ege', 'ielts', 'toefl', 'oge'];
@@ -267,13 +258,9 @@ export function hubScreen(app) {
               <p class="muted">${t('hub.subtitle')}</p>
             </div>
             <div class="hero-badges">
-              <span class="badge">⭐ ${t('home.level', { n: lvl.level })}</span>
-              ${flameBadgeHtml(streak)}
-              <span class="badge">⚡ ${p.xp} XP</span>
+              <span class="badge lvl-xp-badge" title="${t('home.level', { n: lvl.level })}">⭐ <b>${t('home.level', { n: lvl.level })}</b> <span class="lx-num">${p.xp}/${p.xp - lvl.into + lvl.need} XP</span><span class="goal-bar"><i style="width:${Math.round((lvl.into / lvl.need) * 100)}%"></i></span></span>
               <span class="badge goal-badge ${xpToday >= DAILY_GOAL ? 'is-done' : ''}" title="${t('home.goal')}">🎯 <b>${Math.min(xpToday, DAILY_GOAL)}/${DAILY_GOAL}</b> ${xpToday >= DAILY_GOAL ? t('home.goalDone') : t('home.goal')}<span class="goal-bar"><i style="width:${Math.round((Math.min(xpToday, DAILY_GOAL) / DAILY_GOAL) * 100)}%"></i></span></span>
-              ${nextChestBadge()}
             </div>
-            ${heroQuestsHtml(p)}
           </div>
           ${heroShopHtml(p)}
         </div>
@@ -346,6 +333,12 @@ export function hubScreen(app) {
     app.querySelector('.install-close')?.addEventListener('click', () => {
       dismissInstall();
       render();
+    });
+    const qBtn = app.querySelector('.ts-quests');
+    qBtn?.addEventListener('click', () => {
+      const pop = app.querySelector('.ts-pop');
+      pop.hidden = !pop.hidden;
+      qBtn.setAttribute('aria-expanded', String(!pop.hidden));
     });
     app.querySelectorAll('[data-open-chest]').forEach((b) => b.addEventListener('click', () => openChestModal(Number(b.dataset.openChest), render)));
   };
