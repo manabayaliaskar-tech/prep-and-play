@@ -16043,7 +16043,7 @@ a.xp-node:hover { transform: translateY(-2px) scale(1.04); }
   body { background: #fff !important; color: #000; }
   body::before, body::after, .topbar, .nav, .bottom-nav, .no-print, #modal-root, .toast-root, .toasts { display: none !important; }
   .page { padding: 0 !important; margin: 0 !important; max-width: none !important; }
-  .sheet-topic { box-shadow: none; border: 1px solid #bbb; background: #fff; font-size: 11.5px; padding: 8px 10px; }
+  .sheet-topic { box-shadow: none; border: 1px solid #bbb; background: white; font-size: 11.5px; padding: 8px 10px; }
   .sheet-ex { background: #f3f3f3; font-size: 11px; }
   .sheet-grid { columns: 2; }
   .sheet-head { margin-top: 0; }
