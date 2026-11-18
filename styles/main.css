@@ -14538,3 +14538,223 @@ svg.mascot.emote .emo-popper-r {
 .ws-prepi { border: 0; background: none; padding: 0; cursor: pointer; }
 .set3-prepi { transition: transform 0.2s var(--ease-spring, ease); }
 .set3-prepi:hover, .ws-prepi:hover { transform: scale(1.05); }
+
+/* ---------- Яркие эмоции Препи и объём вещей ---------- */
+/* ---------- Яркие эмоции Препи ---------- */
+.mascot .fx-rays {
+  transform-box: view-box;
+  transform-origin: 70px 80px;
+  animation: fx-spin 9s linear infinite;
+  opacity: 0.55;
+}
+.mascot .fx-glow {
+  transform-box: view-box;
+  transform-origin: 70px 80px;
+  animation: fx-pulse 1.8s ease-in-out infinite;
+}
+.mascot .fx-burst {
+  transform-box: view-box;
+  transform-origin: 70px 80px;
+  animation: fx-pop 0.9s cubic-bezier(0.2, 1.6, 0.4, 1) both, fx-spin 12s linear 0.9s infinite;
+}
+.mascot .fx-bigheart {
+  transform-box: view-box;
+  transform-origin: 70px 80px;
+  animation: fx-beat 0.9s ease-in-out infinite;
+  opacity: 0.7;
+}
+.mascot .fx-hearts path {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: heart-up 1.8s ease-in-out infinite;
+}
+.mascot .fx-hearts path:nth-child(2n) { animation-delay: 0.45s; }
+.mascot .fx-hearts path:nth-child(3n) { animation-delay: 0.9s; }
+.mascot .fx-c {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: fx-confetti 1.6s ease-in infinite;
+}
+.mascot .fx-drop { animation: fx-drop 0.9s linear infinite; }
+.mascot .fx-cloud { animation: halo-bob 3s ease-in-out infinite; }
+.mascot .fx-bulb {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: fx-bulb 1.4s ease-in-out infinite;
+}
+.mascot .fx-think circle { animation: fx-pulse 2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.mascot .fx-bang path,
+.mascot .fx-bang circle {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: fx-pop 0.6s cubic-bezier(0.2, 1.6, 0.4, 1) both, pop-pulse 0.8s ease-in-out 0.6s infinite;
+}
+.mascot .fx-shiver { animation: fx-shiver 0.18s linear infinite; }
+.mascot .fx-glint {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: fx-glint 1.6s ease-in-out infinite;
+}
+.mascot .mood-tint { animation: fx-pulse 1.6s ease-in-out infinite; }
+
+/* Тело двигается вместе с эмоцией */
+.mascot-angry .mascot-body { animation: fx-angry 0.45s ease-in-out infinite; }
+.mascot-scared .mascot-body { animation: fx-tremble 0.12s linear infinite; }
+.mascot-laugh .mascot-body { animation: fx-laugh 0.5s ease-in-out infinite; }
+.mascot-love .mascot-body { animation: fx-beat 0.9s ease-in-out infinite; }
+.mascot-wow .mascot-body { animation: fx-wow 1.6s cubic-bezier(0.2, 1.6, 0.4, 1) infinite; }
+.mascot-dizzy .mascot-body { animation: fx-wobble 1.2s ease-in-out infinite; }
+.mascot-proud .mascot-body { animation: fx-proud 2s ease-in-out infinite; }
+.mascot-starstruck .mascot-body { animation: hop 0.9s var(--ease-spring) infinite; }
+.mascot-cry .mascot-body { animation: fx-sob 0.6s ease-in-out infinite; }
+.mascot-shy .mascot-body { animation: fx-shy 2.4s ease-in-out infinite; }
+.mascot-angry .mascot-body,
+.mascot-scared .mascot-body,
+.mascot-laugh .mascot-body,
+.mascot-love .mascot-body,
+.mascot-wow .mascot-body,
+.mascot-dizzy .mascot-body,
+.mascot-proud .mascot-body,
+.mascot-cry .mascot-body,
+.mascot-shy .mascot-body {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+@keyframes fx-spin { to { transform: rotate(360deg); } }
+@keyframes fx-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.06); }
+}
+@keyframes fx-pop {
+  from { transform: scale(0.2); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes fx-beat {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.08); }
+  30% { transform: scale(0.98); }
+  45% { transform: scale(1.05); }
+}
+@keyframes fx-confetti {
+  0% { transform: translateY(-6px) rotate(0); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translateY(60px) rotate(260deg); opacity: 0; }
+}
+@keyframes fx-drop {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(26px); opacity: 0; }
+}
+@keyframes fx-bulb {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.15); filter: brightness(1.25); }
+}
+@keyframes fx-shiver {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(1.5px); }
+}
+@keyframes fx-glint {
+  0%, 60%, 100% { transform: scale(0) rotate(0); opacity: 0; }
+  75% { transform: scale(1.2) rotate(45deg); opacity: 1; }
+  90% { transform: scale(0.8) rotate(90deg); opacity: 0.8; }
+}
+@keyframes fx-angry {
+  0%, 100% { transform: translateX(0) scale(1, 1); }
+  25% { transform: translateX(-3px) scale(1.03, 0.97); }
+  75% { transform: translateX(3px) scale(1.03, 0.97); }
+}
+@keyframes fx-tremble {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-1.2px, 0.6px); }
+  50% { transform: translate(1.2px, -0.6px); }
+  75% { transform: translate(-0.8px, -0.4px); }
+}
+@keyframes fx-laugh {
+  0%, 100% { transform: translateY(0) scale(1, 1) rotate(-2deg); }
+  50% { transform: translateY(-6px) scale(0.97, 1.04) rotate(2deg); }
+}
+@keyframes fx-wow {
+  0%, 70%, 100% { transform: translateY(0) scale(1, 1); }
+  10% { transform: translateY(-10px) scale(0.92, 1.1); }
+  25% { transform: translateY(0) scale(1.08, 0.92); }
+}
+@keyframes fx-wobble {
+  0%, 100% { transform: rotate(-7deg); }
+  50% { transform: rotate(7deg); }
+}
+@keyframes fx-proud {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.05, 1.02) translateY(-2px); }
+}
+@keyframes fx-sob {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.03, 0.95); }
+}
+@keyframes fx-shy {
+  0%, 100% { transform: rotate(0) translateX(0); }
+  50% { transform: rotate(-5deg) translateX(-2px); }
+}
+
+/* ---------- Вещи: объём и блики для всех (фильтр pp-3d из main.js) ---------- */
+.item-thumb > g,
+.item-thumb > [class^='wear-'] {
+  filter: url(#pp-3d);
+}
+.mascot [class^='wear-'],
+.mascot [class*=' wear-'],
+.mascot .pet-art,
+.mascot .held {
+  filter: url(#pp-3d-live);
+}
+.mascot-xs [class^='wear-'],
+.mascot-xs .pet-art,
+.mascot-path [class^='wear-'],
+.mascot-path .pet-art {
+  filter: none;
+}
+/* Миниатюры в витрине мягко покачиваются и блестят при наведении — как легендарные. */
+.gcard .gc-art .item-thumb {
+  transition: transform 0.35s var(--ease-spring, ease);
+}
+.gcard:hover .gc-art .item-thumb,
+.gcard.is-tried .gc-art .item-thumb {
+  transform: scale(1.08) rotate(-3deg);
+  animation: fx-item-bob 1.6s ease-in-out infinite;
+}
+@keyframes fx-item-bob {
+  0%, 100% { transform: scale(1.08) rotate(-3deg) translateY(0); }
+  50% { transform: scale(1.08) rotate(3deg) translateY(-3px); }
+}
+.gcard .gc-art {
+  position: relative;
+}
+.gcard .gc-art::after {
+  content: '';
+  position: absolute;
+  inset: 8% 10%;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--rc) 22%, transparent), transparent 70%);
+  z-index: -1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mascot .fx-rays, .mascot .fx-glow, .mascot .fx-burst, .mascot .fx-bigheart, .mascot .fx-hearts path, .mascot .fx-c, .mascot .fx-drop,
+  .mascot .fx-cloud, .mascot .fx-bulb, .mascot .fx-think circle, .mascot .fx-bang path, .mascot .fx-bang circle, .mascot .fx-shiver,
+  .mascot .fx-glint, .mascot .mood-tint, .gcard:hover .gc-art .item-thumb, .gcard.is-tried .gc-art .item-thumb {
+    animation: none !important;
+  }
+  .mascot-angry .mascot-body, .mascot-scared .mascot-body, .mascot-laugh .mascot-body, .mascot-love .mascot-body, .mascot-wow .mascot-body,
+  .mascot-dizzy .mascot-body, .mascot-proud .mascot-body, .mascot-starstruck .mascot-body, .mascot-cry .mascot-body, .mascot-shy .mascot-body {
+    animation: none !important;
+  }
+}
+
+/* Где Препи много на одной странице (наборы, миниатюры эмоций) — блик без движения, чтобы телефон не тормозил. */
+.mascot-set [class^='wear-'],
+.mascot-set [class*=' wear-'],
+.mascot-set .pet-art,
+.mascot-set .held,
+.mascot-thumb [class^='wear-'],
+.mascot-thumb .held {
+  filter: url(#pp-3d);
+}

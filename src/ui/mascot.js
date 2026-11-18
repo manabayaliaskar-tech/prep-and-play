@@ -278,6 +278,63 @@ const EXTRAS = {
   thermo: `<g class="thermo" transform="rotate(18 72 102)"><rect x="70" y="99" width="28" height="5" rx="2.5" fill="#fff" stroke="#94a3b8" stroke-width="1"/><rect x="74" y="100.5" width="16" height="2" rx="1" fill="#ef4444"/><circle cx="97" cy="101.5" r="4" fill="#ef4444" stroke="#b91c1c" stroke-width="1"/></g>`,
 };
 
+// ---------- Яркие эмоции: оттенок тела, фон за спиной и эффекты спереди ----------
+
+const rays = (color, n = 12, r1 = 52, r2 = 74) =>
+  `<g class="fx-rays" fill="${color}">${Array.from({ length: n }, (_, i) => {
+    const a = (i * 2 * Math.PI) / n;
+    const w = Math.PI / n / 1.6;
+    const p = (ang, r) => `${(70 + r * Math.cos(ang)).toFixed(1)} ${(80 + r * Math.sin(ang)).toFixed(1)}`;
+    return `<path d="M${p(a - w, r1)} L${p(a, r2)} L${p(a + w, r1)} Z"/>`;
+  }).join('')}</g>`;
+const glow = (color, r = 62, op = 0.22) =>
+  `<g class="fx-glow">${[1, 0.8, 0.62].map((k, i) => `<circle cx="70" cy="80" r="${(r * k).toFixed(1)}" fill="${color}" opacity="${(op * (0.6 + i * 0.25)).toFixed(2)}"/>`).join('')}</g>`;
+const burst = (color, stroke) =>
+  `<path class="fx-burst" d="${Array.from({ length: 16 }, (_, i) => {
+    const a = (i * Math.PI) / 8;
+    const r = i % 2 ? 50 : 70;
+    return `${i ? 'L' : 'M'}${(70 + r * Math.cos(a)).toFixed(1)} ${(80 + r * Math.sin(a)).toFixed(1)}`;
+  }).join(' ')} Z" fill="${color}" stroke="${stroke}" stroke-width="2" opacity=".55"/>`;
+const confetti = `<g class="fx-confetti">${[[18, 8, '#f43f5e'], [40, 2, '#facc15'], [104, 4, '#22c55e'], [124, 12, '#38bdf8'], [8, 30, '#a855f7'], [132, 34, '#fb923c'], [62, -4, '#ec4899'], [86, -2, '#14b8a6']]
+  .map(([x, y, c], i) => `<rect class="fx-c" x="${x}" y="${y}" width="5" height="8" rx="1.5" fill="${c}" style="animation-delay:${(i * 0.17).toFixed(2)}s"/>`)
+  .join('')}</g>`;
+const RAIN = `<g class="fx-rain"><g class="fx-cloud"><ellipse cx="112" cy="10" rx="18" ry="9" fill="#94a3b8"/><circle cx="102" cy="6" r="8" fill="#a5b4c8"/><circle cx="116" cy="2" r="10" fill="#a5b4c8"/><circle cx="126" cy="8" r="7" fill="#94a3b8"/></g>${[100, 110, 120, 130]
+  .map((x, i) => `<path class="fx-drop" d="M${x} 20 q2 5 0 7 q-2 -2 0 -7 Z" fill="#60a5fa" style="animation-delay:${(i * 0.25).toFixed(2)}s"/>`)
+  .join('')}</g>`;
+const BULB = `<g class="fx-think"><circle cx="104" cy="42" r="3" fill="#fff" stroke="#c4b5fd" stroke-width="1.5"/><circle cx="112" cy="30" r="4.5" fill="#fff" stroke="#c4b5fd" stroke-width="1.5"/><circle cx="124" cy="12" r="11" fill="#fff" stroke="#c4b5fd" stroke-width="1.5"/>
+  <g class="fx-bulb"><circle cx="124" cy="10" r="5.5" fill="#fde047" stroke="#ca8a04" stroke-width="1.2"/><rect x="121.5" y="14.5" width="5" height="4" rx="1" fill="#94a3b8"/><path d="M124 1 v-3 M116 6 l-2.5 -2 M132 6 l2.5 -2" stroke="#facc15" stroke-width="1.6" stroke-linecap="round"/></g></g>`;
+const BANG = `<g class="fx-bang" fill="#f43f5e"><path d="M16 22 l5 -2 l-2 18 l-3 1 Z"/><circle cx="18.5" cy="45" r="2.6"/><path d="M122 18 l5 1 l-5 17 l-3 -1 Z"/><circle cx="118.5" cy="41" r="2.6"/></g>`;
+const SHIVER = `<g class="fx-shiver" stroke="#60a5fa" stroke-width="2.4" fill="none" stroke-linecap="round"><path d="M10 64 q-4 6 0 12 q4 6 0 12"/><path d="M130 64 q4 6 0 12 q-4 6 0 12"/><path d="M3 70 q-3 4 0 8"/><path d="M137 70 q3 4 0 8"/></g>`;
+const GLINT = `<path class="fx-glint" d="M104 46 l2 6 l6 2 l-6 2 l-2 6 l-2 -6 l-6 -2 l6 -2 Z" fill="#fff" stroke="#facc15" stroke-width="1"/>`;
+const BIG_HEARTS = `<g class="fx-hearts">${heartAt(14, 40, 8, '#f43f5e')}${heartAt(128, 30, 9, '#fb7185')}${heartAt(118, 6, 6, '#fda4af')}${heartAt(26, 14, 5.5, '#f472b6')}${heartAt(6, 78, 5, '#fb7185')}</g>`;
+
+/** Как ярко показывается каждое настроение: tint — оттенок всего тела, back — за спиной, front — спереди. */
+const MOOD_FX = {
+  happy: { back: glow('#fde68a', 60, 0.16) },
+  win: { back: rays('#facc15') + glow('#fde047', 58, 0.2), front: confetti },
+  starstruck: { back: rays('#fbbf24', 16) + glow('#fef08a', 60, 0.24), front: confetti },
+  proud: { back: rays('#fde68a', 10, 54, 70) },
+  laugh: { back: glow('#fde047', 60, 0.2) },
+  love: { tint: ['#f472b6', 0.2], back: `<g class="fx-bigheart">${heartAt(70, 78, 52, '#fbcfe8')}</g>`, front: BIG_HEARTS },
+  shy: { tint: ['#fb7185', 0.22] },
+  angry: { tint: ['#ef4444', 0.28], back: glow('#f87171', 62, 0.26) },
+  scared: { tint: ['#60a5fa', 0.22], back: glow('#bfdbfe', 60, 0.25), front: SHIVER },
+  sad: { tint: ['#64748b', 0.18], front: RAIN },
+  cry: { tint: ['#3b82f6', 0.16], front: RAIN },
+  wow: { back: burst('#fef08a', '#facc15'), front: BANG },
+  think: { front: BULB },
+  cool: { back: glow('#a5f3fc', 58, 0.16), front: GLINT },
+  wink: { front: GLINT },
+  dizzy: { tint: ['#a3e635', 0.12] },
+  confused: { back: glow('#ddd6fe', 58, 0.2) },
+};
+
+/** Веки рисуются цветом тела — при оттенке эмоции их нужно подкрасить так же, иначе останутся светлые пятна. */
+function tintLids(html, id, tint) {
+  if (!tint) return html;
+  return html.replace(new RegExp(`<path d="([^"]+)" fill="url\\(#${id}b\\)"/>`, 'g'), (m, d) => `${m}<path d="${d}" fill="${tint[0]}" opacity="${tint[1]}"/>`);
+}
+
 // ---------- Формы (по серии) ----------
 
 const ABS = `<g class="abs" stroke="var(--mascot-2)" stroke-width="2" fill="none" stroke-linecap="round" opacity=".55"><path d="M58 109 q4 3 8 0 M74 109 q4 3 8 0 M59 116 q3.5 2.5 7 0 M74 116 q3.5 2.5 7 0 M61 122 q3 2 6 0 M73 122 q3 2 6 0"/><path d="M70 106 V124"/></g>`;
@@ -327,6 +384,9 @@ export function mascot(mood = 'happy', cls = '', outfit = getOutfit(), opts = {}
     ? `<g class="blush is-strong"><ellipse cx="38" cy="94" rx="9" ry="5.5" fill="#ff6b9d" opacity=".7"/><ellipse cx="102" cy="94" rx="9" ry="5.5" fill="#ff6b9d" opacity=".7"/><path d="M33 92 l3 -3 M38 93 l3 -3 M97 92 l3 -3 M102 93 l3 -3" stroke="#e11d48" stroke-width="1.4" stroke-linecap="round" opacity=".6"/></g>`
     : `<g class="blush"><ellipse cx="38" cy="94" rx="7.5" ry="4.5" fill="#ff8fb8" opacity=".5"/><ellipse cx="102" cy="94" rx="7.5" ry="4.5" fill="#ff8fb8" opacity=".5"/></g>`;
   const extras = (m.extra ?? []).filter((e) => !(e === 'thermo' && outfit.face));
+  // Эффекты эмоций: на маленьких Препи (в задании, на пути уровней) и во время танцев их нет, чтобы не мешали.
+  const fxOn = !emote && opts.fx !== false && !/mascot-(xs|path|thumb)/.test(cls);
+  const FX = MOOD_FX[faceMood] ?? {};
 
   const bodyShape = ghosty
     ? `<path d="${GHOST_BODY}" fill="url(#${id}b)"/><path d="${GHOST_BODY}" fill="url(#${id}d)"/><path d="${GHOST_BODY}" fill="none" stroke="var(--mascot-2)" stroke-width="2" opacity=".5"/>`
@@ -352,8 +412,9 @@ export function mascot(mood = 'happy', cls = '', outfit = getOutfit(), opts = {}
       <circle cx="38" cy="72" r="2.4" fill="#fff" opacity=".7"/>
       ${buff && !BODY[outfit.body] ? ABS : ''}
       ${BODY[outfit.body] ? `<clipPath id="${id}c"><circle cx="70" cy="80" r="48"/></clipPath><g class="wear-body" clip-path="url(#${id}c)">${BODY[outfit.body]}</g>` : ''}
+      ${fxOn && FX.tint && !ghosty ? `<circle class="mood-tint" cx="70" cy="80" r="48" fill="${FX.tint[0]}" opacity="${FX.tint[1]}"/>` : ''}
       ${blush}
-      <g class="face">${eyes(id, m.eyes)}${browsHtml(m.brows)}${mouthHtml(id, m.mouth)}</g>
+      <g class="face">${tintLids(eyes(id, m.eyes), id, fxOn && !ghosty ? FX.tint : null)}${browsHtml(m.brows)}${mouthHtml(id, m.mouth)}</g>
       ${form === 'sick' ? '<circle class="sick-tint" cx="70" cy="80" r="48" fill="#a3e635" opacity=".26"/>' : ''}
       ${form === 'sick' && !outfit.face ? BANDAGE : ''}
       <g transform="rotate(-9 70 112)"><path class="ring-front" d="M6 112 A64 13 0 0 0 134 112" fill="none" stroke="url(#${id}r)" stroke-width="4.5"/></g>
@@ -362,6 +423,7 @@ export function mascot(mood = 'happy', cls = '', outfit = getOutfit(), opts = {}
       ${head}${formHead}
       ${armsFront}
       ${extras.map((e) => EXTRAS[e] ?? '').join('')}
+      ${fxOn ? FX.front ?? '' : ''}
       ${emote?.props ?? ''}
     </g>`;
 
@@ -394,6 +456,7 @@ export function mascot(mood = 'happy', cls = '', outfit = getOutfit(), opts = {}
     </defs>
     <ellipse class="mascot-shadow" cx="70" cy="143" rx="34" ry="5" fill="#000" opacity="${ghosty ? 0.07 : 0.14}"/>
     ${auraBack(outfit.aura)}
+    ${fxOn && form !== 'tomb' ? FX.back ?? '' : ''}
     ${form === 'tomb' ? `<g class="tomb-ghost" transform="translate(27 -14) scale(.62)">${body}</g>${TOMB}` : body}
     ${form === 'tomb' ? '' : auraFront(outfit.aura)}
     ${form === 'tomb' ? '' : petSvg(outfit.pet)}

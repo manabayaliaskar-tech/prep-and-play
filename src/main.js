@@ -37,6 +37,7 @@ import { cardsRoute } from './screens/cards.js';
 import { achievementsRoute } from './screens/achievements.js';
 import { shopRoute } from './screens/shop.js';
 import { goodName, goodThumb } from './ui/goods-ui.js';
+import { installFxDefs } from './ui/fx-defs.js';
 import { mockRoute } from './screens/mock.js';
 import { todayRoute } from './screens/today.js';
 import { adaptRoute, diagRoute, knowRoute } from './screens/learn.js';
@@ -177,6 +178,7 @@ initPwa();
 bindSayButtons();
 startCoinify(document.body);
 startEmojify(document.body);
+installFxDefs();
 document.addEventListener('routechange', () => stopSpeech());
 // Открыли как приложение с экрана «Домой» — для достижения «Всегда под рукой».
 if (isStandalone() && !getProfile().counters.app) getProfile().counters.app = 1;
