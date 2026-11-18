@@ -20,6 +20,8 @@ import { bindQuestion, correctAnswerHtml, questionHtml, responseHtml, wrongReaso
 import { openReference } from '../ui/reference.js';
 import { renderResults } from '../ui/results.js';
 import { mountSolution } from '../ui/solution.js';
+import { lessonFor } from '../content/lessons/index.js';
+import { openLessonModal } from './lesson.js';
 import { langSwitchHtml } from '../ui/topbar.js';
 
 const PRAISE_KEYS = ['fb.praise1', 'fb.praise2', 'fb.praise3', 'fb.praise4', 'fb.praise5', 'fb.praise6'];
@@ -425,6 +427,7 @@ export function runSession(app, config) {
         <div class="sheet-note" hidden></div>
         <div class="sheet-actions">
           <button type="button" class="btn btn-soft btn-sol">${correct ? t('fb.showSolution') : t('fb.howToSolve')}</button>
+          ${!correct && lessonFor(state.q.skill) ? `<button type="button" class="btn btn-soft btn-lesson">📖 ${t('lesson.repeat')}</button>` : ''}
           <button type="button" class="btn btn-soft btn-note">📝 ${savedItem(state.q.id)?.note ? t('note.edit') : t('note.add')}</button>
         </div>
       </div>`;
@@ -432,6 +435,7 @@ export function runSession(app, config) {
       mountSolution(el.sheet.querySelector('.sheet-solution'), state.q);
       e.currentTarget.remove();
     });
+    el.sheet.querySelector('.btn-lesson')?.addEventListener('click', () => openLessonModal(state.q.skill));
     el.sheet.querySelector('.btn-note').addEventListener('click', (e) => {
       e.currentTarget.remove();
       openNote(el.sheet.querySelector('.sheet-note'));

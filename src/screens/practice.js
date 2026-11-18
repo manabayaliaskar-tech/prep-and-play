@@ -15,6 +15,7 @@ import { buildTopicSet } from '../pools/stream.js';
 import { esc } from '../ui/dom.js';
 import { trackTopics } from './catalog.js';
 import { courseBadge } from './hub.js';
+import { lessonTopics, runLesson, unseenLessons } from './lesson.js';
 import { baseStats, celebrate, runSession } from './play.js';
 
 export const TRAIN_COUNT = 10;
@@ -51,6 +52,9 @@ export function saveBossResult(course, track, won, today = dayKey()) {
 
 export const BOSS_QUESTIONS = 10;
 
+/** Сколько новых мини-уроков показать перед тренировкой; остальные - в следующие разы. */
+const LESSONS_BEFORE = 3;
+
 export function trackRoute(app, { course: courseId, track: trackId }) {
   const course = courseById(courseId);
   const track = trackById(course, trackId);
@@ -64,7 +68,12 @@ export function trackRoute(app, { course: courseId, track: trackId }) {
 
   const title = () => `${tx(course.name)} · ${course.leveled ? levelLabel(course, track) : tx(track.name)}`;
 
-  function start(mode) {
+  function start(mode, skipLesson = false) {
+    const fresh = mode === 'train' && !skipLesson ? unseenLessons(trackTopics(track)).slice(0, LESSONS_BEFORE) : [];
+    if (fresh.length) {
+      session = runLesson(app, { topics: fresh, title: title(), onDone: () => start(mode, true) });
+      return;
+    }
     const test = mode === 'test' ? track.test : null;
     const count = test ? test.count : TRAIN_COUNT;
     session = runSession(app, {
@@ -144,6 +153,7 @@ export function trackRoute(app, { course: courseId, track: trackId }) {
           <p class="muted">${esc(tx(track.desc))}</p>
           ${rec?.runs ? `<div class="record">${rec.boss ? '👑 ' : ''}★ ${rec.best}/3 · ${t('cat.bestPct', { n: rec.pct })} · ${t('cat.runs', { n: rec.runs })}</div>` : ''}
           <div class="topic-chips center">${topics.map((id) => `<span class="topic-chip">${esc(tx(skillName(id)))}</span>`).join('')}</div>
+          ${lessonTopics(topics).length ? `<button type="button" class="btn btn-soft btn-sm theory-btn">📖 ${t('lesson.theory')}</button>` : ''}
           <div class="start-options">
             <button type="button" class="option-card start-train"><b>▶ ${t('pr.train')}</b><span>${t('pr.trainDesc', { n: TRAIN_COUNT })}</span></button>
             <button type="button" class="option-card start-boss ${rec?.boss ? 'is-beaten' : ''}"><span class="option-boss" aria-hidden="true">${boss.icon}</span><b>⚔️ ${t('pr.boss')}${rec?.boss ? ' 👑' : ''}</b><span>${esc(t('pr.bossDesc', { name: tx(boss.name) }))}</span></button>
@@ -154,6 +164,14 @@ export function trackRoute(app, { course: courseId, track: trackId }) {
     app.querySelector('.start-train').addEventListener('click', () => start('train'));
     app.querySelector('.start-test')?.addEventListener('click', () => start('test'));
     app.querySelector('.start-boss').addEventListener('click', fight);
+    app.querySelector('.theory-btn')?.addEventListener('click', () => {
+      session = runLesson(app, {
+        topics,
+        title: title(),
+        doneLabel: t('pr.train'),
+        onDone: () => start('train', true),
+      });
+    });
   };
   render();
   return { cleanup: () => session?.cleanup(), relabel: () => (session ? session.relabel() : render()) };

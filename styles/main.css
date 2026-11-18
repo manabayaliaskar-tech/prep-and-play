@@ -15819,3 +15819,42 @@ button.ts-tile { font: inherit; text-align: left; cursor: pointer; width: 100%; 
   .hub .hero-badges .lvl-xp-badge, .hub .hero-badges .goal-badge { flex-wrap: wrap; gap: 2px 5px; border-radius: 16px; padding: 7px 10px; font-size: .82rem; }
   .hub .hero-badges .goal-bar { width: 100%; margin-top: 4px; }
 }
+
+/* ===== Мини-урок перед заданиями ===== */
+.lesson-page { max-width: 760px; margin: 0 auto; }
+.lesson-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.lesson-kicker { color: var(--muted); font-weight: 700; font-size: 14px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lesson-skip { flex: none; }
+.lesson-card { background: var(--card); border: 1.5px solid var(--line); border-radius: 22px; padding: 22px; box-shadow: var(--shadow); }
+.lesson-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.lesson-head small { color: var(--primary); font-weight: 800; text-transform: uppercase; letter-spacing: .04em; font-size: 12px; }
+.lesson-head h1 { margin: 2px 0 0; font-size: clamp(1.3rem, 3vw, 1.7rem); }
+.lesson-dots { display: flex; gap: 6px; margin: 0 0 14px; }
+.lesson-dots i { flex: 1; height: 6px; border-radius: 3px; background: var(--line); }
+.lesson-dots i.done { background: color-mix(in srgb, var(--primary) 45%, var(--line)); }
+.lesson-dots i.on { background: var(--primary); }
+.lesson { display: grid; gap: 14px; }
+.lesson-rule { font-size: 1.08rem; line-height: 1.5; margin: 0; padding: 14px 16px; border-radius: 16px; background: var(--primary-l); border-left: 4px solid var(--primary); }
+.lesson-points { margin: 0; padding-left: 20px; display: grid; gap: 6px; line-height: 1.45; }
+.lesson-example, .lesson-check { border: 1.5px solid var(--line); border-radius: 16px; padding: 14px 16px; }
+.lesson-example h3, .lesson-check h3 { margin: 0 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.lesson-q { margin: 0 0 8px; font-weight: 800; font-size: 1.05rem; white-space: pre-wrap; }
+.lesson-example ol { margin: 0; padding-left: 20px; display: grid; gap: 4px; line-height: 1.45; }
+.lesson-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.lesson-opt { font: inherit; font-weight: 700; padding: 9px 16px; border-radius: 12px; border: 2px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; transition: border-color .15s, transform .15s; white-space: pre-wrap; text-align: left; }
+.lesson-opt:hover:not(:disabled) { border-color: var(--primary); transform: translateY(-1px); }
+.lesson-opt:disabled { cursor: default; }
+.lesson-opt.is-right { border-color: var(--green); background: var(--green-l); color: var(--green-d); }
+.lesson-opt.is-wrong { border-color: var(--red); background: var(--red-l); color: var(--red-d); }
+.lesson-why { margin: 10px 0 0; line-height: 1.45; }
+.lesson-why.good b { color: var(--green-d); }
+.lesson-why.bad b { color: var(--red-d); }
+.lesson-anim { justify-self: start; }
+.lesson-nav { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 18px; }
+.theory-btn { margin: 4px auto 0; display: inline-flex; }
+@media (max-width: 720px) {
+  .lesson-card { padding: 16px; border-radius: 18px; }
+  .lesson-rule { font-size: 1rem; padding: 12px 14px; }
+  .lesson-nav .btn-lg { flex: 1; }
+  .lesson-skip { font-size: 13px; padding: 6px 10px; }
+}
