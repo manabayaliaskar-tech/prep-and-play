@@ -1,8 +1,7 @@
 // Главная страница SAT: «продолжить путь», задание дня, все игровые режимы, прогноз балла.
 
-import { flameBadgeHtml } from './prepi-life.js';
 import { t, tx } from '../core/i18n.js';
-import { DAILY_GOAL, currentStreak, getProfile, levelInfo, todayXp } from '../core/profile.js';
+import { DAILY_GOAL, getProfile, levelInfo, todayXp } from '../core/profile.js';
 import { BANK_STATS } from '../content/bank.js';
 import { DOMAINS } from '../content/skills.js';
 import { esc } from '../ui/dom.js';
@@ -44,7 +43,6 @@ export function satHomeScreen(app) {
   const render = () => {
     const p = getProfile();
     const lvl = levelInfo(p.xp);
-    const streak = currentStreak();
     const xpToday = todayXp();
     const lastExam = p.exams.at(-1);
     const records = { survival: p.records.survival, blitz: p.records.blitz, det: p.records.detective };
@@ -58,9 +56,7 @@ export function satHomeScreen(app) {
             <h1>${t('home.title')}</h1>
             <p class="muted">${t('home.subtitle')}</p>
             <div class="hero-badges">
-              <span class="badge">⭐ ${t('home.level', { n: lvl.level })}</span>
-              ${flameBadgeHtml(streak)}
-              <span class="badge">⚡ ${p.xp} XP</span>
+              <span class="badge lvl-xp-badge">⭐ <b>${t('home.level', { n: lvl.level })}</b> <span class="lx-num">${p.xp}/${p.xp - lvl.into + lvl.need} XP</span><span class="goal-bar"><i style="width:${Math.round((lvl.into / lvl.need) * 100)}%"></i></span></span>
             </div>
           </div>
           <div class="goal">

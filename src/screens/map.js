@@ -5,9 +5,10 @@ import { getProfile, saveProfile, todayStats } from '../core/profile.js';
 import { createRng, newSeed } from '../core/random.js';
 import { navigate } from '../core/router.js';
 import { QuestionStream, buildSet } from '../content/bank.js';
-import { BOSS_DIFFICULTIES, DOMAINS, LEVELS_PER_ZONE, LEVEL_DIFFICULTIES, SECTIONS, ZONES } from '../content/skills.js';
+import { BOSS_DIFFICULTIES, DOMAINS, LEVELS_PER_ZONE, LEVEL_DIFFICULTIES, SECTIONS, SKILLS, ZONES } from '../content/skills.js';
 import { starsFor } from '../engine/session.js';
 import { esc } from '../ui/dom.js';
+import { runLesson, unseenLessons } from './lesson.js';
 import { baseStats, celebrate, runSession } from './play.js';
 
 const LEVEL_SIZE = 5;
@@ -112,12 +113,23 @@ export function mapScreen(app) {
   return { relabel: render };
 }
 
-export function levelRoute(app, { zone: zoneId, n: nRaw }) {
+export function levelRoute(app, { zone: zoneId, n: nRaw, skipLesson = false }) {
   const zone = zoneById(zoneId);
   const n = Number(nRaw);
   if (!zone || !(n >= 1 && n <= LEVELS_PER_ZONE) || !isLevelUnlocked(zone, n)) {
     navigate('/map');
     return null;
+  }
+  // Перед уровнем - мини-уроки по навыкам острова, которых человек ещё не видел (до 3 за раз).
+  const fresh = skipLesson ? [] : unseenLessons(Object.keys(SKILLS).filter((id) => SKILLS[id].domain === zone.domain)).slice(0, 3);
+  if (fresh.length) {
+    let inner = null;
+    const lesson = runLesson(app, {
+      topics: fresh,
+      title: `${tx(DOMAINS[zone.domain].name)} · ${t('map.level', { n })}`,
+      onDone: () => (inner = levelRoute(app, { zone: zoneId, n: nRaw, skipLesson: true })),
+    });
+    return { cleanup: () => inner?.cleanup?.(), relabel: () => (inner ? inner.relabel?.() : lesson.relabel()) };
   }
   const questions = buildSet({
     rng: createRng(newSeed()),

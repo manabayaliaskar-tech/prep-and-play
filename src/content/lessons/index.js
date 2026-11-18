@@ -1,4 +1,5 @@
-// Мини-уроки «сначала знания, потом задания»: по одному уроку на тему (id темы как в pools/topics.js).
+// Мини-уроки «сначала знания, потом задания»: по одному уроку на тему (id темы как в pools/topics.js,
+// для SAT - id навыка из content/skills.js).
 //
 // Формат урока (все тексты - L(en, ru, kk); формулы без слов - same('...')):
 //   rule:    L(...)                     - главная мысль, 1-3 предложения
@@ -14,9 +15,10 @@ import humanities from './humanities.js';
 import languages from './languages.js';
 import math from './math.js';
 import olymp from './olymp.js';
+import sat from './sat.js';
 import science from './science.js';
 
-export const LESSONS = { ...math, ...olymp, ...science, ...english, ...humanities, ...languages, ...code };
+export const LESSONS = { ...math, ...olymp, ...science, ...english, ...humanities, ...languages, ...code, ...sat };
 
 /** Урок по теме или null. */
 export const lessonFor = (topic) => LESSONS[topic] ?? null;

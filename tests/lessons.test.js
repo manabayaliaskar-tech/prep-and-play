@@ -3,6 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { LESSONS } from '../src/content/lessons/index.js';
 import { TOPICS } from '../src/pools/topics.js';
+import { SKILLS } from '../src/content/skills.js';
 
 const LANGS = ['en', 'ru', 'kk'];
 const EMOJI = /\p{Extended_Pictographic}/u;
@@ -19,7 +20,7 @@ function text(id, where, v) {
 
 test('мини-уроки: формат и тексты на трёх языках', () => {
   for (const [id, les] of Object.entries(LESSONS)) {
-    assert.ok(TOPICS[id], `${id}: нет такой темы в pools/topics.js`);
+    assert.ok(TOPICS[id] || SKILLS[id], `${id}: нет такой темы в pools/topics.js или навыка SAT`);
     text(id, 'rule', les.rule);
     for (const [i, p] of (les.points ?? []).entries()) text(id, `points[${i}]`, p);
     assert.ok(les.example && Array.isArray(les.example.steps) && les.example.steps.length >= 1, `${id}: нужен example со steps`);
