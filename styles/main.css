@@ -15536,3 +15536,8 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
   white-space: nowrap;
 }
 .prepi-stage .prepi-dress-btn small { font-size: 0.68rem; font-weight: 800; }
+@media (max-width: 720px) {
+  .risk-tail { display: none; }
+  .hero-risk-pill { font-size: 0.7rem; }
+  .hero-card .hero-mascot .mascot-xl { width: 96px; }
+}

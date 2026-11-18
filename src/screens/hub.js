@@ -151,7 +151,7 @@ export function quizHero(p = getProfile(), day = dayKey()) {
 export function streakRiskHtml(streak, xpToday) {
   if (!streak || xpToday > 0) return '';
   const hours = Math.max(1, Math.ceil(msUntilMidnight() / 3600000));
-  return `<a class="hero-risk-pill" href="#/quiz/daily">${flameSvg(streak)} ${t('risk.pill', { n: streak, h: hours })} →</a>`;
+  return `<a class="hero-risk-pill" href="#/quiz/daily">${flameSvg(streak)} ${t('risk.pill', { n: streak, h: hours })}<span class="risk-tail">${t('risk.pillTail')}</span> →</a>`;
 }
 
 /** Большая кнопка магазина рядом с Препи: товары дня и монеты. */
