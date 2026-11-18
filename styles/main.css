@@ -15432,3 +15432,47 @@ body.gold-flash::after { content: ''; position: fixed; inset: 0; z-index: 250; p
 @media (prefers-reduced-motion: reduce) {
   .hero-shop::after, .hero-shop-bag { animation: none; }
 }
+
+/* Шапка главной, вариант 2: магазин на всю правую часть, цель дня — в углу, серия — маленькой строкой наверху */
+.hero-card { position: relative; grid-template-columns: auto minmax(0, 1fr) minmax(260px, 340px); grid-template-areas: 'mascot text shop'; align-items: stretch; }
+.hero-card .hero-mascot, .hero-card .hero-text { align-self: center; }
+.hero-card .goal { position: absolute; top: 14px; right: 14px; width: 70px; z-index: 2; }
+.hero-card .goal .ring, .hero-card .goal .goal-text { width: 70px; height: 70px; }
+.hero-card .goal .goal-text b { font-size: 0.95rem; }
+.hero-card .goal .goal-text span { font-size: 0.55rem; }
+.hero-shop { align-self: stretch; justify-content: center; align-content: center; gap: 14px; padding: 22px 18px; min-width: 0; color: #1e1b3a; margin-right: 76px; }
+.hero-shop b, .hero-shop .hero-shop-coins { color: #1e1b3a; }
+.hero-shop-top { font-size: 1.3rem; }
+.hero-shop-bag { font-size: 2.6rem; }
+.hero-shop .mini-deal { width: 58px; height: 58px; }
+.hero-shop .mini-deal .item-thumb { width: 50px; height: 50px; }
+.hero-risk-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-decoration: none;
+  color: #fff;
+  background: linear-gradient(90deg, #f97316, #ef4444);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  animation: risk-pulse 2s ease-in-out infinite;
+}
+.hero-risk-pill .flame { width: 0.9em; height: 1.1em; }
+@keyframes risk-pulse { 50% { box-shadow: 0 4px 18px rgba(239, 68, 68, 0.55); } }
+@media (max-width: 1100px) and (min-width: 721px) {
+  .hero-card { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: 'mascot text' 'shop shop'; }
+  .hero-shop { margin-right: 0; }
+}
+@media (max-width: 720px) {
+  .hero-card { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: 'mascot shop' 'text text'; }
+  .hero-shop { margin-right: 66px; padding: 10px; gap: 6px; }
+  .hero-card .goal { top: 12px; right: 12px; width: 60px; }
+  .hero-card .goal .ring, .hero-card .goal .goal-text { width: 60px; height: 60px; }
+  .hero-shop-top { font-size: 0.85rem; }
+  .hero-shop-bag { font-size: 1.6rem; }
+}
+@media (prefers-reduced-motion: reduce) { .hero-risk-pill { animation: none; } }

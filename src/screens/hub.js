@@ -140,12 +140,7 @@ export function quizHero(p = getProfile(), day = dayKey()) {
 export function streakRiskHtml(streak, xpToday) {
   if (!streak || xpToday > 0) return '';
   const hours = Math.max(1, Math.ceil(msUntilMidnight() / 3600000));
-  return `
-    <a class="streak-risk hero-risk" href="#/quiz/daily">
-      <span class="streak-risk-fire" aria-hidden="true">${flameSvg(streak)}</span>
-      <span class="streak-risk-text"><b>${t('risk.title', { n: streak })}</b><small>${t('risk.desc', { h: hours })}</small></span>
-      <span class="streak-risk-go">${t('risk.go')}</span>
-    </a>`;
+  return `<a class="hero-risk-pill" href="#/quiz/daily">${flameSvg(streak)} ${t('risk.pill', { n: streak, h: hours })} →</a>`;
 }
 
 /** Большая кнопка магазина рядом с Препи: товары дня и монеты. */
@@ -219,6 +214,7 @@ export function hubScreen(app) {
           </div>
           <div class="hero-text">
             <p class="hero-kicker">${name ? t('home.helloName', { name }) : t('home.hello')}</p>
+            ${streakRiskHtml(streak, xpToday)}
             <h1>${t('hub.title')}</h1>
             <p class="muted">${t('hub.subtitle')}</p>
             <div class="hero-badges">
@@ -227,7 +223,6 @@ export function hubScreen(app) {
               <span class="badge">⚡ ${p.xp} XP</span>
               ${nextChestBadge()}
             </div>
-            ${streakRiskHtml(streak, xpToday)}
           </div>
           ${heroShopHtml(p)}
           <div class="goal">
