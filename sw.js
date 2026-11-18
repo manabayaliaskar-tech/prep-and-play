@@ -21,7 +21,7 @@ self.addEventListener('activate', (event) => {
 async function networkFirst(request) {
   const cache = await caches.open(CACHE);
   try {
-    const response = await fetch(request);
+    const response = await fetch(request, { cache: 'no-cache' }); // всегда сверяемся с сервером — новая версия видна сразу
     if (response.ok) cache.put(request, response.clone());
     return response;
   } catch {

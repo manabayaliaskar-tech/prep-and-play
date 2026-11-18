@@ -5,6 +5,7 @@
 
 import { build, transform } from 'esbuild';
 import { cpSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { gzipSync } from 'node:zlib';
 
 const OUT = '_site';
@@ -27,6 +28,12 @@ await build({
 
 const css = await transform(readFileSync('styles/main.css', 'utf8'), { loader: 'css', minify: true, charset: 'utf8' });
 writeFileSync(`${OUT}/styles/main.css`, css.code);
+
+// Номер версии в ссылках на код и стили: после публикации браузер сразу берёт новые файлы, а не старую копию из кеша.
+const hash = createHash('sha1').update(readFileSync(`${OUT}/src/main.js`)).update(css.code).digest('hex').slice(0, 10);
+const html = readFileSync(`${OUT}/index.html`, 'utf8').replace('href="styles/main.css"', `href="styles/main.css?v=${hash}"`).replace('src="src/main.js"', `src="src/main.js?v=${hash}"`);
+writeFileSync(`${OUT}/index.html`, html);
+writeFileSync(`${OUT}/sw.js`, readFileSync(`${OUT}/sw.js`, 'utf8').replace("const CACHE = 'prepplay-v2';", `const CACHE = 'prepplay-${hash}';`));
 
 const kb = (f) => {
   const raw = statSync(f).size;
