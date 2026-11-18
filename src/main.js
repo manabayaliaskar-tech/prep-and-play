@@ -46,6 +46,7 @@ import { fullReadRoute } from './screens/fullread.js';
 import { explainIndexRoute, explainRoute } from './screens/explain.js';
 import { seasonName, seasonRoute } from './screens/season.js';
 import { seasonId, themeOf } from './core/season.js';
+import { examBlitzRoute, examDailyRoute, examDuelRoute, examLevelRoute, examPathRoute, examSurvivalRoute, examTheoryRoute } from './screens/exam-home.js';
 import { bindLangSwitches, renderTopbar } from './ui/topbar.js';
 
 const app = document.getElementById('app');
@@ -67,6 +68,13 @@ route('/c/:course', (params) => courseScreen(app, params));
 route('/c/:course/:track', (params) => trackRoute(app, params));
 // SAT
 route('/sat', () => satHomeScreen(app));
+route('/x/:exam/path', (params) => examPathRoute(app, params));
+route('/x/:exam/lv/:track/:n', (params) => examLevelRoute(app, params));
+route('/x/:exam/survival', (params) => examSurvivalRoute(app, params));
+route('/x/:exam/blitz', (params) => examBlitzRoute(app, params));
+route('/x/:exam/duel', (params) => examDuelRoute(app, params));
+route('/x/:exam/daily', (params) => examDailyRoute(app, params));
+route('/x/:exam/theory', (params) => examTheoryRoute(app, params));
 route('/map', () => mapScreen(app));
 route('/level/:zone/:n', (params) => levelRoute(app, params));
 route('/boss/:zone', (params) => bossRoute(app, params));

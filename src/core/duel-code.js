@@ -18,10 +18,11 @@ function fromBase64Url(code) {
   return new TextDecoder().decode(Uint8Array.from(binary, (c) => c.charCodeAt(0)));
 }
 
-export function encodeDuel({ seed, section, name, correct, timeMs }) {
-  return toBase64Url(
-    JSON.stringify({ v: 1, s: seed, m: section, n: String(name).slice(0, 24), c: correct, k: DUEL_LENGTH, t: Math.round(timeMs) }),
-  );
+export function encodeDuel({ seed, section, name, correct, timeMs, exam = null }) {
+  // exam - дуэль на заданиях экзамена (тогда section - id предмета или mix).
+  const body = { v: 1, s: seed, m: section, n: String(name).slice(0, 24), c: correct, k: DUEL_LENGTH, t: Math.round(timeMs) };
+  if (exam) body.e = exam;
+  return toBase64Url(JSON.stringify(body));
 }
 
 export function decodeDuel(code) {
@@ -31,7 +32,7 @@ export function decodeDuel(code) {
       d &&
       Number.isInteger(d.s) &&
       d.s >= 0 &&
-      SECTIONS.includes(d.m) &&
+      (d.e ? typeof d.e === 'string' && /^[a-z0-9]{1,16}$/.test(d.e) && typeof d.m === 'string' && /^[a-z0-9]{1,24}$/.test(d.m) : SECTIONS.includes(d.m)) &&
       typeof d.n === 'string' &&
       d.k === DUEL_LENGTH &&
       Number.isInteger(d.c) &&
@@ -40,7 +41,7 @@ export function decodeDuel(code) {
       Number.isFinite(d.t) &&
       d.t >= 0;
     if (!valid) return null;
-    return { seed: d.s, section: d.m, name: d.n.slice(0, 24), correct: d.c, total: d.k, timeMs: d.t };
+    return { seed: d.s, section: d.m, name: d.n.slice(0, 24), correct: d.c, total: d.k, timeMs: d.t, ...(d.e ? { exam: d.e } : {}) };
   } catch {
     return null;
   }

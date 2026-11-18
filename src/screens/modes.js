@@ -13,6 +13,8 @@ import { esc, formatTime } from '../ui/dom.js';
 import { mascot } from '../ui/mascot.js';
 import { toast } from '../ui/overlay.js';
 import { baseStats, celebrate, runSession } from './play.js';
+import { playExamDuel } from './exam-home.js';
+import { courseById, trackById } from '../catalog/index.js';
 
 // ---------- Общий экран подготовки ----------
 
@@ -415,7 +417,9 @@ export function duelRoute(app) {
 }
 
 export function duelAcceptRoute(app, { code }) {
-  const challenge = decodeDuel(code);
+  let challenge = decodeDuel(code);
+  const examCourse = challenge?.exam ? courseById(challenge.exam) : null;
+  if (challenge?.exam && !examCourse) challenge = null;
   let session = null;
   const render = () => {
     if (!challenge) {
@@ -431,14 +435,16 @@ export function duelAcceptRoute(app, { code }) {
             <div class="vs-player"><div class="vs-avatar">❓</div><b>${t('duel.you')}</b><span>?</span></div>
           </div>
           <h1>${t('duel.challenged', { name: esc(challenge.name || t('duel.anonymous')) })}</h1>
-          <p class="muted">${t('duel.acceptDesc', { n: challenge.total, section: sectionTitle(challenge.section) })}</p>
+          <p class="muted">${t('duel.acceptDesc', { n: challenge.total, section: examCourse ? `${tx(examCourse.name)} · ${challenge.section === 'mix' ? t('mode.mix') : tx(trackById(examCourse, challenge.section)?.name ?? '')}` : sectionTitle(challenge.section) })}</p>
           ${nameField()}
           <button type="button" class="btn btn-primary btn-xl start-btn">⚔️ ${t('duel.accept')}</button>
         </div>
       </section>`;
     app.querySelector('.start-btn').addEventListener('click', () => {
       saveName(app);
-      session = playDuel(app, { seed: challenge.seed, section: challenge.section, opponent: challenge });
+      session = examCourse
+        ? playExamDuel(app, { course: examCourse, seed: challenge.seed, section: challenge.section, opponent: challenge })
+        : playDuel(app, { seed: challenge.seed, section: challenge.section, opponent: challenge });
     });
   };
   render();

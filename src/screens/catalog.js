@@ -14,6 +14,7 @@ import { weakCardHtml } from './review.js';
 import { cardsCardHtml } from './cards.js';
 import { courseToolsHtml } from './learn.js';
 import { fullReadCardHtml } from './fullread.js';
+import { examHomeScreen } from './exam-home.js';
 
 const stars = (n) => `<span class="track-stars ${n ? 'has' : ''}" aria-label="${n}/3">${'★'.repeat(n)}${'☆'.repeat(3 - n)}</span>`;
 
@@ -141,6 +142,7 @@ export function courseScreen(app, { course: id }) {
     navigate(course.href);
     return null;
   }
+  if (course.group === 'exams' && course.tracks.length) return examHomeScreen(app, course);
   const render = () => {
     const group = groupById(course.group);
     const topics = [...new Set(course.tracks.flatMap(trackTopics))];

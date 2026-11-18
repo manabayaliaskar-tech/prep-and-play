@@ -1,7 +1,6 @@
 // Главная страница SAT: «продолжить путь», задание дня, все игровые режимы, прогноз балла.
 
 import { flameBadgeHtml } from './prepi-life.js';
-import { dayKey } from '../core/dates.js';
 import { t, tx } from '../core/i18n.js';
 import { DAILY_GOAL, currentStreak, getProfile, levelInfo, todayXp } from '../core/profile.js';
 import { BANK_STATS } from '../content/bank.js';
@@ -47,7 +46,6 @@ export function satHomeScreen(app) {
     const lvl = levelInfo(p.xp);
     const streak = currentStreak();
     const xpToday = todayXp();
-    const dailyDone = Boolean(p.daily[dayKey()]);
     const lastExam = p.exams.at(-1);
     const records = { survival: p.records.survival, blitz: p.records.blitz, det: p.records.detective };
     app.innerHTML = `
@@ -75,12 +73,6 @@ export function satHomeScreen(app) {
           ${continueCard('rw', t('home.continueRw'), '📖')}
           ${continueCard('math', t('home.continueMath'), '📐')}
         </div>
-
-        <a class="daily-card ${dailyDone ? 'done' : ''}" href="#/daily">
-          <span class="daily-sun">☀️</span>
-          <span><b>${t('daily.title')}</b><small>${dailyDone ? t('home.dailyDone') : t('home.dailyCta')}</small></span>
-          <span class="daily-go">${dailyDone ? '✓' : '+30 XP'}</span>
-        </a>
 
         <h2 class="section-title">${t('home.modes')}</h2>
         <div class="modes-grid">
