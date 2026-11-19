@@ -8,6 +8,7 @@ import { build, transform } from 'esbuild';
 import { cpSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { gzipSync } from 'node:zlib';
+import { buildSeo } from './seo.mjs';
 
 const OUT = '_site';
 rmSync(OUT, { recursive: true, force: true });
@@ -45,6 +46,9 @@ writeFileSync(
     .replace("const CACHE = 'prepplay-v2';", `const CACHE = 'prepplay-${hash}';`)
     .replace('const LAZY = [];', `const LAZY = ${JSON.stringify(chunks)};`),
 );
+
+// Страницы для поисковиков, карта сайта, robots.txt и мета-теги главной (адрес - в tools/site.json).
+console.log(`страниц для поиска: ${buildSeo(OUT)}`);
 
 const kb = (f) => {
   const raw = statSync(f).size;
