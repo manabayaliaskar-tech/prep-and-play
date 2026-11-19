@@ -2,6 +2,8 @@
 // Запись: [уровень, предложение с пропуском, правильный вариант, [три неправильных], разбор на трёх языках].
 
 import { T } from '../bank.js';
+import { SPANISH_MORE3 } from './romance-es3.js';
+import { FRENCH_MORE3 } from './romance-fr3.js';
 
 export const SPANISH = [
   // ----- A1 -----
@@ -260,3 +262,6 @@ export const FRENCH = [
   [6, 'Il eût ______ mieux se taire.', 'fallu', ['fallait', 'faudrait', 'faut'],
     T('Il eût fallu - книжный вариант il aurait fallu («следовало бы»).', 'Il eût fallu - il aurait fallu-дің кітаби түрі («… керек еді»).', 'Il eût fallu is the literary form of il aurait fallu ("it would have been better").')],
 ];
+
+SPANISH.push(...SPANISH_MORE3);
+FRENCH.push(...FRENCH_MORE3);
