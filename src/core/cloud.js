@@ -84,7 +84,9 @@ async function accessToken() {
 
 /** Отправить на почту код входа (аккаунт создаётся сам, если его ещё нет). */
 export async function sendCode(email) {
-  await request('/auth/v1/otp', { method: 'POST', body: { email: email.trim().toLowerCase(), create_user: true } });
+  // Куда вернуть после ссылки из письма - на эту же страницу сайта (адрес должен быть в Redirect URLs Supabase).
+  const back = encodeURIComponent(`${location.origin}${location.pathname}`);
+  await request(`/auth/v1/otp?redirect_to=${back}`, { method: 'POST', body: { email: email.trim().toLowerCase(), create_user: true } });
 }
 
 /** Проверить код из письма. Возвращает { conflict } - если в аккаунте и на устройстве разный прогресс. */
