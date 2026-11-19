@@ -3,6 +3,14 @@
 // Разбор - ключ правила из rules.js либо перевод слова [по-русски, по-казахски].
 // Все предложения авторские.
 
+import { MORE_A } from './bank-more3-a.js';
+import { MORE_B } from './bank-more3-b.js';
+import { MORE_C } from './bank-more3-c.js';
+import { MORE_D } from './bank-more3-d.js';
+import { MORE_E } from './bank-more3-e.js';
+import { MORE_F } from './bank-more3-f.js';
+import { MORE_G } from './bank-more3-g.js';
+
 const A1 = 1;
 const A2 = 2;
 const B1 = 3;
@@ -314,3 +322,11 @@ export const BANK = {
     [C2, 'The damage to the ecosystem may prove ______. (REVERSE)', 'irreversible', ['unreversed', 'reversal', 'reversibly'], 'wordform'],
   ],
 };
+
+// Дополнительные задания - в bank-more3-*.js.
+for (const more of [MORE_A, MORE_B, MORE_C, MORE_D, MORE_E, MORE_F, MORE_G]) {
+  for (const [topic, rows] of Object.entries(more)) {
+    const have = new Set(BANK[topic].map((row) => row[1]));
+    for (const row of rows) if (!have.has(row[1])) BANK[topic].push(row);
+  }
+}

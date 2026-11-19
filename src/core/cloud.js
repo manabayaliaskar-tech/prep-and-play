@@ -11,7 +11,7 @@ const PREFIX = 'prepplay:';
 const SESSION = 'cloudSession';
 const META = 'cloudMeta';
 /** Не уходят в облако: вход, служебные отметки синхронизации, перезагрузки. */
-const LOCAL_ONLY = new Set([SESSION, META, 'chunkReload']);
+const LOCAL_ONLY = new Set([SESSION, META, 'chunkReload', 'cloudLinkError']);
 const PUSH_DELAY = 12000;
 
 let pushTimer = null;
@@ -100,6 +100,13 @@ export async function verifyCode(email, code) {
 /** Вход по ссылке из письма: Supabase возвращает на сайт с #access_token=… в адресе. */
 export function takeSessionFromUrl() {
   const hash = location.hash;
+  // Ссылка устарела или уже использована - ведём в профиль и говорим, что делать.
+  if (/[#&]error(_code)?=/.test(hash) && !hash.includes('access_token=')) {
+    const params = new URLSearchParams(hash.slice(1));
+    storage.set('cloudLinkError', params.get('error_code') || params.get('error') || 'error');
+    history.replaceState(null, '', `${location.pathname}#/profile`);
+    return false;
+  }
   if (!hash.includes('access_token=')) return false;
   const params = new URLSearchParams(hash.slice(1));
   const access_token = params.get('access_token');

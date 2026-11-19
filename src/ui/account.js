@@ -4,6 +4,7 @@
 import { cloudEmail, cloudMeta, isSignedIn, pushNow, sendCode, sendReport, signOut, useRemote, verifyCode } from '../core/cloud.js';
 import { getLang, t } from '../core/i18n.js';
 import { esc } from './dom.js';
+import { storage } from '../core/storage.js';
 import { mascot } from './mascot.js';
 import { openModal, toast } from './overlay.js';
 
@@ -26,6 +27,7 @@ export function accountCardHtml() {
     </div>`;
   }
   const step = pendingEmail ? 'code' : 'email';
+  const linkError = storage.get('cloudLinkError', null);
   return `<div class="panel account-card">
     <div class="acc-head"><span class="acc-icon">🌐</span><div><h2>${t('acc.title')}</h2><p class="muted small">${t('acc.why')}</p></div></div>
     ${
@@ -35,7 +37,7 @@ export function accountCardHtml() {
            <form class="acc-form acc-code-form"><input class="acc-input acc-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required placeholder="123456" aria-label="${t('acc.codePh')}"/><button class="btn btn-primary">${t('acc.signIn')}</button></form>
            <button type="button" class="link-btn acc-back">← ${t('acc.otherEmail')}</button>`
     }
-    <p class="acc-error" hidden></p>
+    <p class="acc-error" ${linkError ? '' : 'hidden'}>${linkError ? t('acc.linkExpired') : ''}</p>
     <p class="muted tiny">${t('acc.optional')}</p>
   </div>`;
 }
@@ -78,6 +80,7 @@ export function bindAccount(root, rerender) {
     const btn = e.currentTarget.querySelector('button');
     busy(btn, true);
     try {
+      storage.set('cloudLinkError', null);
       await sendCode(email);
       pendingEmail = email;
       rerender();
