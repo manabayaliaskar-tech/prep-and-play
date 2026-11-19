@@ -257,6 +257,9 @@ exe|a regional akimat (administration)|акимат (администрация 
 jud|the Supreme Court|Верховный суд|Жоғарғы сот
 jud|a district court|районный суд|аудандық сот
 jud|the Constitutional Court|Конституционный суд|Конституциялық сот
+jud|a court of appeal|апелляционный суд|апелляциялық сот
+leg|the Federation Council|Совет Федерации|Федерация Кеңесі
+exe|the tax service|налоговая служба|салық қызметі
 `).map(([b, en, ru, kk]) => ({ b, name: L(en, ru, kk) }));
 
 const SPHERES = {
@@ -281,6 +284,9 @@ spi|a theatre stages a new play|театр ставит новый спекта�
 spi|scientists publish a discovery|учёные публикуют открытие|ғалымдар жаңалығын жариялайды
 spi|a museum opens an exhibition|музей открывает выставку|мұражай көрме ашады
 spi|a writer publishes a novel|писатель издаёт роман|жазушы роман шығарады
+eco|a bank pays interest on deposits|банк начисляет проценты по вкладам|банк салымдар бойынша пайыз есептейді
+pol|a deputy takes part in a parliament session|депутат участвует в заседании парламента|депутат парламент отырысына қатысады
+soc|a clinic vaccinates children|поликлиника делает прививки детям|емхана балаларға екпе жасайды
 `).map(([s2, en, ru, kk]) => ({ s: s2, fact: L(en, ru, kk) }));
 
 export function powersMaker(topic) {

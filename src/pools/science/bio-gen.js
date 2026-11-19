@@ -228,6 +228,15 @@ const TABLES = [
 3|xylem|ксилема (древесина)|ксилема (сүрек)|carries water up from the roots|проводит воду вверх от корней|суды тамырдан жоғары өткізеді
 3|phloem|флоэма (луб)|флоэма (тін)|carries sugars from the leaves to other parts|проводит сахара от листьев к другим частям|қантты жапырақтан басқа мүшелерге өткізеді
 3|spore|спора|спора|reproduces ferns and mosses without seeds|служит для размножения папоротников и мхов без семян|қырықжапырақ пен мүктерді тұқымсыз көбейтеді
+1|bud|почка|бүршік|grows into a new shoot, leaves or a flower|даёт начало новому побегу, листьям или цветку|жаңа өркенге, жапырақтарға немесе гүлге бастама береді
+1|petal|лепесток|күлте|attracts insects with its colour and scent|привлекает насекомых окраской и запахом|түсімен және иісімен жәндіктерді тартады
+1|stamen|тычинка|аталық|makes the pollen|образует пыльцу|тозаң түзеді
+1|pistil|пестик|аналық|forms a fruit from its ovary|образует плод из своей завязи|түйнегінен жеміс түзеді
+1|bark|кора|қабық|protects the trunk of a tree|защищает ствол дерева|ағаш діңін қорғайды
+1|tuber|клубень|түйнек|stores starch (as in a potato)|запасает крахмал (как у картофеля)|крахмал жинайды (картоптағы сияқты)
+1|thorn|колючка|тікен|protects the plant from animals|защищает растение от животных|өсімдікті жануарлардан қорғайды
+1|annual ring|годичное кольцо|жылдық сақина|shows the age of a tree|показывает возраст дерева|ағаштың жасын көрсетеді
+1|rhizome|корневище|тамырсабақ|stores nutrients underground|запасает питательные вещества под землёй|қоректік заттарды жер астында жинайды
 `),
     ask: (p) => L(`What does the ${p.a.en} of a plant do?`, `Какую функцию выполняет ${p.a.ru} у растения?`, `Өсімдіктің ${p.a.kk} қандай қызмет атқарады?`),
     back: (p) => L(`Which part of a plant ${p.b.en}?`, `Какая часть растения ${p.b.ru}?`, `Өсімдіктің қай бөлігі ${p.b.kk}?`),
@@ -248,6 +257,17 @@ const TABLES = [
 3|biosphere|биосфера|биосфера|the layer of the Earth where life exists|оболочка Земли, населённая живыми организмами|тірі ағзалар мекендейтін Жер қабығы
 3|Red Book|Красная книга|Қызыл кітап|a list of rare and endangered species|список редких и исчезающих видов|сирек және жойылып бара жатқан түрлердің тізімі
 3|biodiversity|биоразнообразие|биоәртүрлілік|the variety of living things in an area|разнообразие живых организмов на территории|аумақтағы тірі ағзалардың алуан түрлілігі
+1|pollution|загрязнение|ластану|harmful substances getting into air, water or soil|попадание вредных веществ в воздух, воду или почву|зиянды заттардың ауаға, суға немесе топыраққа түсуі
+1|recycling|переработка отходов|қалдықты қайта өңдеу|using waste again to make new things|повторное использование отходов для новых вещей|қалдықты қайта пайдаланып жаңа заттар жасау
+1|nature reserve|заповедник|қорық|a protected area where nature is left untouched|охраняемая территория с нетронутой природой|табиғаты қорғалатын, қол тигізілмейтін аумақ
+1|deforestation|вырубка лесов|орман кесу|the mass cutting down of forests|массовая рубка лесов|ормандарды жаппай кесу
+1|food web|пищевая сеть|қоректік желі|many food chains linked together|множество пищевых цепей, связанных между собой|бір-бірімен байланысқан көптеген қоректік тізбек
+1|prey|жертва|олжа|an animal that a predator hunts|животное, на которое охотится хищник|жыртқыш аулайтын жануар
+1|ozone layer|озоновый слой|озон қабаты|shields living things from harmful ultraviolet rays|защищает живое от вредного ультрафиолета|тіршілікті зиянды ультракүлгін сәулелерден қорғайды
+1|natural resources|природные ресурсы|табиғи ресурстар|materials from nature that people use, such as water, coal and wood|природные богатства, которыми пользуется человек: вода, уголь, древесина|адам пайдаланатын табиғи байлықтар: су, көмір, ағаш
+1|hibernation|спячка|қысқы ұйқы|a deep winter sleep of some animals|глубокий зимний сон некоторых животных|кейбір жануарлардың терең қысқы ұйқысы
+1|migration|миграция (перелёт)|көші-қон|the seasonal movement of animals to other regions|сезонное перемещение животных в другие края|жануарлардың басқа өңірге маусымдық көшуі
+1|soil|почва|топырақ|the fertile upper layer of land|плодородный верхний слой суши|құрлықтың құнарлы жоғарғы қабаты
 `),
     ask: (p) => L(`What are «${p.a.en}» in ecology?`, `Что такое «${p.a.ru}» в экологии?`, `Экологияда «${p.a.kk}» дегеніміз не?`),
     back: (p) => L(`Which term means: ${p.b.en}?`, `Какой термин означает: ${p.b.ru}?`, `Қай термин мынаны білдіреді: ${p.b.kk}?`),
@@ -304,21 +324,34 @@ const TABLES = [
     pairs: pairTable(`
 1|Charles Darwin|Чарльз Дарвин|Чарльз Дарвин|the theory of evolution by natural selection|теория эволюции путём естественного отбора|табиғи сұрыпталу арқылы эволюция теориясы
 1|Gregor Mendel|Грегор Мендель|Грегор Мендель|the laws of heredity|законы наследственности|тұқым қуалаушылық заңдары
-2|Louis Pasteur|Луи Пастер|Луи Пастер|vaccines and pasteurisation|вакцины и пастеризация|вакциналар мен пастерлеу
-2|Alexander Fleming|Александр Флеминг|Александр Флеминг|penicillin, the first antibiotic|пенициллин - первый антибиотик|пенициллин - алғашқы антибиотик
-2|Robert Hooke|Роберт Гук|Роберт Гук|the cell (he was first to describe it)|клетка (первым описал её)|жасуша (оны алғаш сипаттаған)
-2|Antonie van Leeuwenhoek|Антони ван Левенгук|Антони ван Левенгук|microorganisms seen through a microscope|микроорганизмы, увиденные в микроскоп|микроскоппен көрінген микроағзалар
+1|Louis Pasteur|Луи Пастер|Луи Пастер|pasteurisation and the rabies vaccine|пастеризация и вакцина против бешенства|пастерлеу және құтыруға қарсы вакцина
+1|Alexander Fleming|Александр Флеминг|Александр Флеминг|penicillin, the first antibiotic|пенициллин - первый антибиотик|пенициллин - алғашқы антибиотик
+1|Robert Hooke|Роберт Гук|Роберт Гук|the cell (he was first to describe it)|клетка (первым описал её)|жасуша (оны алғаш сипаттаған)
+1|Antonie van Leeuwenhoek|Антони ван Левенгук|Антони ван Левенгук|microorganisms seen through a microscope|микроорганизмы, увиденные в микроскоп|микроскоппен көрінген микроағзалар
 3|Watson and Crick|Уотсон и Крик|Уотсон мен Крик|the double helix structure of DNA|двойная спираль ДНК|ДНҚ-ның қос спиралі
-3|William Harvey|Уильям Гарвей|Уильям Гарвей|the circulation of blood|кровообращение|қан айналымы
-3|Carl Linnaeus|Карл Линней|Карл Линней|the system of naming species with two words|система двойных названий видов|түрлерді екі сөзбен атау жүйесі
-3|Ivan Pavlov|Иван Павлов|Иван Павлов|conditioned reflexes|условные рефлексы|шартты рефлекстер
+1|William Harvey|Уильям Гарвей|Уильям Гарвей|the circulation of blood|кровообращение|қан айналымы
+1|Carl Linnaeus|Карл Линней|Карл Линней|the system of naming species with two words|система двойных названий видов|түрлерді екі сөзбен атау жүйесі
+1|Ivan Pavlov|Иван Павлов|Иван Павлов|conditioned reflexes|условные рефлексы|шартты рефлекстер
 3|Ilya Mechnikov|Илья Мечников|Илья Мечников|phagocytosis (cells that swallow microbes)|фагоцитоз (клетки, поглощающие микробов)|фагоцитоз (микробтарды жұтатын жасушалар)
-2|Edward Jenner|Эдвард Дженнер|Эдвард Дженнер|the first vaccine, against smallpox|первая вакцина - против оспы|алғашқы вакцина - шешекке қарсы
-2|Robert Koch|Роберт Кох|Роберт Кох|the bacterium that causes tuberculosis|возбудитель туберкулёза|туберкулездің қоздырғышы
+1|Edward Jenner|Эдвард Дженнер|Эдвард Дженнер|the first vaccine, against smallpox|первая вакцина - против оспы|алғашқы вакцина - шешекке қарсы
+1|Robert Koch|Роберт Кох|Роберт Кох|the bacterium that causes tuberculosis|возбудитель туберкулёза|туберкулездің қоздырғышы
 3|Jean-Baptiste Lamarck|Жан-Батист Ламарк|Жан-Батист Ламарк|the first complete theory of evolution|первая целостная теория эволюции|алғашқы тұтас эволюция теориясы
 3|Nikolai Vavilov|Николай Вавилов|Николай Вавилов|the centres of origin of cultivated plants|центры происхождения культурных растений|мәдени өсімдіктердің шығу орталықтары
 3|Vladimir Vernadsky|Владимир Вернадский|Владимир Вернадский|the doctrine of the biosphere|учение о биосфере|биосфера туралы ілім
 3|Ivan Sechenov|Иван Сеченов|Иван Сеченов|the reflexes of the brain|рефлексы головного мозга|ми рефлекстері
+1|Aristotle|Аристотель|Аристотель|the first classification of animals|первая классификация животных|жануарлардың алғашқы жіктелуі
+1|Jane Goodall|Джейн Гудолл|Джейн Гудолл|decades of study of wild chimpanzees|многолетнее изучение диких шимпанзе|жабайы шимпанзелерді көп жылдар зерттеу
+1|Ivan Michurin|Иван Мичурин|Иван Мичурин|breeding new fruit varieties by hybridisation|выведение новых сортов плодовых растений путём гибридизации|будандастыру арқылы жеміс өсімдіктерінің жаңа сорттарын шығару
+1|Frederick Banting|Фредерик Бантинг|Фредерик Бантинг|the discovery of insulin|открытие инсулина|инсулинді ашу
+2|Theodor Schwann|Теодор Шванн|Теодор Шванн|the cell theory, with Schleiden|клеточная теория (вместе со Шлейденом)|жасуша теориясы (Шлейденмен бірге)
+2|Rudolf Virchow|Рудольф Вирхов|Рудольф Вирхов|the principle that every cell comes from another cell|принцип «каждая клетка из клетки»|«әрбір жасуша жасушадан» қағидасы
+2|Robert Brown|Роберт Броун|Роберт Броун|the cell nucleus|клеточное ядро|жасуша ядросы
+2|Thomas Hunt Morgan|Томас Морган|Томас Морган|the chromosome theory of heredity, based on fruit flies|хромосомная теория наследственности на опытах с дрозофилой|дрозофила тәжірибелеріне негізделген тұқым қуалаудың хромосомалық теориясы
+2|Kliment Timiryazev|Климент Тимирязев|Климент Тимирязев|studies of photosynthesis in green plants|исследования фотосинтеза у зелёных растений|жасыл өсімдіктердегі фотосинтезді зерттеу
+2|Ernst Haeckel|Эрнст Геккель|Эрнст Геккель|the term "ecology"|термин «экология»|«экология» терминін енгізу
+3|Camillo Golgi|Камилло Гольджи|Камилло Гольджи|the organelle later named after him|органоид клетки, названный его именем|өз атымен аталған жасуша органоиды
+3|Hugo de Vries|Хуго де Фриз|Гуго де Фриз|the mutation theory|мутационная теория|мутация теориясы
+3|Andreas Vesalius|Андреас Везалий|Андреас Везалий|the first accurate book on human anatomy|первый точный труд по анатомии человека|адам анатомиясы жайлы алғашқы нақты еңбек
 `),
     ask: (p) => L(`What is ${p.a.en} famous for?`, `Чем знаменит ${p.a.ru}?`, `${p.a.kk} немен әйгілі?`),
     back: (p) => L(`Who is known for ${p.b.en}?`, `Кто известен открытием: ${p.b.ru}?`, `Кім «${p.b.kk}» ашуымен белгілі?`),
