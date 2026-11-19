@@ -4,6 +4,7 @@
 
 import { R, T } from '../bank.js';
 import { RUSSIAN_MORE2, SOCIAL_MORE2 } from './humanities-more2.js';
+import { SOCIAL_MORE3 } from './social-more3.js';
 
 export const RUSSIAN = [
   // ----- Орфография -----
@@ -148,3 +149,4 @@ export const SOCIAL = [
 // Дополнительные вопросы - в humanities-more2.js.
 RUSSIAN.push(...RUSSIAN_MORE2);
 SOCIAL.push(...SOCIAL_MORE2);
+SOCIAL.push(...SOCIAL_MORE3);
