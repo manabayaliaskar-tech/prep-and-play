@@ -25,7 +25,8 @@ import { installFxDefs } from './ui/fx-defs.js';
 import { seasonName, seasonRoute } from './screens/season.js';
 import { seasonId, themeOf } from './core/season.js';
 import { bindLangSwitches, renderTopbar } from './ui/topbar.js';
-import { startCloud, takeSessionFromUrl } from './core/cloud.js';
+import { firstSync, startCloud, takeSessionFromUrl } from './core/cloud.js';
+import { askConflict } from './ui/account.js';
 
 // Экраны грузятся по требованию: главная открывается сразу, а код заданий, магазина и т. д. приходит,
 // только когда человек туда идёт.
@@ -246,7 +247,17 @@ document.addEventListener('routechange', () => stopSpeech());
 if (isStandalone() && !getProfile().counters.app) getProfile().counters.app = 1;
 syncAchievements();
 startMotion(app);
-takeSessionFromUrl();
-startCloud();
+// Вход по ссылке из письма: сохраняем вход и делаем первую синхронизацию (как при входе по коду).
+const linkedIn = takeSessionFromUrl();
+startCloud({ skipStartSync: linkedIn });
 startRouter();
+if (linkedIn)
+  firstSync()
+    .then((res) => {
+      if (res?.reloaded) return;
+      toast(`🌐 ${t('acc.welcome')}`, { kind: 'good' });
+      if (res?.conflict) askConflict(res.conflict, refreshRoute);
+      else refreshRoute();
+    })
+    .catch(() => refreshRoute());
 renderTopbar();

@@ -193,7 +193,7 @@ export async function pushNow({ keepalive = false } = {}) {
 }
 
 /** После входа: облако пустое - выгружаем своё; на устройстве пусто - берём из облака; иначе спрашиваем. */
-async function firstSync() {
+export async function firstSync() {
   const remote = await fetchRemote();
   const local = collectLocal();
   if (!remote || !Object.keys(remote.data ?? {}).length) {
@@ -235,7 +235,7 @@ function schedulePush() {
 }
 
 /** Запуск: следим за изменениями и отправляем их в облако с небольшой задержкой. */
-export function startCloud() {
+export function startCloud({ skipStartSync = false } = {}) {
   onStorageSet((key) => {
     if (LOCAL_ONLY.has(key) || !isSignedIn()) return;
     if (!cloudMeta().dirty) setMeta({ dirty: true });
@@ -244,7 +244,7 @@ export function startCloud() {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden' && cloudMeta().dirty) pushNow({ keepalive: true }).catch(() => {});
   });
-  syncOnStart();
+  if (!skipStartSync) syncOnStart();
 }
 
 // ---------- Сообщения об ошибках ----------

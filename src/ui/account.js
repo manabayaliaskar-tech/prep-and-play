@@ -22,7 +22,7 @@ export function accountCardHtml() {
     const meta = cloudMeta();
     return `<div class="panel account-card is-in">
       <div class="acc-head"><span class="acc-icon">🌐</span><div><h2>${t('acc.title')}</h2><p class="muted small">${t('acc.signedAs')} <b>${esc(cloudEmail())}</b></p></div></div>
-      <p class="acc-sync">${meta.dirty ? `⏳ ${t('acc.pending')}` : `✅ ${t('acc.synced')}`} · <span class="muted small">${t('acc.last')}: ${fmtTime(meta.lastSync)}</span></p>
+      <p class="acc-sync">${meta.dirty || !meta.lastSync ? `⏳ ${t('acc.pending')}` : `✅ ${t('acc.synced')}`} · <span class="muted small">${t('acc.last')}: ${fmtTime(meta.lastSync)}</span></p>
       <div class="acc-actions"><button type="button" class="btn btn-soft btn-sm acc-sync-btn">🔄 ${t('acc.syncNow')}</button><button type="button" class="btn btn-ghost btn-sm acc-out">${t('acc.signOut')}</button></div>
     </div>`;
   }
@@ -57,7 +57,7 @@ function busy(btn, on) {
 }
 
 /** Выбор, когда и в аккаунте, и на устройстве есть прогресс. */
-function askConflict({ remote, localXp, remoteXp }, rerender) {
+export function askConflict({ remote, localXp, remoteXp }, rerender) {
   openModal({
     title: `🌐 ${t('acc.conflictTitle')}`,
     body: `<div class="help-confirm">${mascot('think', 'mascot-sm')}<p>${t('acc.conflictText', { a: remoteXp, b: localXp })}</p></div>`,
