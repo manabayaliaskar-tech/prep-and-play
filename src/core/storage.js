@@ -1,6 +1,13 @@
 // Безопасная обёртка над localStorage (в приватном режиме он может быть недоступен).
 
 const PREFIX = 'prepplay:';
+const setListeners = new Set();
+
+/** Подписка на любые записи (для синхронизации с облаком). fn(key). */
+export function onStorageSet(fn) {
+  setListeners.add(fn);
+  return () => setListeners.delete(fn);
+}
 
 export const storage = {
   get(key, fallback) {
@@ -17,5 +24,6 @@ export const storage = {
     } catch {
       // Хранилище недоступно - прогресс просто не сохранится.
     }
+    setListeners.forEach((fn) => fn(key));
   },
 };

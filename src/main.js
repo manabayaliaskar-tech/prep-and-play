@@ -25,6 +25,7 @@ import { installFxDefs } from './ui/fx-defs.js';
 import { seasonName, seasonRoute } from './screens/season.js';
 import { seasonId, themeOf } from './core/season.js';
 import { bindLangSwitches, renderTopbar } from './ui/topbar.js';
+import { startCloud, takeSessionFromUrl } from './core/cloud.js';
 
 // Экраны грузятся по требованию: главная открывается сразу, а код заданий, магазина и т. д. приходит,
 // только когда человек туда идёт.
@@ -245,5 +246,7 @@ document.addEventListener('routechange', () => stopSpeech());
 if (isStandalone() && !getProfile().counters.app) getProfile().counters.app = 1;
 syncAchievements();
 startMotion(app);
+takeSessionFromUrl();
+startCloud();
 startRouter();
 renderTopbar();

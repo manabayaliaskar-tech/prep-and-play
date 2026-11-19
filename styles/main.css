@@ -16049,3 +16049,26 @@ a.xp-node:hover { transform: translateY(-2px) scale(1.04); }
   .sheet-head { margin-top: 0; }
   * { animation: none !important; transition: none !important; }
 }
+
+/* ===== Аккаунт и сообщение об ошибке ===== */
+.account-card { display: grid; gap: 10px; margin-top: 16px; border: 1.5px solid color-mix(in srgb, var(--primary) 30%, var(--line)); background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 7%, var(--card)), var(--card) 60%); }
+.account-card.is-in { border-color: color-mix(in srgb, var(--green) 40%, var(--line)); background: linear-gradient(135deg, color-mix(in srgb, var(--green) 8%, var(--card)), var(--card) 60%); }
+.acc-head { display: flex; align-items: center; gap: 12px; }
+.acc-head h2 { margin: 0; }
+.acc-head p { margin: 2px 0 0; }
+.acc-icon { flex: none; width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; font-size: 1.5rem; background: var(--card); box-shadow: var(--shadow); }
+.acc-form { display: flex; gap: 8px; flex-wrap: wrap; }
+.acc-input { flex: 1 1 220px; min-width: 0; font: inherit; font-size: 16px; padding: 11px 14px; border-radius: 12px; border: 2px solid var(--line-strong); background: var(--card); color: var(--ink); }
+.acc-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 18%, transparent); }
+.acc-code { letter-spacing: .35em; font-weight: 800; font-size: 20px; text-align: center; max-width: 220px; }
+.acc-error { margin: 0; color: var(--red-d); font-weight: 700; font-size: 14px; }
+.acc-sync { margin: 0; }
+.acc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.account-card .muted.tiny { margin: 0; }
+.btn.is-busy { opacity: .6; pointer-events: none; }
+.rep-reasons { display: grid; gap: 6px; margin-bottom: 10px; }
+.rep-reason { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 12px; border: 1.5px solid var(--line); cursor: pointer; font-weight: 600; }
+.rep-reason:has(input:checked) { border-color: var(--primary); background: var(--primary-l); }
+.rep-text { width: 100%; box-sizing: border-box; font: inherit; padding: 10px 12px; border-radius: 12px; border: 2px solid var(--line-strong); background: var(--card); color: var(--ink); resize: vertical; }
+.report-btn { opacity: .7; }
+.report-btn:hover { opacity: 1; }

@@ -30,6 +30,7 @@ import { getVolume, setVolume, sfx } from '../core/sound.js';
 import { mascot } from '../ui/mascot.js';
 import { esc } from '../ui/dom.js';
 import { storage } from '../core/storage.js';
+import { accountCardHtml, bindAccount } from '../ui/account.js';
 import { openModal, toast } from '../ui/overlay.js';
 import { themePickerHtml } from '../ui/theme-picker.js';
 import { courseBadge } from './hub.js';
@@ -396,6 +397,8 @@ export function profileScreen(app) {
           </div>
         </div>
 
+        ${accountCardHtml()}
+
         <a class="profile-room" href="#/shop/room" aria-label="${t('profile.room')}">
           ${roomScene(getRoom(p), mascot('happy', 'mascot-stage float'), { compact: true })}
           <span class="profile-room-label">🛋️ ${t('profile.room')} →</span>
@@ -455,6 +458,7 @@ ${achievementsPanel(p)}
     });
     app.querySelector('.prepi-dress').addEventListener('click', () => openWardrobe(render));
     bindExamMore(app);
+    bindAccount(app, render);
     app.querySelectorAll('.exam-fold[data-exam]').forEach((el) => bindChart(el, progressPoints(el.dataset.exam)));
     app.querySelector('.install-btn')?.addEventListener('click', startInstall);
     app.querySelector('.volume-input').addEventListener('change', (e) => {

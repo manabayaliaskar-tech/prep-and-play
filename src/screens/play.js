@@ -19,6 +19,7 @@ import { mascot } from '../ui/mascot.js';
 import { bindQuestion, correctAnswerHtml, questionHtml, responseHtml, wrongReason } from '../ui/question.js';
 import { openReference } from '../ui/reference.js';
 import { openCalculator } from '../ui/calculator.js';
+import { openReport } from '../ui/account.js';
 import { openModal } from '../ui/overlay.js';
 import { renderResults } from '../ui/results.js';
 import { mountSolution } from '../ui/solution.js';
@@ -113,7 +114,7 @@ export function runSession(app, config) {
               </div>`
             : ''
         }
-        <div class="session-title"><span>${esc(titleText())}</span><span class="q-counter"></span><button type="button" class="link-btn ref-btn" hidden>📏 ${t('ref.short')}</button><button type="button" class="link-btn calc-btn" hidden title="${t('calc.title')}" aria-label="${t('calc.title')}">🧮<span class="hint-label"> ${t('calc.short')}</span></button><button type="button" class="link-btn save-btn" aria-pressed="false" title="${t('saved.add')}" aria-label="${t('saved.add')}">🔖</button>${hints ? `<button type="button" class="link-btn hint-btn" title="${t('hint.btn')}" aria-label="${t('hint.btn')}">💡<span class="hint-label"> ${t('hint.btn')}</span></button>` : ''}${langSwitchHtml('mini')}</div>
+        <div class="session-title"><span>${esc(titleText())}</span><span class="q-counter"></span><button type="button" class="link-btn ref-btn" hidden>📏 ${t('ref.short')}</button><button type="button" class="link-btn calc-btn" hidden title="${t('calc.title')}" aria-label="${t('calc.title')}">🧮<span class="hint-label"> ${t('calc.short')}</span></button><button type="button" class="link-btn report-btn" title="${t('rep.title')}" aria-label="${t('rep.title')}">⚠</button><button type="button" class="link-btn save-btn" aria-pressed="false" title="${t('saved.add')}" aria-label="${t('saved.add')}">🔖</button>${hints ? `<button type="button" class="link-btn hint-btn" title="${t('hint.btn')}" aria-label="${t('hint.btn')}">💡<span class="hint-label"> ${t('hint.btn')}</span></button>` : ''}${langSwitchHtml('mini')}</div>
         ${pace ? '<div class="pace-bar" hidden><i></i></div>' : ''}
         <main class="q-area"></main>
         <footer class="answer-bar"><div class="answer-bar-inner"><span class="hud-prepi" aria-hidden="true">${mascot(silent ? 'think' : 'happy', 'mascot-xs')}</span><button type="button" class="btn btn-primary btn-lg btn-check" disabled>${checkLabel()}</button></div></footer>
@@ -134,6 +135,7 @@ export function runSession(app, config) {
     el.sheet = app.querySelector('.sheet');
     el.ref = app.querySelector('.ref-btn');
     el.calc = app.querySelector('.calc-btn');
+    app.querySelector('.report-btn')?.addEventListener('click', () => openReport(state.q));
     el.prepi = app.querySelector('.hud-prepi');
     el.hint = app.querySelector('.hint-btn');
     el.hint?.addEventListener('click', () => askHelp('hint', useHint));
