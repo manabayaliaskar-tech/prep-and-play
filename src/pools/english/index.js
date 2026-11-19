@@ -4,6 +4,7 @@
 import { pick } from '../../core/random.js';
 import { L, mcText, poolQ } from '../gen.js';
 import { BANK } from './bank.js';
+import { oldestOf } from '../../core/seen.js';
 import { RULES } from './rules.js';
 
 export const CEFR = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
@@ -34,7 +35,7 @@ export function englishMaker(topic) {
     const pool = items.filter((it) => it.row[0] === level);
     if (!pool.length) throw new Error(`No ${topic} items at level ${level}`);
     const fresh = pool.filter((it) => !ctx.used?.has(it.id));
-    const it = pick(ctx.rng, fresh.length ? fresh : pool);
+    const it = pick(ctx.rng, fresh.length ? fresh : oldestOf(pool));
     const [, sentence, correct, wrong] = it.row;
     const q = poolQ(topic, Math.ceil(level / 2), {
       kind: 'text',

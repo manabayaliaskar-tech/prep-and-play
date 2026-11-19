@@ -16,6 +16,7 @@ import { DAILY_GOAL, addXp, getProfile, levelInfo, saveProfile, todayXp } from '
 import { createRng, hashString, newSeed } from '../core/random.js';
 import { navigate } from '../core/router.js';
 import { storage } from '../core/storage.js';
+import { UsedSet } from '../core/seen.js';
 import { starsFor } from '../engine/session.js';
 import { TopicStream, buildTopicSet } from '../pools/stream.js';
 import { esc, formatTime } from '../ui/dom.js';
@@ -61,10 +62,10 @@ const LEVEL_TIERS = { 1: [1], 2: [1, 2], 3: [2, 3], 4: [1, 2, 3] };
 
 /** Поток с растущей сложностью: next(d) берёт задания ступени не выше d. */
 class ExamStream {
-  constructor({ rng, tracks, quick = false }) {
-    const used = new Set();
+  constructor({ rng, tracks, quick = false, memory = true }) {
+    const used = new UsedSet({ memory });
     this.streams = [1, 2, 3].map((d) => {
-      const s = new TopicStream({ rng, spec: tieredSpec(tracks, [1, 2, 3].filter((x) => x <= d)), quick });
+      const s = new TopicStream({ rng, spec: tieredSpec(tracks, [1, 2, 3].filter((x) => x <= d)), quick, memory });
       s.used = used;
       return s;
     });
@@ -474,7 +475,7 @@ function duelShare(app, code, text) {
 /** Дуэль на заданиях экзамена; opponent - вызов из ссылки. */
 export function playExamDuel(app, { course, seed, section, opponent = null }) {
   const name = getProfile().name || t('duel.anonymous');
-  const questions = buildTopicSet({ rng: createRng(seed), spec: tieredSpec(tracksFor(course, section), [1, 2, 3]), count: DUEL_LENGTH });
+  const questions = buildTopicSet({ rng: createRng(seed), spec: tieredSpec(tracksFor(course, section), [1, 2, 3]), count: DUEL_LENGTH, memory: false });
   return runSession(app, {
     title: () => (opponent ? `🤺 ${t('duel.vs', { name: opponent.name })}` : `🤺 ${t('duel.title')} · ${tx(course.name)}`),
     questions,
@@ -565,7 +566,7 @@ export function examDailyRoute(app, { exam }) {
       return;
     }
     app.querySelector('.start-btn').addEventListener('click', () => {
-      const stream = new ExamStream({ rng: createRng(hashString(`xdaily-${course.id}-${today}`)), tracks: course.tracks });
+      const stream = new ExamStream({ rng: createRng(hashString(`xdaily-${course.id}-${today}`)), tracks: course.tracks, memory: false });
       session = runSession(app, {
         title: () => `☀️ ${t('daily.title')} · ${tx(course.name)}`,
         questions: [1, 2, 2, 3, 3].map((d) => stream.next(d)),

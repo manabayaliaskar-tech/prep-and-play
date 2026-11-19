@@ -2,6 +2,7 @@
 // Уровень - от 1 до 6 (A1-C2 или HSK 1-6). Задания не повторяются, пока не закончится уровень.
 
 import { pick, shuffle } from '../../core/random.js';
+import { oldestOf } from '../../core/seen.js';
 import { L, poolQ } from '../gen.js';
 
 const FILL = L(
@@ -24,7 +25,7 @@ export function languageMaker(topic, rows) {
     const pool = items.filter((it) => it.row[0] === level);
     if (!pool.length) throw new Error(`No ${topic} items at level ${level}`);
     const fresh = pool.filter((it) => !ctx.used?.has(it.id));
-    const it = pick(ctx.rng, fresh.length ? fresh : pool);
+    const it = pick(ctx.rng, fresh.length ? fresh : oldestOf(pool));
     const [, question, correct, wrong, ex] = it.row;
     const order = shuffle([0, 1, 2, 3], ctx.rng);
     const all = [correct, ...wrong];

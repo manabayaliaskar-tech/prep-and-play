@@ -3,6 +3,7 @@
 
 import { COURSES } from '../catalog/courses.js';
 import { createRng, hashString, pick, shuffle } from '../core/random.js';
+import { UsedSet } from '../core/seen.js';
 import { TOPICS } from './topics.js';
 
 export const QUIZ_LEVELS = 10;
@@ -41,11 +42,11 @@ export const QUIZ_POOLS = quizSubjects(1).map((s) => s.pool);
  * pools - какие предметы участвуют (по умолчанию все).
  */
 export class QuizStream {
-  constructor({ rng, seen = new Set(), pools = null }) {
+  constructor({ rng, seen = new Set(), pools = null, memory = true }) {
     this.rng = rng;
     this.seen = seen;
     this.pools = pools?.length ? pools : null;
-    this.ctx = { rng, mcOnly: true, used: new Set(), state: {} };
+    this.ctx = { rng, mcOnly: true, used: new UsedSet({ memory }), state: {} };
     this.order = [];
     this.lastPool = null;
   }
@@ -79,15 +80,15 @@ export class QuizStream {
 }
 
 /** Собирает квиз из count вопросов. Одинаковое зерно и одинаковая история дают одинаковый квиз. */
-export function buildQuiz({ rng, level, count = QUIZ_COUNT, seen, pools }) {
-  const stream = new QuizStream({ rng, seen, pools });
+export function buildQuiz({ rng, level, count = QUIZ_COUNT, seen, pools, memory = true }) {
+  const stream = new QuizStream({ rng, seen, pools, memory });
   return Array.from({ length: count }, () => stream.next(level));
 }
 
 /** Квиз дня: одинаковый для всех в этот день, средняя сложность. */
 export const DAILY_QUIZ_LEVEL = 5;
 export function dailyQuiz(day) {
-  return buildQuiz({ rng: createRng(hashString(`quiz-day:${day}`)), level: DAILY_QUIZ_LEVEL });
+  return buildQuiz({ rng: createRng(hashString(`quiz-day:${day}`)), level: DAILY_QUIZ_LEVEL, memory: false });
 }
 
 /** Сложность в «Выживании»: растёт на единицу каждые три ответа. */

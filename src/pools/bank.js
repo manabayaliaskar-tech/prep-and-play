@@ -3,6 +3,7 @@
 // Тексты - на трёх языках (T) либо только на языке экзамена (R).
 
 import { pick } from '../core/random.js';
+import { oldestOf } from '../core/seen.js';
 import { L, mcText, poolQ } from './gen.js';
 
 /** Текст на трёх языках в порядке: русский, казахский, английский. */
@@ -20,7 +21,7 @@ export function bankMaker(topic, rows) {
     const byKey = key ? items.filter((it) => it.row[0] === key) : items;
     const pool = byKey.length ? byKey : items;
     const fresh = pool.filter((it) => !ctx.used?.has(it.id));
-    const it = pick(ctx.rng, fresh.length ? fresh : pool);
+    const it = pick(ctx.rng, fresh.length ? fresh : oldestOf(pool));
     const [d, question, correct, wrong, ex] = it.row;
     const q = poolQ(topic, d, { kind: 'text', prompt: question, ex, mc: mcText(ctx.rng, correct, wrong) });
     q.id = it.id;

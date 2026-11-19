@@ -7,6 +7,7 @@ import { ACH_COINS, RESCUE_XP, XP_PER_COIN, levelCoins, streakMultiplier } from 
 import { addSeasonPts } from './season.js';
 import { dayKey, daysBetween } from './dates.js';
 import { emit } from './events.js';
+import { resetSeen } from './seen.js';
 import { storage } from './storage.js';
 
 export const DAILY_GOAL = 60;
@@ -232,6 +233,7 @@ export function syncAchievements() {
 export function resetProgress() {
   const keep = { name: profile.name, sound: profile.sound };
   profile = { ...defaults(), ...keep };
+  resetSeen();
   saveProfile();
 }
 

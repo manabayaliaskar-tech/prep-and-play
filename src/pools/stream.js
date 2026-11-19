@@ -4,17 +4,19 @@
 
 import { shuffle } from '../core/random.js';
 import { TOPICS } from './topics.js';
+import { UsedSet } from '../core/seen.js';
 
 export function cells(spec) {
   return spec.flatMap(([topic, keys]) => keys.map((key) => ({ topic, key })));
 }
 
 export class TopicStream {
-  constructor({ rng, spec, quick = false }) {
+  /** memory: false - не учитывать прошлые сессии (дуэль, задание дня: у всех одинаковые задания). */
+  constructor({ rng, spec, quick = false, memory = true }) {
     this.rng = rng;
     this.cells = cells(spec);
     this.quick = quick;
-    this.used = new Set();
+    this.used = new UsedSet({ memory });
     this.state = {};
     this.queue = [];
   }
@@ -41,7 +43,7 @@ export class TopicStream {
   }
 }
 
-export function buildTopicSet({ rng, spec, count, quick = false }) {
-  const stream = new TopicStream({ rng, spec, quick });
+export function buildTopicSet({ rng, spec, count, quick = false, memory = true }) {
+  const stream = new TopicStream({ rng, spec, quick, memory });
   return Array.from({ length: count }, () => stream.next());
 }

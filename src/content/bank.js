@@ -5,6 +5,7 @@
 import { pick, shuffle } from '../core/random.js';
 import { MATH_GENERATORS } from './math/index.js';
 import { RW_QUESTIONS } from './rw/index.js';
+import { UsedSet, oldestOf } from '../core/seen.js';
 import { DOMAINS } from './skills.js';
 
 /** Навыки, задания которых решаются быстро - для «Блица». */
@@ -23,7 +24,7 @@ export class QuestionStream {
    * @param skills список навыков или null
    * @param quick только быстрые задания (без ввода ответа)
    */
-  constructor({ rng, section = 'mix', domains = null, skills = null, quick = false }) {
+  constructor({ rng, section = 'mix', domains = null, skills = null, quick = false, memory = true }) {
     this.rng = rng;
     this.section = section;
     this.quick = quick;
@@ -33,7 +34,7 @@ export class QuestionStream {
       (q) => domainOk(q.domain) && skillOk(q.skill) && (!quick || QUICK_RW.has(q.skill)),
     );
     this.mathGens = MATH_GENERATORS.filter((g) => domainOk(g.domain) && skillOk(g.skill));
-    this.used = new Set();
+    this.used = new UsedSet({ memory });
   }
 
   next(difficulty, { domain = null } = {}) {
@@ -48,10 +49,8 @@ export class QuestionStream {
   #rw(d, domain) {
     const pool = domain ? this.rwPool.filter((q) => q.domain === domain) : this.rwPool;
     let fresh = pool.filter((q) => !this.used.has(q.id));
-    if (fresh.length === 0) {
-      pool.forEach((q) => this.used.delete(q.id));
-      fresh = pool;
-    }
+    // Всё уже видено - повторяем самые давние, а не случайные.
+    if (fresh.length === 0) fresh = oldestOf(pool);
     const exact = fresh.filter((q) => q.d === d);
     const near = fresh.filter((q) => Math.abs(q.d - d) === 1);
     const candidates = exact.length ? exact : near.length ? near : fresh;
@@ -74,8 +73,8 @@ export class QuestionStream {
 }
 
 /** Набор из count заданий; сложность каждого выбирается из списка difficulties. */
-export function buildSet({ rng, section = 'mix', domains = null, skills = null, difficulties = [1, 2, 3], count, quick }) {
-  const stream = new QuestionStream({ rng, section, domains, skills, quick });
+export function buildSet({ rng, section = 'mix', domains = null, skills = null, difficulties = [1, 2, 3], count, quick, memory = true }) {
+  const stream = new QuestionStream({ rng, section, domains, skills, quick, memory });
   return Array.from({ length: count }, () => stream.next(pick(rng, difficulties)));
 }
 

@@ -232,7 +232,7 @@ export const DAILY_COUNT = 5;
 export const DAILY_BONUS = 30;
 
 export function dailyQuestions(key = dayKey()) {
-  return buildSet({ rng: createRng(hashString(`daily-${key}`)), section: 'mix', difficulties: [1, 2, 2, 3, 3], count: DAILY_COUNT });
+  return buildSet({ rng: createRng(hashString(`daily-${key}`)), section: 'mix', difficulties: [1, 2, 2, 3, 3], count: DAILY_COUNT, memory: false });
 }
 
 export function dailyRoute(app) {
@@ -364,7 +364,7 @@ function saveName(app) {
 
 function playDuel(app, { seed, section, opponent = null }) {
   const name = getProfile().name || t('duel.anonymous');
-  const questions = buildSet({ rng: createRng(seed), section, difficulties: [1, 2, 2, 3], count: DUEL_LENGTH });
+  const questions = buildSet({ rng: createRng(seed), section, difficulties: [1, 2, 2, 3], count: DUEL_LENGTH, memory: false });
   return runSession(app, {
     title: () => (opponent ? `🤺 ${t('duel.vs', { name: opponent.name })}` : `🤺 ${t('duel.title')}`),
     questions,
