@@ -1,7 +1,7 @@
 // Карточка «Аккаунт» в профиле: вход по коду из письма, состояние синхронизации, выход.
 // И окно «Сообщить об ошибке» для задания.
 
-import { cloudEmail, cloudMeta, isSignedIn, pushNow, sendCode, sendReport, signOut, useRemote, verifyCode } from '../core/cloud.js';
+import { cloudEmail, cloudMeta, deleteAccount, isSignedIn, pushNow, sendCode, sendReport, signOut, useRemote, verifyCode } from '../core/cloud.js';
 import { getLang, t } from '../core/i18n.js';
 import { esc } from './dom.js';
 import { storage } from '../core/storage.js';
@@ -24,6 +24,7 @@ export function accountCardHtml() {
       <div class="acc-head"><span class="acc-icon">🌐</span><div><h2>${t('acc.title')}</h2><p class="muted small">${t('acc.signedAs')} <b>${esc(cloudEmail())}</b></p></div></div>
       <p class="acc-sync">${meta.dirty || !meta.lastSync ? `⏳ ${t('acc.pending')}` : `✅ ${t('acc.synced')}`} · <span class="muted small">${t('acc.last')}: ${fmtTime(meta.lastSync)}</span></p>
       <div class="acc-actions"><button type="button" class="btn btn-soft btn-sm acc-sync-btn">🔄 ${t('acc.syncNow')}</button><button type="button" class="btn btn-ghost btn-sm acc-out">${t('acc.signOut')}</button></div>
+      <p class="acc-links muted tiny"><a href="#/privacy">${t('privacy.title')}</a> · <button type="button" class="link-btn acc-delete">${t('acc.delete')}</button></p>
     </div>`;
   }
   const step = pendingEmail ? 'code' : 'email';
@@ -38,7 +39,7 @@ export function accountCardHtml() {
            <button type="button" class="link-btn acc-back">← ${t('acc.otherEmail')}</button>`
     }
     <p class="acc-error" ${linkError ? '' : 'hidden'}>${linkError ? t('acc.linkExpired') : ''}</p>
-    <p class="muted tiny">${t('acc.optional')}</p>
+    <p class="muted tiny">${t('acc.optional')} ${t('acc.agree')} <a href="#/privacy">${t('privacy.title')}</a>.</p>
   </div>`;
 }
 
@@ -121,6 +122,26 @@ export function bindAccount(root, rerender) {
     }
     rerender();
   });
+  root.querySelector('.acc-delete')?.addEventListener('click', () =>
+    openModal({
+      title: `🗑 ${t('acc.delete')}`,
+      body: `<p>${t('acc.deleteText')}</p>`,
+      actions: [
+        { label: t('acc.stay'), primary: true },
+        {
+          label: t('acc.deleteYes'),
+          danger: true,
+          onClick: () =>
+            deleteAccount()
+              .then(() => {
+                toast(`✅ ${t('acc.deleted')}`, { kind: 'good' });
+                rerender();
+              })
+              .catch(() => toast(`⚠ ${navigator.onLine === false ? t('acc.errOffline') : t('acc.deleteFail')}`)),
+        },
+      ],
+    }),
+  );
   root.querySelector('.acc-out')?.addEventListener('click', () =>
     openModal({
       title: t('acc.signOut'),

@@ -97,6 +97,8 @@ const examPathRoute = lazy(load_examHome, 'examPathRoute');
 const examSurvivalRoute = lazy(load_examHome, 'examSurvivalRoute');
 const examTheoryRoute = lazy(load_examHome, 'examTheoryRoute');
 
+const load_privacy = () => import('./screens/privacy.js');
+const privacyRoute = lazy(load_privacy, 'privacyRoute');
 const load_sheets = () => import('./screens/sheets.js');
 const sheetsRoute = lazy(load_sheets, 'sheetsRoute');
 const sheetRoute = lazy(load_sheets, 'sheetRoute');
@@ -152,6 +154,7 @@ route('/saved', () => savedRoute(app));
 route('/ielts-full', () => fullReadRoute(app));
 route('/explain', () => explainIndexRoute(app));
 route('/sheets', () => sheetsRoute(app));
+route('/privacy', () => privacyRoute(app));
 route('/sheet/:course', (params) => sheetRoute(app, params));
 route('/sheet/:course/:track', (params) => sheetRoute(app, params));
 route('/explain/:id', (params) => explainRoute(app, params));

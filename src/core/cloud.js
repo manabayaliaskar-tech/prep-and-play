@@ -136,6 +136,16 @@ export async function signOut() {
   notify();
 }
 
+/** Удалить аккаунт, почту и копию прогресса в облаке (функция delete_me в базе). Прогресс в браузере остаётся. */
+export async function deleteAccount() {
+  await request('/rest/v1/rpc/delete_me', { method: 'POST', auth: true, body: {} });
+  clearTimeout(pushTimer);
+  pushTimer = null;
+  storage.set(SESSION, null);
+  storage.set(META, {});
+  notify();
+}
+
 // ---------- Прогресс ----------
 
 /** Все данные сайта из браузера, кроме служебных. */
