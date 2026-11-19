@@ -5,6 +5,7 @@ import { T } from '../bank.js';
 import { REGION_MORE } from './history-region-more.js';
 import { HISTORY_KZ_MORE3 } from './history-kz3.js';
 import { HISTORY_RU_MORE3 } from './history-ru3.js';
+import { REGION_MORE3 } from './region-more3.js';
 import { HISTORY_KZ_MORE2, HISTORY_RU_MORE2, HISTORY_WORLD_MORE2, REGION_MORE2 } from './humanities-more2.js';
 
 export const HISTORY_KZ = [
@@ -202,3 +203,4 @@ HISTORY_RU.push(...HISTORY_RU_MORE2);
 for (const [country, rows] of Object.entries(REGION_MORE2)) HISTORY_REGION[country].push(...rows);
 HISTORY_KZ.push(...HISTORY_KZ_MORE3);
 HISTORY_RU.push(...HISTORY_RU_MORE3);
+for (const [country, rows] of Object.entries(REGION_MORE3)) HISTORY_REGION[country].push(...rows);
