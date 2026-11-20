@@ -1458,6 +1458,534 @@ const SCENES = {
       };
     },
   },
+
+  // ===== Новые анимации: химия, биология, география, информатика, алгебра, геометрия, высшая математика =====
+
+  atom: {
+    title: L('Atom: protons, electrons and shells', 'Атом: протоны, электроны и оболочки', 'Атом: протондар, электрондар және қабаттар'),
+    intro: L('The atomic number Z is the number of protons in the nucleus and electrons around it. Electrons fill shells: 2 on the first, then 8, then 8.', 'Порядковый номер Z - это число протонов в ядре и электронов вокруг него. Электроны заполняют оболочки: на первой 2, дальше по 8.', 'Реттік нөмір Z - ядродағы протондар мен айналасындағы электрондар саны. Электрондар қабаттарды толтырады: біріншіде 2, әрі қарай 8-ден.'),
+    sliders: [{ id: 'z', label: 'Z', min: 1, max: 20, value: 11 }],
+    buttons: [L('Noble gas', 'Инертный газ', 'Инертті газ'), L('Alkali metal', 'Щелочной металл', 'Сілтілік металл')],
+    onButton: (i, st, v) => [{ z: [2, 10, 18].reduce((a, b) => (Math.abs(b - v.z) < Math.abs(a - v.z) ? b : a)) }, { z: [3, 11, 19].reduce((a, b) => (Math.abs(b - v.z) < Math.abs(a - v.z) ? b : a)) }][i],
+    state: () => ({ ph: 0 }),
+    live(dt, v, st) {
+      st.ph = (st.ph + dt * 0.6) % (Math.PI * 2);
+    },
+    draw(v, step, st) {
+      const z = Math.round(v.z);
+      const SYM = ['H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne', 'Na', 'Mg', 'Al', 'Si', 'P', 'S', 'Cl', 'Ar', 'K', 'Ca'];
+      const shells = [];
+      for (let left = z, cap = [2, 8, 8, 2], i = 0; left > 0; i++) shells.push(Math.min(left, cap[i])), (left -= cap[i]);
+      const cx = 105;
+      const cy = 112;
+      const rings = shells
+        .map((n, i) => {
+          const r = 30 + i * 22;
+          const dots = Array.from({ length: n }, (_, k) => {
+            const a = st.ph * (1 - i * 0.2) + (k / n) * Math.PI * 2;
+            return `<circle class="ex-fill exc-b" cx="${n1(cx + r * Math.cos(a))}" cy="${n1(cy + r * Math.sin(a))}" r="3.6"/>`;
+          }).join('');
+          return `<circle class="ex-stroke exc-m" style="fill:none;stroke-width:1.2" cx="${cx}" cy="${cy}" r="${r}"/>${dots}`;
+        })
+        .join('');
+      const val = shells.at(-1);
+      const ruN = (n, a, b, c) => (n % 10 === 1 && n % 100 !== 11 ? a : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? b : c);
+      const pRu = `${z} ${ruN(z, 'протон', 'протона', 'протонов')} и ${z} ${ruN(z, 'электрон', 'электрона', 'электронов')}`;
+      const pEn = `${z} proton${z > 1 ? 's' : ''} and ${z} electron${z > 1 ? 's' : ''}`;
+      const noble = z === 2 || val === 8;
+      const group = noble ? 'VIII' : ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'][val - 1];
+      return {
+        svg: `${rings}<circle class="ex-fill exc-o" cx="${cx}" cy="${cy}" r="16"/><text class="ex-small" x="${cx}" y="${cy + 4}" style="fill:#fff">+${z}</text>
+          <text class="ex-big" x="250" y="60">${SYM[z - 1]}</text><text class="ex-tag" x="200" y="95">Z = ${z}</text>
+          <text class="ex-tag" x="200" y="118">${u('shells', 'оболочки', 'қабаттар')}: ${shells.join(', ')}</text>
+          <text class="ex-tag" x="200" y="141">${u('period', 'период', 'период')} ${shells.length} · ${u('group', 'группа', 'топ')} ${group}</text>`,
+        caption: L(
+          `${SYM[z - 1]}: ${pEn} arranged ${shells.join(', ')}. ${noble ? 'The outer shell is full - a noble gas, it hardly reacts.' : `The outer shell has ${val} electron${val > 1 ? 's' : ''} - that is the group number and what decides how the element reacts.`} The number of shells is the period.`,
+          `${SYM[z - 1]}: ${pRu}, по оболочкам ${shells.join(', ')}. ${noble ? 'Внешняя оболочка заполнена - это инертный газ, он почти не вступает в реакции.' : `На внешней оболочке ${val} ${ruN(val, 'электрон', 'электрона', 'электронов')} - это номер группы, и именно эти электроны решают, как элемент реагирует.`} Число оболочек - номер периода.`,
+          `${SYM[z - 1]}: ${z} протон және ${z} электрон, қабаттар бойынша ${shells.join(', ')}. ${noble ? 'Сыртқы қабат толған - бұл инертті газ, реакцияға дерлік түспейді.' : `Сыртқы қабатта ${val} - бұл топ нөмірі, элементтің қалай әрекеттесетінін осы электрондар шешеді.`} Қабаттар саны - период нөмірі.`,
+        ),
+      };
+    },
+  },
+
+  solution: {
+    title: L('Solutions: mass fraction', 'Растворы: массовая доля', 'Ерітінділер: массалық үлес'),
+    intro: L('The mass fraction shows what part of the solution is the dissolved substance: w = m(substance) / m(solution). Add water - the solution gets weaker; evaporate water - it gets stronger.', 'Массовая доля показывает, какую часть раствора составляет растворённое вещество: w = m(вещества) / m(раствора). Долили воды - раствор слабее, выпарили воду - крепче.', 'Массалық үлес ерітіндінің қандай бөлігі еріген зат екенін көрсетеді: w = m(зат) / m(ерітінді). Су қосса - ерітінді әлсірейді, суды буландырса - күшейеді.'),
+    sliders: [
+      { id: 's', label: L('salt, g', 'соль, г', 'тұз, г'), min: 0, max: 100, step: C, value: 20 },
+      { id: 'w', label: L('water, g', 'вода, г', 'су, г'), min: 20, max: 400, step: C, value: 180 },
+    ],
+    buttons: [L('+ 100 g water', '+ 100 г воды', '+ 100 г су'), L('Evaporate 50 g', 'Выпарить 50 г', '50 г буландыру'), RESET],
+    onButton: (i, st, v) => [{ w: clamp(v.w + 100, 20, 400) }, { w: clamp(v.w - 50, 20, 400) }, { s: 20, w: 180 }][i],
+    draw(v) {
+      const total = v.s + v.w;
+      const frac = v.s / total;
+      const h = clamp((total / 500) * 150, 8, 150);
+      const dots = Array.from({ length: Math.round(v.s / 4) }, (_, i) => {
+        const x = 70 + ((i * 37) % 96);
+        const y = 196 - ((i * 53) % Math.max(6, h - 6)) - 4;
+        return `<circle class="ex-fill exc-m" cx="${x}" cy="${n1(y)}" r="2"/>`;
+      }).join('');
+      return {
+        svg: `<path class="ex-stroke exc-m" style="fill:none;stroke-width:2.5" d="M60 40 V200 H180 V40"/>
+          <rect x="62" y="${n1(198 - h)}" width="116" height="${n1(h)}" style="fill:color-mix(in srgb, var(--blue) ${Math.round(18 + frac * 70)}%, var(--surface))"/>${dots}
+          <text class="ex-big" x="250" y="70">${fmt(frac * 100, 1)}%</text>
+          <text class="ex-tag" x="200" y="105">m(${u('solution', 'р-ра', 'ерітінді')}) = ${fmt(total, 1)} ${u('g', 'г', 'г')}</text>
+          <text class="ex-tag" x="200" y="128">w = ${fmt(v.s, 1)} / ${fmt(total, 1)}</text>`,
+        caption: L(
+          `w = ${fmt(v.s, 1)} g ÷ ${fmt(total, 1)} g = ${fmt(frac * 100, 1)}%. Remember: the solution's mass is salt plus water, not just water. Adding water keeps the salt the same but makes the fraction smaller.`,
+          `w = ${fmt(v.s, 1)} г ÷ ${fmt(total, 1)} г = ${fmt(frac * 100, 1)}%. Помни: масса раствора - это соль плюс вода, а не только вода. Если долить воды, соли столько же, а доля меньше.`,
+          `w = ${fmt(v.s, 1)} г ÷ ${fmt(total, 1)} г = ${fmt(frac * 100, 1)}%. Есте сақта: ерітінді массасы - тұз бен судың қосындысы, тек су емес. Су қоссаң, тұз сол күйі, ал үлесі азаяды.`,
+        ),
+      };
+    },
+  },
+
+  molar: {
+    title: L('Moles: from grams to particles', 'Моль: от граммов к частицам', 'Моль: граммнан бөлшектерге'),
+    intro: L('One mole is 6.02 · 10²³ particles. Its mass in grams equals the molar mass M (from the periodic table). So n = m / M.', 'Один моль - это 6,02 · 10²³ частиц. Его масса в граммах равна молярной массе M (по таблице Менделеева). Поэтому n = m / M.', 'Бір моль - 6,02 · 10²³ бөлшек. Оның граммдағы массасы молярлық массаға M тең (Менделеев кестесі бойынша). Сондықтан n = m / M.'),
+    sliders: [{ id: 'm', label: L('mass m, g', 'масса m, г', 'масса m, г'), min: 0, max: 180, step: C, value: 36 }],
+    buttons: ['H₂O (18)', 'CO₂ (44)', 'O₂ (32)', 'NaCl (58,5)'],
+    state: () => ({ k: 0 }),
+    pressed: (i, v, st) => i === st.k,
+    onButton(i, st) {
+      st.k = i;
+    },
+    draw(v, step, st) {
+      const SUB = [
+        ['H₂O', 18],
+        ['CO₂', 44],
+        ['O₂', 32],
+        ['NaCl', 58.5],
+      ];
+      const [f, M] = SUB[st.k];
+      const n = v.m / M;
+      const full = Math.floor(n);
+      const part = n - full;
+      const balls = Array.from({ length: Math.min(10, Math.ceil(n)) }, (_, i) => {
+        const fill = i < full ? 1 : part;
+        const x = 30 + (i % 5) * 52;
+        const y = 120 + Math.floor(i / 5) * 52;
+        return `<circle class="ex-stroke exc-p" style="fill:none;stroke-width:2" cx="${x}" cy="${y}" r="20"/><path class="ex-fill exc-p" style="opacity:.75" d="M${x} ${y} L${x} ${y - 20} A20 20 0 ${fill > 0.5 ? 1 : 0} 1 ${n1(x + 20 * Math.sin(fill * 2 * Math.PI - 1e-6))} ${n1(y - 20 * Math.cos(fill * 2 * Math.PI - 1e-6))} Z"/>`;
+      }).join('');
+      const N = n * 6.02;
+      return {
+        svg: `<text class="ex-big" x="160" y="40">n = ${fmt(v.m, 1)} / ${M} = ${fmt(n)} ${u('mol', 'моль', 'моль')}</text>
+          <text class="ex-tag" x="8" y="72">${f}: M = ${String(M).replace('.', getLang() === 'en' ? '.' : ',')} ${u('g/mol', 'г/моль', 'г/моль')}</text>
+          <text class="ex-tag" x="8" y="92">N ≈ ${fmt(N)} · 10²³ ${u('molecules', 'частиц', 'бөлшек')}</text>${balls}`,
+        caption: L(
+          `${fmt(v.m, 1)} g of ${f} is ${fmt(n)} mol (each full circle is one mole). That is about ${fmt(N)} · 10²³ particles. Heavier molecules (bigger M) give fewer moles for the same mass.`,
+          `${fmt(v.m, 1)} г ${f} - это ${fmt(n)} моль (каждый полный круг - один моль). Это примерно ${fmt(N)} · 10²³ частиц. Чем тяжелее молекула (больше M), тем меньше молей при той же массе.`,
+          `${fmt(v.m, 1)} г ${f} - бұл ${fmt(n)} моль (әр толық шеңбер - бір моль). Бұл шамамен ${fmt(N)} · 10²³ бөлшек. Молекула неғұрлым ауыр (M үлкен) болса, сол массада моль соғұрлым аз.`,
+        ),
+      };
+    },
+  },
+
+  foodchain: {
+    title: L('Food chain and the 10% rule', 'Пищевая цепь и правило 10%', 'Қоректік тізбек және 10% ережесі'),
+    intro: L('At each step of a food chain only about 10% of the energy passes on - the rest is spent on life and lost as heat. That is why chains are short and predators are few.', 'На каждом звене пищевой цепи дальше переходит лишь около 10% энергии - остальное тратится на жизнь и уходит в тепло. Поэтому цепи короткие, а хищников мало.', 'Қоректік тізбектің әр буынында энергияның тек 10%-ы ғана әрі өтеді - қалғаны тіршілікке жұмсалып, жылуға айналады. Сондықтан тізбектер қысқа, жыртқыштар аз.'),
+    sliders: [
+      { id: 'E', label: L('plants, kJ', 'растения, кДж', 'өсімдіктер, кДж'), min: 1000, max: 100000, step: 100, value: 50000 },
+      { id: 'p', label: L('passes on, %', 'переходит, %', 'өтеді, %'), min: 5, max: 20, step: C, value: 10 },
+    ],
+    buttons: [L('10% rule', 'Правило 10%', '10% ережесі')],
+    onButton: () => ({ p: 10 }),
+    draw(v) {
+      const names = [L('grass', 'трава', 'шөп'), L('hare', 'заяц', 'қоян'), L('fox', 'лиса', 'түлкі'), L('wolf', 'волк', 'қасқыр')];
+      const icons = ['🌿', '🐇', '🦊', '🐺'];
+      const vals = names.map((_, i) => v.E * (v.p / 100) ** i);
+      // «в 10 раз», «в 2 раза», «в 6,7 раза»
+      const timesRu = (x) => {
+        const r = Math.round(x * 10) / 10;
+        if (!Number.isInteger(r)) return 'раза';
+        return r % 10 >= 2 && r % 10 <= 4 && (r % 100 < 12 || r % 100 > 14) ? 'раза' : 'раз';
+      };
+      const max = Math.log10(v.E + 1);
+      const bars = vals
+        .map((e, i) => {
+          const w = clamp((Math.log10(e + 1) / max) * 220, 14, 220);
+          const y = 180 - i * 42;
+          return `<rect x="${n1(160 - w / 2)}" y="${y}" width="${n1(w)}" height="34" rx="6" class="ex-fill ${['exc-g', 'exc-y', 'exc-o', 'exc-r'][i]}" style="opacity:.8"/><text class="ex-small" x="160" y="${y + 22}">${icons[i]} ${tx(names[i])}: ${fmt(e, e < 10 ? 2 : 0)}</text>`;
+        })
+        .join('');
+      return {
+        svg: bars,
+        caption: L(
+          `From ${fmt(v.E, 0)} kJ in plants only ${fmt(vals[3], 1)} kJ reach the wolf - ${fmt((vals[3] / v.E) * 100, 3)}%. With ${fmt(v.p, 1)}% passing at each step, every next level gets ${fmt(100 / v.p, 1)} times less energy.`,
+          `Из ${fmt(v.E, 0)} кДж в растениях до волка доходит лишь ${fmt(vals[3], 1)} кДж - ${fmt((vals[3] / v.E) * 100, 3)}%. Если на каждом звене переходит ${fmt(v.p, 1)}%, у каждого следующего энергии в ${fmt(100 / v.p, 1)} ${timesRu(100 / v.p)} меньше.`,
+          `Өсімдіктердегі ${fmt(v.E, 0)} кДж-дан қасқырға тек ${fmt(vals[3], 1)} кДж жетеді - ${fmt((vals[3] / v.E) * 100, 3)}%. Әр буында ${fmt(v.p, 1)}% өтсе, келесі деңгейде энергия ${fmt(100 / v.p, 1)} есе аз.`,
+        ),
+      };
+    },
+  },
+
+  enzyme: {
+    title: L('Enzymes: temperature and pH', 'Ферменты: температура и pH', 'Ферменттер: температура және pH'),
+    intro: L('An enzyme works fastest at its optimum. Warmer speeds it up - until the protein is destroyed (denatured) above about 45 °C. Each enzyme also has its own best pH.', 'Фермент работает быстрее всего в оптимуме. Тепло ускоряет его - пока белок не разрушится (денатурирует) выше примерно 45 °C. И у каждого фермента свой лучший pH.', 'Фермент оптимумда ең жылдам жұмыс істейді. Жылу оны жылдамдатады - шамамен 45 °C-тан жоғары ақуыз бұзылғанға (денатурация) дейін. Әр ферменттің өз ең жақсы pH-ы бар.'),
+    sliders: [
+      { id: 't', label: 't, °C', min: 0, max: 80, step: C, value: 37 },
+      { id: 'ph', label: 'pH', min: 1, max: 13, step: C, value: 7 },
+    ],
+    buttons: [L('Amylase (saliva)', 'Амилаза (слюна)', 'Амилаза (сілекей)'), L('Pepsin (stomach)', 'Пепсин (желудок)', 'Пепсин (асқазан)')],
+    state: () => ({ k: 0 }),
+    pressed: (i, v, st) => i === st.k,
+    onButton(i, st) {
+      st.k = i;
+      return { ph: i ? 2 : 7, t: 37 };
+    },
+    draw(v, step, st) {
+      const opt = st.k ? 2 : 7;
+      const act = (t, ph) => {
+        const T = t <= 40 ? Math.exp(-(((t - 37) / 18) ** 2)) : Math.exp(-(((40 - 37) / 18) ** 2)) * Math.max(0, 1 - (t - 40) / 18);
+        return T * Math.exp(-(((ph - opt) / 1.8) ** 2));
+      };
+      const sx = (t) => 20 + t * 3.6;
+      const sy = (a) => 190 - a * 150;
+      const curve = plot((t) => act(t, v.ph), 0, 80, sx, sy);
+      const a = act(v.t, v.ph);
+      return {
+        svg: `<line class="ex-axis" x1="20" y1="190" x2="310" y2="190"/><line class="ex-axis" x1="20" y1="20" x2="20" y2="190"/>
+          <path class="ex-stroke exc-p" style="fill:none;stroke-width:2.5" d="${curve}"/>
+          <circle class="ex-fill exc-o" cx="${n1(sx(v.t))}" cy="${n1(sy(a))}" r="6"/>
+          <text class="ex-tiny" x="${sx(37)}" y="205">37 °C</text><text class="ex-tiny" x="${sx(0)}" y="205">0</text><text class="ex-tiny" x="${sx(80)}" y="205">80</text>
+          <text class="ex-tag" x="190" y="30">${u('activity', 'активность', 'белсенділік')}: ${Math.round(a * 100)}%</text>`,
+        caption:
+          v.t > 45
+            ? L(`At ${fmt(v.t, 0)} °C the enzyme protein is denatured - its shape is broken and it almost stops working, even when cooled back.`, `При ${fmt(v.t, 0)} °C белок фермента денатурирует - его форма разрушена, и он почти перестаёт работать, даже если остудить.`, `${fmt(v.t, 0)} °C-та фермент ақуызы денатурацияланады - пішіні бұзылып, салқындатса да дерлік жұмыс істемейді.`)
+            : L(`${st.k ? 'Pepsin works in the acidic stomach (pH ≈ 2)' : 'Amylase works in neutral saliva (pH ≈ 7)'}. Now activity is ${Math.round(a * 100)}%: closer to 37 °C and the right pH - faster.`, `${st.k ? 'Пепсин работает в кислом желудке (pH ≈ 2)' : 'Амилаза работает в нейтральной слюне (pH ≈ 7)'}. Сейчас активность ${Math.round(a * 100)}%: чем ближе к 37 °C и нужному pH, тем быстрее.`, `${st.k ? 'Пепсин қышқыл асқазанда жұмыс істейді (pH ≈ 2)' : 'Амилаза бейтарап сілекейде жұмыс істейді (pH ≈ 7)'}. Қазір белсенділік ${Math.round(a * 100)}%: 37 °C-қа және қажетті pH-қа жақын болған сайын жылдамырақ.`),
+      };
+    },
+  },
+
+  cellsize: {
+    title: L('Why cells are small', 'Почему клетки маленькие', 'Жасушалар неге кішкентай'),
+    intro: L('A cell takes in food and oxygen through its surface, but needs them for its whole volume. When a cell grows, volume grows faster than surface - so big cells starve.', 'Клетка получает пищу и кислород через поверхность, а нужны они всему объёму. Когда клетка растёт, объём растёт быстрее поверхности - большой клетке не хватает питания.', 'Жасуша қорек пен оттегін беті арқылы алады, ал олар бүкіл көлемге керек. Жасуша өскенде көлем бетке қарағанда тез өседі - үлкен жасушаға қорек жетпейді.'),
+    sliders: [{ id: 'a', label: L('side a, µm', 'сторона a, мкм', 'қыры a, мкм'), min: 1, max: 10, step: C, value: 3 }],
+    buttons: [L('a × 2', 'a × 2', 'a × 2'), RESET],
+    onButton: (i, st, v) => [{ a: clamp(v.a * 2, 1, 10) }, { a: 3 }][i],
+    draw(v) {
+      const a = v.a;
+      const S = 6 * a * a;
+      const V = a ** 3;
+      const s = 9 * a;
+      const x = 70 - s / 2;
+      const y = 140 - s / 2;
+      const d = s * 0.45;
+      const ratio = S / V;
+      return {
+        svg: `<path class="ex-fill exc-g" style="opacity:.35" d="M${n1(x)} ${n1(y)} h${n1(s)} v${n1(s)} h${n1(-s)} Z"/><path class="ex-fill exc-g" style="opacity:.55" d="M${n1(x)} ${n1(y)} l${n1(d)} ${n1(-d)} h${n1(s)} l${n1(-d)} ${n1(d)} Z"/><path class="ex-fill exc-g" style="opacity:.75" d="M${n1(x + s)} ${n1(y)} l${n1(d)} ${n1(-d)} v${n1(s)} l${n1(-d)} ${n1(d)} Z"/>
+          <text class="ex-tag" x="180" y="60">S = 6a² = ${fmt(S, 1)}</text><text class="ex-tag" x="180" y="84">V = a³ = ${fmt(V, 1)}</text>
+          <text class="ex-big" x="245" y="125">S/V = ${fmt(ratio)}</text>
+          <rect x="180" y="150" width="${n1(clamp(ratio * 20, 4, 130))}" height="18" rx="5" class="ex-fill exc-b"/>`,
+        caption: L(
+          `For a = ${fmt(a)} µm: surface ${fmt(S, 1)}, volume ${fmt(V, 1)}, so each unit of volume has ${fmt(ratio)} units of surface (S/V = 6/a). Double the side and S/V halves - feeding the inside becomes twice as hard.`,
+          `При a = ${fmt(a)} мкм: поверхность ${fmt(S, 1)}, объём ${fmt(V, 1)}, на каждую единицу объёма приходится ${fmt(ratio)} единицы поверхности (S/V = 6/a). Увеличь сторону вдвое - S/V уменьшится вдвое, и кормить середину станет вдвое труднее.`,
+          `a = ${fmt(a)} мкм болғанда: беті ${fmt(S, 1)}, көлемі ${fmt(V, 1)}, әр көлем бірлігіне ${fmt(ratio)} бет бірлігі келеді (S/V = 6/a). Қырын екі есе үлкейтсең - S/V екі есе азаяды, ортасын қоректендіру екі есе қиындайды.`,
+        ),
+      };
+    },
+  },
+
+  seasons: {
+    title: L('Seasons and day length', 'Времена года и длина дня', 'Жыл мезгілдері және күн ұзақтығы'),
+    intro: L('Earth’s axis is tilted by 23.4°. During the year first one hemisphere, then the other leans toward the Sun: the Sun rises higher, days get longer - summer comes.', 'Ось Земли наклонена на 23,4°. За год к Солнцу наклоняется то одно полушарие, то другое: Солнце поднимается выше, дни длиннее - наступает лето.', 'Жер осі 23,4°-қа көлбеген. Жыл бойы Күнге бірде бір жарты шар, бірде екіншісі еңкейеді: Күн биік көтеріліп, күн ұзарады - жаз келеді.'),
+    sliders: [
+      { id: 'd', label: L('day of year', 'день года', 'жыл күні'), min: 1, max: 365, step: C, value: 172 },
+      { id: 'lat', label: L('latitude, °N', 'широта, ° с. ш.', 'ендік, ° с. е.'), min: 0, max: 70, step: C, value: 43 },
+    ],
+    buttons: [L('▶ One year', '▶ Один год', '▶ Бір жыл'), L('Almaty 43°', 'Алматы 43°', 'Алматы 43°'), L('Astana 51°', 'Астана 51°', 'Астана 51°')],
+    play: 'd',
+    playDur: 9000,
+    playLinear: true,
+    onButton: (i) => (i === 1 ? { lat: 43.2 } : i === 2 ? { lat: 51.2 } : undefined),
+    draw(v) {
+      const dec = 23.44 * Math.sin((2 * Math.PI * (284 + v.d)) / 365);
+      const phi = (v.lat * Math.PI) / 180;
+      const del = (dec * Math.PI) / 180;
+      const c = -Math.tan(phi) * Math.tan(del);
+      const day = c <= -1 ? 24 : c >= 1 ? 0 : (24 / Math.PI) * Math.acos(c);
+      const noon = 90 - Math.abs(v.lat - dec);
+      const MONTHS = u('Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec', 'янв фев мар апр май июн июл авг сен окт ноя дек', 'қаң ақп нау сәу мам мау шіл там қыр қаз қар жел').split(' ');
+      const mon = MONTHS[Math.min(11, Math.floor(((v.d - 1) / 365) * 12))];
+      const cx = 85;
+      const cy = 112;
+      const r = 58;
+      // Солнце справа: летом (склонение > 0) северный полюс наклонён к нему.
+      const tilt = (dec * Math.PI) / 180;
+      const axis = [Math.sin(tilt), -Math.cos(tilt)];
+      const perp = [Math.cos(tilt), Math.sin(tilt)];
+      const lc = [cx + axis[0] * r * Math.sin(phi), cy + axis[1] * r * Math.sin(phi)];
+      const half = r * Math.cos(phi);
+      const sunH = clamp(noon, 0, 90);
+      return {
+        svg: `<circle class="ex-fill exc-y" cx="300" cy="112" r="14"/><path class="ex-fill exc-b" style="opacity:.25" d="M${cx} ${cy - r} A${r} ${r} 0 0 0 ${cx} ${cy + r} Z"/>
+          <circle class="ex-stroke exc-b" style="fill:none;stroke-width:2" cx="${cx}" cy="${cy}" r="${r}"/>
+          <line class="ex-stroke exc-m ex-dash" x1="${n1(cx - axis[0] * 75)}" y1="${n1(cy - axis[1] * 75)}" x2="${n1(cx + axis[0] * 75)}" y2="${n1(cy + axis[1] * 75)}"/>
+          <line class="ex-stroke exc-o" style="stroke-width:2.5" x1="${n1(lc[0] - perp[0] * half)}" y1="${n1(lc[1] - perp[1] * half)}" x2="${n1(lc[0] + perp[0] * half)}" y2="${n1(lc[1] + perp[1] * half)}"/><circle class="ex-fill exc-o" cx="${n1(lc[0] + perp[0] * half)}" cy="${n1(lc[1] + perp[1] * half)}" r="4"/>
+          <text class="ex-tag" x="8" y="18">${mon} · ${u('Sun declination', 'склонение Солнца', 'Күн ауытқуы')} ${fmt(dec, 1)}°</text>
+          <text class="ex-big" x="240" y="80">${hhmm(day)}</text><text class="ex-small" x="240" y="100">${u('day length', 'длина дня', 'күн ұзақтығы')}</text>
+          <text class="ex-tag" x="160" y="150">${u('noon Sun height', 'Солнце в полдень', 'түстегі Күн биіктігі')}: ${fmt(sunH, 1)}°</text>
+          <rect x="160" y="165" width="150" height="14" rx="7" class="ex-fill exc-m" style="opacity:.2"/><rect x="160" y="165" width="${n1((day / 24) * 150)}" height="14" rx="7" class="ex-fill exc-y"/>`,
+        caption: L(
+          `At ${fmt(v.lat, 1)}° N in ${mon} the day lasts ${hhmm(day)} and the noon Sun rises ${fmt(sunH, 1)}° above the horizon. ${day >= 24 ? 'Polar day - the Sun does not set.' : day <= 0 ? 'Polar night - the Sun does not rise.' : 'Around 21 March and 23 September day equals night everywhere (equinoxes).'}`,
+          `На ${fmt(v.lat, 1)}° с. ш. в месяце «${mon}» день длится ${hhmm(day)}, а Солнце в полдень поднимается на ${fmt(sunH, 1)}° над горизонтом. ${day >= 24 ? 'Полярный день - Солнце не заходит.' : day <= 0 ? 'Полярная ночь - Солнце не восходит.' : 'Около 21 марта и 23 сентября день равен ночи везде (равноденствия).'}`,
+          `${fmt(v.lat, 1)}° с. е. «${mon}» айында күн ${hhmm(day)} созылады, ал түсте Күн көкжиектен ${fmt(sunH, 1)}°-қа көтеріледі. ${day >= 24 ? 'Полярлық күн - Күн батпайды.' : day <= 0 ? 'Полярлық түн - Күн шықпайды.' : 'Шамамен 21 наурыз бен 23 қыркүйекте күн мен түн барлық жерде тең (күн мен түннің теңелуі).'}`,
+        ),
+      };
+    },
+  },
+
+  mapscale: {
+    title: L('Map scale', 'Масштаб карты', 'Карта масштабы'),
+    intro: L('A scale 1 : 1 000 000 means 1 cm on the map is 1 000 000 cm = 10 km on the ground. Measure on the map, then multiply.', 'Масштаб 1 : 1 000 000 значит: 1 см на карте - это 1 000 000 см = 10 км на местности. Измерь на карте и умножь.', '1 : 1 000 000 масштабы: картадағы 1 см - жердегі 1 000 000 см = 10 км. Картадан өлше де, көбейт.'),
+    sliders: [
+      { id: 'k', label: L('1 cm = ... km', '1 см = ... км', '1 см = ... км'), min: 1, max: 100, step: C, value: 50 },
+      { id: 'cm', label: L('on the map, cm', 'на карте, см', 'картада, см'), min: 0.5, max: 25, step: C, value: 19.4 },
+    ],
+    buttons: [L('Almaty - Astana', 'Алматы - Астана', 'Алматы - Астана'), L('Astana - Karaganda', 'Астана - Караганда', 'Астана - Қарағанды')],
+    onButton: (i, st, v) => [{ cm: clamp(970 / v.k, 0.5, 25) }, { cm: clamp(190 / v.k, 0.5, 25) }][i],
+    draw(v) {
+      const km = v.k * v.cm;
+      const scale = Math.round(v.k * 100000);
+      const unit = 12;
+      const len = clamp(v.cm * unit, 4, 300);
+      const ticks = Array.from({ length: Math.floor(v.cm) + 1 }, (_, i) => `<line class="ex-stroke exc-m" x1="${10 + i * unit}" y1="150" x2="${10 + i * unit}" y2="${i % 5 ? 156 : 162}"/>`).join('');
+      return {
+        svg: `<text class="ex-big" x="160" y="45">1 : ${scale.toLocaleString('ru-RU')}</text>
+          <circle class="ex-fill exc-r" cx="10" cy="110" r="6"/><circle class="ex-fill exc-r" cx="${n1(10 + len)}" cy="110" r="6"/>
+          <line class="ex-stroke exc-p ex-dash" style="stroke-width:2" x1="10" y1="110" x2="${n1(10 + len)}" y2="110"/>
+          <line class="ex-axis" x1="10" y1="150" x2="310" y2="150"/>${ticks}
+          <text class="ex-tag" x="8" y="90">${fmt(v.cm, 1)} ${u('cm', 'см', 'см')} × ${fmt(v.k, 1)} = ${fmt(km, 0)} ${u('km', 'км', 'км')}</text>`,
+        caption: L(
+          `Scale 1 : ${scale.toLocaleString('en-US')} - 1 cm on the map is ${fmt(v.k, 1)} km. ${fmt(v.cm, 1)} cm on the map are ${fmt(km, 0)} km on the ground. A bigger second number means a smaller-scale map: more area, fewer details.`,
+          `Масштаб 1 : ${scale.toLocaleString('ru-RU')} - в 1 см на карте ${fmt(v.k, 1)} км. ${fmt(v.cm, 1)} см на карте - это ${fmt(km, 0)} км на местности. Чем больше второе число, тем мельче масштаб: территории больше, деталей меньше.`,
+          `Масштаб 1 : ${scale.toLocaleString('ru-RU')} - картадағы 1 см-де ${fmt(v.k, 1)} км. Картадағы ${fmt(v.cm, 1)} см - жердегі ${fmt(km, 0)} км. Екінші сан неғұрлым үлкен болса, масштаб соғұрлым ұсақ: аумақ көп, бөлшек аз.`,
+        ),
+      };
+    },
+  },
+
+  gates: {
+    title: L('Logic gates: AND, OR, NOT, XOR', 'Логические элементы: И, ИЛИ, НЕ, исключающее ИЛИ', 'Логикалық элементтер: ЖӘНЕ, НЕМЕСЕ, ЕМЕС, XOR'),
+    intro: L('A gate takes inputs 0 or 1 and gives an output. AND gives 1 only if both inputs are 1; OR - if at least one; XOR - if they differ; NOT turns 1 into 0.', 'Логический элемент получает входы 0 или 1 и выдаёт выход. И даёт 1, только если оба входа 1; ИЛИ - если хотя бы один; исключающее ИЛИ - если они разные; НЕ превращает 1 в 0.', 'Логикалық элемент 0 не 1 кірістерін алып, шығыс береді. ЖӘНЕ екі кіріс те 1 болса ғана 1 береді; НЕМЕСЕ - ең болмаса біреуі; XOR - олар әртүрлі болса; ЕМЕС 1-ді 0-ге айналдырады.'),
+    sliders: [],
+    buttons: ['A', 'B', 'AND', 'OR', 'XOR', 'NOT A', 'NAND'],
+    state: () => ({ a: 1, b: 0, g: 0 }),
+    pressed: (i, v, st) => (i === 0 ? st.a === 1 : i === 1 ? st.b === 1 : i - 2 === st.g),
+    onButton(i, st) {
+      if (i === 0) st.a ^= 1;
+      else if (i === 1) st.b ^= 1;
+      else st.g = i - 2;
+    },
+    draw(v, step, st) {
+      const F = [(a, b) => a & b, (a, b) => a | b, (a, b) => a ^ b, (a) => 1 - a, (a, b) => 1 - (a & b)];
+      const NAMES = ['AND', 'OR', 'XOR', 'NOT', 'NAND'];
+      const out = F[st.g](st.a, st.b);
+      const rows = [
+        [0, 0],
+        [0, 1],
+        [1, 0],
+        [1, 1],
+      ];
+      const table = rows
+        .map(([a, b], i) => {
+          const hit = a === st.a && (st.g === 3 || b === st.b);
+          return `<text class="ex-small${hit ? ' exc-p' : ''}" x="230" y="${70 + i * 24}">${a}</text><text class="ex-small${hit ? ' exc-p' : ''}" x="260" y="${70 + i * 24}">${st.g === 3 ? '-' : b}</text><text class="ex-small${hit ? ' exc-p' : ''}" x="295" y="${70 + i * 24}">${F[st.g](a, b)}</text>`;
+        })
+        .join('');
+      return {
+        svg: `<circle class="ex-lamp${st.a ? ' on' : ''}" cx="30" cy="80" r="12"/><text class="ex-small" x="30" y="85">${st.a}</text>
+          ${st.g === 3 ? '' : `<circle class="ex-lamp${st.b ? ' on' : ''}" cx="30" cy="140" r="12"/><text class="ex-small" x="30" y="145">${st.b}</text>`}
+          <path class="ex-wire" d="M42 80 H90 M42 140 H90"/><rect x="90" y="70" width="60" height="80" rx="14" class="ex-fill exc-p" style="opacity:.85"/><text class="ex-small" x="120" y="115" style="fill:#fff">${NAMES[st.g]}</text>
+          <path class="ex-wire" d="M150 110 H175"/><circle class="ex-lamp${out ? ' on' : ''}" cx="190" cy="110" r="14"/><text class="ex-small" x="190" y="115">${out}</text>
+          <text class="ex-tiny" x="230" y="45">A</text><text class="ex-tiny" x="260" y="45">B</text><text class="ex-tiny" x="295" y="45">${u('out', 'выход', 'шығыс')}</text>${table}`,
+        caption: L(
+          `${NAMES[st.g]}: A = ${st.a}${st.g === 3 ? '' : `, B = ${st.b}`} → ${out}. Tap A and B to switch inputs; the highlighted row of the truth table is the current case.`,
+          `${NAMES[st.g]}: A = ${st.a}${st.g === 3 ? '' : `, B = ${st.b}`} → ${out}. Нажимай A и B, чтобы менять входы; подсвеченная строка таблицы истинности - текущий случай.`,
+          `${NAMES[st.g]}: A = ${st.a}${st.g === 3 ? '' : `, B = ${st.b}`} → ${out}. Кірістерді ауыстыру үшін A мен B-ны бас; ақиқат кестесіндегі белгіленген жол - қазіргі жағдай.`,
+        ),
+      };
+    },
+  },
+
+  inequality: {
+    title: L('Inequalities on the number line', 'Неравенства на числовой прямой', 'Сан түзуіндегі теңсіздіктер'),
+    intro: L('Solve ax > b like an equation, but when you divide by a negative number the sign flips. The answer is a ray on the number line.', 'Неравенство ax > b решаем как уравнение, но при делении на отрицательное число знак меняется. Ответ - луч на числовой прямой.', 'ax > b теңсіздігін теңдеу сияқты шешеміз, бірақ теріс санға бөлгенде таңба өзгереді. Жауап - сан түзуіндегі сәуле.'),
+    sliders: [
+      { id: 'a', label: 'a', min: -5, max: 5, step: C, value: -2 },
+      { id: 'b', label: 'b', min: -10, max: 10, step: C, value: 4 },
+    ],
+    buttons: ['>', '≥', '<', '≤'],
+    state: () => ({ s: 0 }),
+    pressed: (i, v, st) => i === st.s,
+    onButton(i, st) {
+      st.s = i;
+    },
+    draw(v, step, st) {
+      const S = ['>', '≥', '<', '≤'];
+      const flip = { '>': '<', '≥': '≤', '<': '>', '≤': '≥' };
+      const a = Math.abs(v.a) < 0.05 ? 0 : v.a;
+      const sign = S[st.s];
+      const sx = (x) => 160 + x * 13;
+      if (a === 0) {
+        const ok = { '>': 0 > v.b, '≥': 0 >= v.b, '<': 0 < v.b, '≤': 0 <= v.b }[sign];
+        return {
+          svg: `<line class="ex-axis" x1="10" y1="120" x2="310" y2="120"/>${ok ? `<line class="ex-stroke exc-p" style="stroke-width:5" x1="10" y1="120" x2="310" y2="120"/>` : ''}<text class="ex-big" x="160" y="60">0 · x ${sign} ${fmt(v.b)}</text>`,
+          caption: L(ok ? 'With a = 0 the inequality is true for every x.' : 'With a = 0 the inequality is never true - no solutions.', ok ? 'При a = 0 неравенство верно при любом x.' : 'При a = 0 неравенство неверно ни при каком x - решений нет.', ok ? 'a = 0 болғанда теңсіздік кез келген x үшін дұрыс.' : 'a = 0 болғанда теңсіздік ешбір x үшін дұрыс емес - шешім жоқ.'),
+        };
+      }
+      const r = v.b / a;
+      const s2 = a < 0 ? flip[sign] : sign;
+      const right = s2 === '>' || s2 === '≥';
+      const closed = s2 === '≥' || s2 === '≤';
+      const X = clamp(sx(r), 10, 310);
+      return {
+        svg: `<text class="ex-big" x="160" y="45">${fmt(a)}x ${sign} ${fmt(v.b)}</text><text class="ex-tag" x="160" y="72" style="text-anchor:middle">x ${s2} ${fmt(r)}</text>
+          <line class="ex-axis" x1="10" y1="130" x2="310" y2="130"/>${[-10, -5, 0, 5, 10].map((t) => `<line class="ex-stroke exc-m" x1="${sx(t)}" y1="125" x2="${sx(t)}" y2="135"/><text class="ex-tiny" x="${sx(t)}" y="150">${t}</text>`).join('')}
+          <line class="ex-stroke exc-p" style="stroke-width:5" x1="${n1(X)}" y1="130" x2="${right ? 310 : 10}" y2="130"/>
+          <circle cx="${n1(X)}" cy="130" r="6" class="${closed ? 'ex-fill exc-p' : 'ex-stroke exc-p'}" style="${closed ? '' : 'fill:var(--surface);stroke-width:2.5'}"/>`,
+        caption: L(
+          `Divide both sides by ${fmt(a)}: x ${s2} ${fmt(r)}.${a < 0 ? ' a is negative, so the sign flipped!' : ''} ${closed ? 'The point is filled - it belongs to the answer.' : 'The point is empty - it is not included.'}`,
+          `Делим обе части на ${fmt(a)}: x ${s2} ${fmt(r)}.${a < 0 ? ' a отрицательное, поэтому знак перевернулся!' : ''} ${closed ? 'Точка закрашена - она входит в ответ.' : 'Точка пустая - она не входит в ответ.'}`,
+          `Екі жағын ${fmt(a)}-ге бөлеміз: x ${s2} ${fmt(r)}.${a < 0 ? ' a теріс, сондықтан таңба аударылды!' : ''} ${closed ? 'Нүкте боялған - ол жауапқа кіреді.' : 'Нүкте бос - ол жауапқа кірмейді.'}`,
+        ),
+      };
+    },
+  },
+
+  combinatorics: {
+    title: L('Arrangements and combinations', 'Размещения и сочетания', 'Орналастырулар мен терулер'),
+    intro: L('How many ways to pick k of n? If order matters (podium places) - arrangements n!/(n−k)!. If not (a team) - combinations: divide by k! more.', 'Сколькими способами выбрать k из n? Если порядок важен (места на пьедестале) - размещения n!/(n−k)!. Если нет (команда) - сочетания: делим ещё на k!.', 'n-нен k-ны неше тәсілмен таңдауға болады? Рет маңызды болса (тұғырдағы орындар) - орналастыру n!/(n−k)!. Маңызды болмаса (команда) - теру: тағы k!-ға бөлеміз.'),
+    sliders: [
+      { id: 'n', label: 'n', min: 1, max: 10, value: 5 },
+      { id: 'k', label: 'k', min: 0, max: 10, value: 3 },
+    ],
+    buttons: [L('Order matters', 'Порядок важен', 'Рет маңызды'), L('Order does not matter', 'Порядок не важен', 'Рет маңызды емес')],
+    state: () => ({ ord: 0 }),
+    pressed: (i, v, st) => i === st.ord,
+    onButton(i, st) {
+      st.ord = i;
+    },
+    draw(v, step, st) {
+      const n = Math.round(v.n);
+      const k = Math.min(Math.round(v.k), n);
+      const f = (x) => (x <= 1 ? 1 : x * f(x - 1));
+      const A = f(n) / f(n - k);
+      const Cn = A / f(k);
+      const res = st.ord ? Cn : A;
+      const people = Array.from({ length: n }, (_, i) => `<circle class="ex-fill ${i < k ? 'exc-p' : 'exc-m'}" style="opacity:${i < k ? 1 : 0.35}" cx="${30 + i * 29}" cy="80" r="11"/><text class="ex-tiny" x="${30 + i * 29}" y="84" style="fill:#fff">${i + 1}</text>`).join('');
+      const slots = st.ord ? '' : '';
+      return {
+        svg: `${people}${slots}<text class="ex-big" x="160" y="150">${st.ord ? `C(${n}, ${k})` : `A(${n}, ${k})`} = ${res}</text>
+          <text class="ex-tag" x="160" y="180" style="text-anchor:middle">${st.ord ? `${n}! / (${k}! · ${n - k}!)` : `${n}! / ${n - k}!${k ? ` = ${Array.from({ length: k }, (_, i) => n - i).join(' · ')}` : ''}`}</text>`,
+        caption: st.ord
+          ? L(`Choosing a team of ${k} from ${n}: ${Cn} ways. Each team can be ordered in ${k}! = ${f(k)} ways, so C = A / k! = ${A} / ${f(k)} = ${Cn}.`, `Выбрать команду из ${k} человек среди ${n}: ${Cn} способов. Каждую команду можно упорядочить ${k}! = ${f(k)} способами, поэтому C = A / k! = ${A} / ${f(k)} = ${Cn}.`, `${n} адамнан ${k} адамдық команда таңдау: ${Cn} тәсіл. Әр команданы ${k}! = ${f(k)} тәсілмен реттеуге болады, сондықтан C = A / k! = ${A} / ${f(k)} = ${Cn}.`)
+          : L(`Places 1st, 2nd, … for ${k} of ${n}: the first place has ${n} options, the next ${n - 1}, … - in total ${A}.`, `Места 1-е, 2-е, … для ${k} из ${n}: на первое место ${n} вариантов, на следующее ${n - 1}, … - всего ${A}.`, `${n} адамнан ${k} адамға 1-, 2-, … орындар: бірінші орынға ${n} нұсқа, келесіге ${n - 1}, … - барлығы ${A}.`),
+      };
+    },
+  },
+
+  volume: {
+    title: L('Volume of prisms, cylinders and cones', 'Объём призмы, цилиндра и конуса', 'Призма, цилиндр және конус көлемі'),
+    intro: L('Volume of a prism or cylinder = base area × height. A cone or pyramid with the same base and height holds exactly one third of that.', 'Объём призмы или цилиндра = площадь основания × высота. Конус или пирамида с тем же основанием и высотой вмещают ровно треть этого.', 'Призма немесе цилиндр көлемі = табан ауданы × биіктік. Табаны мен биіктігі бірдей конус не пирамида оның дәл үштен бірін сыйғызады.'),
+    sliders: [
+      { id: 'r', label: 'r', min: 1, max: 5, step: C, value: 3 },
+      { id: 'h', label: 'h', min: 1, max: 8, step: C, value: 5 },
+    ],
+    buttons: [L('Cylinder', 'Цилиндр', 'Цилиндр'), L('Cone', 'Конус', 'Конус')],
+    state: () => ({ k: 0 }),
+    pressed: (i, v, st) => i === st.k,
+    onButton(i, st) {
+      st.k = i;
+    },
+    draw(v, step, st) {
+      const s = 14;
+      const R = v.r * s;
+      const Hh = v.h * s * 0.9;
+      const cx = 95;
+      const base = 195;
+      const top = base - Hh;
+      const ry = R * 0.3;
+      const Sb = Math.PI * v.r * v.r;
+      const Vc = Sb * v.h;
+      const Vv = st.k ? Vc / 3 : Vc;
+      const shape = st.k
+        ? `<path class="ex-fill exc-o" style="opacity:.55" d="M${n1(cx - R)} ${base} L${cx} ${n1(top)} L${n1(cx + R)} ${base} Z"/>`
+        : `<path class="ex-fill exc-b" style="opacity:.45" d="M${n1(cx - R)} ${n1(top)} V${base} A${n1(R)} ${n1(ry)} 0 0 0 ${n1(cx + R)} ${base} V${n1(top)} Z"/><ellipse class="ex-fill exc-b" style="opacity:.7" cx="${cx}" cy="${n1(top)}" rx="${n1(R)}" ry="${n1(ry)}"/>`;
+      return {
+        svg: `${shape}<ellipse class="ex-stroke exc-m" style="fill:none" cx="${cx}" cy="${base}" rx="${n1(R)}" ry="${n1(ry)}"/>
+          <line class="ex-stroke exc-k ex-dash" x1="${cx}" y1="${base}" x2="${cx}" y2="${n1(top)}"/><line class="ex-stroke exc-p" x1="${cx}" y1="${base}" x2="${n1(cx + R)}" y2="${base}"/>
+          <text class="ex-tag" x="200" y="60">S = πr² = ${fmt(Sb, 1)}</text>
+          <text class="ex-tag" x="200" y="84">V = ${st.k ? '⅓ · ' : ''}S · h</text>
+          <text class="ex-big" x="250" y="125">V = ${fmt(Vv, 1)}</text>`,
+        caption: st.k
+          ? L(`Cone: V = ⅓ πr²h = ⅓ · ${fmt(Sb, 1)} · ${fmt(v.h)} = ${fmt(Vv, 1)}. Three such cones fill a cylinder of the same size.`, `Конус: V = ⅓ πr²h = ⅓ · ${fmt(Sb, 1)} · ${fmt(v.h)} = ${fmt(Vv, 1)}. Три таких конуса заполняют цилиндр того же размера.`, `Конус: V = ⅓ πr²h = ⅓ · ${fmt(Sb, 1)} · ${fmt(v.h)} = ${fmt(Vv, 1)}. Осындай үш конус сол өлшемдегі цилиндрді толтырады.`)
+          : L(`Cylinder: V = πr²h = ${fmt(Sb, 1)} · ${fmt(v.h)} = ${fmt(Vv, 1)}. Double r and the volume grows 4 times; double h - only 2 times.`, `Цилиндр: V = πr²h = ${fmt(Sb, 1)} · ${fmt(v.h)} = ${fmt(Vv, 1)}. Увеличь r вдвое - объём вырастет в 4 раза; h вдвое - только в 2 раза.`, `Цилиндр: V = πr²h = ${fmt(Sb, 1)} · ${fmt(v.h)} = ${fmt(Vv, 1)}. r-ді екі есе арттырсаң - көлем 4 есе өседі; h-ты екі есе - тек 2 есе.`),
+      };
+    },
+  },
+
+  complex: {
+    title: L('Complex numbers on the plane', 'Комплексные числа на плоскости', 'Жазықтықтағы комплекс сандар'),
+    intro: L('z = a + bi is a point (a; b). Its length is |z| = √(a² + b²). Multiplying by i turns the point 90° counterclockwise.', 'z = a + bi - это точка (a; b). Её длина |z| = √(a² + b²). Умножение на i поворачивает точку на 90° против часовой стрелки.', 'z = a + bi - (a; b) нүктесі. Оның ұзындығы |z| = √(a² + b²). i-ге көбейту нүктені сағат тіліне қарсы 90°-қа бұрады.'),
+    sliders: [
+      { id: 'a', label: 'a', min: -4, max: 4, step: C, value: 3 },
+      { id: 'b', label: 'b', min: -4, max: 4, step: C, value: 2 },
+    ],
+    buttons: [L('× i', '× i', '× i'), L('conjugate', 'сопряжённое', 'түйіндес'), L('z²', 'z²', 'z²')],
+    onButton: (i, st, v) => [{ a: -v.b, b: v.a }, { b: -v.b }, { a: clamp(v.a * v.a - v.b * v.b, -4, 4), b: clamp(2 * v.a * v.b, -4, 4) }][i],
+    draw(v) {
+      const sx = (x) => 160 + x * 24;
+      const sy = (y) => 110 - y * 24;
+      const mod = Math.hypot(v.a, v.b);
+      const arg = (Math.atan2(v.b, v.a) * 180) / Math.PI;
+      return {
+        svg: `${axes(sx, sy, [-6, 6], [-4, 4])}<text class="ex-tiny" x="305" y="${sy(0) - 6}">Re</text><text class="ex-tiny" x="${sx(0) + 12}" y="12">Im</text>
+          ${arrow(sx(0), sy(0), sx(v.a), sy(v.b), 'exc-p', 2.5)}<circle class="ex-fill exc-p" cx="${n1(sx(v.a))}" cy="${n1(sy(v.b))}" r="4"/>
+          <line class="ex-stroke exc-m ex-dash" x1="${n1(sx(v.a))}" y1="${n1(sy(v.b))}" x2="${n1(sx(v.a))}" y2="${sy(0)}"/>
+          <text class="ex-tag" x="8" y="18">z = ${fmt(v.a)}${term(v.b)}i</text><text class="ex-tag" x="8" y="38">|z| = ${fmt(mod)} · arg ≈ ${fmt(arg, 0)}°</text>`,
+        caption: L(
+          `z = ${fmt(v.a)}${term(v.b)}i lies at (${fmt(v.a)}; ${fmt(v.b)}), its length |z| = √(${fmt(v.a)}² + ${fmt(v.b)}²) = ${fmt(mod)}. Press × i: the arrow turns 90°, the length stays. i² = −1 - two turns of 90° point the other way.`,
+          `z = ${fmt(v.a)}${term(v.b)}i - точка (${fmt(v.a)}; ${fmt(v.b)}), длина |z| = √(${fmt(v.a)}² + ${fmt(v.b)}²) = ${fmt(mod)}. Нажми × i: стрелка повернётся на 90°, длина не изменится. i² = −1 - два поворота на 90° смотрят в обратную сторону.`,
+          `z = ${fmt(v.a)}${term(v.b)}i - (${fmt(v.a)}; ${fmt(v.b)}) нүктесі, ұзындығы |z| = √(${fmt(v.a)}² + ${fmt(v.b)}²) = ${fmt(mod)}. × i бас: нұсқар 90°-қа бұрылады, ұзындық өзгермейді. i² = −1 - 90°-тық екі бұрылыс кері жаққа қарайды.`,
+        ),
+      };
+    },
+  },
+
+  limit: {
+    title: L('Limit of a sequence', 'Предел последовательности', 'Тізбектің шегі'),
+    intro: L('A sequence has a limit L if its terms get as close to L as you like when n grows. (1 + 1/n)ⁿ slowly approaches the number e ≈ 2.718.', 'Последовательность имеет предел L, если её члены становятся сколь угодно близки к L при росте n. (1 + 1/n)ⁿ медленно приближается к числу e ≈ 2,718.', 'n өскенде мүшелері L-ге қалағанша жақындаса, тізбектің шегі L болады. (1 + 1/n)ⁿ e ≈ 2,718 санына баяу жақындайды.'),
+    sliders: [{ id: 'n', label: 'n', min: 1, max: 60, value: 10 }],
+    buttons: ['(1 + 1/n)ⁿ → e', '1/n → 0', '(n + 1)/n → 1'],
+    state: () => ({ k: 0 }),
+    pressed: (i, v, st) => i === st.k,
+    onButton(i, st) {
+      st.k = i;
+    },
+    draw(v, step, st) {
+      const F = [(n) => (1 + 1 / n) ** n, (n) => 1 / n, (n) => (n + 1) / n];
+      const LIM = [Math.E, 0, 1];
+      const top = [3, 1.1, 2.1][st.k];
+      const bot = [1.8, 0, 0.9][st.k];
+      const N = Math.round(v.n);
+      const sx = (n) => 20 + (n / 60) * 290;
+      const sy = (y) => 190 - ((y - bot) / (top - bot)) * 170;
+      const dots = Array.from({ length: N }, (_, i) => `<circle class="ex-fill exc-p" cx="${n1(sx(i + 1))}" cy="${n1(sy(F[st.k](i + 1)))}" r="${i === N - 1 ? 5 : 2.6}"/>`).join('');
+      const val = F[st.k](N);
+      return {
+        svg: `<line class="ex-axis" x1="20" y1="190" x2="310" y2="190"/><line class="ex-stroke exc-o ex-dash" x1="20" y1="${n1(sy(LIM[st.k]))}" x2="310" y2="${n1(sy(LIM[st.k]))}"/>${dots}
+          <text class="ex-tag" x="200" y="${n1(sy(LIM[st.k]) - 8)}">L = ${fmt(LIM[st.k], 3)}</text>
+          <text class="ex-tag" x="24" y="20">a(${N}) = ${fmt(val, 4)} · |a − L| = ${fmt(Math.abs(val - LIM[st.k]), 4)}</text>`,
+        caption: L(
+          `At n = ${N} the term is ${fmt(val, 4)}, only ${fmt(Math.abs(val - LIM[st.k]), 4)} from the limit ${fmt(LIM[st.k], 3)}. Increase n - the gap keeps shrinking but the terms never have to reach the limit exactly.`,
+          `При n = ${N} член равен ${fmt(val, 4)}, до предела ${fmt(LIM[st.k], 3)} осталось лишь ${fmt(Math.abs(val - LIM[st.k]), 4)}. Увеличивай n - разница продолжает уменьшаться, хотя члены могут так и не стать равны пределу.`,
+          `n = ${N} болғанда мүше ${fmt(val, 4)}, ${fmt(LIM[st.k], 3)} шегіне дейін тек ${fmt(Math.abs(val - LIM[st.k]), 4)} қалды. n-ді арттыр - айырма кішірейе береді, бірақ мүшелер шекке тең болмауы да мүмкін.`,
+        ),
+      };
+    },
+  },
 };
 
 // Данные для сцен.

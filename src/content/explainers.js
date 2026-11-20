@@ -38,6 +38,20 @@ export const EXPLAINERS = [
   { id: 'binary', subj: 'cs', icon: '💻', topics: ['i.num', 'i.units'] },
   { id: 'sorting', subj: 'cs', icon: '🔄', topics: ['i.algo'] },
   { id: 'timezones', subj: 'geo', icon: '🌍', topics: ['g.world'] },
+  { id: 'atom', subj: 'chemistry', icon: '⚛️', topics: ['c.elem'] },
+  { id: 'solution', subj: 'chemistry', icon: '🧪', topics: ['m.mix'] },
+  { id: 'molar', subj: 'chemistry', icon: '⚖️', topics: ['c.molar'] },
+  { id: 'foodchain', subj: 'biology', icon: '🦊', topics: ['b.eco'] },
+  { id: 'enzyme', subj: 'biology', icon: '🧬', topics: ['b.body'] },
+  { id: 'cellsize', subj: 'biology', icon: '🔬', topics: ['b.cell'] },
+  { id: 'seasons', subj: 'geo', icon: '☀️', topics: ['g.bank'] },
+  { id: 'mapscale', subj: 'geo', icon: '🗺️', topics: ['g.kz'] },
+  { id: 'gates', subj: 'cs', icon: '💡', topics: ['i.logic'] },
+  { id: 'inequality', subj: 'algebra', icon: '📏', topics: ['m.ineq'] },
+  { id: 'combinatorics', subj: 'algebra', icon: '🏆', topics: ['m.comb'] },
+  { id: 'volume', subj: 'geometry', icon: '📦', topics: ['m.vol'] },
+  { id: 'complex', subj: 'higher', icon: '🧭', topics: ['m.complex'] },
+  { id: 'limit', subj: 'higher', icon: '🎯', topics: ['m.limit'] },
 ];
 
 const BY_TOPIC = new Map(EXPLAINERS.flatMap((e) => e.topics.map((topic) => [topic, e.id])));
