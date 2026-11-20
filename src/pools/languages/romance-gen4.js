@@ -198,7 +198,7 @@ const FR_VERBS = [
   ['finir', 'le travail'], ['choisir', 'un cadeau'], ['réussir', "l'examen"], ['vendre', 'des fruits'], ['attendre', 'le bus'], ['répondre', 'à la question'], ['entendre', 'un bruit'],
   ['être', 'à la maison'], ['avoir', 'beaucoup de travail'], ['aller', "à l'école"], ['faire', 'les devoirs'], ['pouvoir', 'venir à la fête'], ['vouloir', 'un café'],
   ['venir', 'de Paris'], ['dire', 'la vérité'], ['prendre', 'le bus'], ['savoir', 'la réponse'], ['voir', 'un film'], ['devoir', 'partir tôt'], ['lire', 'un livre'],
-  ['écrire', 'une lettre'], ['partir', 'tôt'], ['sortir', 'ce soir'], ['rester', 'à la maison'], ['tomber', 'dans la rue'], ['entrer', 'dans la salle'],
+  ['écrire', 'une lettre'], ['partir', 'tôt'], ['sortir', 'avec des amis'], ['rester', 'à la maison'], ['tomber', 'dans la rue'], ['entrer', 'dans la salle'],
 ];
 const FR_ETRE = new Set(['aller', 'venir', 'partir', 'sortir', 'rester', 'tomber', 'entrer']);
 const FR_IRR = {

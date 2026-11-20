@@ -3,6 +3,7 @@
 
 import { T } from '../bank.js';
 import { CHINESE_MORE3 } from './zh-more3.js';
+import { CHINESE_MORE4 } from './zh-more4.js';
 
 /** «Что значит слово …?» на трёх языках. */
 const mean = (word) => T(`Что значит ${word}?`, `${word} сөзі нені білдіреді?`, `What does ${word} mean?`);
@@ -143,3 +144,7 @@ export const CHINESE = [
 ];
 
 CHINESE.push(...CHINESE_MORE3);
+{
+  const seen = new Set(CHINESE.map((r) => JSON.stringify(r[1])));
+  for (const r of CHINESE_MORE4) if (!seen.has(JSON.stringify(r[1]))) { seen.add(JSON.stringify(r[1])); CHINESE.push(r); }
+}

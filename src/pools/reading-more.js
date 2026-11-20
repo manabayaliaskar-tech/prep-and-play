@@ -612,4 +612,6 @@ import { IELTS_MORE4B } from './reading-ielts4b.js';
 import { IELTS_MORE4C } from './reading-ielts4c.js';
 IELTS_MORE.push(...IELTS_MORE4A, ...IELTS_MORE4B, ...IELTS_MORE4C);
 import { TOEFL_MORE4A } from './reading-toefl4a.js';
-TOEFL_MORE.push(...TOEFL_MORE4A);
+import { TOEFL_MORE4B } from './reading-toefl4b.js';
+import { TOEFL_MORE4C } from './reading-toefl4c.js';
+TOEFL_MORE.push(...TOEFL_MORE4A, ...TOEFL_MORE4B, ...TOEFL_MORE4C);
