@@ -10,6 +10,7 @@ import { MORE_D } from './bank-more3-d.js';
 import { MORE_E } from './bank-more3-e.js';
 import { MORE_F } from './bank-more3-f.js';
 import { MORE_G } from './bank-more3-g.js';
+import { MORE4_A } from './bank-more4-a.js';
 
 const A1 = 1;
 const A2 = 2;
@@ -324,7 +325,7 @@ export const BANK = {
 };
 
 // Дополнительные задания - в bank-more3-*.js.
-for (const more of [MORE_A, MORE_B, MORE_C, MORE_D, MORE_E, MORE_F, MORE_G]) {
+for (const more of [MORE_A, MORE_B, MORE_C, MORE_D, MORE_E, MORE_F, MORE_G, MORE4_A]) {
   for (const [topic, rows] of Object.entries(more)) {
     const have = new Set(BANK[topic].map((row) => row[1]));
     for (const row of rows) if (!have.has(row[1])) BANK[topic].push(row);

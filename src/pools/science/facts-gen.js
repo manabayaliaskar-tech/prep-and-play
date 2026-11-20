@@ -50,6 +50,10 @@ const UNITS = rows(`
 3|amount of substance|количество вещества|зат мөлшері|mole (mol)|моль (моль)|моль (моль)
 3|optical power of a lens|оптическая сила линзы|линзаның оптикалық күші|dioptre (D)|диоптрия (дптр)|диоптрия (дптр)
 3|luminous intensity|сила света|жарық күші|candela (cd)|кандела (кд)|кандела (кд)
+1|area|площадь|аудан|square metre (m²)|квадратный метр (м²)|шаршы метр (м²)
+1|volume|объём|көлем|cubic metre (m³)|кубический метр (м³)|текше метр (м³)
+1|air temperature in daily life|температура воздуха (в быту)|ауа температурасы (тұрмыста)|degree Celsius (°C)|градус Цельсия (°C)|Цельсий градусы (°C)
+1|electricity consumed at home|электроэнергия по счётчику|есептегіш бойынша электр энергиясы|kilowatt-hour (kWh)|киловатт-час (кВт·ч)|киловатт-сағат (кВт·сағ)
 `).map(([d, qen, qru, qkk, uen, uru, ukk]) => ({ d: Number(d), a: L(qen, qru, qkk), b: L(uen, uru, ukk) }));
 
 // сложность|величина en|ru|kk|формула en|ru(=kk)
@@ -71,6 +75,11 @@ const FORMULAS = rows(`
 3|wave speed|скорость волны|толқын жылдамдығы|v = λν|v = λν
 3|electric power|мощность тока|ток қуаты|P = VI|P = UI
 3|charge passing in time t|заряд, прошедший за время t|t уақытта өткен заряд|q = It|q = It
+1|area of a rectangle|площадь прямоугольника|тіктөртбұрыш ауданы|S = ab|S = ab
+1|volume of a cuboid|объём прямоугольного параллелепипеда|тіктөртбұрышты параллелепипед көлемі|V = abc|V = abc
+1|mass from density and volume|масса через плотность и объём|тығыздық пен көлем арқылы масса|m = ρV|m = ρV
+1|distance in uniform motion|путь при равномерном движении|бірқалыпты қозғалыстағы жол|s = vt|s = vt
+1|time of uniform motion|время равномерного движения|бірқалыпты қозғалыс уақыты|t = s / v|t = s / v
 `).map(([d, en, ru, kk, fen, fru]) => ({ d: Number(d), a: L(en, ru, kk), b: L(fen, fru, fru) }));
 
 // сложность|учёный en|ru|kk|открытие en|ru|kk
@@ -90,6 +99,12 @@ const PHYSICISTS = rows(`
 3|James Maxwell|Джеймс Максвелл|Джеймс Максвелл|the theory of the electromagnetic field|теория электромагнитного поля|электромагниттік өріс теориясы
 3|Evangelista Torricelli|Эванджелиста Торричелли|Эванджелиста Торричелли|the first measurement of atmospheric pressure|первое измерение атмосферного давления|атмосфералық қысымды алғаш өлшеу
 3|Joule and Lenz|Джоуль и Ленц|Джоуль мен Ленц|the heating of a conductor by electric current|нагревание проводника электрическим током|өткізгіштің электр тогымен қызуы
+1|Yuri Gagarin|Юрий Гагарин|Юрий Гагарин|the first human flight into space|первый полёт человека в космос|адамның ғарышқа алғашқы ұшуы
+1|Konstantin Tsiolkovsky|Константин Циолковский|Константин Циолковский|the foundations of theoretical astronautics|основы теоретической космонавтики|теориялық ғарыш зерттеудің негіздері
+1|Thomas Edison|Томас Эдисон|Томас Эдисон|a practical electric light bulb and the phonograph|практичная лампа накаливания и фонограф|тәжірибеде қолданылатын қыздыру шамы мен фонограф
+1|Alexander Graham Bell|Александр Белл|Александр Белл|the telephone|телефон|телефон
+1|Marie Curie|Мария Кюри|Мария Кюри|the study of radioactivity|исследование радиоактивности|радиоактивтілікті зерттеу
+1|Nicolaus Copernicus|Николай Коперник|Николай Коперник|the heliocentric system of the world|гелиоцентрическая система мира|әлемнің гелиоцентрлік жүйесі
 `).map(([d, en, ru, kk, ben, bru, bkk]) => ({ d: Number(d), a: L(en, ru, kk), b: L(ben, bru, bkk) }));
 
 const PHYS = [
@@ -176,6 +191,32 @@ const TERMS = rows(`
 3|router|маршрутизатор|маршрутизатор|passes data between networks|передаёт данные между сетями|деректерді желілер арасында жібереді
 3|encryption|шифрование|шифрлау|turns data into a form only the key holder can read|превращает данные в вид, понятный только владельцу ключа|деректерді тек кілт иесі оқи алатын түрге айналдырады
 3|firewall|межсетевой экран|желіаралық экран|blocks unwanted network connections|блокирует нежелательные сетевые подключения|қажетсіз желілік қосылыстарды бұғаттайды
+1|file|файл|файл|a named piece of data stored on a disk|именованный набор данных на диске|дискіде сақталатын аталған деректер жиыны
+1|folder|папка|қапшық|a container for organising files|контейнер для упорядочивания файлов|файлдарды ретке келтіруге арналған контейнер
+1|icon|значок|белгіше|a small picture that stands for a program or file|маленькая картинка, обозначающая программу или файл|бағдарламаны немесе файлды білдіретін кішкентай сурет
+1|desktop|рабочий стол|жұмыс үстелі|the main screen where icons are placed|главный экран, на котором расположены значки|белгішелер орналасатын басты экран
+1|cursor|курсор|меңзер|a mark on the screen that shows where you type or click|метка на экране, показывающая, где вы печатаете или щёлкаете|экранда теру немесе басу орнын көрсететін белгі
+1|password|пароль|құпиясөз|a secret word that protects an account|секретное слово, защищающее учётную запись|тіркелгіні қорғайтын құпия сөз
+1|byte|байт|байт|a unit of information equal to eight bits|единица информации, равная восьми битам|сегіз битке тең ақпарат бірлігі
+1|bit|бит|бит|the smallest unit of information: 0 or 1|наименьшая единица информации: 0 или 1|ақпараттың ең кіші бірлігі: 0 немесе 1
+1|internet|интернет|интернет|a global network that connects computers|всемирная сеть, соединяющая компьютеры|компьютерлерді байланыстыратын жаһандық желі
+1|website|сайт|сайт|a set of linked web pages under one address|набор связанных веб-страниц под одним адресом|бір мекенжайдағы өзара байланысқан веб-беттер жиыны
+1|e-mail|электронная почта|электрондық пошта|messages sent through the internet|сообщения, пересылаемые через интернет|интернет арқылы жіберілетін хабарламалар
+1|search engine|поисковая система|іздеу жүйесі|a service that finds web pages by a query|сервис, который находит веб-страницы по запросу|сұраныс бойынша веб-беттерді табатын қызмет
+1|computer virus|компьютерный вирус|компьютерлік вирус|a harmful program that spreads and damages data|вредоносная программа, которая распространяется и портит данные|таралып, деректерді бүлдіретін зиянды бағдарлама
+1|software|программное обеспечение|бағдарламалық қамтама|the programs that run on a computer|программы, которые работают на компьютере|компьютерде жұмыс істейтін бағдарламалар
+1|hardware|аппаратное обеспечение|аппараттық қамтама|the physical parts of a computer|физические части компьютера|компьютердің физикалық бөліктері
+1|menu|меню|мәзір|a list of commands to choose from|список команд, из которых можно выбрать|таңдауға болатын командалар тізімі
+1|window|окно|терезе|a framed area of the screen for one program|рамка на экране для одной программы|бір бағдарламаға арналған экрандағы жақтау
+1|pixel|пиксель|пиксель|the smallest dot of a digital image|наименьшая точка цифрового изображения|сандық кескіннің ең кіші нүктесі
+1|keyboard shortcut|горячие клавиши|жылдам пернелер|a key combination that runs a command quickly|сочетание клавиш для быстрого выполнения команды|команданы тез орындайтын пернелер тіркесі
+1|download|скачивание|жүктеп алу|copying a file from the internet to your device|копирование файла из интернета на своё устройство|файлды интернеттен өз құрылғыңа көшіру
+1|upload|загрузка на сервер|серверге жүктеу|sending a file from your device to the internet|отправка файла со своего устройства в интернет|файлды өз құрылғыңнан интернетке жіберу
+1|Wi-Fi|Wi-Fi|Wi-Fi|a wireless connection to a network|беспроводное подключение к сети|желіге сымсыз қосылу
+1|motherboard|материнская плата|аналық плата|the main board that connects all parts of a computer|главная плата, соединяющая все части компьютера|компьютердің барлық бөліктерін қосатын басты плата
+1|cloud storage|облачное хранилище|бұлтты қойма|storing files on remote servers on the internet|хранение файлов на удалённых серверах в интернете|файлдарды интернеттегі қашықтағы серверлерде сақтау
+1|spreadsheet|электронная таблица|электрондық кесте|a program for calculations in rows and columns|программа для вычислений в строках и столбцах|жолдар мен бағандардағы есептеулерге арналған бағдарлама
+1|hyperlink|гиперссылка|гиперсілтеме|a clickable link to another page or file|ссылка, по которой можно перейти на другую страницу или файл|басқа бетке немесе файлға өтуге болатын сілтеме
 `).map(([d, en, ru, kk, ben, bru, bkk]) => ({ d: Number(d), a: L(en, ru, kk), b: L(ben, bru, bkk) }));
 
 const INFO_TERMS = [
@@ -278,6 +319,44 @@ const CODE_TERMS = rows(`
 3|API|API|API|a set of rules by which programs talk to each other|набор правил, по которым программы общаются друг с другом|бағдарламалардың бір-бірімен байланысу ережелерінің жиыны
 3|version control (git)|система контроля версий (git)|нұсқаларды басқару жүйесі (git)|stores the history of changes in code|хранит историю изменений кода|код өзгерістерінің тарихын сақтайды
 3|binary search|двоичный поиск|екілік іздеу|finds a value in a sorted list by halving it each step|ищет значение в отсортированном списке, деля его пополам|сұрыпталған тізімде мәнді әр қадамда екіге бөліп іздейді
+1|constant|константа|тұрақты шама|a value that does not change while the program runs|значение, которое не меняется во время работы программы|бағдарлама жұмысы кезінде өзгермейтін мән
+1|keyword|ключевое слово|кілт сөз|a reserved word of the language, such as if or while|зарезервированное слово языка, например if или while|тілдің сақталған сөзі, мысалы if немесе while
+1|statement|инструкция|нұсқау (инструкция)|one command of a program|одна команда программы|бағдарламаның бір командасы
+1|expression|выражение|өрнек|a combination of values and operators that gives a result|сочетание значений и операторов, дающее результат|нәтиже беретін мәндер мен операторлар тіркесі
+1|input|ввод данных|деректерді енгізу|data that the user gives to a program|данные, которые пользователь передаёт программе|пайдаланушы бағдарламаға беретін деректер
+1|output|вывод данных|деректерді шығару|data that a program shows to the user|данные, которые программа показывает пользователю|бағдарлама пайдаланушыға көрсететін деректер
+1|float (real number)|вещественное число (float)|нақты сан (float)|a number with a fractional part|число с дробной частью|бөлшек бөлігі бар сан
+1|data type|тип данных|деректер түрі|the kind of value, which defines what can be done with it|вид значения, определяющий, что с ним можно делать|мәнмен не істеуге болатынын анықтайтын мән түрі
+1|assignment|присваивание|меншіктеу|putting a value into a variable|запись значения в переменную|айнымалыға мән жазу
+1|source code|исходный код|бастапқы код|the text of a program written by a programmer|текст программы, написанный программистом|бағдарламашы жазған бағдарлама мәтіні
+1|program|программа|бағдарлама|a sequence of instructions for a computer|последовательность команд для компьютера|компьютерге арналған командалар тізбегі
+1|flowchart|блок-схема|блок-схема|a diagram that shows the steps of an algorithm|схема, показывающая шаги алгоритма|алгоритм қадамдарын көрсететін сызба
+1|indentation|отступ|шегініс|spaces at the start of a line that show the structure of code|пробелы в начале строки, показывающие структуру кода|код құрылымын көрсететін жол басындағы бос орындар
+1|counter|счётчик|санауыш|a variable that counts repetitions or events|переменная, которая считает повторения или события|қайталауларды немесе оқиғаларды санайтын айнымалы
+1|index|индекс|индекс|the position number of an element in a list|номер позиции элемента в списке|тізімдегі элементтің орын нөмірі
+1|character|символ|таңба (символ)|a single letter, digit or sign|одна буква, цифра или знак|бір әріп, сан немесе белгі
+1|print|вывод на экран (print)|экранға шығару (print)|a command that shows text on the screen|команда, которая показывает текст на экране|мәтінді экранға шығаратын команда
+1|programming language|язык программирования|бағдарламалау тілі|a formal language for writing instructions for a computer|формальный язык для записи команд компьютеру|компьютерге командалар жазуға арналған формальды тіл
+1|text editor|текстовый редактор|мәтін редакторы|a program for typing and editing code or text|программа для набора и правки кода или текста|код немесе мәтінді теруге және түзетуге арналған бағдарлама
+1|running a program|запуск программы|бағдарламаны іске қосу|starting a program so that the computer executes it|начало работы программы, чтобы компьютер её выполнил|компьютер орындауы үшін бағдарламаны бастау
+1|error message|сообщение об ошибке|қате туралы хабарлама|text that tells what went wrong|текст, сообщающий, что пошло не так|не дұрыс болғанын хабарлайтын мәтін
+1|loop body|тело цикла|цикл денесі|the block of code that the loop repeats|блок кода, который повторяет цикл|цикл қайталайтын код блогы
+1|else branch|ветка else|else тармағы|code that runs when the if condition is false|код, который выполняется, когда условие if ложно|if шарты жалған болғанда орындалатын код
+2|parameter|параметр функции|функция параметрі|a variable in a function definition that receives a value|переменная в описании функции, получающая значение|мән қабылдайтын функция сипаттамасындағы айнымалы
+2|return value|возвращаемое значение|қайтарылатын мән|the result that a function gives back|результат, который возвращает функция|функция қайтаратын нәтиже
+2|scope|область видимости|көріну аймағы|the part of a program where a variable can be used|часть программы, где можно использовать переменную|айнымалыны қолдануға болатын бағдарлама бөлігі
+2|nested loop|вложенный цикл|ішкі цикл|a loop placed inside another loop|цикл, расположенный внутри другого цикла|басқа цикл ішіндегі цикл
+2|dictionary|словарь|сөздік|a collection of key and value pairs|набор пар «ключ - значение»|«кілт - мән» жұптарының жиыны
+2|exception|исключение|ерекше жағдай (exception)|an error during execution that the program can handle|ошибка при выполнении, которую программа может обработать|орындау кезіндегі бағдарлама өңдей алатын қате
+2|module|модуль|модуль|a file with code that can be imported into a program|файл с кодом, который можно подключить к программе|бағдарламаға қосуға болатын кодты файл
+2|method|метод|әдіс (метод)|a function that belongs to an object or class|функция, принадлежащая объекту или классу|объектіге немесе класқа тиесілі функция
+3|inheritance|наследование|мұрагерлік|a way for a class to take the features of another class|способ, которым класс получает свойства другого класса|класс басқа таптың қасиеттерін алу тәсілі
+3|object|объект|нысан (объект)|a specific instance of a class|конкретный экземпляр класса|таптың нақты данасы
+3|stack|стек|стек|a structure where the last added item is taken first|структура, в которой первым извлекается последний добавленный элемент|соңғы қосылған элемент бірінші алынатын құрылым
+3|queue|очередь|кезек|a structure where the first added item is taken first|структура, в которой первым извлекается первый добавленный элемент|бірінші қосылған элемент бірінші алынатын құрылым
+3|hash table|хеш-таблица|хеш-кесте|a structure that finds values quickly by a key|структура, быстро находящая значения по ключу|мәндерді кілт бойынша тез табатын құрылым
+3|time complexity|временная сложность|уақыттық күрделілік|how the running time grows as the input gets bigger|как растёт время работы при увеличении входных данных|кіріс деректер өскенде жұмыс уақыты қалай артатыны
+3|unit test|модульный тест|модульдік тест|a small automatic check of one piece of code|небольшая автоматическая проверка одной части кода|кодтың бір бөлігін шағын автоматты тексеру
 `).map(([d, en, ru, kk, ben, bru, bkk]) => ({ d: Number(d), a: L(en, ru, kk), b: L(ben, bru, bkk) }));
 
 const CODE_TABLE = {

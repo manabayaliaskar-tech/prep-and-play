@@ -213,6 +213,24 @@ const TERMS = rows(`
 3|social mobility|социальная мобильность|әлеуметтік ұтқырлық|a person’s movement from one social position to another|переход человека из одной социальной позиции в другую|адамның бір әлеуметтік жағдайдан басқасына өтуі
 3|stock (share)|акция|акция|a security that gives its owner a share in a company|ценная бумага, дающая владельцу долю в компании|иесіне компаниядағы үлесті беретін бағалы қағаз
 3|subculture|субкультура|субмәдениет|the culture of a group that differs from the dominant culture|культура группы, отличающаяся от господствующей|үстем мәдениеттен ерекшеленетін топтың мәдениеті
+1|society|общество|қоғам|people living together under common rules and institutions|люди, живущие вместе по общим правилам и институтам|ортақ ережелер мен институттар бойынша бірге тұратын адамдар
+1|citizen|гражданин|азамат|a person who belongs to a state and has rights and duties in it|человек, принадлежащий государству и имеющий в нём права и обязанности|мемлекетке тиесілі, онда құқықтары мен міндеттері бар адам
+1|right|право (возможность)|құқық|what a person may do and what the state protects|то, что человек может делать и что защищает государство|адам істей алатын және мемлекет қорғайтын нәрсе
+1|duty|обязанность|міндет|what a person must do|то, что человек должен делать|адам міндетті түрде істеуге тиіс нәрсе
+1|freedom|свобода|еркіндік|the ability to act by one’s own will within the law|возможность действовать по своей воле в рамках закона|заң шеңберінде өз еркімен әрекет ету мүмкіндігі
+1|money|деньги|ақша|a universal means of exchange and payment|всеобщее средство обмена и платежа|айырбас пен төлемнің әмбебап құралы
+1|income|доход|табыс|money received by a person or family|деньги, которые получает человек или семья|адам немесе отбасы алатын ақша
+1|expenses|расходы|шығын|money spent on goods and services|деньги, потраченные на товары и услуги|тауар мен қызметке жұмсалған ақша
+1|property|собственность|меншік|things that belong to a person or organisation by law|вещи, которые по закону принадлежат человеку или организации|заң бойынша адамға немесе ұйымға тиесілі заттар
+1|profession|профессия|мамандық|a kind of work that needs special training|вид работы, требующий специальной подготовки|арнайы дайындықты қажет ететін жұмыс түрі
+1|need|потребность|қажеттілік|something a person feels they must have|то, в чём человек ощущает нужду|адам өзіне қажет деп санайтын нәрсе
+1|trade|торговля|сауда|buying and selling goods|купля и продажа товаров|тауарды сатып алу және сату
+1|government|правительство|үкімет|the body that carries out laws and manages the country|орган, который исполняет законы и управляет страной|заңдарды орындап, елді басқаратын орган
+1|president|президент|президент|the head of state in a republic|глава государства в республике|республикадағы мемлекет басшысы
+1|patriotism|патриотизм|отансүйгіштік|love for one’s country and readiness to serve it|любовь к своей стране и готовность ей служить|өз еліне деген сүйіспеншілік және оған қызмет етуге дайындық
+1|tradition|традиция|дәстүр|customs passed down from generation to generation|обычаи, передаваемые из поколения в поколение|ұрпақтан ұрпаққа берілетін әдет-ғұрыптар
+1|religion|религия|дін|a system of beliefs about the divine and rules of behaviour|система верований о божественном и правил поведения|құдайға сенім мен мінез-құлық ережелері жүйесі
+1|education|образование|білім беру|the process of gaining knowledge, skills and values|процесс получения знаний, умений и ценностей|білім, дағды және құндылықтарды игеру үдерісі
 `).map(([d, en, ru, kk, den, dru, dkk]) => ({ d: Number(d), term: L(en, ru, kk), def: L(den, dru, dkk) }));
 
 export function socialMaker(topic) {
@@ -260,6 +278,20 @@ jud|the Constitutional Court|Конституционный суд|Консти�
 jud|a court of appeal|апелляционный суд|апелляциялық сот
 leg|the Federation Council|Совет Федерации|Федерация Кеңесі
 exe|the tax service|налоговая служба|салық қызметі
+leg|a parliamentary committee|комитет парламента|парламент комитеті
+leg|a deputy of parliament|депутат парламента|парламент депутаты
+leg|the Federal Assembly|Федеральное собрание|Федералдық жиналыс
+exe|the Ministry of Finance|Министерство финансов|Қаржы министрлігі
+exe|the Ministry of Health|Министерство здравоохранения|Денсаулық сақтау министрлігі
+exe|the police|полиция|полиция
+exe|the customs service|таможенная служба|кеден қызметі
+exe|a city akim|аким города|қала әкімі
+exe|the Ministry of Education|Министерство образования|Білім министрлігі
+jud|a city court|городской суд|қалалық сот
+jud|a regional court|областной суд|облыстық сот
+jud|a Supreme Court judge|судья Верховного суда|Жоғарғы сот судьясы
+jud|an inter-district economic court|межрайонный экономический суд|ауданаралық экономикалық сот
+jud|a military court|военный суд|әскери сот
 `).map(([b, en, ru, kk]) => ({ b, name: L(en, ru, kk) }));
 
 const SPHERES = {
@@ -287,6 +319,20 @@ spi|a writer publishes a novel|писатель издаёт роман|жазу
 eco|a bank pays interest on deposits|банк начисляет проценты по вкладам|банк салымдар бойынша пайыз есептейді
 pol|a deputy takes part in a parliament session|депутат участвует в заседании парламента|депутат парламент отырысына қатысады
 soc|a clinic vaccinates children|поликлиника делает прививки детям|емхана балаларға екпе жасайды
+eco|a farmer buys a tractor on credit|фермер покупает трактор в кредит|фермер тракторды несиеге сатып алады
+eco|a company opens a new factory|компания открывает новый завод|компания жаңа зауыт ашады
+eco|a shop sells goods at a discount|магазин продаёт товары со скидкой|дүкен тауарды жеңілдікпен сатады
+eco|a bank raises its interest rate on deposits|банк повышает процент по вкладам|банк салым бойынша пайызды көтереді
+pol|a candidate takes part in a debate|кандидат участвует в дебатах|үміткер дебатқа қатысады
+pol|the president signs a law|президент подписывает закон|президент заңға қол қояды
+pol|a party holds a congress|партия проводит съезд|партия съезд өткізеді
+pol|citizens send a petition to the authorities|граждане направляют петицию властям|азаматтар билікке петиция жолдайды
+soc|volunteers help elderly people|волонтёры помогают пожилым людям|еріктілер қарт адамдарға көмектеседі
+soc|a family receives a child allowance|семья получает пособие на ребёнка|отбасы бала жәрдемақысын алады
+soc|a social worker visits a lonely pensioner|социальный работник навещает одинокого пенсионера|әлеуметтік қызметкер жалғыз зейнеткерге барады
+spi|a schoolchild takes part in a poetry contest|школьник участвует в конкурсе стихов|оқушы өлең жарысына қатысады
+spi|a composer writes a symphony|композитор пишет симфонию|композитор симфония жазады
+spi|people celebrate Nauryz with folk games|люди отмечают Наурыз народными играми|адамдар Наурызды халық ойындарымен тойлайды
 `).map(([s2, en, ru, kk]) => ({ s: s2, fact: L(en, ru, kk) }));
 
 export function powersMaker(topic) {
