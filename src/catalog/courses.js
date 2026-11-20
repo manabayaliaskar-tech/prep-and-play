@@ -3,7 +3,7 @@
 // Дорожка - это просто список тем из общих банков (src/pools), поэтому новый экзамен
 // добавляется описанием в этом файле, без изменения игрового движка.
 
-import { englishSpec } from '../pools/english/index.js';
+import { englishSpec } from '../pools/english/spec.js';
 import { L } from '../pools/gen.js';
 
 export const GROUPS = [

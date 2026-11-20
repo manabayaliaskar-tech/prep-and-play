@@ -50,23 +50,7 @@ export function englishMaker(topic) {
   };
 }
 
-/**
- * Темы уровня: банк (где на уровне есть хотя бы два задания) и генераторы - слова, времена,
- * неправильные глаголы (A1-C1) и степени сравнения (A1-B1).
- */
-export function englishSpec(levels) {
-  const spec = [];
-  for (const topic of Object.keys(BANK)) {
-    const keys = levels.filter((level) => BANK[topic].filter((row) => row[0] === level).length >= 2);
-    if (keys.length) spec.push([topic, keys]);
-  }
-  spec.push(['e.words', levels], ['e.gram', levels]);
-  const irreg = levels.filter((l) => l <= 5);
-  if (irreg.length) spec.push(['e.irreg', irreg]);
-  const comp = levels.filter((l) => l <= 3);
-  if (comp.length) spec.push(['e.comp', comp]);
-  return spec;
-}
+export { englishSpec } from './spec.js';
 
 /** Генераторы английского (их нет в банке BANK). */
 export const ENGLISH_GENERATED = ['e.words', 'e.gram', 'e.irreg', 'e.comp'];

@@ -39,3 +39,14 @@ test('названия тем (topic-names.js) совпадают с реест�
   const expected = Object.fromEntries(Object.entries(TOPICS).map(([id, tp]) => [id, [tp.pool, tp.name]]));
   assert.deepEqual(JSON.parse(JSON.stringify(TOPIC_NAMES)), JSON.parse(JSON.stringify(expected)));
 });
+
+test('уровни английского (english/levels.js) совпадают с банком - иначе запусти node tools/gen-english-levels.mjs', async () => {
+  const { ENGLISH_LEVELS } = await import('../src/pools/english/levels.js');
+  const { BANK } = await import('../src/pools/english/bank.js');
+  for (const [topic, rows] of Object.entries(BANK)) {
+    const counts = {};
+    for (const row of rows) counts[row[0]] = (counts[row[0]] ?? 0) + 1;
+    const want = Object.keys(counts).map(Number).filter((l) => counts[l] >= 2).sort((a, b) => a - b);
+    assert.deepEqual(ENGLISH_LEVELS[topic], want, topic);
+  }
+});
