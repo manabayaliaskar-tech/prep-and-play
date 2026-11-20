@@ -5,7 +5,7 @@
 математика с 1 по 11 класс и выше, английский, испанский, французский, китайский, физика, химия, биология и география.
 Каждое задание разобрано на **русском, казахском и английском**.
 
-🔗 **Живая версия:** https://manabayaliaskar-tech.github.io/prep-and-play/
+🔗 **Живая версия:** https://prepplay.app/
 📦 **Номинация:** Indie Game / Interactive Media - конкурс «Software & AI Showcase» 2026
 🗺️ **План развития:** [ROADMAP.md](ROADMAP.md)
 
@@ -262,7 +262,7 @@ tests/                    - автотесты
 
 ## Запуск
 
-**Просто открыть:** https://manabayaliaskar-tech.github.io/prep-and-play/
+**Просто открыть:** https://prepplay.app/
 
 **Локально** (нужен [Node.js](https://nodejs.org) 22+):
 
