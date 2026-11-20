@@ -11,6 +11,12 @@ import { MORE_E } from './bank-more3-e.js';
 import { MORE_F } from './bank-more3-f.js';
 import { MORE_G } from './bank-more3-g.js';
 import { MORE4_A } from './bank-more4-a.js';
+import { MORE4_B } from './bank-more4-b.js';
+import { MORE4_C } from './bank-more4-c.js';
+import { MORE4_D } from './bank-more4-d.js';
+import { MORE4_E } from './bank-more4-e.js';
+import { MORE4_F } from './bank-more4-f.js';
+import { MORE4_GEN } from './gen-more4.js';
 
 const A1 = 1;
 const A2 = 2;
@@ -325,9 +331,12 @@ export const BANK = {
 };
 
 // Дополнительные задания - в bank-more3-*.js.
-for (const more of [MORE_A, MORE_B, MORE_C, MORE_D, MORE_E, MORE_F, MORE_G, MORE4_A]) {
+for (const more of [MORE_A, MORE_B, MORE_C, MORE_D, MORE_E, MORE_F, MORE_G, MORE4_A, MORE4_B, MORE4_C, MORE4_D, MORE4_E, MORE4_F, MORE4_GEN]) {
   for (const [topic, rows] of Object.entries(more)) {
     const have = new Set(BANK[topic].map((row) => row[1]));
-    for (const row of rows) if (!have.has(row[1])) BANK[topic].push(row);
+    for (const row of rows) if (!have.has(row[1])) {
+        have.add(row[1]);
+        BANK[topic].push(row);
+      }
   }
 }
