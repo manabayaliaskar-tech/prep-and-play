@@ -231,6 +231,18 @@ famous|more famous|most famous|знаменитый|әйгілі|2|This singer i
 young|younger|youngest|молодой|жас|1|My sister is ______ (young) than me.|Dana is the ______ (young) student in our class.
 strong|stronger|strongest|сильный|күшті|1|A horse is ______ (strong) than a dog.|He is the ______ (strong) boy in the team.
 wide|wider|widest|широкий|кең|2|This river is ______ (wide) than that one.|It is the ______ (wide) street in the city.
+small|smaller|smallest|маленький|кішкентай|1|My room is ______ (small) than yours.|This is the ______ (small) dog I have ever seen.
+short|shorter|shortest|короткий|қысқа|1|This pencil is ______ (short) than that one.|February is the ______ (short) month of the year.
+new|newer|newest|новый|жаңа|1|My phone is ______ (new) than hers.|This is the ______ (new) shop in our street.
+slow|slower|slowest|медленный|баяу|1|A bus is ______ (slow) than a taxi.|The turtle is the ______ (slow) animal in the zoo.
+clean|cleaner|cleanest|чистый|таза|1|Our classroom is ______ (clean) than theirs.|This is the ______ (clean) beach in the country.
+rich|richer|richest|богатый|бай|1|He is ______ (rich) than his brother.|She is the ______ (rich) woman in the town.
+dark|darker|darkest|тёмный|қараңғы|1|The sky is ______ (dark) than an hour ago.|This is the ______ (dark) room in the house.
+loud|louder|loudest|громкий|қатты|1|The music is ______ (loud) than before.|The drums are the ______ (loud) instruments in the band.
+nice|nicer|nicest|приятный|жағымды|1|The weather is ______ (nice) than last week.|It was the ______ (nice) present I got.
+funny|funnier|funniest|смешной|күлкілі|1|This story is ______ (funny) than that one.|He is the ______ (funny) boy in our class.
+delicious|more delicious|most delicious|вкусный|дәмді|1|This soup is ______ (delicious) than the salad.|It is the ______ (delicious) cake I have ever eaten.
+useful|more useful|most useful|полезный|пайдалы|1|A dictionary is ______ (useful) than a novel for study.|This is the ______ (useful) app on my phone.
 little|less|least|маленький (о количестве)|аз|3|I have ______ (little) free time than last year.|This option costs the ______ (little) money.
 `;
 
