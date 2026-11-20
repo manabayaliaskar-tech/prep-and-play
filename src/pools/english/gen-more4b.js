@@ -274,6 +274,56 @@ const VOCAB = `
 6|h|sagacious|has good judgement and wisdom|мудрый|дана
 6|h|dogmatic|insists that their own opinions are the only correct ones|догматичный|догматик
 6|h|parsimonious|is unwilling to spend money|скупой|сараң
+6|p|recluse|avoids other people and lives alone|отшельник|жалғыз тұратын адам
+6|p|braggart|boasts too much about their achievements|хвастун|мақтаншақ
+6|p|tycoon|is a rich and powerful business person|магнат|магнат
+6|p|saboteur|deliberately damages plans or equipment|диверсант|бүлдіруші
+6|t|facade|a false outer appearance that hides the truth|фасад, видимость|жалған сырт келбет
+6|t|anomaly|something that is different from what is normal|аномалия|ауытқу
+6|t|epitome|a perfect example of a quality or type|олицетворение|үлгі, бейне
+6|t|fiasco|a complete and humiliating failure|фиаско|толық сәтсіздік
+6|t|precedent|an earlier event that is used as an example for later ones|прецедент|прецедент
+6|t|subterfuge|a trick used to hide something or to avoid trouble|уловка|айла
+6|t|tirade|a long angry speech criticising someone|тирада|ашулы ұзақ сөз
+6|v|coerce|force someone to do something by using threats|принуждать|мәжбүрлеу
+6|v|foster|encourage the development of something|способствовать развитию|дамуына ықпал ету
+6|v|perpetuate|make something continue for a long time|увековечивать|ұзаққа жалғастыру
+6|v|thwart|prevent someone from doing what they planned|срывать планы|жолын кесу
+6|v|bolster|support or strengthen something|укреплять|күшейту
+6|v|dwindle|become gradually smaller or weaker|убывать|азая беру
+6|v|elicit|draw out a response or a reaction|вызывать (реакцию)|тарту, шақыру
+6|v|galvanise|shock or excite someone into taking action|подстёгивать к действию|іске қозғау
+6|h|candid|is honest and direct in what they say|откровенный|ашық, турашыл
+6|h|lethargic|has no energy and feels slow|вялый|енжар
+6|h|impeccable|has no faults or mistakes|безупречный|мінсіз
+6|h|vindictive|wants to take revenge on people|мстительный|кекшіл
+5|p|novice|is new to an activity and has little experience|новичок|жаңадан бастаушы
+5|p|pioneer|is among the first to explore or develop something|пионер, первопроходец|алғашқы жаңашыл
+5|p|prodigy|is a young person with exceptional talent|вундеркинд|дарынды бала
+5|t|oversight|a mistake caused by failing to notice something|недосмотр|елеусіз қалу
+5|t|rift|a serious disagreement that separates people|раскол|алауыздық
+5|t|blueprint|a detailed plan for doing something|план, проект|егжей-тегжейлі жоспар
+5|t|consensus|a general agreement among a group of people|консенсус|жалпы келісім
+5|t|discrepancy|a difference between things that should be the same|расхождение|сәйкессіздік
+5|t|epidemic|a disease that spreads quickly among many people|эпидемия|індет
+5|t|hindsight|understanding an event only after it has happened|взгляд назад, задним умом|кейін түсіну
+5|t|jargon|special words used by a particular profession|жаргон, профессиональный язык|кәсіби жаргон
+5|t|surplus|an amount that is more than what is needed|излишек|артық мөлшер
+5|v|deter|make someone decide not to do something|удерживать от|тоқтату, қайтару
+5|v|incur|become responsible for something bad such as a cost|навлекать на себя|мойнына алу
+5|v|emulate|try to be as good as someone you admire|подражать|үлгі алу
+5|v|allocate|give something officially for a particular purpose|выделять|бөлу
+5|v|disperse|spread in different directions|рассеиваться|тарау
+5|v|refrain|stop yourself from doing something|воздерживаться|тыйылу
+5|h|vigilant|watches carefully for possible danger|бдительный|сақ
+5|h|lenient|is not strict when punishing people|снисходительный|жұмсақ
+5|h|pragmatic|deals with things in a sensible and realistic way|прагматичный|практикалық
+5|h|eccentric|behaves in an unusual way|эксцентричный|ерекше мінезді
+4|p|stowaway|hides on a ship or plane to travel without paying|безбилетник на судне|жасырын жолаушы
+4|v|reinforce|make something stronger by adding support|подкреплять|нығайту
+4|v|hesitate|pause because you are not sure what to do|колебаться|тартыну
+4|t|bonus|extra money paid in addition to a salary|премия|үстеме ақы
+4|t|shortcut|a quicker way of getting somewhere|короткий путь|қысқа жол
 `;
 
 const PHR = `
@@ -400,6 +450,122 @@ const PHR = `
 6|bend over backwards|try very hard to help someone|из кожи вон лезть|жанталаса көмектесу
 6|steal the show|attract the most attention in a performance|затмить всех|назарды өзіне аудару
 6|beat around the bush|avoid talking about the main point|ходить вокруг да около|айналып өту
+2|put away|put something back in its place|убирать на место|орнына қою
+2|take out|remove something from inside a place|вынимать|алып шығу
+2|come in|enter a room or building|входить|кіру
+2|get on|enter a bus or a train|садиться (в транспорт)|көлікке отыру
+2|get off|leave a bus or a train|выходить (из транспорта)|көліктен түсу
+2|sign up|put your name on a list to join something|записаться|тіркелу
+2|pay back|return money you borrowed|возвращать долг|қарызды қайтару
+2|write down|record something on paper|записывать|жазып алу
+2|wash up|clean the dishes after a meal|мыть посуду|ыдыс жуу
+2|hang up|end a phone call|положить трубку|телефонды қою
+2|call back|phone someone again|перезвонить|қайта қоңырау шалу
+2|plug in|connect a machine to electricity|включать в розетку|розеткаға қосу
+2|look out|be careful because of danger|остерегаться|абай болу
+2|dress up|put on special clothes|наряжаться|киіну, безену
+2|lie down|rest flat on a bed or floor|ложиться|жату
+2|speak up|talk more loudly|говорить громче|дауыстап сөйлеу
+3|cut off|stop the supply of something|отключать|байланысты үзу
+3|fill up|make something completely full|наполнять|толтыру
+3|give away|give something to people for free|раздавать даром|тегін беру
+3|go over|check something carefully|просматривать|тексеріп шығу
+3|hold on|wait for a short time|подождать|күте тұру
+3|join in|take part in an activity|присоединиться|қосылу
+3|leave out|not include something|пропускать|қалдырып кету
+3|pass on|give something to the next person|передавать дальше|келесіге беру
+3|pick out|choose something from a group|выбирать|таңдап алу
+3|pull down|destroy a building|сносить|бұзу
+3|settle down|start a quiet life in one place|остепениться|тұрақты өмір сүру
+3|stand by|stay loyal and support someone|поддерживать, не бросать|қолдау
+3|turn into|become something different|превращаться|айналу
+3|try out|test something to see if it works|испытывать|сынап көру
+3|use up|finish all of something|израсходовать|түгел жұмсау
+3|warm up|prepare your body before exercise|разминаться|қыздырыну
+4|act up|behave badly or work badly|капризничать, барахлить|тентектену, дұрыс істемеу
+4|back out|decide not to do something you promised|отказаться от обещанного|уәдеден бас тарту
+4|blow up|explode or make something explode|взрываться|жарылу
+4|break into|enter a building illegally|вламываться|заңсыз кіру
+4|bring forward|change an event to an earlier time|перенести на более раннее время|ертерек жылжыту
+4|count on|depend on someone to help|рассчитывать на|сену, арқа сүйеу
+4|do without|manage when you do not have something|обходиться без|онсыз да өту
+4|drop by|visit someone informally|заглянуть|кіріп шығу
+4|fall apart|break into pieces|разваливаться|быт-шыт болу
+4|get across|make people understand an idea|донести мысль|жеткізу
+4|give in|stop fighting and accept defeat|уступать|берілу
+4|hand over|give control or something to another person|передавать|тапсыру
+4|hold up|make someone or something late|задерживать|кідірту
+4|look up to|admire and respect someone|уважать|құрметтеу
+4|make up for|do something good to repair a bad action|компенсировать|орнын толтыру
+4|pass out|lose consciousness|терять сознание|есінен тану
+4|pay off|be successful after hard work|окупиться|ақтау
+4|play down|make something seem less important|преуменьшать|маңызын азайту
+4|pull through|survive a serious illness or difficulty|выкарабкаться|аман шығу
+4|run through|practise something quickly from start to end|прогонять, повторять|қайталап шығу
+4|see through|realise that someone is not honest|видеть насквозь|жалғандығын түсіну
+4|settle for|accept something that is less than you wanted|довольствоваться|келісу
+4|stick up for|defend someone or something|вступиться за|қорғау
+4|tell off|speak angrily to someone for doing wrong|ругать|ұрсу
+4|think over|consider something carefully before deciding|обдумывать|ойластыру
+5|beef up|make something stronger or bigger|усиливать|күшейту
+5|buckle down|start working seriously|засесть за работу|қызу кірісу
+5|brush up on|improve your knowledge of something|освежить знания|білімді жаңарту
+5|chip in|give a small amount of money or help|скинуться|үлес қосу
+5|dwell on|think or talk too long about something|зацикливаться|ұзақ тоқталу
+5|fend off|defend yourself against an attack|отражать|тойтару
+5|fizzle out|end in a weak and disappointing way|сойти на нет|бәсеңдеп өшу
+5|gloss over|treat something quickly to avoid problems|замалчивать|жеңіл өту
+5|hammer out|reach an agreement after long discussion|вырабатывать соглашение|келісімге келу
+5|lash out|suddenly attack someone with words or blows|обрушиться на|ұрыса жөнелу
+5|pan out|develop in a particular way|складываться|нәтиже беру
+5|pick up on|notice something that is not obvious|заметить|аңғару
+5|play along|pretend to agree in order to avoid trouble|подыгрывать|келісіп жүру
+5|rope in|persuade someone to help you|привлечь к помощи|көмекке тарту
+5|shy away from|avoid something because of fear or doubt|избегать|қашқақтау
+5|slip up|make a small mistake|оплошать|қателесу
+5|step down|leave an important position|уходить с поста|қызметтен кету
+5|tide over|help someone through a difficult period|помочь продержаться|қиын кезеңнен өткізу
+5|wade through|deal with a lot of boring material|продираться|көп материалды қарап шығу
+5|water down|make something weaker or less strong|разбавлять, смягчать|әлсірету
+5|zero in on|focus all your attention on something|сосредоточиться на|назар аудару
+6|hit the roof|become extremely angry|взорваться от гнева|қатты ашулану
+6|add fuel to the fire|make a bad situation worse|подливать масла в огонь|жағдайды ушықтыру
+6|the elephant in the room|an obvious problem that nobody wants to discuss|слон в комнате|ешкім айтқысы келмейтін мәселе
+6|a drop in the ocean|a very small amount compared with what is needed|капля в море|теңіздегі тамшы
+6|in a nutshell|in a few words|в двух словах|қысқаша айтқанда
+6|a storm in a teacup|a big fuss about something unimportant|буря в стакане воды|бос дау
+6|kill two birds with one stone|achieve two aims with one action|убить двух зайцев|бір оқпен екі қоян ату
+6|the ball is in your court|it is your turn to make a decision|мяч на вашей стороне|шешім сізде
+6|on thin ice|in a risky situation|ходить по тонкому льду|қауіпті жағдайда
+6|pull someone's leg|joke with someone by saying something untrue|разыгрывать|әзілдеу
+6|out of the blue|completely unexpectedly|как гром среди ясного неба|күтпеген жерден
+6|add insult to injury|make a bad situation worse by also offending someone|усугублять обиду|жараға тұз себу
+6|a wild goose chase|a useless search for something|погоня за призраком|бос іздеу
+6|back to the drawing board|start planning again after a failure|начать заново|жоспарды қайта бастау
+6|go the extra mile|make a special additional effort|сделать больше, чем требуется|артық күш салу
+6|hold your horses|wait and do not act too quickly|не горячись|асықпа
+6|in hot water|in trouble|в неприятностях|қиындықта
+6|keep your chin up|stay positive in a difficult time|не вешать нос|көңілді түсірмеу
+6|let sleeping dogs lie|avoid reopening an old problem|не буди лихо|ескіні қозғамау
+6|on cloud nine|extremely happy|на седьмом небе|қатты қуаныш үстінде
+6|take it with a pinch of salt|not believe something completely|относиться с недоверием|күмәнмен қарау
+6|the best of both worlds|the benefits of two different things|взять лучшее из двух|екі жақтың да артықшылығы
+6|the writing is on the wall|failure or disaster is certain|всё предрешено|сәтсіздік сөзсіз
+6|through thick and thin|in good times and bad times|в горе и в радости|қуаныш пен қайғыда
+6|walk on eggshells|be very careful not to upset someone|ходить на цыпочках|абай жүру
+6|water under the bridge|a past matter that no longer matters|дело прошлое|өткен іс
+6|when pigs fly|never|когда рак на горе свистнет|ешқашан
+6|get cold feet|become too nervous to do something planned|струсить в последний момент|қорқып қалу
+6|green with envy|very jealous|позеленеть от зависти|қызғаныштан іші күю
+6|make ends meet|earn just enough money to live|сводить концы с концами|әупірімдеп күн көру
+6|read between the lines|find the hidden meaning|читать между строк|жасырын мағынаны түсіну
+6|sleep on it|think about something overnight before deciding|утро вечера мудренее|түнде ойланып көру
+6|turn a blind eye|deliberately ignore something wrong|закрывать глаза|көрмегенсу
+6|up in the air|not yet decided|вопрос повис в воздухе|шешілмеген
+6|rain on someone's parade|spoil someone's plans or happiness|испортить кому-то праздник|біреудің қуанышын бұзу
+6|the bee's knees|an excellent person or thing|верх совершенства|өте тамаша нәрсе
+6|a penny for your thoughts|a request to tell what someone is thinking|о чём задумался|не ойлап тұрсың
+6|a leopard cannot change its spots|people cannot change their basic nature|горбатого могила исправит|мінез өзгермейді
 `;
 
 const parse = (txt) =>

@@ -263,6 +263,8 @@ healthy|healthier|healthiest|здоровый|сау|1|Fruit is ______ (healthy)
 modern|more modern|most modern|современный|заманауи|1|This school is ______ (modern) than the old one.|It is the ______ (modern) building in the city.
 careful|more careful|most careful|осторожный|абай|1|My brother is ______ (careful) than me.|She is the ______ (careful) driver in our family.
 exciting|more exciting|most exciting|захватывающий|қызықты|1|This game is ______ (exciting) than the last one.|It was the ______ (exciting) match of the season.
+fresh|fresher|freshest|свежий|жаңа піскен|1|This bread is ______ (fresh) than yesterday's.|These are the ______ (fresh) vegetables in the market.
+thick|thicker|thickest|толстый|қалың|1|This book is ______ (thick) than that one.|It is the ______ (thick) coat I have.
 little|less|least|маленький (о количестве)|аз|3|I have ______ (little) free time than last year.|This option costs the ______ (little) money.
 `;
 

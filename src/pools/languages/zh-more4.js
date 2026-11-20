@@ -195,6 +195,19 @@ const WORDS_TXT = {
 合适 (héshì)|подходящий|лайықты|suitable
 进步 (jìnbù)|прогресс|жетістік, ілгерілеу|progress
 抱歉 (bàoqiàn)|сожалеть|өкіну|sorry
+体育 (tǐyù)|физкультура, спорт|дене шынықтыру|sports
+比赛 (bǐsài)|соревнование|жарыс|match, competition
+参加 (cānjiā)|участвовать|қатысу|to take part in
+出生 (chūshēng)|родиться|туылу|to be born
+词典 (cídiǎn)|словарь|сөздік|dictionary
+大约 (dàyuē)|примерно|шамамен|about
+满意 (mǎnyì)|довольный|қанағаттану|satisfied
+提高 (tígāo)|повышать|көтеру|to improve
+同意 (tóngyì)|соглашаться|келісу|to agree
+复习 (fùxí)|повторять|қайталау|to review
+照顾 (zhàogù)|заботиться|күту, қарау|to look after
+搬 (bān)|переносить, переезжать|көшіру|to move
+邻居 (línjū)|сосед|көрші|neighbour
 `,
   4: `
 安排 (ānpái)|организовывать|жоспарлау|to arrange
@@ -255,6 +268,8 @@ const WORDS_TXT = {
 开玩笑 (kāi wánxiào)|шутить|әзілдеу|to joke
 可惜 (kěxī)|жаль|өкінішті|a pity
 克服 (kèfú)|преодолевать|жеңу|to overcome
+抱 (bào)|обнимать, держать на руках|құшақтау|to hold in arms
+勇敢 (yǒnggǎn)|смелый|батыл|brave
 `,
   5: `
 挨 (ái)|терпеть, быть рядом|шыдау|to endure
@@ -313,6 +328,7 @@ const WORDS_TXT = {
 分配 (fēnpèi)|распределять|бөлу|to distribute
 丰富 (fēngfù)|богатый|бай|rich
 否定 (fǒudìng)|отрицать|жоққа шығару|to deny
+奥运 (Àoyùn)|Олимпиада|Олимпиада|Olympics
 `,
   6: `
 哀悼 (āidào)|скорбеть|қайғыру|to mourn
@@ -364,6 +380,8 @@ const WORDS_TXT = {
 崇高 (chónggāo)|возвышенный|ізгі|lofty
 抽象 (chōuxiàng)|абстрактный|абстрактілі|abstract
 踌躇 (chóuchú)|мяться|толғану|to hesitate
+包袱 (bāofu)|бремя|ауыртпалық|burden
+奥运会 (Àoyùnhuì)|Олимпийские игры|Олимпиада ойындары|Olympic Games
 `,
 };
 
