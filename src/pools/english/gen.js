@@ -243,6 +243,26 @@ nice|nicer|nicest|приятный|жағымды|1|The weather is ______ (nice)
 funny|funnier|funniest|смешной|күлкілі|1|This story is ______ (funny) than that one.|He is the ______ (funny) boy in our class.
 delicious|more delicious|most delicious|вкусный|дәмді|1|This soup is ______ (delicious) than the salad.|It is the ______ (delicious) cake I have ever eaten.
 useful|more useful|most useful|полезный|пайдалы|1|A dictionary is ______ (useful) than a novel for study.|This is the ______ (useful) app on my phone.
+sweet|sweeter|sweetest|сладкий|тәтті|1|This tea is ______ (sweet) than that one.|This is the ______ (sweet) cake in the shop.
+hard|harder|hardest|твёрдый, трудный|қатты, қиын|1|This bed is ______ (hard) than my old one.|It was the ______ (hard) test of the year.
+deep|deeper|deepest|глубокий|терең|1|The lake is ______ (deep) than the river.|This is the ______ (deep) part of the sea.
+high|higher|highest|высокий|биік|1|This wall is ______ (high) than that fence.|Everest is the ______ (high) mountain on Earth.
+low|lower|lowest|низкий|төмен|1|The table is ______ (low) than the chair.|This is the ______ (low) price in town.
+wet|wetter|wettest|мокрый|дымқыл|1|My coat is ______ (wet) than yours.|It was the ______ (wet) day of the autumn.
+dry|drier|driest|сухой|құрғақ|1|The desert is ______ (dry) than the forest.|This is the ______ (dry) summer in years.
+near|nearer|nearest|близкий|жақын|1|The shop is ______ (near) than the bank.|Where is the ______ (near) bus stop?
+late|later|latest|поздний|кеш|1|Today I came ______ (late) than usual.|This is the ______ (late) bus of the night.
+kind|kinder|kindest|добрый|мейірімді|1|My aunt is ______ (kind) than my uncle.|She is the ______ (kind) person I know.
+brave|braver|bravest|храбрый|батыл|1|The girl was ______ (brave) than the boy.|He is the ______ (brave) fireman in the city.
+smart|smarter|smartest|умный|ақылды|1|My sister is ______ (smart) than me.|He is the ______ (smart) student in our class.
+quick|quicker|quickest|быстрый|тез|1|This road is ______ (quick) than the old one.|It is the ______ (quick) way to the station.
+lucky|luckier|luckiest|удачливый|бақытты|1|Aigerim is ______ (lucky) than her friend.|It was the ______ (lucky) day of my life.
+tasty|tastier|tastiest|вкусный|дәмді|1|This soup is ______ (tasty) than that one.|This is the ______ (tasty) pie I have eaten.
+messy|messier|messiest|неопрятный|ретсіз|1|My room is ______ (messy) than my brother's.|This is the ______ (messy) desk in the office.
+healthy|healthier|healthiest|здоровый|сау|1|Fruit is ______ (healthy) than sweets.|This is the ______ (healthy) food on the menu.
+modern|more modern|most modern|современный|заманауи|1|This school is ______ (modern) than the old one.|It is the ______ (modern) building in the city.
+careful|more careful|most careful|осторожный|абай|1|My brother is ______ (careful) than me.|She is the ______ (careful) driver in our family.
+exciting|more exciting|most exciting|захватывающий|қызықты|1|This game is ______ (exciting) than the last one.|It was the ______ (exciting) match of the season.
 little|less|least|маленький (о количестве)|аз|3|I have ______ (little) free time than last year.|This option costs the ______ (little) money.
 `;
 
