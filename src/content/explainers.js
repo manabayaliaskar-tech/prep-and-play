@@ -67,9 +67,17 @@ export const EXPLAINERS = [
   { id: 'loop', subj: 'cs', icon: '🔍', topics: ['py.loop', 'cpp.loop', 'js.loop', 'java.loop'] },
   { id: 'array', subj: 'cs', icon: '📦', topics: ['py.arr', 'cpp.arr', 'js.arr', 'java.arr'] },
   { id: 'recursion', subj: 'cs', icon: '🎯', topics: ['py.func', 'cpp.func', 'js.func', 'java.func'] },
+  { id: 'buoyancy', subj: 'physics', icon: '🎈', topics: ['p.dyn'] },
+  { id: 'spring', subj: 'physics', icon: '⚖️', topics: ['p.dyn'] },
+  { id: 'circuits', subj: 'physics', icon: '💡', topics: ['p.elec'] },
+  { id: 'refraction', subj: 'physics', icon: '🔍', topics: ['p.wave'] },
+  { id: 'melting', subj: 'physics', icon: '🧊', topics: ['p.heat'] },
+  { id: 'pressure', subj: 'physics', icon: '🌊', topics: ['p.theory'] },
 ];
 
-const BY_TOPIC = new Map(EXPLAINERS.flatMap((e) => e.topics.map((topic) => [topic, e.id])));
+// У темы может быть несколько анимаций - в уроке и разборе показываем первую.
+const BY_TOPIC = new Map();
+for (const e of EXPLAINERS) for (const topic of e.topics) if (!BY_TOPIC.has(topic)) BY_TOPIC.set(topic, e.id);
 
 /** id анимации для темы или null. */
 export const explainerFor = (topic) => BY_TOPIC.get(topic) ?? null;

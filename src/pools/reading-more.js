@@ -607,3 +607,6 @@ export const TOEFL_MORE = [
     ],
   },
 ];
+import { IELTS_MORE4A } from './reading-ielts4a.js';
+import { IELTS_MORE4B } from './reading-ielts4b.js';
+IELTS_MORE.push(...IELTS_MORE4A, ...IELTS_MORE4B);

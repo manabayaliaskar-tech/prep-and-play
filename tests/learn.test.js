@@ -240,7 +240,9 @@ test('анимации тем: каждая привязана к существ
     assert.ok(src.includes(`${e.id.includes('-') ? `'${e.id}'` : e.id}: {`), `сцена ${e.id}`);
     for (const topic of e.topics) {
       assert.ok(TOPICS[topic], topic);
-      assert.equal(explainerFor(topic), e.id);
+      // Тема может входить в несколько анимаций: ссылка ведёт на одну из них, и она про эту тему.
+      const first = EXPLAINERS.find((x) => x.id === explainerFor(topic));
+      assert.ok(first && first.topics.includes(topic), topic);
     }
   }
 });

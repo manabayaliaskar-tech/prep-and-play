@@ -2521,6 +2521,206 @@ const SCENES = {
       };
     },
   },
+
+  // ===== Физика: Архимед, пружина, цепи, преломление, плавление, давление =====
+
+  buoyancy: {
+    title: L("Archimedes' principle: float or sink", 'Закон Архимеда: утонет или всплывёт', 'Архимед заңы: батады ма, қалқиды ма'),
+    intro: L('A liquid pushes up with a force equal to the weight of the liquid displaced. If the body is less dense than the liquid, it floats with part of it above the surface.', 'Жидкость выталкивает тело с силой, равной весу вытесненной жидкости. Если тело легче (менее плотное), чем жидкость, оно плавает, частично выступая над водой.', 'Сұйық денені ығыстырылған сұйықтың салмағына тең күшпен итереді. Дене сұйықтан жеңіл (тығыздығы аз) болса, бір бөлігі судан шығып, қалқиды.'),
+    sliders: [
+      { id: 'rb', label: L('body density, kg/m³', 'плотность тела, кг/м³', 'дене тығыздығы, кг/м³'), min: 100, max: 3000, step: 10, value: 600 },
+      { id: 'rl', label: L('liquid density, kg/m³', 'плотность жидкости, кг/м³', 'сұйық тығыздығы, кг/м³'), min: 700, max: 1300, step: 10, value: 1000 },
+    ],
+    buttons: [L('Wood', 'Дерево', 'Ағаш'), L('Ice', 'Лёд', 'Мұз'), L('Iron', 'Железо', 'Темір'), L('Sea water', 'Морская вода', 'Теңіз суы')],
+    onButton: (i) => [{ rb: 600 }, { rb: 900 }, { rb: 2700 }, { rl: 1030 }][i],
+    draw(v) {
+      const k = v.rb / v.rl;
+      const side = 60;
+      const surf = 90;
+      const floats = k < 1;
+      const sub = floats ? k * side : side;
+      const top = floats ? surf - (side - sub) : 196 - side;
+      return {
+        svg: `<rect x="20" y="${surf}" width="280" height="110" class="ex-fill exc-b" style="opacity:.25"/><line class="ex-stroke exc-b" x1="20" y1="${surf}" x2="300" y2="${surf}"/>
+          <rect x="130" y="${n1(top)}" width="${side}" height="${side}" rx="6" class="ex-fill exc-o" style="opacity:.85"/>
+          ${arrow(160, n1(top + side / 2), 160, n1(top + side / 2 + 40), 'exc-r', 2.5)}${arrow(178, n1(top + side), 178, n1(top + side - (floats ? 40 : 40 / k)), 'exc-g', 2.5)}
+          <text class="ex-tag" x="8" y="20">ρ ${u('body', 'тела', 'дене')} / ρ ${u('liquid', 'жидк.', 'сұйық')} = ${fmt(k)}</text>
+          <text class="ex-tag" x="8" y="42">${floats ? `${u('under water', 'под водой', 'су астында')}: ${Math.round(k * 100)}%` : u('sinks', 'тонет', 'батады')}</text>`,
+        caption: floats
+          ? L(`The body is ${fmt(k)} times as dense as the liquid, so it floats with ${Math.round(k * 100)}% of its volume under the surface: then the buoyant force (green) equals gravity (red).`, `Плотность тела в ${fmt(k)} раза от плотности жидкости, поэтому оно плавает, погрузившись на ${Math.round(k * 100)}% объёма: тогда сила Архимеда (зелёная) равна силе тяжести (красная).`, `Дене тығыздығы сұйық тығыздығының ${fmt(k)} бөлігі, сондықтан ол көлемінің ${Math.round(k * 100)}%-ына батып, қалқиды: сонда Архимед күші (жасыл) ауырлық күшіне (қызыл) тең.`)
+          : L(`The body is denser than the liquid (${fmt(k)} times), so even fully under water the buoyant force is smaller than gravity - it sinks.`, `Тело плотнее жидкости (в ${fmt(k)} раза), поэтому даже полностью под водой сила Архимеда меньше силы тяжести - оно тонет.`, `Дене сұйықтан тығызырақ (${fmt(k)} есе), сондықтан толық батса да Архимед күші ауырлық күшінен аз - ол батады.`),
+      };
+    },
+  },
+
+  spring: {
+    title: L("Hooke's law: a spring", 'Закон Гука: пружина', 'Гук заңы: серіппе'),
+    intro: L('The spring stretches in proportion to the force: F = k · x. A stiffer spring (bigger k) stretches less under the same load.', 'Пружина растягивается пропорционально силе: F = k · x. Чем жёстче пружина (больше k), тем меньше она растянется под тем же грузом.', 'Серіппе күшке пропорционал созылады: F = k · x. Серіппе неғұрлым қатаң (k үлкен) болса, сол жүкпен соғұрлым аз созылады.'),
+    sliders: [
+      { id: 'm', label: L('mass, kg', 'масса, кг', 'масса, кг'), min: 0, max: 5, step: C, value: 2 },
+      { id: 'k', label: L('k, N/m', 'k, Н/м', 'k, Н/м'), min: 50, max: 500, step: 1, value: 200 },
+    ],
+    buttons: [L('m × 2', 'm × 2', 'm × 2'), L('k × 2', 'k × 2', 'k × 2'), RESET],
+    onButton: (i, st, v) => [{ m: clamp(v.m * 2, 0, 5) }, { k: clamp(v.k * 2, 50, 500) }, { m: 2, k: 200 }][i],
+    draw(v) {
+      const F = v.m * 10;
+      const x = F / v.k;
+      const len = 50 + x * 300;
+      const coils = Array.from({ length: 12 }, (_, i) => `${i % 2 ? 'L130' : 'L190'} ${n1(30 + (len * (i + 1)) / 13)}`).join(' ');
+      return {
+        svg: `<line class="ex-axis" x1="100" y1="30" x2="220" y2="30"/><path class="ex-stroke exc-m" style="fill:none;stroke-width:2" d="M160 30 ${coils} L160 ${n1(30 + len)}"/>
+          <rect x="135" y="${n1(30 + len)}" width="50" height="${n1(20 + v.m * 5)}" rx="5" class="ex-fill exc-o"/><text class="ex-small" x="160" y="${n1(46 + len)}" style="fill:#fff">${fmt(v.m, 1)} ${u('kg', 'кг', 'кг')}</text>
+          <text class="ex-tag" x="200" y="80">F = mg = ${fmt(F, 1)} ${u('N', 'Н', 'Н')}</text><text class="ex-tag" x="200" y="104">x = F / k</text><text class="ex-big" x="250" y="140">${fmt(x * 100, 1)} ${u('cm', 'см', 'см')}</text>`,
+        caption: L(`x = F / k = ${fmt(F, 1)} N ÷ ${fmt(v.k, 0)} N/m = ${fmt(x, 3)} m = ${fmt(x * 100, 1)} cm. Double the mass - the stretch doubles; double k - it halves.`, `x = F / k = ${fmt(F, 1)} Н ÷ ${fmt(v.k, 0)} Н/м = ${fmt(x, 3)} м = ${fmt(x * 100, 1)} см. Удвой массу - растяжение удвоится; удвой k - уменьшится вдвое.`, `x = F / k = ${fmt(F, 1)} Н ÷ ${fmt(v.k, 0)} Н/м = ${fmt(x, 3)} м = ${fmt(x * 100, 1)} см. Массаны екі есе арттыр - созылу екі есе артады; k-ны екі есе арттыр - екі есе азаяды.`),
+      };
+    },
+  },
+
+  circuits: {
+    title: L('Series and parallel circuits', 'Последовательное и параллельное соединение', 'Тізбектей және параллель жалғау'),
+    intro: L('In series the resistances add up: R = R₁ + R₂, the same current flows through both. In parallel 1/R = 1/R₁ + 1/R₂ - the total is smaller than the smallest one.', 'При последовательном соединении сопротивления складываются: R = R₁ + R₂, ток через оба одинаковый. При параллельном 1/R = 1/R₁ + 1/R₂ - общее меньше самого маленького.', 'Тізбектей жалғағанда кедергілер қосылады: R = R₁ + R₂, екеуінен бірдей ток өтеді. Параллель жалғағанда 1/R = 1/R₁ + 1/R₂ - жалпы кедергі ең кішісінен де аз.'),
+    sliders: [
+      { id: 'r1', label: 'R₁, Ω', min: 1, max: 20, step: C, value: 6 },
+      { id: 'r2', label: 'R₂, Ω', min: 1, max: 20, step: C, value: 3 },
+      { id: 'U', label: 'U, V', min: 1, max: 24, step: C, value: 12 },
+    ],
+    buttons: [L('Series', 'Последовательно', 'Тізбектей'), L('Parallel', 'Параллельно', 'Параллель')],
+    state: () => ({ par: 0 }),
+    pressed: (i, v, st) => i === st.par,
+    onButton(i, st) {
+      st.par = i;
+    },
+    draw(v, step, st) {
+      const R = st.par ? (v.r1 * v.r2) / (v.r1 + v.r2) : v.r1 + v.r2;
+      const I = v.U / R;
+      const res = (x, y, label) => `<rect x="${x}" y="${y - 10}" width="60" height="20" rx="5" class="ex-res"/><text class="ex-tiny" x="${x + 30}" y="${y - 16}">${label}</text>`;
+      const wires = st.par
+        ? `<path class="ex-wire" d="M40 180 V60 H130 M190 60 H260 V180 H40 M100 60 V140 H130 M190 140 H260"/>${res(130, 60, `R₁ ${fmt(v.r1, 1)}`)}${res(130, 140, `R₂ ${fmt(v.r2, 1)}`)}`
+        : `<path class="ex-wire" d="M40 180 V100 H70 M130 100 H180 M240 100 H270 V180 H40"/>${res(70, 100, `R₁ ${fmt(v.r1, 1)}`)}${res(180, 100, `R₂ ${fmt(v.r2, 1)}`)}`;
+      const batt = `<rect x="146" y="168" width="28" height="24" style="fill:var(--surface)"/><line class="ex-batt" x1="154" y1="166" x2="154" y2="194"/><line class="ex-batt thin" x1="166" y1="172" x2="166" y2="188"/>`;
+      return {
+        svg: `${wires}${batt}<text class="ex-tag" x="8" y="20">R = ${fmt(R)} Ω · I = U/R = ${fmt(I)} ${u('A', 'А', 'А')}</text><text class="ex-tiny" x="160" y="212">U = ${fmt(v.U, 1)} ${u('V', 'В', 'В')}</text>`,
+        caption: st.par
+          ? L(`Parallel: 1/R = 1/${fmt(v.r1, 1)} + 1/${fmt(v.r2, 1)}, R = ${fmt(R)} Ω - less than both. Each resistor gets the full voltage ${fmt(v.U, 1)} V; the currents add up to ${fmt(I)} A.`, `Параллельно: 1/R = 1/${fmt(v.r1, 1)} + 1/${fmt(v.r2, 1)}, R = ${fmt(R)} Ом - меньше обоих. На каждом резисторе всё напряжение ${fmt(v.U, 1)} В, токи складываются в ${fmt(I)} А.`, `Параллель: 1/R = 1/${fmt(v.r1, 1)} + 1/${fmt(v.r2, 1)}, R = ${fmt(R)} Ом - екеуінен де аз. Әр резисторда толық кернеу ${fmt(v.U, 1)} В, токтар қосылып ${fmt(I)} А болады.`)
+          : L(`Series: R = ${fmt(v.r1, 1)} + ${fmt(v.r2, 1)} = ${fmt(R)} Ω, the same current ${fmt(I)} A everywhere; the voltage splits: ${fmt(I * v.r1)} V and ${fmt(I * v.r2)} V.`, `Последовательно: R = ${fmt(v.r1, 1)} + ${fmt(v.r2, 1)} = ${fmt(R)} Ом, ток везде одинаковый ${fmt(I)} А, а напряжение делится: ${fmt(I * v.r1)} В и ${fmt(I * v.r2)} В.`, `Тізбектей: R = ${fmt(v.r1, 1)} + ${fmt(v.r2, 1)} = ${fmt(R)} Ом, ток барлық жерде бірдей ${fmt(I)} А, ал кернеу бөлінеді: ${fmt(I * v.r1)} В және ${fmt(I * v.r2)} В.`),
+      };
+    },
+  },
+
+  refraction: {
+    title: L('Refraction of light', 'Преломление света', 'Жарықтың сынуы'),
+    intro: L('When light goes into a denser medium (glass, water), it slows down and bends toward the normal: n₁ sin α = n₂ sin β. Going the other way past a critical angle, it is totally reflected.', 'Переходя в более плотную среду (стекло, воду), свет замедляется и отклоняется к нормали: n₁ sin α = n₂ sin β. В обратную сторону после предельного угла он полностью отражается.', 'Тығызырақ ортаға (шыны, су) өткенде жарық баяулап, нормальға қарай ауытқиды: n₁ sin α = n₂ sin β. Кері бағытта шекті бұрыштан кейін толық шағылады.'),
+    sliders: [
+      { id: 'a', label: L('angle α, °', 'угол α, °', 'α бұрышы, °'), min: 0, max: 89, step: C, value: 40 },
+      { id: 'n1', label: 'n₁', min: 1, max: 2, step: C, value: 1 },
+      { id: 'n2', label: 'n₂', min: 1, max: 2, step: C, value: 1.5 },
+    ],
+    buttons: [L('Air → glass', 'Воздух → стекло', 'Ауа → шыны'), L('Glass → air', 'Стекло → воздух', 'Шыны → ауа'), L('Air → water', 'Воздух → вода', 'Ауа → су')],
+    onButton: (i) => [{ n1: 1, n2: 1.5 }, { n1: 1.5, n2: 1 }, { n1: 1, n2: 1.33 }][i],
+    draw(v) {
+      const a = (v.a * Math.PI) / 180;
+      const s = (v.n1 / v.n2) * Math.sin(a);
+      const tir = s > 1;
+      const b = tir ? null : Math.asin(s);
+      const cx = 160;
+      const cy = 110;
+      const R = 90;
+      const crit = v.n1 > v.n2 ? (Math.asin(v.n2 / v.n1) * 180) / Math.PI : null;
+      return {
+        svg: `<rect x="0" y="${cy}" width="320" height="110" class="ex-fill exc-b" style="opacity:${0.1 + (v.n2 - 1) * 0.35}"/><rect x="0" y="0" width="320" height="${cy}" class="ex-fill exc-b" style="opacity:${0.1 + (v.n1 - 1) * 0.35}"/>
+          <line class="ex-axis" x1="0" y1="${cy}" x2="320" y2="${cy}"/><line class="ex-stroke exc-m ex-dash" x1="${cx}" y1="15" x2="${cx}" y2="205"/>
+          ${arrow(cx - R * Math.sin(a), cy - R * Math.cos(a), cx, cy, 'exc-y', 3)}
+          ${tir ? arrow(cx, cy, cx + R * Math.sin(a), cy - R * Math.cos(a), 'exc-y', 3) : `${arrow(cx, cy, cx + R * Math.sin(b), cy + R * Math.cos(b), 'exc-o', 3)}<g style="opacity:.35">${arrow(cx, cy, cx + R * 0.6 * Math.sin(a), cy - R * 0.6 * Math.cos(a), 'exc-y', 1.5)}</g>`}
+          <text class="ex-tag" x="8" y="20">n₁ = ${fmt(v.n1)} · α = ${fmt(v.a, 1)}°</text><text class="ex-tag" x="8" y="205">n₂ = ${fmt(v.n2)} · ${tir ? u('total reflection', 'полное отражение', 'толық шағылу') : `β = ${fmt((b * 180) / Math.PI, 1)}°`}</text>`,
+        caption: tir
+          ? L(`sin β would be ${fmt(s)} > 1 - impossible, so the light does not leave: total internal reflection. Critical angle here ≈ ${fmt(crit, 1)}°. That is how optical fibres work.`, `sin β получился бы ${fmt(s)} > 1 - так не бывает, поэтому свет не выходит: полное внутреннее отражение. Предельный угол здесь ≈ ${fmt(crit, 1)}°. Так работает оптоволокно.`, `sin β ${fmt(s)} > 1 болар еді - мұндай болмайды, сондықтан жарық шықпайды: толық ішкі шағылу. Мұнда шекті бұрыш ≈ ${fmt(crit, 1)}°. Оптоталшық осылай жұмыс істейді.`)
+          : L(`${fmt(v.n1)} · sin ${fmt(v.a, 1)}° = ${fmt(v.n2)} · sin β, so β = ${fmt((b * 180) / Math.PI, 1)}°. ${v.n2 > v.n1 ? 'Into a denser medium the ray bends toward the normal.' : v.n2 < v.n1 ? `Into a less dense medium it bends away from the normal; beyond ${fmt(crit, 1)}° it will not get out at all.` : 'Same medium - no bending.'}`, `${fmt(v.n1)} · sin ${fmt(v.a, 1)}° = ${fmt(v.n2)} · sin β, значит β = ${fmt((b * 180) / Math.PI, 1)}°. ${v.n2 > v.n1 ? 'В более плотную среду луч отклоняется к нормали.' : v.n2 < v.n1 ? `В менее плотную - от нормали; после ${fmt(crit, 1)}° он вообще не выйдет.` : 'Среда та же - преломления нет.'}`, `${fmt(v.n1)} · sin ${fmt(v.a, 1)}° = ${fmt(v.n2)} · sin β, демек β = ${fmt((b * 180) / Math.PI, 1)}°. ${v.n2 > v.n1 ? 'Тығызырақ ортаға сәуле нормальға қарай ауытқиды.' : v.n2 < v.n1 ? `Тығыздығы аз ортаға - нормальдан алыс; ${fmt(crit, 1)}°-тан кейін мүлдем шықпайды.` : 'Орта бірдей - сыну жоқ.'}`),
+      };
+    },
+  },
+
+  melting: {
+    title: L('Heating ice: melting and boiling', 'Нагревание льда: плавление и кипение', 'Мұзды қыздыру: балқу және қайнау'),
+    intro: L('While ice melts or water boils, the temperature stays the same - all the heat goes into changing the state. That is why the graph has flat steps.', 'Пока лёд плавится или вода кипит, температура не меняется - вся теплота уходит на смену состояния. Поэтому на графике горизонтальные площадки.', 'Мұз еріп немесе су қайнап жатқанда температура өзгермейді - бүкіл жылу күйді өзгертуге кетеді. Сондықтан графикте көлденең алаңдар бар.'),
+    sliders: [{ id: 'Q', label: L('heat given, kJ', 'подведено тепла, кДж', 'берілген жылу, кДж'), min: 0, max: 3100, step: 1, value: 200 }],
+    buttons: [L('▶ Heat up', '▶ Нагреть', '▶ Қыздыру')],
+    play: 'Q',
+    playDur: 9000,
+    playLinear: true,
+    draw(v) {
+      // 1 кг: лёд от −20 °C (c = 2,1), плавление 334 кДж, вода (c = 4,2), кипение 2260 кДж, пар (c = 2,0) до 120 °C.
+      const segs = [
+        { q: 42, t0: -20, t1: 0 },
+        { q: 334, t0: 0, t1: 0 },
+        { q: 420, t0: 0, t1: 100 },
+        { q: 2260, t0: 100, t1: 100 },
+        { q: 40, t0: 100, t1: 120 },
+      ];
+      const total = segs.reduce((s, x) => s + x.q, 0);
+      const T = (Q) => {
+        let left = Q;
+        for (const s of segs) {
+          if (left <= s.q) return s.t0 + ((s.t1 - s.t0) * left) / s.q;
+          left -= s.q;
+        }
+        return 120;
+      };
+      const phase = (Q) => {
+        let acc = 0;
+        for (let i = 0; i < segs.length; i++) {
+          acc += segs[i].q;
+          if (Q <= acc) return i;
+        }
+        return 4;
+      };
+      const sx = (q) => 30 + (q / total) * 280;
+      const sy = (t) => 190 - ((t + 20) / 140) * 160;
+      let d = 'M' + sx(0) + ' ' + sy(-20);
+      for (let acc = 0, i = 0; i < segs.length; i++) {
+        acc += segs[i].q;
+        d += ` L${n1(sx(acc))} ${n1(sy(segs[i].t1))}`;
+      }
+      const ph = phase(v.Q);
+      const names = [L('ice warms', 'лёд нагревается', 'мұз жылиды'), L('ice melts (0 °C)', 'лёд плавится (0 °C)', 'мұз ериді (0 °C)'), L('water warms', 'вода нагревается', 'су жылиды'), L('water boils (100 °C)', 'вода кипит (100 °C)', 'су қайнайды (100 °C)'), L('steam warms', 'пар нагревается', 'бу жылиды')];
+      return {
+        svg: `<line class="ex-axis" x1="30" y1="190" x2="310" y2="190"/><line class="ex-axis" x1="30" y1="20" x2="30" y2="190"/>
+          <text class="ex-tiny" x="18" y="${sy(0) + 4}">0</text><text class="ex-tiny" x="16" y="${sy(100) + 4}">100</text>
+          <path class="ex-stroke exc-m" style="fill:none;stroke-width:2;opacity:.4" d="${d}"/><circle class="ex-fill exc-r" cx="${n1(sx(v.Q))}" cy="${n1(sy(T(v.Q)))}" r="6"/>
+          <text class="ex-tag" x="40" y="22">t = ${fmt(T(v.Q), 1)} °C · ${tx(names[ph])}</text>`,
+        caption: L(
+          `Given ${fmt(v.Q, 0)} kJ to 1 kg of ice. Now: ${tx(names[ph])}, ${fmt(T(v.Q), 1)} °C. Melting takes 334 kJ, boiling away 2260 kJ - far more than warming water from 0 to 100 °C (420 kJ).`,
+          `Подведено ${fmt(v.Q, 0)} кДж к 1 кг льда. Сейчас: ${tx(names[ph])}, ${fmt(T(v.Q), 1)} °C. На плавление уходит 334 кДж, на выкипание - 2260 кДж: гораздо больше, чем на нагрев воды от 0 до 100 °C (420 кДж).`,
+          `1 кг мұзға ${fmt(v.Q, 0)} кДж берілді. Қазір: ${tx(names[ph])}, ${fmt(T(v.Q), 1)} °C. Балқуға 334 кДж, толық қайнап кетуге 2260 кДж кетеді: суды 0-ден 100 °C-қа дейін қыздырудан (420 кДж) әлдеқайда көп.`,
+        ),
+      };
+    },
+  },
+
+  pressure: {
+    title: L('Pressure in a liquid', 'Давление в жидкости', 'Сұйықтағы қысым'),
+    intro: L('The deeper, the higher the pressure: p = ρ g h. It does not depend on the shape of the vessel - only on depth and the liquid.', 'Чем глубже, тем больше давление: p = ρ g h. Оно не зависит от формы сосуда - только от глубины и жидкости.', 'Неғұрлым терең болса, қысым соғұрлым жоғары: p = ρ g h. Ол ыдыстың пішініне тәуелді емес - тек тереңдікке және сұйыққа.'),
+    sliders: [
+      { id: 'h', label: L('depth h, m', 'глубина h, м', 'тереңдік h, м'), min: 0, max: 100, step: C, value: 10 },
+      { id: 'r', label: L('density, kg/m³', 'плотность, кг/м³', 'тығыздық, кг/м³'), min: 700, max: 13600, step: 10, value: 1000 },
+    ],
+    buttons: [L('Water', 'Вода', 'Су'), L('Sea water', 'Морская вода', 'Теңіз суы'), L('Mercury', 'Ртуть', 'Сынап')],
+    onButton: (i) => [{ r: 1000 }, { r: 1030 }, { r: 13600 }][i],
+    draw(v) {
+      const p = v.r * 10 * v.h;
+      const y = 30 + (v.h / 100) * 160;
+      const atm = p / 101325;
+      return {
+        svg: `<rect x="20" y="30" width="180" height="170" class="ex-fill exc-b" style="opacity:${0.15 + Math.min(0.6, v.r / 25000)}"/><line class="ex-stroke exc-b" x1="20" y1="30" x2="200" y2="30"/>
+          <circle class="ex-fill exc-o" cx="110" cy="${n1(y)}" r="8"/>${[0, 1, 2, 3].map((k) => arrow(110 + 22 * Math.cos((k * Math.PI) / 2), y + 22 * Math.sin((k * Math.PI) / 2), 110 + 10 * Math.cos((k * Math.PI) / 2), y + 10 * Math.sin((k * Math.PI) / 2), 'exc-r', Math.min(4, 1 + atm / 3))).join('')}
+          <text class="ex-tag" x="210" y="60">p = ρgh</text><text class="ex-big" x="262" y="100">${fmt(p / 1000, 1)}</text><text class="ex-small" x="262" y="120">${u('kPa', 'кПа', 'кПа')}</text><text class="ex-tag" x="210" y="150">≈ ${fmt(atm, 2)} ${u('atm', 'атм', 'атм')}</text>`,
+        caption: L(
+          `p = ${fmt(v.r, 0)} · 10 · ${fmt(v.h, 1)} = ${fmt(p / 1000, 1)} kPa (plus the atmosphere on top). In water every 10 m adds about 1 atmosphere. The pressure pushes equally in all directions.`,
+          `p = ${fmt(v.r, 0)} · 10 · ${fmt(v.h, 1)} = ${fmt(p / 1000, 1)} кПа (плюс атмосферное сверху). В воде каждые 10 м добавляют примерно 1 атмосферу. Давление действует одинаково во все стороны.`,
+          `p = ${fmt(v.r, 0)} · 10 · ${fmt(v.h, 1)} = ${fmt(p / 1000, 1)} кПа (үстінен атмосфералық қысым қосылады). Суда әр 10 м шамамен 1 атмосфера қосады. Қысым барлық жаққа бірдей әсер етеді.`,
+        ),
+      };
+    },
+  },
 };
 
 // Данные для сцен.

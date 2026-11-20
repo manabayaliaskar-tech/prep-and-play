@@ -6,6 +6,7 @@ import { R, T } from '../bank.js';
 import { RUSSIAN_MORE2, SOCIAL_MORE2 } from './humanities-more2.js';
 import { SOCIAL_MORE3 } from './social-more3.js';
 import { ANALOGIES_MORE3, SENTENCES_MORE3 } from './ort-more3.js';
+import { ANALOGIES_MORE4, SENTENCES_MORE4 } from './ort-more4.js';
 
 export const RUSSIAN = [
   // ----- Орфография -----
@@ -153,5 +154,7 @@ SOCIAL.push(...SOCIAL_MORE2);
 SOCIAL.push(...SOCIAL_MORE3);
 ANALOGIES.push(...ANALOGIES_MORE3);
 SENTENCES.push(...SENTENCES_MORE3);
+ANALOGIES.push(...ANALOGIES_MORE4);
+SENTENCES.push(...SENTENCES_MORE4);
 import { RUSSIAN_MORE4 } from './ru-more4.js';
 RUSSIAN.push(...RUSSIAN_MORE4);
