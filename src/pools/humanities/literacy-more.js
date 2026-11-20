@@ -137,3 +137,6 @@ export const LITERACY_MORE = [
     ],
   },
 ];
+import { LITERACY_MORE4A } from './literacy-more4a.js';
+import { LITERACY_MORE4B } from './literacy-more4b.js';
+LITERACY_MORE.push(...LITERACY_MORE4A, ...LITERACY_MORE4B);
