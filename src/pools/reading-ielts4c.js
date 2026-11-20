@@ -87,34 +87,6 @@ export const IELTS_MORE4C = [
     ],
   },
   {
-    id: 'tea-history',
-    title: 'A Cup of Tea',
-    text:
-      'Tea is the most widely consumed drink in the world after water. According to Chinese tradition, it was discovered in 2737 BC when leaves from a wild tree blew into the boiling water of Emperor Shennong. Historians believe tea drinking became common in China during the Tang dynasty, and Buddhist monks carried the habit to Japan, where a ceremony with special rules developed.\n' +
-      'Tea reached Europe in the sixteenth century through Portuguese and Dutch traders. In Britain it became fashionable in the seventeenth century after the king married a Portuguese princess who loved the drink. By the nineteenth century, tea was so popular that Britain grew it in India, in order to avoid buying all of it from China. In Kazakhstan and many neighboring countries, tea is served to guests as a sign of respect, and people usually drink it from small bowls called "piala".',
-    qs: [
-      tfx('Tea is the most widely consumed drink in the world after water.', 'T', 'the most widely consumed drink in the world after water'),
-      tfx('Tea first arrived in Europe through Chinese merchants.', 'F', 'through Portuguese and Dutch traders'),
-      tfx('The Japanese tea ceremony takes about four hours.', 'N'),
-      mcx('Why did Britain begin growing tea in India?', ['To avoid buying all of it from China', 'Because Indian tea tasted better', 'Because the king ordered it', 'Because China stopped exporting'], 'in order to avoid buying all of it from China'),
-      mcx('How is tea served to guests in Kazakhstan?', ['As a sign of respect', 'Only at breakfast', 'Only in winter', 'Only to elders'], 'tea is served to guests as a sign of respect'),
-    ],
-  },
-  {
-    id: 'languages-lost',
-    title: 'Vanishing Languages',
-    text:
-      'Of the roughly 7,000 languages spoken in the world, about 40 percent are endangered, which means that they are used by only a small number of speakers, often elderly. Linguists say that a language dies, on average, about every two weeks. The main cause is not force but choice: parents decide that their children will have better chances at school and work if they speak a more widely used language, so the home language is not passed on.\n' +
-      'Each language carries a unique body of knowledge, for example names of local plants and medicines, stories and ways of counting. Several projects aim to slow the loss. Communities set up "language nests", in which grandparents speak the heritage language with preschool children. Other projects use smartphone apps and recorded dictionaries. Success stories exist: Welsh, once in decline, has gained speakers because of schools and television. Linguists stress that revival works best when the language is used in daily life, not only in the classroom.',
-    qs: [
-      tfx('About 40 percent of the world’s languages are endangered.', 'T', 'about 40 percent are endangered'),
-      tfx('Languages usually die because governments forbid them.', 'F', 'The main cause is not force but choice'),
-      tfx('Welsh is now spoken by more people than English in Wales.', 'N'),
-      mcx('What is a "language nest"?', ['A program where grandparents speak the heritage language with young children', 'A kind of dictionary', 'A school for adults', 'A television channel'], 'grandparents speak the heritage language with preschool children'),
-      mcx('When does revival work best?', ['When the language is used in daily life', 'When it is taught only at school', 'When it is written down', 'When it is banned elsewhere'], 'revival works best when the language is used in daily life'),
-    ],
-  },
-  {
     id: 'cheetah-speed',
     title: 'The Fastest Runner',
     text:
@@ -140,6 +112,65 @@ export const IELTS_MORE4C = [
       tfx('Venetian glass was exported to every country in Europe.', 'N'),
       mcx('What did the invention of glassblowing allow?', ['Quick and cheap production of containers', 'The first beads', 'The use of volcanic glass', 'The making of windows only'], 'made it possible to produce containers quickly and cheaply'),
       mcx('Why does recycling glass save energy?', ['Used glass melts at a lower temperature than raw sand.', 'It needs no heating.', 'It is lighter.', 'It is cheaper to transport.'], 'used glass melts at a lower temperature than raw sand'),
+    ],
+  },
+];
+
+export const IELTS_MORE4D = [
+  {
+    id: 'earthquakes',
+    title: 'Why the Ground Shakes',
+    text:
+      'An earthquake is a sudden movement of the Earth’s crust. Most occur along the edges of the huge plates that make up the planet’s surface, where the plates push against or slide past each other. Stress builds up slowly for years, and when the rock finally breaks, energy is released in waves that travel through the ground. The point underground where the break begins is called the focus, and the point on the surface directly above it is the epicenter.\n' +
+      'The strength of an earthquake is measured on the Richter scale or, more often today, on the moment magnitude scale. Each step on the scale represents about thirty-two times more energy released, so a magnitude 7 quake is far stronger than a magnitude 6. Scientists cannot yet predict exactly when and where an earthquake will happen. What they can do is map risky regions and help engineers design buildings that bend rather than break. In some countries, schools regularly practice drills so that children know to take cover under desks and away from windows.',
+    qs: [
+      tfx('Most earthquakes happen along the edges of plates.', 'T', 'Most occur along the edges of the huge plates'),
+      tfx('Scientists can now predict exactly when an earthquake will happen.', 'F', 'Scientists cannot yet predict exactly when and where an earthquake will happen'),
+      tfx('Earthquakes are more frequent in winter than in summer.', 'N'),
+      mcx('What is the epicenter?', ['The point on the surface above the focus', 'The strongest wave', 'The point where the plates meet', 'The deepest part of the crust'], 'the point on the surface directly above it is the epicenter'),
+      mcx('What do engineers design to reduce damage?', ['Buildings that bend rather than break', 'Walls of solid stone', 'Underground cities', 'Very tall towers'], 'design buildings that bend rather than break'),
+    ],
+  },
+  {
+    id: 'elephants',
+    title: 'The Memory of Elephants',
+    text:
+      'The saying "an elephant never forgets" contains a good deal of truth. African elephants live in family groups led by the oldest female, called the matriarch, who may be sixty years old or more. During droughts, the matriarch leads the group to waterholes she visited decades earlier, and groups led by older matriarchs have been shown to survive droughts better than those led by younger ones.\n' +
+      'Elephants also recognize each other. Researchers playing recordings of calls from elephants that had been away for years observed that the relatives responded at once. The animals appear to mourn their dead: they stand beside the body for long periods and sometimes touch the bones of dead relatives with their trunks. Their brains are the largest of any land animal, weighing about five kilograms. Because elephants live long and need to remember routes, social relationships and sources of food, scientists believe that memory plays a large part in their survival.',
+    qs: [
+      tfx('The oldest female leads an elephant family group.', 'T', 'led by the oldest female, called the matriarch'),
+      tfx('Groups led by younger matriarchs survive droughts better.', 'F', 'groups led by older matriarchs have been shown to survive droughts better'),
+      tfx('Elephants can recognize their own reflection in a mirror.', 'N'),
+      mcx('What do elephants appear to do when a relative dies?', ['They stand beside the body for a long time.', 'They leave immediately.', 'They bury it.', 'They call loudly at night.'], 'they stand beside the body for long periods'),
+      mcx('Why does memory matter for elephants?', ['They live long and must remember routes, relationships and food sources.', 'They hunt alone.', 'They sleep for most of the day.', 'They migrate only once.'], 'elephants live long and need to remember routes, social relationships and sources of food'),
+    ],
+  },
+  {
+    id: 'football-origins',
+    title: 'How Football Began',
+    text:
+      'Ball games have been played for thousands of years. In ancient China, a game called cuju involved kicking a leather ball through an opening in a net, and soldiers played it as training. In medieval Europe, villages played wild matches between neighboring towns, with hundreds of players and few rules; the games sometimes lasted all day and often caused damage and injuries.\n' +
+      'The modern game developed in nineteenth-century English schools, where each school used different rules. In 1863, representatives of several clubs met in London and agreed on a common set of laws, forbidding the carrying of the ball in the hands; this decision created the Football Association and separated football from rugby. The sport spread quickly with sailors, merchants and railway workers. The first World Cup was held in Uruguay in 1930, and today the competition attracts a global audience of billions. Football is now played in almost every country by both women and men.',
+    qs: [
+      tfx('Cuju was played in ancient China.', 'T', 'In ancient China, a game called cuju'),
+      tfx('Medieval village matches had very strict rules.', 'F', 'with hundreds of players and few rules'),
+      tfx('The first World Cup was won by the host nation.', 'N'),
+      mcx('What happened in London in 1863?', ['Clubs agreed on common laws and the Football Association was created.', 'The first World Cup took place.', 'Rugby was invented.', 'Women began to play.'], 'representatives of several clubs met in London and agreed on a common set of laws'),
+      mcx('What separated football from rugby?', ['Forbidding the carrying of the ball in the hands', 'The size of the ball', 'The number of players', 'The color of the uniforms'], 'forbidding the carrying of the ball in the hands'),
+    ],
+  },
+  {
+    id: 'honey-making',
+    title: 'How Bees Make Honey',
+    text:
+      'Honey begins as nectar, the sweet liquid found in flowers. A worker bee sucks up the nectar with her long tongue and stores it in a special stomach, where enzymes begin to change its sugars. Back at the hive, she passes the nectar to other workers, which chew it and pass it on again, so that it is gradually transformed.\n' +
+      'The bees then spread the thin liquid in the cells of the honeycomb and fan it with their wings so that most of the water evaporates. When the honey is thick enough, they seal the cell with a layer of wax. Honey stored this way hardly spoils, because it contains very little water and is naturally slightly acidic, which prevents bacteria from growing. Jars of honey found in ancient Egyptian tombs were reportedly still edible after thousands of years. To make a single jar of honey, bees in a hive may have to visit millions of flowers, and a worker bee produces only about one twelfth of a teaspoon in her lifetime.',
+    qs: [
+      tfx('Honey begins as nectar from flowers.', 'T', 'Honey begins as nectar'),
+      tfx('Bees make honey without using their wings.', 'F', 'fan it with their wings so that most of the water evaporates'),
+      tfx('Honey made in spring tastes sweeter than honey made in autumn.', 'N'),
+      mcx('Why does honey hardly spoil?', ['It has little water and is slightly acidic.', 'It is stored in glass.', 'It is very cold.', 'It contains salt.'], 'it contains very little water and is naturally slightly acidic'),
+      mcx('How is a finished honeycomb cell closed?', ['With a layer of wax', 'With leaves', 'With mud', 'With a bee’s body'], 'they seal the cell with a layer of wax'),
     ],
   },
 ];

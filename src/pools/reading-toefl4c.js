@@ -129,3 +129,62 @@ export const TOEFL_MORE4C = [
     ],
   },
 ];
+
+export const TOEFL_MORE4D = [
+  {
+    id: 'great-fire',
+    title: 'The Great Fire of London',
+    text:
+      'In the early hours of September 2, 1666, a fire started in a bakery on Pudding Lane in London. The city at that time was crowded with wooden houses whose upper floors almost touched across narrow streets, and a strong wind carried sparks from building to building. Firefighting methods were primitive: people used buckets of water and hooks to pull down burning houses. The Lord Mayor hesitated to order the destruction of buildings in the path of the fire, and the delay allowed the blaze to grow.\n' +
+      'The fire burned for four days and destroyed about thirteen thousand houses and eighty-seven churches, including the old St Paul’s Cathedral. Surprisingly, only a handful of deaths were officially recorded. After the disaster, the city was rebuilt with brick and stone instead of timber, and streets were made wider. Christopher Wren designed fifty-one new churches and the new St Paul’s Cathedral, whose dome still dominates the skyline. The disaster also led to the creation of fire insurance companies, some of which later organized their own fire brigades.',
+    qs: [
+      mcx('Why did the fire spread so quickly?', ['Wooden houses stood close together and the wind carried sparks.', 'There was no water in the river.', 'The streets were wide.', 'The buildings were made of stone.'], 'wooden houses whose upper floors almost touched across narrow streets, and a strong wind carried sparks'),
+      mcx('What did the Lord Mayor do?', ['He hesitated to order buildings pulled down.', 'He ordered everyone to leave.', 'He fought the fire personally.', 'He refused to speak.'], 'The Lord Mayor hesitated to order the destruction of buildings'),
+      mcx('The word "primitive" in the passage is closest in meaning to', ['very simple', 'modern', 'effective', 'expensive'], 'Firefighting methods were primitive'),
+      mcx('What changed after the fire?', ['The city was rebuilt with brick and stone and wider streets.', 'The city was moved.', 'Wood was required for houses.', 'Churches were banned.'], 'rebuilt with brick and stone instead of timber, and streets were made wider'),
+      mcx('What did the disaster lead to?', ['The creation of fire insurance companies', 'A new capital city', 'The end of the monarchy', 'The first hospital'], 'the creation of fire insurance companies'),
+    ],
+  },
+  {
+    id: 'golden-gate',
+    title: 'Bridging the Bay',
+    text:
+      'Before the Golden Gate Bridge opened in 1937, anyone wishing to cross the strait at the entrance to San Francisco Bay had to take a ferry. Many experts believed that a bridge was impossible: the strait is deep, the currents are strong, and fog and wind are frequent. The engineer Joseph Strauss insisted that it could be done, and the final design combined his plans with those of other engineers, who proposed a suspension bridge hung from two enormous cables.\n' +
+      'Each cable is made of more than twenty-seven thousand wires and is held up by towers that rise 227 meters above the water. During construction, a safety net stretched under the bridge saved the lives of nineteen workers, who became known as the "Halfway to Hell Club". The distinctive color, called international orange, was chosen because it stands out against the fog and blends with the natural surroundings. At the time of its opening, the bridge had the longest main span in the world, and it remains one of the most photographed structures on Earth.',
+    qs: [
+      mcx('Why did experts doubt that a bridge was possible?', ['The strait is deep with strong currents, fog and wind.', 'There was no money.', 'There were no engineers.', 'The land was private.'], 'the strait is deep, the currents are strong, and fog and wind are frequent'),
+      mcx('What type of bridge was built?', ['A suspension bridge', 'An arch bridge', 'A floating bridge', 'A tunnel'], 'a suspension bridge hung from two enormous cables'),
+      mcx('The word "distinctive" in the passage is closest in meaning to', ['easily recognized', 'ordinary', 'dark', 'temporary'], 'The distinctive color, called international orange'),
+      mcx('What saved the lives of nineteen workers?', ['A safety net under the bridge', 'A rescue boat', 'Special helmets', 'A tunnel'], 'a safety net stretched under the bridge saved the lives of nineteen workers'),
+      mcx('Why was international orange chosen?', ['It stands out in fog and blends with surroundings.', 'It was the cheapest paint.', 'It was the mayor’s choice.', 'It prevents rust.'], 'it stands out against the fog and blends with the natural surroundings'),
+    ],
+  },
+  {
+    id: 'green-sahara',
+    title: 'When the Sahara Was Green',
+    text:
+      'Today the Sahara is the largest hot desert in the world, but about ten thousand years ago much of it was covered by grassland, lakes and rivers. Rock paintings found deep in the desert show hippos, giraffes and cattle herders, which provides evidence that people lived in a landscape that could support animals needing a great deal of water. Scientists call this period the African Humid Period; it lasted from roughly eleven thousand to five thousand years ago.\n' +
+      'The cause was a slight change in the tilt of the Earth’s axis, which increased the strength of the summer monsoon and moved the rains northward. As the tilt gradually changed back, the rains weakened, and vegetation shrank. Some researchers argue that the change was sudden, taking place within a few centuries, while others believe it was gradual. Whatever the speed, many people moved toward the Nile Valley, where early civilizations later developed. The story is an example of how small shifts in climate can transform whole landscapes and shape human history.',
+    qs: [
+      mcx('What do the rock paintings in the Sahara show?', ['Hippos, giraffes and cattle herders', 'Only camels', 'Mountains', 'Ships'], 'show hippos, giraffes and cattle herders'),
+      mcx('What caused the Sahara to be green?', ['A slight change in the tilt of the Earth’s axis strengthened the monsoon.', 'A change in the Sun’s heat.', 'A series of volcanoes.', 'Human farming.'], 'a slight change in the tilt of the Earth’s axis, which increased the strength of the summer monsoon'),
+      mcx('The word "vegetation" in the passage is closest in meaning to', ['plant life', 'animals', 'sand', 'rainfall'], 'the rains weakened, and vegetation shrank'),
+      mcx('Where did many people move when the Sahara dried?', ['Toward the Nile Valley', 'To the Atlantic coast', 'Into the mountains', 'To southern Africa'], 'many people moved toward the Nile Valley'),
+      mcx('What does the story illustrate?', ['Small shifts in climate can transform landscapes and history.', 'Deserts never change.', 'Humans caused the drying.', 'The Nile always flowed.'], 'small shifts in climate can transform whole landscapes and shape human history'),
+    ],
+  },
+  {
+    id: 'photosynthesis',
+    title: 'How Plants Make Food',
+    text:
+      'Almost all life on Earth depends on photosynthesis, the process by which plants turn light into food. Inside the leaves are tiny structures called chloroplasts, which contain the green pigment chlorophyll. Chlorophyll absorbs sunlight, and the plant uses the energy to combine carbon dioxide from the air with water from the soil. The result is a sugar called glucose, which the plant uses for growth, and oxygen, which is released into the air.\n' +
+      'Photosynthesis takes place mostly in the leaves, which have tiny openings called stomata for taking in carbon dioxide. On hot days, the stomata may close to prevent water loss, which also slows photosynthesis. Scientists estimate that plants, together with algae and certain bacteria, produce roughly half of the oxygen we breathe, and the other half comes mainly from the ocean’s microscopic organisms. When people burn forests, they remove trees that absorb carbon dioxide, and for this reason protecting plant life is regarded as one way of limiting climate change.',
+    qs: [
+      mcx('What does chlorophyll do?', ['It absorbs sunlight.', 'It stores water.', 'It makes seeds.', 'It protects leaves from insects.'], 'Chlorophyll absorbs sunlight'),
+      mcx('What are the products of photosynthesis?', ['Glucose and oxygen', 'Water and salt', 'Carbon dioxide and soil', 'Protein and fat'], 'a sugar called glucose, which the plant uses for growth, and oxygen'),
+      mcx('The word "pigment" in the passage is closest in meaning to', ['a substance that gives color', 'a kind of sugar', 'a type of leaf', 'a source of heat'], 'the green pigment chlorophyll'),
+      mcx('Why may stomata close on hot days?', ['To prevent water loss', 'To absorb more light', 'To grow faster', 'To produce more oxygen'], 'the stomata may close to prevent water loss'),
+      mcx('Why is protecting plant life linked to limiting climate change?', ['Plants absorb carbon dioxide.', 'Plants cool the oceans.', 'Plants produce clouds only.', 'Plants burn easily.'], 'remove trees that absorb carbon dioxide'),
+    ],
+  },
+];

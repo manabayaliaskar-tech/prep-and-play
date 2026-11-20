@@ -86,7 +86,7 @@ function wrongOf(correct, cands, extra) {
   return out.slice(0, 3);
 }
 
-const rows = { 1: [], 2: [], 3: [], 4: [] };
+const rows = { 1: [], 2: [], 3: [], 4: [], 5: [] };
 
 /** Для шаблона t берём n глаголов со сдвигом и разные подлежащие. */
 function build(level, t, n, make) {
@@ -148,6 +148,15 @@ build(3, 4, 16, (v, [, m, , k]) => [`It is the first time ${m} ______ ${v.rest}.
 // ---------- B2 ----------
 build(4, 0, 18, (v, [C, , p, k]) => [`${C} ${was(k)} exhausted because ${p} ______ ${v.rest} all day.`, `had been ${v.g}`, [`${has(k === 'i' ? 'p' : k)} been ${v.g}`, `${be(k)} ${v.g}`, `had ${v.g}`], 'pastperfcont']);
 
+
+// ---------- B2 / C1: ещё шаблоны ----------
+build(4, 1, 24, (v, [, m, , k], i) => [`${['By the end of the week', 'By next June', 'By the end of the year'][i % 3]}, ${m} ______ ${v.rest}.`, `will have ${v.pp}`, [`will ${v.p}`, `${has(k)} ${v.g}`, `had ${v.pp}`], 'futperf']);
+build(4, 2, 24, (v, [, m, , k], i) => [`When the guests arrived, ${m} ______ ${v.rest} for ${['an hour', 'two hours', 'a long time'][i % 3]}.`, `had been ${v.g}`, [`has been ${v.g}`, `was been ${v.g}`, `will have been ${v.g}`], 'pastperfcont']);
+build(4, 3, 22, (v, [C, , p, k]) => [`${C} said that ${p} ______ ${v.rest} the day before.`, `had ${v.pp}`, [`will ${v.b}`, `is ${v.g}`, `does ${v.b}`], 'reported']);
+build(5, 4, 26, (v, [, m, , k], i) => [`By ${['June', 'next year', '2030'][i % 3]}, ${m} ______ ${v.rest} for ten years.`, `will have been ${v.g}`, [`will have ${v.g}`, `has been ${v.g}`, `will be ${v.pp}`], 'futperf']);
+build(5, 5, 26, (v, [, m, , k], i) => [`It was the ${['second', 'third', 'fourth'][i % 3]} time that ${m} ______ ${v.rest}.`, `had ${v.pp}`, [`has ${v.pp}`, `was ${v.g}`, `will have ${v.pp}`], 'firsttime']);
+build(5, 6, 22, (v, [C, , p, k]) => [`${C} was sure that ${p} ______ ${v.rest} before.`, `had ${v.pp}`, [`has ${v.pp}`, `will ${v.b}`, `does ${v.b}`], 'pastperf']);
+
 export const MORE4_GEN = {
-  'e.tenses': [...rows[1], ...rows[2], ...rows[3], ...rows[4]],
+  'e.tenses': [...rows[1], ...rows[2], ...rows[3], ...rows[4], ...rows[5]],
 };

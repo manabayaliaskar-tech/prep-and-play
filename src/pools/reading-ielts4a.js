@@ -45,20 +45,6 @@ export const IELTS_MORE4A = [
     ],
   },
   {
-    id: 'bicycle',
-    title: 'The Invention of the Bicycle',
-    text:
-      'The first bicycle-like machine was built in 1817 by the German baron Karl von Drais. It had two wheels in a line and a steering handle, but no pedals: riders pushed along the ground with their feet. Newspapers called it a "running machine", and it became a fashionable toy for a short time before being banned from sidewalks in several cities.\n' +
-      'Pedals were added to the front wheel in the 1860s, which made the machine faster but uncomfortable; the iron-rimmed wheels shook the rider so much that the bicycle was nicknamed the "boneshaker". In the 1880s, the "safety bicycle" appeared, with two wheels of equal size and a chain driving the back wheel. In 1888, John Dunlop developed an air-filled rubber tyre, which smoothed the ride. These changes made cycling popular among ordinary people, including women, who gained new freedom of movement.',
-    qs: [
-      tfx('Karl von Drais’s machine had pedals.', 'F', 'It had two wheels in a line and a steering handle, but no pedals'),
-      tfx('The "boneshaker" got its name because the ride was uncomfortable.', 'T', 'the iron-rimmed wheels shook the rider so much'),
-      tfx('Karl von Drais became wealthy because of his invention.', 'N'),
-      mcx('What was special about the safety bicycle?', ['It had two wheels of equal size and a chain driving the back wheel.', 'It had no wheels at the back.', 'It had a very large front wheel.', 'It was made of wood only.'], 'two wheels of equal size and a chain driving the back wheel'),
-      mcx('What did Dunlop’s tyre do?', ['It smoothed the ride', 'It made bicycles heavier', 'It replaced the chain', 'It added a second pedal'], 'an air-filled rubber tyre, which smoothed the ride'),
-    ],
-  },
-  {
     id: 'reef',
     title: 'The Great Barrier Reef',
     text:
@@ -98,20 +84,6 @@ export const IELTS_MORE4A = [
       tfx('Microplastics have been found in the blood of all humans.', 'N'),
       mcx('Why is it hard to clean microplastics from the sea?', ['They are very small and widely spread.', 'They are very heavy.', 'They dissolve in water.', 'They are protected by law.'], 'cleaning microplastics from the sea is almost impossible once they have spread'),
       mcx('What do some laboratory experiments show?', ['Animals eating much plastic grow more slowly.', 'Plastic helps plankton grow.', 'Fish prefer plastic to food.', 'Plastic improves water quality.'], 'animals eating large amounts of plastic grow more slowly'),
-    ],
-  },
-  {
-    id: 'sleep',
-    title: 'Sleep and Memory',
-    text:
-      'Sleep is not simply a period of rest. During sleep, the brain actively sorts the information collected during the day. Researchers have found that people who sleep after learning a list of words remember more of them than people who stay awake for the same period. The effect is strongest after deep sleep, when the brain appears to replay recent experiences and strengthen the connections between neurons.\n' +
-      'Students often believe that studying through the night is a good strategy before an exam. Sleep scientists disagree. In one experiment, a group that slept eight hours after practicing a skill improved their performance by about twenty percent, while a group that stayed awake showed little improvement. Experts therefore advise students to review material in the evening and then sleep, rather than learning new facts late at night. They also point out that teenagers need more sleep than adults, around nine hours a night, though many get far less.',
-    qs: [
-      tfx('The brain is inactive during sleep.', 'F', 'During sleep, the brain actively sorts the information collected during the day'),
-      tfx('Deep sleep seems to strengthen the connections between neurons.', 'T', 'the brain appears to replay recent experiences and strengthen the connections between neurons'),
-      tfx('Teenagers in Kazakhstan sleep less than teenagers in Europe.', 'N'),
-      mcx('What do experts advise students to do?', ['Review material in the evening and then sleep', 'Study new facts late at night', 'Skip sleep before exams', 'Practice only in the morning'], 'review material in the evening and then sleep'),
-      mcx('What happened in the experiment with a skill?', ['The group that slept improved by about twenty percent.', 'Both groups improved equally.', 'The group that stayed awake improved most.', 'No one improved.'], 'improved their performance by about twenty percent'),
     ],
   },
   {

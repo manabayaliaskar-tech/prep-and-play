@@ -256,6 +256,11 @@ export const LISTENING = {
   ],
 };
 
+import { LISTENING_IELTS_MORE } from './listening-ielts4a.js';
+LISTENING.ielts.push(...LISTENING_IELTS_MORE);
+import { LISTENING_TOEFL_MORE } from './listening-toefl4a.js';
+LISTENING.toefl.push(...LISTENING_TOEFL_MORE);
+
 /** Число вопросов аудирования по экзамену. */
 export const LISTENING_COUNT = Object.values(LISTENING).reduce((sum, list) => sum + list.reduce((s, p) => s + p.qs.length, 0), 0);
 

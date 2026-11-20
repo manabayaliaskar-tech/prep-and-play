@@ -115,20 +115,6 @@ export const TOEFL_MORE4B = [
     ],
   },
   {
-    id: 'continental-drift',
-    title: 'The Moving Continents',
-    text:
-      'If one looks at a world map, the east coast of South America seems to fit against the west coast of Africa like pieces of a puzzle. In 1912, the German scientist Alfred Wegener proposed that the continents had once been joined in a single landmass and had slowly drifted apart. He supported this idea with evidence: similar fossils of land animals and plants had been found on continents now separated by oceans, and rock formations on both sides matched.\n' +
-      'Most geologists rejected the theory at first, because Wegener could not explain what force could move such enormous masses. The answer came in the 1950s and 1960s, when studies of the ocean floor revealed long mountain ranges where new crust is formed and spreads outward. This led to the theory of plate tectonics, according to which the Earth’s outer shell is divided into large plates that move a few centimeters a year, about as fast as a fingernail grows. The movement of the plates explains earthquakes, volcanoes and the formation of mountains.',
-    qs: [
-      mcx('What did Wegener propose in 1912?', ['The continents had once been joined and drifted apart.', 'The oceans were growing deeper.', 'Mountains were sinking.', 'Earth was expanding.'], 'the continents had once been joined in a single landmass and had slowly drifted apart'),
-      mcx('Why did most geologists reject the theory at first?', ['Wegener could not explain what force moved the continents.', 'There were no fossils.', 'It was too old.', 'It contradicted the Bible.'], 'Wegener could not explain what force could move such enormous masses'),
-      mcx('The word "rejected" in the passage is closest in meaning to', ['did not accept', 'tested', 'praised', 'remembered'], 'Most geologists rejected the theory at first'),
-      mcx('How fast do plates move?', ['A few centimeters a year', 'A few meters a day', 'Many kilometers a year', 'They do not move'], 'move a few centimeters a year, about as fast as a fingernail grows'),
-      mcx('What does plate tectonics explain?', ['Earthquakes, volcanoes and mountain formation', 'Ocean tides', 'Weather patterns', 'The age of the Sun'], 'explains earthquakes, volcanoes and the formation of mountains'),
-    ],
-  },
-  {
     id: 'potato-europe',
     title: 'The Potato Arrives in Europe',
     text:
