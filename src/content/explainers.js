@@ -62,6 +62,11 @@ export const EXPLAINERS = [
   { id: 'matrix', subj: 'higher', icon: '🧮', topics: ['m.matrix'] },
   { id: 'ions', subj: 'chemistry', icon: '⚗️', topics: ['c.salts'] },
   { id: 'download', subj: 'cs', icon: '💻', topics: ['i.theory'] },
+  { id: 'divmod', subj: 'cs', icon: '🧮', topics: ['py.vars', 'cpp.vars', 'js.vars', 'java.vars'] },
+  { id: 'ifelse', subj: 'cs', icon: '🧩', topics: ['py.cond', 'cpp.cond', 'js.cond', 'java.cond'] },
+  { id: 'loop', subj: 'cs', icon: '🔍', topics: ['py.loop', 'cpp.loop', 'js.loop', 'java.loop'] },
+  { id: 'array', subj: 'cs', icon: '📦', topics: ['py.arr', 'cpp.arr', 'js.arr', 'java.arr'] },
+  { id: 'recursion', subj: 'cs', icon: '🎯', topics: ['py.func', 'cpp.func', 'js.func', 'java.func'] },
 ];
 
 const BY_TOPIC = new Map(EXPLAINERS.flatMap((e) => e.topics.map((topic) => [topic, e.id])));
