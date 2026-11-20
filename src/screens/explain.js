@@ -1986,6 +1986,326 @@ const SCENES = {
       };
     },
   },
+
+  // ===== Вторая пачка: начальная математика, арифметика, матрицы, соли, передача данных =====
+
+  tens: {
+    title: L('Tens and ones', 'Десятки и единицы', 'Ондықтар мен бірліктер'),
+    intro: L('Any number up to 100 is made of tens (bundles of 10) and ones. 47 = 4 tens and 7 ones.', 'Любое число до 100 складывается из десятков (пачек по 10) и единиц. 47 = 4 десятка и 7 единиц.', '100-ге дейінгі кез келген сан ондықтардан (10-нан бума) және бірліктерден тұрады. 47 = 4 ондық және 7 бірлік.'),
+    sliders: [{ id: 'n', label: L('number', 'число', 'сан'), min: 0, max: 99, value: 47 }],
+    buttons: ['+1', '+10', '−1', '−10'],
+    onButton: (i, st, v) => ({ n: clamp(v.n + [1, 10, -1, -10][i], 0, 99) }),
+    draw(v) {
+      const n = Math.round(v.n);
+      const t = Math.floor(n / 10);
+      const o = n % 10;
+      const rods = Array.from({ length: t }, (_, i) => `<rect x="${14 + i * 20}" y="60" width="14" height="120" rx="3" class="ex-fill exc-b" style="opacity:.85"/>${Array.from({ length: 9 }, (_, k) => `<line class="ex-stroke" style="stroke:var(--surface);stroke-width:1" x1="${14 + i * 20}" y1="${72 + k * 12}" x2="${28 + i * 20}" y2="${72 + k * 12}"/>`).join('')}`).join('');
+      const ones = Array.from({ length: o }, (_, i) => `<rect x="${214 + (i % 3) * 18}" y="${130 - Math.floor(i / 3) * 18}" width="14" height="14" rx="3" class="ex-fill exc-o"/>`).join('');
+      return {
+        svg: `${rods}${ones}<text class="ex-big" x="160" y="36">${n} = ${t} · 10 + ${o}</text><text class="ex-tiny" x="100" y="200">${u('tens', 'десятки', 'ондықтар')}: ${t}</text><text class="ex-tiny" x="245" y="200">${u('ones', 'единицы', 'бірліктер')}: ${o}</text>`,
+        caption: L(`${n} has ${t} ten${t === 1 ? '' : 's'} (blue rods) and ${o} one${o === 1 ? '' : 's'} (orange cubes). When there are 10 ones, they join into a new ten.`, `В числе ${n} - ${t} дес. (синие палочки) и ${o} ед. (оранжевые кубики). Когда единиц набирается 10, они собираются в новый десяток.`, `${n} санында ${t} ондық (көк таяқшалар) және ${o} бірлік (қызғылт сары текшелер). Бірлік 10-ға жеткенде, олар жаңа ондыққа жиналады.`),
+      };
+    },
+  },
+
+  column: {
+    title: L('Column addition with carrying', 'Сложение столбиком с переходом', 'Бағанмен қосу (ауыстырумен)'),
+    intro: L('Add ones with ones, tens with tens. If the ones make 10 or more, write the ones digit and carry 1 to the tens.', 'Складываем единицы с единицами, десятки с десятками. Если единиц получилось 10 или больше, пишем цифру единиц, а 1 переносим в десятки.', 'Бірліктерді бірліктермен, ондықтарды ондықтармен қосамыз. Бірліктер 10 не одан көп болса, бірліктер цифрын жазып, 1-ді ондықтарға ауыстырамыз.'),
+    sliders: [
+      { id: 'a', label: 'a', min: 10, max: 999, value: 358 },
+      { id: 'b', label: 'b', min: 10, max: 999, value: 276 },
+    ],
+    buttons: [L('Next digit', 'Следующий разряд', 'Келесі разряд'), RESET],
+    state: () => ({ k: 0 }),
+    onSlide(key, v, st) {
+      st.k = 0;
+    },
+    onButton(i, st) {
+      st.k = i ? 0 : Math.min(st.k + 1, 4);
+    },
+    draw(v, step, st) {
+      const a = Math.round(v.a);
+      const b = Math.round(v.b);
+      const s = a + b;
+      const da = String(a).padStart(4, ' ');
+      const db = String(b).padStart(4, ' ');
+      const ds = String(s).padStart(4, ' ');
+      const carry = [0, 0, 0, 0];
+      for (let i = 3, c = 0; i >= 0; i--) {
+        const x = (Number(da[i]) || 0) + (Number(db[i]) || 0) + c;
+        c = x >= 10 ? 1 : 0;
+        if (i > 0) carry[i - 1] = c;
+      }
+      const X = (i) => 140 + i * 34;
+      const shown = (i) => 3 - i < st.k;
+      const row = (str, y, cls = '') => [...str].map((ch, i) => `<text class="ex-big${cls}" x="${X(i)}" y="${y}">${ch.trim()}</text>`).join('');
+      const carries = carry.map((c, i) => (c && shown(i + 1) ? `<text class="ex-small exc-r" x="${X(i)}" y="44">1</text>` : '')).join('');
+      const res = [...ds].map((ch, i) => (shown(i) ? `<text class="ex-big exc-p" x="${X(i)}" y="170">${ch.trim()}</text>` : '')).join('');
+      const col = st.k < 4 ? 3 - st.k : -1;
+      return {
+        svg: `${col >= 0 ? `<rect x="${X(col) - 16}" y="52" width="32" height="128" rx="8" class="ex-fill exc-y" style="opacity:.25"/>` : ''}${carries}${row(da, 82)}<text class="ex-big" x="100" y="118">+</text>${row(db, 118)}<line class="ex-axis" x1="110" y1="134" x2="${X(3) + 20}" y2="134"/>${res}`,
+        caption:
+          st.k >= 4 || st.k > String(s).length - 1
+            ? L(`${a} + ${b} = ${s}. The red 1s are carries.`, `${a} + ${b} = ${s}. Красные единички - это переносы в следующий разряд.`, `${a} + ${b} = ${s}. Қызыл бірліктер - келесі разрядқа ауыстыру.`)
+            : L('Press "Next digit": we add the highlighted column, starting from the ones.', 'Нажимай «Следующий разряд»: складываем подсвеченный столбик, начиная с единиц.', '«Келесі разряд» бас: бірліктерден бастап белгіленген бағанды қосамыз.'),
+      };
+    },
+  },
+
+  numline: {
+    title: L('Negative numbers on the number line', 'Отрицательные числа на прямой', 'Сан түзуіндегі теріс сандар'),
+    intro: L('Adding a positive number moves right, adding a negative moves left. Subtracting a negative is the same as adding a positive: 3 − (−2) = 5.', 'Прибавить положительное - шаг вправо, отрицательное - шаг влево. Вычесть отрицательное - то же, что прибавить положительное: 3 − (−2) = 5.', 'Оң санды қосу - оңға қадам, терісті қосу - солға қадам. Терісті азайту оңды қосумен бірдей: 3 − (−2) = 5.'),
+    sliders: [
+      { id: 'a', label: 'a', min: -10, max: 10, value: 3 },
+      { id: 'b', label: 'b', min: -10, max: 10, value: -5 },
+    ],
+    buttons: ['a + b', 'a − b'],
+    state: () => ({ op: 0 }),
+    pressed: (i, v, st) => i === st.op,
+    onButton(i, st) {
+      st.op = i;
+    },
+    draw(v, step, st) {
+      const a = Math.round(v.a);
+      const b = Math.round(v.b);
+      const d = st.op ? -b : b;
+      const r = a + d;
+      const sx = (x) => 160 + x * 7.5;
+      const ticks = Array.from({ length: 41 }, (_, i) => i - 20).map((x) => `<line class="ex-stroke exc-m" x1="${sx(x)}" y1="${x % 5 ? 136 : 130}" x2="${sx(x)}" y2="${x % 5 ? 144 : 150}"/>${x % 5 ? '' : `<text class="ex-tiny" x="${sx(x)}" y="166">${x}</text>`}`).join('');
+      return {
+        svg: `<line class="ex-axis" x1="5" y1="140" x2="315" y2="140"/>${ticks}
+          <circle class="ex-fill exc-b" cx="${sx(a)}" cy="140" r="6"/>
+          <path class="ex-stroke exc-${d >= 0 ? 'g' : 'r'}" style="fill:none;stroke-width:2.5" d="M${sx(a)} 132 Q${n1((sx(a) + sx(r)) / 2)} ${n1(132 - Math.min(70, Math.abs(d) * 6))} ${sx(r)} 132"/>
+          <circle class="ex-fill exc-p" cx="${sx(r)}" cy="140" r="7"/>
+          <text class="ex-big" x="160" y="45">${a} ${st.op ? '−' : '+'} ${b < 0 ? `(${fmt(b)})` : b} = ${fmt(r)}</text>`,
+        caption: L(
+          `Start at ${a}, ${d >= 0 ? `move ${d} to the right` : `move ${-d} to the left`} - you land on ${r}.${st.op && b < 0 ? ' Subtracting a negative number turned into moving right!' : ''}`,
+          `Начинаем с ${a}, ${d >= 0 ? `идём на ${d} вправо` : `идём на ${-d} влево`} - попадаем в ${fmt(r)}.${st.op && b < 0 ? ' Вычитание отрицательного числа превратилось в шаг вправо!' : ''}`,
+          `${a}-тен бастап, ${d >= 0 ? `оңға ${d} қадам` : `солға ${-d} қадам`} жүреміз - ${fmt(r)}-ге түсеміз.${st.op && b < 0 ? ' Теріс санды азайту оңға қадамға айналды!' : ''}`,
+        ),
+      };
+    },
+  },
+
+  areamul: {
+    title: L('Multiplication as area', 'Умножение как площадь', 'Көбейту - аудан ретінде'),
+    intro: L('a × b is the number of squares in a rectangle a by b. Split a two-digit number into tens and ones - the rectangle splits into easy parts.', 'a × b - это число клеток в прямоугольнике a на b. Разбей двузначное число на десятки и единицы - прямоугольник разделится на простые части.', 'a × b - a-ға b тіктөртбұрыштағы шаршылар саны. Екі таңбалы санды ондықтар мен бірліктерге бөлсең, тіктөртбұрыш оңай бөліктерге бөлінеді.'),
+    sliders: [
+      { id: 'a', label: 'a', min: 1, max: 19, value: 14 },
+      { id: 'b', label: 'b', min: 1, max: 12, value: 6 },
+    ],
+    buttons: [L('Swap a and b', 'Поменять a и b', 'a мен b-ны ауыстыру')],
+    onButton: (i, st, v) => ({ a: clamp(v.b, 1, 19), b: clamp(v.a, 1, 12) }),
+    draw(v) {
+      const a = Math.round(v.a);
+      const b = Math.round(v.b);
+      const c = Math.min(14, 280 / Math.max(a, 1), 150 / Math.max(b, 1));
+      const t = Math.floor(a / 10) * 10;
+      const o = a - t;
+      const cells = [];
+      for (let y = 0; y < b; y++) for (let x = 0; x < a; x++) cells.push(`<rect x="${n1(20 + x * c)}" y="${n1(50 + y * c)}" width="${n1(c - 1.5)}" height="${n1(c - 1.5)}" rx="2" class="ex-fill ${x < t ? 'exc-b' : 'exc-o'}" style="opacity:.75"/>`);
+      return {
+        svg: `${cells.join('')}<text class="ex-big" x="160" y="32">${a} × ${b} = ${a * b}</text>${t && o ? `<text class="ex-tag" x="20" y="${n1(70 + b * c)}">${t} × ${b} + ${o} × ${b} = ${t * b} + ${o * b}</text>` : ''}`,
+        caption: L(
+          `${a} rows of ${b}... or ${b} rows of ${a} - the same ${a * b} squares.${t && o ? ` Split ${a} = ${t} + ${o}: ${t * b} (blue) + ${o * b} (orange) = ${a * b}.` : ''}`,
+          `${a} × ${b} = ${a * b} клеток, и от перестановки множителей площадь не меняется.${t && o ? ` Разбей ${a} = ${t} + ${o}: ${t * b} (синие) + ${o * b} (оранжевые) = ${a * b}.` : ''}`,
+          `${a} × ${b} = ${a * b} шаршы, көбейткіштердің орнын ауыстырғаннан аудан өзгермейді.${t && o ? ` ${a} = ${t} + ${o} деп бөл: ${t * b} (көк) + ${o * b} (қызғылт сары) = ${a * b}.` : ''}`,
+        ),
+      };
+    },
+  },
+
+  decimals: {
+    title: L('Decimals: tenths and hundredths', 'Десятичные дроби: десятые и сотые', 'Ондық бөлшектер: ондықтар мен жүздіктер'),
+    intro: L('Split a square into 100 small cells. One cell is 0.01, a column of ten is 0.1. So 0.37 = 3 columns and 7 cells.', 'Раздели квадрат на 100 клеток. Одна клетка - 0,01, столбик из десяти - 0,1. Значит, 0,37 = 3 столбика и 7 клеток.', 'Шаршыны 100 торға бөл. Бір тор - 0,01, оннан тұратын баған - 0,1. Демек, 0,37 = 3 баған және 7 тор.'),
+    sliders: [{ id: 'x', label: 'x', min: 0, max: 1, step: 0.01, value: 0.37 }],
+    buttons: ['+0,1', '+0,01', '−0,01'],
+    onButton: (i, st, v) => ({ x: clamp(Math.round((v.x + [0.1, 0.01, -0.01][i]) * 100) / 100, 0, 1) }),
+    draw(v) {
+      const k = Math.round(v.x * 100);
+      const cells = Array.from({ length: 100 }, (_, i) => {
+        const col = Math.floor(i / 10);
+        const row = i % 10;
+        return `<rect x="${20 + col * 17}" y="${30 + (9 - row) * 17}" width="15" height="15" rx="2" class="ex-fill ${i < k ? (col < Math.floor(k / 10) ? 'exc-b' : 'exc-o') : 'exc-m'}" style="opacity:${i < k ? 0.85 : 0.15}"/>`;
+      }).join('');
+      const t = Math.floor(k / 10);
+      const h = k % 10;
+      return {
+        svg: `${cells}<text class="ex-big" x="260" y="80">${fmt(k / 100)}</text><text class="ex-tag" x="200" y="115">= ${fmt(t / 10, 1)} + ${fmt(h / 100)}</text><text class="ex-tag" x="200" y="140">= ${k}%</text><text class="ex-tag" x="200" y="165">= ${k}/100</text>`,
+        caption: L(`${fmt(k / 100)} is ${t} tenths (blue columns) and ${h} hundredths (orange cells) - ${k} cells out of 100, that is ${k}%.`, `${fmt(k / 100)} - это ${t} десятых (синие столбики) и ${h} сотых (оранжевые клетки) - ${k} клеток из 100, то есть ${k}%.`, `${fmt(k / 100)} - бұл ${t} ондық (көк бағандар) және ${h} жүздік (қызғылт сары торлар) - 100-ден ${k} тор, яғни ${k}%.`),
+      };
+    },
+  },
+
+  ratio: {
+    title: L('Ratio and proportion', 'Отношения и пропорции', 'Қатынас және пропорция'),
+    intro: L('A ratio 2 : 3 means for every 2 parts of one thing there are 3 parts of another. Scale both parts by the same number - the ratio stays the same.', 'Отношение 2 : 3 значит: на каждые 2 части одного приходится 3 части другого. Умножь обе части на одно число - отношение не изменится.', '2 : 3 қатынасы: біреуінің әр 2 бөлігіне екіншісінің 3 бөлігі келеді. Екі бөлікті бір санға көбейтсең - қатынас өзгермейді.'),
+    sliders: [
+      { id: 'p', label: L('juice parts', 'частей сока', 'шырын бөлігі'), min: 1, max: 6, value: 2 },
+      { id: 'q', label: L('water parts', 'частей воды', 'су бөлігі'), min: 1, max: 6, value: 3 },
+      { id: 'T', label: L('total, ml', 'всего, мл', 'барлығы, мл'), min: 100, max: 1000, step: 50, value: 500 },
+    ],
+    buttons: [L('Double the recipe', 'Удвоить рецепт', 'Рецептті екі есе'), RESET],
+    onButton: (i, st, v) => [{ T: clamp(v.T * 2, 100, 1000) }, { p: 2, q: 3, T: 500 }][i],
+    draw(v) {
+      const p = Math.round(v.p);
+      const q = Math.round(v.q);
+      const part = v.T / (p + q);
+      const w = 280 / (p + q);
+      const blocks = Array.from({ length: p + q }, (_, i) => `<rect x="${n1(20 + i * w)}" y="80" width="${n1(w - 3)}" height="50" rx="6" class="ex-fill ${i < p ? 'exc-o' : 'exc-b'}" style="opacity:.8"/>`).join('');
+      return {
+        svg: `<text class="ex-big" x="160" y="45">${p} : ${q}</text>${blocks}<text class="ex-tag" x="20" y="160">${u('one part', 'одна часть', 'бір бөлік')} = ${fmt(v.T, 0)} : ${p + q} = ${fmt(part, 1)}</text><text class="ex-tag" x="20" y="185">${u('juice', 'сок', 'шырын')} ${fmt(part * p, 1)} · ${u('water', 'вода', 'су')} ${fmt(part * q, 1)}</text>`,
+        caption: L(`Total ${fmt(v.T, 0)} ml in the ratio ${p} : ${q}: there are ${p + q} equal parts of ${fmt(part, 1)} ml, so juice ${fmt(part * p, 1)} ml and water ${fmt(part * q, 1)} ml.`, `Всего ${fmt(v.T, 0)} мл в отношении ${p} : ${q}: это ${p + q} равных частей по ${fmt(part, 1)} мл, значит сока ${fmt(part * p, 1)} мл, воды ${fmt(part * q, 1)} мл.`, `Барлығы ${fmt(v.T, 0)} мл, қатынасы ${p} : ${q}: бұл ${fmt(part, 1)} мл-ден ${p + q} тең бөлік, демек шырын ${fmt(part * p, 1)} мл, су ${fmt(part * q, 1)} мл.`),
+      };
+    },
+  },
+
+  sieve: {
+    title: L('Prime numbers: the sieve of Eratosthenes', 'Простые числа: решето Эратосфена', 'Жай сандар: Эратосфен елегі'),
+    intro: L('Cross out all multiples of 2, then of 3, 5, 7… What is left are primes - numbers divisible only by 1 and themselves.', 'Вычеркни все числа, кратные 2, потом 3, 5, 7… Останутся простые - числа, которые делятся только на 1 и на себя.', '2-ге еселі барлық сандарды сыз, кейін 3, 5, 7-ге… Жай сандар қалады - тек 1-ге және өзіне бөлінетін сандар.'),
+    sliders: [],
+    buttons: [L('Next prime', 'Следующее простое', 'Келесі жай сан'), L('▶ All', '▶ Всё', '▶ Барлығы'), RESET],
+    state: () => ({ done: [] }),
+    onButton(i, st, v, api) {
+      const next = () => {
+        const p = [2, 3, 5, 7].find((x) => !st.done.includes(x));
+        if (p) st.done.push(p);
+        return Boolean(p);
+      };
+      if (i === 0) next();
+      else if (i === 1) api.run(() => next(), 700);
+      else {
+        api.stop();
+        st.done = [];
+      }
+    },
+    draw(v, step, st) {
+      const crossedBy = (n) => st.done.find((p) => n !== p && n % p === 0);
+      const cells = Array.from({ length: 100 }, (_, i) => {
+        const n = i + 1;
+        const by = crossedBy(n);
+        const prime = n > 1 && !by && st.done.length === 4;
+        const x = 12 + (i % 10) * 30;
+        const y = 12 + Math.floor(i / 10) * 20;
+        const color = n === 1 ? 'exc-m' : by ? ['exc-r', 'exc-o', 'exc-b', 'exc-k'][[2, 3, 5, 7].indexOf(by)] : prime || st.done.includes(n) ? 'exc-g' : '';
+        return `<text class="ex-tiny ${color}" x="${x + 13}" y="${y + 13}" style="${by || n === 1 ? 'opacity:.35;text-decoration:line-through' : prime || st.done.includes(n) ? 'font-weight:900' : ''}">${n}</text>`;
+      }).join('');
+      const left = Array.from({ length: 99 }, (_, i) => i + 2).filter((n) => !crossedBy(n)).length;
+      return {
+        svg: cells,
+        caption: st.done.length
+          ? L(`Crossed out multiples of ${st.done.join(', ')}. ${st.done.length === 4 ? `The ${left} numbers left are all the primes up to 100.` : `${left} numbers are still left.`}`, `Вычеркнуты кратные ${st.done.join(', ')}. ${st.done.length === 4 ? `Оставшиеся ${left} чисел - все простые числа до 100.` : `Осталось ещё ${left} чисел.`}`, `${st.done.join(', ')}-ге еселілер сызылды. ${st.done.length === 4 ? `Қалған ${left} сан - 100-ге дейінгі барлық жай сандар.` : `Әлі ${left} сан қалды.`}`)
+          : L('Press "Next prime": we start with 2.', 'Нажми «Следующее простое» - начнём с 2.', '«Келесі жай сан» бас - 2-ден бастаймыз.'),
+      };
+    },
+  },
+
+  matrix: {
+    title: L('A matrix transforms the plane', 'Матрица преобразует плоскость', 'Матрица жазықтықты түрлендіреді'),
+    intro: L('A 2×2 matrix sends the vector (1; 0) to its first column and (0; 1) to its second. The unit square becomes a parallelogram whose area is the determinant.', 'Матрица 2×2 переводит вектор (1; 0) в свой первый столбец, а (0; 1) - во второй. Единичный квадрат становится параллелограммом, его площадь - определитель.', '2×2 матрица (1; 0) векторын бірінші бағанына, (0; 1)-ді екіншісіне апарады. Бірлік шаршы параллелограмға айналады, оның ауданы - анықтауыш.'),
+    sliders: [
+      { id: 'a', label: 'a', min: -2, max: 2, step: C, value: 1.5 },
+      { id: 'b', label: 'b', min: -2, max: 2, step: C, value: 0.5 },
+      { id: 'c', label: 'c', min: -2, max: 2, step: C, value: 0 },
+      { id: 'd', label: 'd', min: -2, max: 2, step: C, value: 1 },
+    ],
+    buttons: [L('Identity', 'Единичная', 'Бірлік'), L('Rotate 90°', 'Поворот 90°', '90° бұру'), L('det = 0', 'det = 0', 'det = 0')],
+    onButton: (i) => [{ a: 1, b: 0, c: 0, d: 1 }, { a: 0, b: -1, c: 1, d: 0 }, { a: 1, b: 2, c: 0.5, d: 1 }][i],
+    draw(v) {
+      const sx = (x) => 160 + x * 32;
+      const sy = (y) => 110 - y * 32;
+      const P = (x, y) => [v.a * x + v.b * y, v.c * x + v.d * y];
+      const pts = [P(0, 0), P(1, 0), P(1, 1), P(0, 1)].map(([x, y]) => `${n1(sx(x))},${n1(sy(y))}`).join(' ');
+      const det = v.a * v.d - v.b * v.c;
+      return {
+        svg: `${axes(sx, sy, [-5, 5], [-3, 3])}<polygon points="${sx(0)},${sy(0)} ${sx(1)},${sy(0)} ${sx(1)},${sy(1)} ${sx(0)},${sy(1)}" class="ex-fill exc-m" style="opacity:.2"/>
+          <polygon points="${pts}" class="ex-fill exc-p" style="opacity:.35"/>${arrow(sx(0), sy(0), sx(v.a), sy(v.c), 'exc-o', 2.5)}${arrow(sx(0), sy(0), sx(v.b), sy(v.d), 'exc-b', 2.5)}
+          <text class="ex-tag" x="8" y="18">(${fmt(v.a)} ${fmt(v.b)} / ${fmt(v.c)} ${fmt(v.d)})</text><text class="ex-tag" x="8" y="38">det = ad − bc = ${fmt(det)}</text>`,
+        caption: L(
+          `The orange arrow is the first column (${fmt(v.a)}; ${fmt(v.c)}), the blue one the second (${fmt(v.b)}; ${fmt(v.d)}). det = ${fmt(det)}: the area changed ${fmt(Math.abs(det))} times${det < 0 ? ', and the picture is flipped' : ''}${Math.abs(det) < 0.01 ? ' - everything is squashed onto a line, there is no inverse matrix' : ''}.`,
+          `Оранжевая стрелка - первый столбец (${fmt(v.a)}; ${fmt(v.c)}), синяя - второй (${fmt(v.b)}; ${fmt(v.d)}). det = ${fmt(det)}: площадь изменилась в ${fmt(Math.abs(det))} раза${det < 0 ? ', а фигура перевернулась' : ''}${Math.abs(det) < 0.01 ? ' - всё сплющилось в прямую, обратной матрицы нет' : ''}.`,
+          `Қызғылт сары нұсқар - бірінші баған (${fmt(v.a)}; ${fmt(v.c)}), көгі - екінші (${fmt(v.b)}; ${fmt(v.d)}). det = ${fmt(det)}: аудан ${fmt(Math.abs(det))} есе өзгерді${det < 0 ? ', ал фигура аударылды' : ''}${Math.abs(det) < 0.01 ? ' - бәрі түзуге жаншылды, кері матрица жоқ' : ''}.`,
+        ),
+      };
+    },
+  },
+
+  ions: {
+    title: L('Writing formulas from ion charges', 'Формулы по зарядам ионов', 'Иондар зарядтары бойынша формула'),
+    intro: L('A compound is neutral: the total plus charge equals the total minus charge. Ca²⁺ and Cl⁻ give CaCl₂ - two Cl⁻ balance one Ca²⁺.', 'Вещество электронейтрально: сумма плюсов равна сумме минусов. Ca²⁺ и Cl⁻ дают CaCl₂ - два Cl⁻ уравновешивают один Ca²⁺.', 'Зат электрбейтарап: оң зарядтар қосындысы теріс зарядтар қосындысына тең. Ca²⁺ мен Cl⁻ CaCl₂ береді - екі Cl⁻ бір Ca²⁺-ті теңестіреді.'),
+    sliders: [],
+    buttons: ['Na⁺', 'Ca²⁺', 'Al³⁺', 'Cl⁻', 'O²⁻', 'PO₄³⁻'],
+    state: () => ({ c: 1, an: 0 }),
+    pressed: (i, v, st) => (i < 3 ? i === st.c : i - 3 === st.an),
+    onButton(i, st) {
+      if (i < 3) st.c = i;
+      else st.an = i - 3;
+    },
+    draw(v, step, st) {
+      const CAT = [['Na', 1], ['Ca', 2], ['Al', 3]];
+      const AN = [['Cl', 1, false], ['O', 2, false], ['PO₄', 3, true]];
+      const [cs, cq] = CAT[st.c];
+      const [as, aq, poly] = AN[st.an];
+      const g = (x, y) => (y ? g(y, x % y) : x);
+      const l = (cq * aq) / g(cq, aq);
+      const nc = l / cq;
+      const na = l / aq;
+      const sub = (n) => (n > 1 ? String(n).replace(/\d/g, (d) => '₀₁₂₃₄₅₆₇₈₉'[d]) : '');
+      const formula = `${cs}${sub(nc)}${poly && na > 1 ? `(${as})${sub(na)}` : `${as}${sub(na)}`}`;
+      const sup = (q, s) => `${q > 1 ? '⁰¹²³⁴⁵⁶⁷⁸⁹'[q] : ''}${s === '+' ? '⁺' : '⁻'}`;
+      const bubbles = [
+        ...Array.from({ length: nc }, (_, i) => `<circle class="ex-fill exc-o" cx="${40 + i * 44}" cy="90" r="18"/><text class="ex-small" x="${40 + i * 44}" y="95" style="fill:#fff">${cs}${sup(cq, '+')}</text>`),
+        ...Array.from({ length: na }, (_, i) => `<circle class="ex-fill exc-b" cx="${40 + i * 44}" cy="150" r="18"/><text class="ex-small" x="${40 + i * 44}" y="155" style="fill:#fff;font-size:11px">${as}${sup(aq, '−')}</text>`),
+      ].join('');
+      return {
+        svg: `${bubbles}<text class="ex-big" x="250" y="110">${formula}</text><text class="ex-tag" x="200" y="150">+${nc * cq} ${u('and', 'и', 'және')} −${na * aq}</text>`,
+        caption: L(
+          `${cs}${sup(cq, '+')} and ${as}${sup(aq, '−')}: the smallest common multiple of ${cq} and ${aq} is ${l}, so ${nc} × (+${cq}) = ${na} × (−${aq}) in size. Formula: ${formula}.`,
+          `${cs}${sup(cq, '+')} и ${as}${sup(aq, '−')}: наименьшее общее кратное ${cq} и ${aq} - ${l}, поэтому ${nc} × (+${cq}) уравновешивают ${na} × (−${aq}). Формула: ${formula}.`,
+          `${cs}${sup(cq, '+')} және ${as}${sup(aq, '−')}: ${cq} пен ${aq}-тің ең кіші ортақ еселігі - ${l}, сондықтан ${nc} × (+${cq}) ${na} × (−${aq})-ті теңестіреді. Формула: ${formula}.`,
+        ),
+      };
+    },
+  },
+
+  download: {
+    title: L('Data size and transfer speed', 'Объём данных и скорость передачи', 'Деректер көлемі және беру жылдамдығы'),
+    intro: L('Speed is usually in megaBITS per second, files in megaBYTES. 1 byte = 8 bits, so a 100 Mbit/s line moves 12.5 MB each second.', 'Скорость обычно в мегаБИТАХ в секунду, а файлы - в мегаБАЙТАХ. 1 байт = 8 бит, поэтому линия 100 Мбит/с передаёт 12,5 МБ в секунду.', 'Жылдамдық әдетте секундына мегаБИТпен, ал файлдар мегаБАЙТпен. 1 байт = 8 бит, сондықтан 100 Мбит/с желі секундына 12,5 МБ береді.'),
+    sliders: [
+      { id: 'size', label: L('file, MB', 'файл, МБ', 'файл, МБ'), min: 1, max: 4000, step: 1, value: 700 },
+      { id: 'sp', label: L('speed, Mbit/s', 'скорость, Мбит/с', 'жылдамдық, Мбит/с'), min: 1, max: 500, step: 1, value: 50 },
+    ],
+    buttons: [L('▶ Download', '▶ Скачать', '▶ Жүктеу')],
+    state: () => ({ p: 0, run: false }),
+    onButton(i, st) {
+      st.p = 0;
+      st.run = true;
+    },
+    onSlide(key, v, st) {
+      st.p = 0;
+      st.run = false;
+    },
+    live(dt, v, st) {
+      if (!st.run) return;
+      st.p = Math.min(1, st.p + dt / 3);
+      if (st.p >= 1) st.run = false;
+    },
+    draw(v, step, st) {
+      const t = (v.size * 8) / v.sp;
+      const mm = Math.floor(t / 60);
+      const ss = Math.round(t % 60);
+      return {
+        svg: `<text class="ex-big" x="160" y="55">t = ${fmt(v.size, 0)} · 8 / ${fmt(v.sp, 0)} ≈ ${mm ? `${mm} ${u('min', 'мин', 'мин')} ` : ''}${ss} ${u('s', 'с', 'с')}</text>
+          <rect x="20" y="100" width="280" height="22" rx="11" class="ex-fill exc-m" style="opacity:.2"/><rect x="20" y="100" width="${n1(280 * st.p)}" height="22" rx="11" class="ex-fill exc-g"/>
+          <text class="ex-tag" x="20" y="150">${fmt(v.size * st.p, 0)} / ${fmt(v.size, 0)} ${u('MB', 'МБ', 'МБ')}</text><text class="ex-tag" x="20" y="175">${fmt(v.sp / 8, 2)} ${u('MB per second', 'МБ в секунду', 'секундына МБ')}</text>`,
+        caption: L(
+          `${fmt(v.size, 0)} MB = ${fmt(v.size * 8, 0)} Mbit. At ${fmt(v.sp, 0)} Mbit/s that takes ${fmt(t, 1)} s. The usual trap: forgetting to multiply by 8.`,
+          `${fmt(v.size, 0)} МБ = ${fmt(v.size * 8, 0)} Мбит. При ${fmt(v.sp, 0)} Мбит/с это ${fmt(t, 1)} с. Частая ловушка - забыть умножить на 8.`,
+          `${fmt(v.size, 0)} МБ = ${fmt(v.size * 8, 0)} Мбит. ${fmt(v.sp, 0)} Мбит/с жылдамдықта бұл ${fmt(t, 1)} с. Жиі тұзақ - 8-ге көбейтуді ұмыту.`,
+        ),
+      };
+    },
+  },
 };
 
 // Данные для сцен.

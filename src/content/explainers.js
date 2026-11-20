@@ -52,6 +52,16 @@ export const EXPLAINERS = [
   { id: 'volume', subj: 'geometry', icon: '📦', topics: ['m.vol'] },
   { id: 'complex', subj: 'higher', icon: '🧭', topics: ['m.complex'] },
   { id: 'limit', subj: 'higher', icon: '🎯', topics: ['m.limit'] },
+  { id: 'tens', subj: 'algebra', icon: '🧩', topics: ['m.early'] },
+  { id: 'column', subj: 'algebra', icon: '📊', topics: ['m.add'] },
+  { id: 'numline', subj: 'algebra', icon: '📏', topics: ['m.neg'] },
+  { id: 'areamul', subj: 'algebra', icon: '📐', topics: ['m.mul'] },
+  { id: 'decimals', subj: 'algebra', icon: '💯', topics: ['m.dec'] },
+  { id: 'ratio', subj: 'algebra', icon: '⚖️', topics: ['m.ratio'] },
+  { id: 'sieve', subj: 'algebra', icon: '🔍', topics: ['m.divis'] },
+  { id: 'matrix', subj: 'higher', icon: '🧮', topics: ['m.matrix'] },
+  { id: 'ions', subj: 'chemistry', icon: '⚗️', topics: ['c.salts'] },
+  { id: 'download', subj: 'cs', icon: '💻', topics: ['i.theory'] },
 ];
 
 const BY_TOPIC = new Map(EXPLAINERS.flatMap((e) => e.topics.map((topic) => [topic, e.id])));
