@@ -581,3 +581,5 @@ export const PHYSICS_THEORY = [
 // Дополнительные вопросы - в science-more.js.
 PHYSICS_THEORY.push(...PHYSICS_MORE);
 PHYSICS_THEORY.push(...PHYSICS_MORE2);
+import { PHYSICS_THEORY_MORE4 } from './theory-more4.js';
+PHYSICS_THEORY.push(...PHYSICS_THEORY_MORE4);

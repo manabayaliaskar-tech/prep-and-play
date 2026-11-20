@@ -104,13 +104,13 @@ export const TOPICS = {
   'p.elec': topic('physics', L('Electricity', 'Электричество', 'Электр'), electricity),
   'p.heat': topic('physics', L('Heat', 'Тепловые явления', 'Жылу құбылыстары'), heat),
   'p.wave': topic('physics', L('Oscillations, waves, optics', 'Колебания, волны, оптика', 'Тербелістер, толқындар, оптика'), waves),
-  'p.theory': topic('physics', L('Laws and units', 'Законы и единицы', 'Заңдар мен бірліктер'), bankMaker('p.theory', PHYSICS_THEORY)),
+  'p.theory': topic('physics', L('Laws and units', 'Законы и единицы', 'Заңдар мен бірліктер'), bankMaker('p.theory', PHYSICS_THEORY, { tf: true })),
   'p.facts': topic('physics', L('Units, formulas, scientists', 'Единицы, формулы, учёные', 'Бірліктер, формулалар, ғалымдар'), physicsFactsMaker('p.facts')),
 
   // ----- Химия -----
   'c.molar': topic('chemistry', L('Molar mass and mass fraction', 'Молярная масса и массовая доля', 'Молярлық масса және массалық үлес'), molarMass),
   'c.mole': topic('chemistry', L('Amount of substance and reactions', 'Количество вещества и расчёты по уравнениям', 'Зат мөлшері және теңдеу бойынша есептеулер'), moles),
-  'c.theory': topic('chemistry', L('Substances and reactions', 'Вещества и реакции', 'Заттар мен реакциялар'), bankMaker('c.theory', CHEMISTRY_THEORY)),
+  'c.theory': topic('chemistry', L('Substances and reactions', 'Вещества и реакции', 'Заттар мен реакциялар'), bankMaker('c.theory', CHEMISTRY_THEORY, { tf: true })),
   'c.elem': topic('chemistry', L('The periodic table', 'Таблица Менделеева', 'Менделеев кестесі'), elementsMaker('c.elem')),
   'c.salts': topic('chemistry', L('Formulas and names of compounds', 'Формулы и названия веществ', 'Заттардың формулалары мен атаулары'), compoundsMaker('c.salts')),
 
@@ -119,11 +119,11 @@ export const TOPICS = {
   'i.units': topic('informatics', L('Measuring information', 'Измерение информации', 'Ақпаратты өлшеу'), infoUnits),
   'i.logic': topic('informatics', L('Logic', 'Логика', 'Логика'), boolLogic),
   'i.algo': topic('informatics', L('Algorithms', 'Алгоритмы', 'Алгоритмдер'), algorithms),
-  'i.theory': topic('informatics', L('Computers and networks', 'Компьютер и сети', 'Компьютер және желілер'), bankMaker('i.theory', INFORMATICS_THEORY)),
+  'i.theory': topic('informatics', L('Computers and networks', 'Компьютер и сети', 'Компьютер және желілер'), bankMaker('i.theory', INFORMATICS_THEORY, { tf: true })),
   'i.facts': topic('informatics', L('Devices, files, terms', 'Устройства, файлы, термины', 'Құрылғылар, файлдар, терминдер'), informaticsFactsMaker('i.facts')),
 
   // ----- Биология и география -----
-  'b.bank': topic('biology', L('Biology', 'Биология', 'Биология'), bankMaker('b.bank', BIOLOGY)),
+  'b.bank': topic('biology', L('Biology', 'Биология', 'Биология'), bankMaker('b.bank', BIOLOGY, { tf: true })),
   'b.animals': topic('biology', L('Classes of animals', 'Классы животных', 'Жануарлар кластары'), biologyMaker('b.animals', 'animals')),
   'b.body': topic('biology', L('The human body', 'Организм человека', 'Адам ағзасы'), biologyMaker('b.body', 'body')),
   'b.gen': topic('biology', L('Genetics problems', 'Задачи по генетике', 'Генетика есептері'), geneticsMaker('b.gen')),
@@ -131,23 +131,23 @@ export const TOPICS = {
   'b.eco': topic('biology', L('Ecology', 'Экология', 'Экология'), biologyMaker('b.eco', 'eco')),
   'b.sci': topic('biology', L('Great biologists', 'Великие биологи', 'Ұлы биологтар'), biologyMaker('b.sci', 'sci')),
   'b.cell': topic('biology', L('The cell and great biologists', 'Клетка и великие биологи', 'Жасуша және ұлы биологтар'), biologyMaker('b.cell', 'cell')),
-  'g.bank': topic('geography', L('Geography', 'География', 'География'), bankMaker('g.bank', GEOGRAPHY)),
+  'g.bank': topic('geography', L('Geography', 'География', 'География'), bankMaker('g.bank', GEOGRAPHY, { tf: true })),
   'g.world': topic('geography', L('Countries and capitals', 'Страны и столицы', 'Елдер мен астаналар'), worldMaker('g.world')),
   'g.records': topic('geography', L('Mountains, rivers, lakes, countries', 'Горы, реки, озёра, страны', 'Таулар, өзендер, көлдер, елдер'), recordsMaker('g.records')),
   'g.kz': topic('geography', L('Geography of Kazakhstan', 'География Казахстана', 'Қазақстан географиясы'), kazakhstanMaker('g.kz')),
 
   // ----- История и обществознание -----
-  'h.kz': topic('history', L('History of Kazakhstan', 'История Казахстана', 'Қазақстан тарихы'), bankMaker('h.kz', HISTORY_KZ)),
-  'h.world': topic('history', L('World history', 'Всемирная история', 'Дүниежүзі тарихы'), bankMaker('h.world', HISTORY_WORLD)),
-  'h.ru': topic('history', L('History of Russia', 'История России', 'Ресей тарихы'), bankMaker('h.ru', HISTORY_RU)),
-  'h.uz': topic('history', L('History of Uzbekistan', 'История Узбекистана', 'Өзбекстан тарихы'), bankMaker('h.uz', HISTORY_REGION.uz)),
-  'h.kg': topic('history', L('History of Kyrgyzstan', 'История Кыргызстана', 'Қырғызстан тарихы'), bankMaker('h.kg', HISTORY_REGION.kg)),
-  'h.tj': topic('history', L('History of Tajikistan', 'История Таджикистана', 'Тәжікстан тарихы'), bankMaker('h.tj', HISTORY_REGION.tj)),
-  'h.az': topic('history', L('History of Azerbaijan', 'История Азербайджана', 'Әзербайжан тарихы'), bankMaker('h.az', HISTORY_REGION.az)),
-  'h.am': topic('history', L('History of Armenia', 'История Армении', 'Армения тарихы'), bankMaker('h.am', HISTORY_REGION.am)),
-  'h.by': topic('history', L('History of Belarus', 'История Беларуси', 'Беларусь тарихы'), bankMaker('h.by', HISTORY_REGION.by)),
-  'h.md': topic('history', L('History of Moldova', 'История Молдовы', 'Молдова тарихы'), bankMaker('h.md', HISTORY_REGION.md)),
-  's.bank': topic('social', L('Social studies', 'Обществознание', 'Қоғамтану'), bankMaker('s.bank', SOCIAL)),
+  'h.kz': topic('history', L('History of Kazakhstan', 'История Казахстана', 'Қазақстан тарихы'), bankMaker('h.kz', HISTORY_KZ, { tf: true })),
+  'h.world': topic('history', L('World history', 'Всемирная история', 'Дүниежүзі тарихы'), bankMaker('h.world', HISTORY_WORLD, { tf: true })),
+  'h.ru': topic('history', L('History of Russia', 'История России', 'Ресей тарихы'), bankMaker('h.ru', HISTORY_RU, { tf: true })),
+  'h.uz': topic('history', L('History of Uzbekistan', 'История Узбекистана', 'Өзбекстан тарихы'), bankMaker('h.uz', HISTORY_REGION.uz, { tf: true })),
+  'h.kg': topic('history', L('History of Kyrgyzstan', 'История Кыргызстана', 'Қырғызстан тарихы'), bankMaker('h.kg', HISTORY_REGION.kg, { tf: true })),
+  'h.tj': topic('history', L('History of Tajikistan', 'История Таджикистана', 'Тәжікстан тарихы'), bankMaker('h.tj', HISTORY_REGION.tj, { tf: true })),
+  'h.az': topic('history', L('History of Azerbaijan', 'История Азербайджана', 'Әзербайжан тарихы'), bankMaker('h.az', HISTORY_REGION.az, { tf: true })),
+  'h.am': topic('history', L('History of Armenia', 'История Армении', 'Армения тарихы'), bankMaker('h.am', HISTORY_REGION.am, { tf: true })),
+  'h.by': topic('history', L('History of Belarus', 'История Беларуси', 'Беларусь тарихы'), bankMaker('h.by', HISTORY_REGION.by, { tf: true })),
+  'h.md': topic('history', L('History of Moldova', 'История Молдовы', 'Молдова тарихы'), bankMaker('h.md', HISTORY_REGION.md, { tf: true })),
+  's.bank': topic('social', L('Social studies', 'Обществознание', 'Қоғамтану'), bankMaker('s.bank', SOCIAL, { tf: true })),
   's.powers': topic('social', L('Branches of power and spheres of society', 'Ветви власти и сферы общества', 'Билік тармақтары мен қоғам салалары'), powersMaker('s.powers')),
   's.terms': topic('social', L('Terms of social studies', 'Термины обществознания', 'Қоғамтану терминдері'), socialMaker('s.terms')),
   'h.kzt': topic('history', L('Kazakhstan: dates and people', 'Казахстан: даты и личности', 'Қазақстан: даталар мен тұлғалар'), timelineMaker('h.kzt', 'kz')),
@@ -162,7 +162,7 @@ export const TOPICS = {
   'h.mdt': topic('history', L('Moldova: dates and people', 'Молдова: даты и личности', 'Молдова: даталар мен тұлғалар'), timelineMaker('h.mdt', 'md')),
 
   // ----- Русский язык, логика и чтение на языке интерфейса -----
-  'l.ru': topic('russian', L('Russian language', 'Русский язык', 'Орыс тілі'), bankMaker('l.ru', RUSSIAN)),
+  'l.ru': topic('russian', L('Russian language', 'Русский язык', 'Орыс тілі'), bankMaker('l.ru', RUSSIAN, { tf: true })),
   'l.rugen': topic('russian', L('Stress and spelling', 'Ударения и словарные слова', 'Екпін және сөздік сөздер'), russianMaker('l.rugen')),
   'l.analogy': topic('russian', L('Analogies', 'Аналогии', 'Аналогиялар'), bankMaker('l.analogy', ANALOGIES)),
   'l.analogy2': topic('russian', L('Word analogies', 'Аналогии слов', 'Сөз аналогиялары'), analogyMaker('l.analogy2')),
@@ -186,7 +186,7 @@ export const TOPICS = {
   'zh.words': topic('chinese', L('Chinese characters and pinyin', 'Китайский: иероглифы и пиньинь', 'Қытай тілі: иероглифтер мен пиньинь'), hanziMaker('zh.words')),
 
   // ----- Программирование -----
-  'code.theory': topic('code', L('Programming basics', 'Основы программирования', 'Бағдарламалау негіздері'), bankMaker('code.theory', CODE_THEORY)),
+  'code.theory': topic('code', L('Programming basics', 'Основы программирования', 'Бағдарламалау негіздері'), bankMaker('code.theory', CODE_THEORY, { tf: true })),
   'code.terms': topic('code', L('Programming terms', 'Понятия программирования', 'Бағдарламалау ұғымдары'), codeTermsMaker('code.terms')),
   ...Object.fromEntries(
     Object.entries(CODE_LANGS).flatMap(([lang, { name }]) =>

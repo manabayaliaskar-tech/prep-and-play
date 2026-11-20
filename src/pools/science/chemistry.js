@@ -219,3 +219,5 @@ export const CHEMISTRY_THEORY = [
 // Дополнительные вопросы - в science-more.js.
 CHEMISTRY_THEORY.push(...CHEMISTRY_MORE);
 CHEMISTRY_THEORY.push(...CHEMISTRY_MORE2);
+import { CHEMISTRY_THEORY_MORE4 } from './theory-more4.js';
+CHEMISTRY_THEORY.push(...CHEMISTRY_THEORY_MORE4);

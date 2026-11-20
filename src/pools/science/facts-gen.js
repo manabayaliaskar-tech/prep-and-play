@@ -4,6 +4,7 @@
 
 import { hashString, pick, shuffle } from '../../core/random.js';
 import { L, poolQ } from '../gen.js';
+import { pairPrompt, tfQ } from '../tf.js';
 
 const rows = (text) => text.trim().split('\n').map((line) => line.split('|'));
 
@@ -229,6 +230,16 @@ function pairTask(ctx, topic, d, table) {
   const { rng } = ctx;
   const pool = table.items.filter((p) => p.d <= d);
   const p = pick(rng, d === 1 ? pool : pool.filter((x) => x.d >= d - 1));
+  if (rng() < 0.45) {
+    const ok = rng() < 0.5;
+    const other = pick(rng, distinct(rng, table.items.filter((x) => x !== p), p, (x) => x.b));
+    return tfQ(ctx, topic, d, {
+      prompt: pairPrompt(p.a, ok ? p.b : other.b),
+      ok,
+      ex: L(`Correct: ${p.a.en} - ${p.b.en}.`, `Верно так: ${p.a.ru} - ${p.b.ru}.`, `Дұрысы: ${p.a.kk} - ${p.b.kk}.`),
+      id: `${topic}:${table.id}:tf${ok ? 't' : 'f'}:${p.a.en}`,
+    });
+  }
   const fwd = rng() < 0.5;
   const wrong = distinct(rng, table.items.filter((x) => x !== p), p, (x) => (fwd ? x.b : x.a));
   const q = poolQ(topic, d, {

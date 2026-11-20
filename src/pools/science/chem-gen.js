@@ -3,6 +3,7 @@
 
 import { hashString, pick, shuffle } from '../../core/random.js';
 import { L, ask, n, plural, poolQ, same, steps } from '../gen.js';
+import { pairPrompt, tfQ } from '../tf.js';
 
 // Z|символ|en|ru|kk|масса|группа главной подгруппы (0 - побочная)|период|тип (m - металл, n - неметалл, g - благородный газ)
 const ELEMENTS_TEXT = `
@@ -152,6 +153,7 @@ const CATIONS = [
   ['Na', 1, 'sodium', 'натрия', 'натрий'],
   ['K', 1, 'potassium', 'калия', 'калий'],
   ['Ag', 1, 'silver', 'серебра', 'күміс'],
+  ['Li', 1, 'lithium', 'лития', 'литий'],
   ['Ca', 2, 'calcium', 'кальция', 'кальций'],
   ['Mg', 2, 'magnesium', 'магния', 'магний'],
   ['Ba', 2, 'barium', 'бария', 'барий'],
@@ -172,10 +174,15 @@ const ANIONS = [
   ['SO₄', [['S', 1], ['O', 4]], 2, 'sulfate', 'сульфат', 'сульфаты'],
   ['CO₃', [['C', 1], ['O', 3]], 2, 'carbonate', 'карбонат', 'карбонаты'],
   ['PO₄', [['P', 1], ['O', 4]], 3, 'phosphate', 'фосфат', 'фосфаты'],
+  ['F', [['F', 1]], 1, 'fluoride', 'фторид', 'фториді'],
+  ['Br', [['Br', 1]], 1, 'bromide', 'бромид', 'бромиді'],
+  ['I', [['I', 1]], 1, 'iodide', 'иодид', 'иодиді'],
+  ['NO₂', [['N', 1], ['O', 2]], 1, 'nitrite', 'нитрит', 'нитриті'],
+  ['MnO₄', [['Mn', 1], ['O', 4]], 1, 'permanganate', 'перманганат', 'перманганаты'],
 ];
 
 /** Соединения, которых нет или которые сразу разлагаются водой, - не используем. */
-const SKIP = new Set(['Al:CO₃', 'Fe3:CO₃', 'Cu:CO₃', 'Al:S', 'Fe3:S', 'Ag:OH', 'Ag:CO₃']);
+const SKIP = new Set(['Al:CO₃', 'Fe3:CO₃', 'Cu:CO₃', 'Al:S', 'Fe3:S', 'Ag:OH', 'Ag:CO₃', 'Cu:I', 'Fe3:I', 'Cu:NO₂', 'Fe2:NO₂', 'Fe3:NO₂', 'Al:NO₂', 'Zn:NO₂', 'Cu:MnO₄', 'Fe2:MnO₄', 'Fe3:MnO₄', 'Al:MnO₄']);
 
 const gcd = (a, b) => (b ? gcd(b, a % b) : a);
 const poly = (an) => an[1].length > 1;
@@ -212,13 +219,24 @@ export function compoundsMaker(topic) {
     const pool = COMPOUNDS.filter((c) => c.level <= d);
     for (let attempt = 0; attempt < 10; attempt++) {
       const c = pick(rng, d === 1 ? pool : pool.filter((x) => x.level >= d - 1));
-      const mode = pick(rng, d === 1 ? ['formula', 'name'] : ['formula', 'name', 'mass']);
+      const mode = pick(rng, d === 1 ? ['formula', 'name', 'tf'] : ['formula', 'name', 'mass', 'tf']);
       const valence = L(
         `${c.cat[0]} has charge ${c.cat[1]}+, ${c.an[0]} has charge ${c.an[2]}−; the totals must cancel out: ${c.formula}.`,
         `Заряд ${c.cat[0]}: ${c.cat[1]}+, заряд ${c.an[0]}: ${c.an[2]}−; суммарные заряды должны уравняться: ${c.formula}.`,
         `${c.cat[0]} заряды: ${c.cat[1]}+, ${c.an[0]} заряды: ${c.an[2]}−; жалпы зарядтар теңесуі керек: ${c.formula}.`,
       );
       let q;
+      if (mode === 'tf') {
+        const ok = rng() < 0.5;
+        const other = pick(rng, COMPOUNDS.filter((x) => x !== c && (x.cat === c.cat || x.an === c.an)));
+        const form = { en: c.formula, ru: c.formula, kk: c.formula };
+        return tfQ(ctx, topic, d, {
+          prompt: pairPrompt(form, ok ? c.name : other.name),
+          ok,
+          ex: L(`Correct: ${c.formula} - ${c.name.en}.`, `Верно так: ${c.formula} - ${c.name.ru}.`, `Дұрысы: ${c.formula} - ${c.name.kk}.`),
+          id: `${topic}:tf${ok ? 't' : 'f'}:${c.formula}`,
+        });
+      }
       if (mode === 'formula') {
         const wrong = [...new Set(c.wrongs)].filter((f) => f !== c.formula);
         q = poolQ(topic, d, {

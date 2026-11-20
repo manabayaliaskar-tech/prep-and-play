@@ -4,6 +4,7 @@
 
 import { hashString, pick, shuffle } from '../../core/random.js';
 import { L, poolQ } from '../gen.js';
+import { pairPrompt, tfQ } from '../tf.js';
 import { R } from '../bank.js';
 
 const rows = (text) => text.trim().split('\n').map((line) => line.split('|'));
@@ -240,6 +241,23 @@ export function socialMaker(topic) {
       const pool = TERMS.filter((t) => t.d <= d);
       const t = pick(rng, d === 1 ? pool : pool.filter((x) => x.d >= d - 1));
       const wrong = shuffle(TERMS.filter((x) => x !== t), rng).slice(0, 3);
+      if (rng() < 0.45) {
+        const others = shuffle(TERMS.filter((x) => x !== t), rng).slice(0, 4);
+        const pairText = (a, b) => L(`${a.term.en} - ${b.def.en}`, `${a.term.ru} - ${b.def.ru}`, `${a.term.kk} - ${b.def.kk}`);
+        const negative = rng() < 0.5;
+        const q2 = poolQ(topic, d, {
+          kind: 'text',
+          prompt: negative
+            ? L('Which of these pairs is INCORRECT?', 'Какая из этих пар составлена НЕВЕРНО?', 'Мына жұптардың қайсысы ДҰРЫС ЕМЕС?')
+            : L('Which of these pairs is correct?', 'Какая из этих пар составлена верно?', 'Мына жұптардың қайсысы дұрыс?'),
+          ex: L(`${t.term.en} - ${t.def.en}.`, `${t.term.ru} - ${t.def.ru}.`, `${t.term.kk} - ${t.def.kk}.`),
+          mc: negative
+            ? mcOf(rng, pairText(t, others[0]), others.slice(1).map((o) => pairText(o, o)))
+            : mcOf(rng, pairText(t, t), others.slice(0, 3).map((o) => pairText(t, o))),
+        });
+        q2.id = `${topic}:${negative ? 'n' : 'p'}:${t.term.en}`;
+        return q2;
+      }
       const fwd = rng() < 0.5;
       const q = poolQ(topic, d, {
         kind: 'text',
@@ -340,7 +358,28 @@ export function powersMaker(topic) {
     const { rng } = ctx;
     for (let attempt = 0; attempt < 10; attempt++) {
       let q;
-      if (rng() < 0.5) {
+      if (rng() < 0.4) {
+        const ok = rng() < 0.5;
+        if (rng() < 0.5) {
+          const body = pick(rng, BODIES);
+          const other = pick(rng, Object.keys(BRANCHES).filter((k) => k !== body.b));
+          q = tfQ(ctx, topic, d, {
+            prompt: pairPrompt(body.name, BRANCHES[ok ? body.b : other]),
+            ok,
+            ex: L(`Correct: ${body.name.en} - ${BRANCHES[body.b].en}.`, `Верно так: ${body.name.ru} - ${BRANCHES[body.b].ru}.`, `Дұрысы: ${body.name.kk} - ${BRANCHES[body.b].kk}.`),
+            id: `${topic}:btf${ok ? 't' : 'f'}:${body.name.en}`,
+          });
+        } else {
+          const f = pick(rng, FACTS);
+          const other = pick(rng, Object.keys(SPHERES).filter((k) => k !== f.s));
+          q = tfQ(ctx, topic, d, {
+            prompt: pairPrompt(f.fact, SPHERES[ok ? f.s : other]),
+            ok,
+            ex: L(`Correct: ${f.fact.en} - ${SPHERES[f.s].en} sphere.`, `Верно так: ${f.fact.ru} - ${SPHERES[f.s].ru} сфера.`, `Дұрысы: ${f.fact.kk} - ${SPHERES[f.s].kk} сала.`),
+            id: `${topic}:stf${ok ? 't' : 'f'}:${f.fact.en}`,
+          });
+        }
+      } else if (rng() < 0.5) {
         const body = pick(rng, BODIES);
         const wrong = Object.keys(BRANCHES).filter((k) => k !== body.b).map((k) => BRANCHES[k]);
         const extra = L('it is not a body of state power', 'это не орган государственной власти', 'бұл мемлекеттік билік органы емес');
