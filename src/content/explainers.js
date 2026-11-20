@@ -2,7 +2,7 @@
 // Сами анимации - в screens/explain.js.
 
 /** Разделы страницы анимаций по порядку; subj у анимации - один из них. */
-export const EXPLAIN_SUBJECTS = ['algebra', 'geometry', 'higher', 'physics', 'chemistry', 'biology', 'cs', 'geo'];
+export const EXPLAIN_SUBJECTS = ['algebra', 'geometry', 'higher', 'physics', 'chemistry', 'biology', 'cs', 'geo', 'history', 'english'];
 
 export const EXPLAINERS = [
   { id: 'balance', subj: 'algebra', icon: '⚖️', topics: ['m.lineq'] },
@@ -73,6 +73,9 @@ export const EXPLAINERS = [
   { id: 'refraction', subj: 'physics', icon: '🔍', topics: ['p.wave'] },
   { id: 'melting', subj: 'physics', icon: '🧊', topics: ['p.heat'] },
   { id: 'pressure', subj: 'physics', icon: '🌊', topics: ['p.theory'] },
+  { id: 'timeline-kz', subj: 'history', icon: '📜', topics: ['h.kz'] },
+  { id: 'timeline-world', subj: 'history', icon: '🌍', topics: ['h.world'] },
+  { id: 'tenses', subj: 'english', icon: '⏳', topics: ['e.tenses'] },
 ];
 
 // У темы может быть несколько анимаций - в уроке и разборе показываем первую.

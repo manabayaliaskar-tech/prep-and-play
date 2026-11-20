@@ -2721,6 +2721,120 @@ const SCENES = {
       };
     },
   },
+
+  // ===== История и английский: ленты времени и времена глаголов =====
+
+  'timeline-kz': {
+    title: L('Timeline: history of Kazakhstan', 'Лента времени: история Казахстана', 'Уақыт таспасы: Қазақстан тарихы'),
+    intro: L('Move along the centuries and see the key dates of Kazakhstan’s history in order - it is easier to remember them as one story.', 'Двигайся по векам и смотри ключевые даты истории Казахстана по порядку - так их проще запомнить как одну историю.', 'Ғасырлар бойымен жылжып, Қазақстан тарихының негізгі даталарын ретімен көр - оларды бір әңгіме ретінде есте сақтау оңай.'),
+    sliders: [{ id: 'k', label: L('event', 'событие', 'оқиға'), min: 0, max: 14, value: 0 }],
+    buttons: [L('◀', '◀', '◀'), L('▶', '▶', '▶')],
+    onButton: (i, st, v) => ({ k: clamp(v.k + (i ? 1 : -1), 0, 14) }),
+    draw(v) {
+      const E = [
+        [1465, L('The Kazakh Khanate is founded by Kerey and Zhanibek.', 'Керей и Жанибек основывают Казахское ханство.', 'Керей мен Жәнібек Қазақ хандығын құрады.')],
+        [1511, L('Kasym Khan (1511-1523): the khanate becomes strong, "Kasym Khan’s bright road" laws.', 'Касым-хан (1511-1523): ханство усиливается, законы «Қасым ханның қасқа жолы».', 'Қасым хан (1511-1523): хандық күшейеді, «Қасым ханның қасқа жолы» заңдары.')],
+        [1723, L('Dzungar invasion - "Aktaban Shubyryndy", the Years of Great Disaster.', 'Джунгарское нашествие - «Актабан шубырынды», годы великого бедствия.', 'Жоңғар шапқыншылығы - «Ақтабан шұбырынды», ұлы апат жылдары.')],
+        [1731, L('Abulkhair Khan of the Junior zhuz accepts Russian protection.', 'Абулхаир-хан Младшего жуза принимает подданство России.', 'Кіші жүздің ханы Әбілқайыр Ресейдің қамқорлығын қабылдайды.')],
+        [1771, L('Ablai becomes khan of all three zhuzes.', 'Абылай становится ханом трёх жузов.', 'Абылай үш жүздің ханы болады.')],
+        [1837, L('Kenesary’s uprising (1837-1847) - the last khan fights for independence.', 'Восстание Кенесары (1837-1847) - последний хан борется за независимость.', 'Кенесары көтерілісі (1837-1847) - соңғы хан тәуелсіздік үшін күреседі.')],
+        [1916, L('National liberation uprising against mobilisation for rear work.', 'Национально-освободительное восстание против мобилизации на тыловые работы.', 'Тыл жұмыстарына алуға қарсы ұлт-азаттық көтеріліс.')],
+        [1917, L('The Alash Orda autonomy is proclaimed (Alikhan Bokeikhanov).', 'Провозглашена автономия Алаш-Орда (Алихан Букейханов).', 'Алаш Орда автономиясы жарияланады (Әлихан Бөкейханов).')],
+        [1936, L('The Kazakh SSR becomes a union republic of the USSR.', 'Казахская ССР становится союзной республикой СССР.', 'Қазақ КСР КСРО-ның одақтас республикасы болады.')],
+        [1954, L('The Virgin Lands campaign begins in northern Kazakhstan.', 'Начинается освоение целины на севере Казахстана.', 'Солтүстік Қазақстанда тың игеру басталады.')],
+        [1986, L('December events (Zheltoksan) - youth protests in Almaty.', 'Декабрьские события (Желтоксан) - выступления молодёжи в Алматы.', 'Желтоқсан оқиғалары - Алматыдағы жастар наразылығы.')],
+        [1990, L('25 October: Declaration of State Sovereignty.', '25 октября: Декларация о государственном суверенитете.', '25 қазан: Мемлекеттік егемендік туралы декларация.')],
+        [1991, L('16 December: Independence of the Republic of Kazakhstan.', '16 декабря: независимость Республики Казахстан.', '16 желтоқсан: Қазақстан Республикасының тәуелсіздігі.')],
+        [1993, L('15 November: the national currency, the tenge, is introduced.', '15 ноября: введена национальная валюта - тенге.', '15 қараша: ұлттық валюта - теңге енгізілді.')],
+        [1997, L('The capital moves from Almaty to Akmola (Astana).', 'Столица переносится из Алматы в Акмолу (Астану).', 'Елорда Алматыдан Ақмолаға (Астанаға) көшіріледі.')],
+      ];
+      const k = Math.round(v.k);
+      const sx = (y) => 15 + ((y - 1450) / (2000 - 1450)) * 290;
+      const dots = E.map(([y], i) => `<circle class="ex-fill ${i === k ? 'exc-p' : i < k ? 'exc-b' : 'exc-m'}" cx="${n1(sx(y))}" cy="130" r="${i === k ? 7 : 4}" style="opacity:${i <= k ? 1 : 0.35}"/>`).join('');
+      const [year, text] = E[k];
+      return {
+        svg: `<line class="ex-axis" x1="10" y1="130" x2="310" y2="130"/>${[1500, 1600, 1700, 1800, 1900, 2000].map((y) => `<text class="ex-tiny" x="${n1(sx(y))}" y="152">${y}</text>`).join('')}${dots}
+          <text class="ex-big" x="160" y="60">${year}</text><line class="ex-stroke exc-p" x1="${n1(sx(year))}" y1="72" x2="${n1(sx(year))}" y2="120"/>`,
+        caption: text,
+      };
+    },
+  },
+
+  'timeline-world': {
+    title: L('Timeline: world history', 'Лента времени: всемирная история', 'Уақыт таспасы: дүниежүзі тарихы'),
+    intro: L('From the fall of Rome to the end of the USSR - the turning points of world history on one line.', 'От падения Рима до распада СССР - поворотные моменты всемирной истории на одной линии.', 'Римнің құлауынан КСРО-ның ыдырауына дейін - дүниежүзі тарихының бетбұрыстары бір сызықта.'),
+    sliders: [{ id: 'k', label: L('event', 'событие', 'оқиға'), min: 0, max: 14, value: 0 }],
+    buttons: [L('◀', '◀', '◀'), L('▶', '▶', '▶')],
+    onButton: (i, st, v) => ({ k: clamp(v.k + (i ? 1 : -1), 0, 14) }),
+    draw(v) {
+      const E = [
+        [476, L('Fall of the Western Roman Empire - the start of the Middle Ages.', 'Падение Западной Римской империи - начало Средних веков.', 'Батыс Рим империясының құлауы - Орта ғасырлардың басы.')],
+        [1066, L('Battle of Hastings: the Normans conquer England.', 'Битва при Гастингсе: норманны завоёвывают Англию.', 'Гастингс шайқасы: норманндар Англияны жаулап алады.')],
+        [1206, L('Temujin is proclaimed Genghis Khan - the Mongol Empire begins.', 'Темучин провозглашён Чингисханом - начало Монгольской империи.', 'Темучин Шыңғыс хан деп жарияланады - Моңғол империясының басы.')],
+        [1453, L('The Ottomans take Constantinople - the end of Byzantium.', 'Османы берут Константинополь - конец Византии.', 'Османдар Константинопольді алады - Византияның соңы.')],
+        [1492, L('Columbus reaches America.', 'Колумб достигает Америки.', 'Колумб Америкаға жетеді.')],
+        [1517, L('Martin Luther’s theses start the Reformation.', 'Тезисы Мартина Лютера начинают Реформацию.', 'Мартин Лютердің тезистері Реформацияны бастайды.')],
+        [1776, L('The United States declares independence.', 'США провозглашают независимость.', 'АҚШ тәуелсіздігін жариялайды.')],
+        [1789, L('The French Revolution begins.', 'Начинается Великая французская революция.', 'Ұлы француз революциясы басталады.')],
+        [1914, L('World War I begins (1914-1918).', 'Начинается Первая мировая война (1914-1918).', 'Бірінші дүниежүзілік соғыс басталады (1914-1918).')],
+        [1917, L('Revolution in Russia.', 'Революция в России.', 'Ресейдегі революция.')],
+        [1939, L('World War II begins (1939-1945).', 'Начинается Вторая мировая война (1939-1945).', 'Екінші дүниежүзілік соғыс басталады (1939-1945).')],
+        [1945, L('The United Nations is founded.', 'Основана Организация Объединённых Наций.', 'Біріккен Ұлттар Ұйымы құрылады.')],
+        [1961, L('Yuri Gagarin is the first person in space - launched from Baikonur.', 'Юрий Гагарин - первый человек в космосе, старт с Байконура.', 'Юрий Гагарин - ғарыштағы алғашқы адам, Байқоңырдан ұшқан.')],
+        [1969, L('Apollo 11: people walk on the Moon.', '«Аполлон-11»: люди ступают на Луну.', '«Аполлон-11»: адамдар Айға қадам басады.')],
+        [1991, L('The USSR breaks up; new independent states appear.', 'Распад СССР, появляются новые независимые государства.', 'КСРО ыдырайды, жаңа тәуелсіз мемлекеттер пайда болады.')],
+      ];
+      const k = Math.round(v.k);
+      const sx = (y) => 15 + ((y - 400) / (2000 - 400)) * 290;
+      const dots = E.map(([y], i) => `<circle class="ex-fill ${i === k ? 'exc-p' : i < k ? 'exc-b' : 'exc-m'}" cx="${n1(sx(y))}" cy="130" r="${i === k ? 7 : 4}" style="opacity:${i <= k ? 1 : 0.35}"/>`).join('');
+      const [year, text] = E[k];
+      return {
+        svg: `<line class="ex-axis" x1="10" y1="130" x2="310" y2="130"/>${[500, 1000, 1500, 2000].map((y) => `<text class="ex-tiny" x="${n1(sx(y))}" y="152">${y}</text>`).join('')}${dots}
+          <text class="ex-big" x="160" y="60">${year}</text><line class="ex-stroke exc-p" x1="${n1(sx(year))}" y1="72" x2="${n1(sx(year))}" y2="120"/>`,
+        caption: text,
+      };
+    },
+  },
+
+  tenses: {
+    title: L('English tenses on a timeline', 'Времена английского на шкале времени', 'Ағылшын шақтары уақыт шкаласында'),
+    intro: L('Every tense answers two questions: when (past, now, future) and how (a fact, a process, a result). See where each one sits on the line.', 'Каждое время отвечает на два вопроса: когда (прошлое, сейчас, будущее) и как (факт, процесс, результат). Посмотри, где каждое стоит на линии.', 'Әр шақ екі сұраққа жауап береді: қашан (өткен, қазір, келер) және қалай (факт, процесс, нәтиже). Әрқайсысы сызықтың қай жерінде тұрғанын көр.'),
+    sliders: [],
+    buttons: ['Present Simple', 'Present Continuous', 'Past Simple', 'Past Continuous', 'Present Perfect', 'Past Perfect', 'Future Simple'],
+    state: () => ({ k: 0 }),
+    pressed: (i, v, st) => i === st.k,
+    onButton(i, st) {
+      st.k = i;
+    },
+    draw(v, step, st) {
+      const T = [
+        { mark: 'repeat', ex: 'She walks to school every day.', f: 'V / V+s', note: L('habits and facts', 'привычки и факты', 'әдеттер мен фактілер') },
+        { mark: 'now', ex: 'She is walking to school now.', f: 'am / is / are + V-ing', note: L('happening right now', 'происходит прямо сейчас', 'дәл қазір болып жатыр') },
+        { mark: 'pastpoint', ex: 'She walked to school yesterday.', f: 'V2 (walked, went)', note: L('finished, with a past time', 'закончилось, есть время в прошлом', 'аяқталған, өткен уақыт көрсетілген') },
+        { mark: 'pastproc', ex: 'She was walking when it started to rain.', f: 'was / were + V-ing', note: L('a process in the past, often interrupted', 'процесс в прошлом, часто прерванный', 'өткендегі процесс, жиі үзілген') },
+        { mark: 'perfect', ex: 'She has already walked 5 km.', f: 'have / has + V3', note: L('past action, result now', 'действие в прошлом, результат сейчас', 'өткендегі әрекет, нәтижесі қазір') },
+        { mark: 'pastperf', ex: 'She had left before he arrived.', f: 'had + V3', note: L('earlier than another past moment', 'раньше другого момента в прошлом', 'өткендегі басқа сәттен ертерек') },
+        { mark: 'future', ex: 'She will walk to school tomorrow.', f: 'will + V', note: L('future, decisions, predictions', 'будущее, решения, прогнозы', 'келер шақ, шешімдер, болжамдар') },
+      ];
+      const t = T[st.k];
+      const NOW = 200;
+      const marks = {
+        repeat: [40, 90, 140, 190, 240, 290].map((x) => `<circle class="ex-fill exc-p" cx="${x}" cy="110" r="5"/>`).join(''),
+        now: `<rect x="${NOW - 30}" y="104" width="60" height="12" rx="6" class="ex-fill exc-p" style="opacity:.7"/>`,
+        pastpoint: `<circle class="ex-fill exc-p" cx="90" cy="110" r="8"/>`,
+        pastproc: `<rect x="60" y="104" width="70" height="12" rx="6" class="ex-fill exc-p" style="opacity:.7"/><path class="ex-fill exc-r" d="M110 92 l6 12 l6 -12 Z"/><text class="ex-tiny exc-r" x="116" y="86">rain</text>`,
+        perfect: `<circle class="ex-fill exc-p" cx="120" cy="110" r="7"/>${arrow(126, 100, NOW - 6, 100, 'exc-g', 2)}`,
+        pastperf: `<circle class="ex-fill exc-p" cx="60" cy="110" r="7"/><circle class="ex-fill exc-o" cx="130" cy="110" r="7"/><text class="ex-tiny" x="60" y="134">1</text><text class="ex-tiny" x="130" y="134">2</text>`,
+        future: `<circle class="ex-fill exc-p" cx="270" cy="110" r="8"/>`,
+      };
+      return {
+        svg: `<line class="ex-axis" x1="10" y1="110" x2="310" y2="110"/><path class="ex-fill exc-m" d="M310 110 l-8 -5 v10 Z"/><line class="ex-stroke exc-r" style="stroke-width:2" x1="${NOW}" y1="80" x2="${NOW}" y2="140"/><text class="ex-tiny exc-r" x="${NOW}" y="155">${u('now', 'сейчас', 'қазір')}</text>
+          <text class="ex-tiny" x="40" y="155">${u('past', 'прошлое', 'өткен')}</text><text class="ex-tiny" x="280" y="155">${u('future', 'будущее', 'келер')}</text>${marks[t.mark]}
+          <text class="ex-tag" x="160" y="40" style="text-anchor:middle">${t.f}</text><text class="ex-small" x="160" y="195" style="font-style:italic">${t.ex}</text>`,
+        caption: L(`${['Present Simple', 'Present Continuous', 'Past Simple', 'Past Continuous', 'Present Perfect', 'Past Perfect', 'Future Simple'][st.k]}: ${tx(t.note)}. Form: ${t.f}.`, `${['Present Simple', 'Present Continuous', 'Past Simple', 'Past Continuous', 'Present Perfect', 'Past Perfect', 'Future Simple'][st.k]}: ${tx(t.note)}. Образование: ${t.f}.`, `${['Present Simple', 'Present Continuous', 'Past Simple', 'Past Continuous', 'Present Perfect', 'Past Perfect', 'Future Simple'][st.k]}: ${tx(t.note)}. Жасалуы: ${t.f}.`),
+      };
+    },
+  },
 };
 
 // Данные для сцен.
@@ -2786,6 +2900,8 @@ const SUBJ = {
   biology: ['🧬', () => t('explain.s.biology')],
   cs: ['💻', () => t('explain.s.cs')],
   geo: ['🌍', () => t('explain.s.geo')],
+  history: ['📜', () => t('explain.s.history')],
+  english: ['🔤', () => t('explain.s.english')],
 };
 
 const explainCard = (e, i) => `<a class="explain-card" href="#/explain/${e.id}" style="--i:${Math.min(i, 16)}">

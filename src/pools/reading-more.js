@@ -609,4 +609,7 @@ export const TOEFL_MORE = [
 ];
 import { IELTS_MORE4A } from './reading-ielts4a.js';
 import { IELTS_MORE4B } from './reading-ielts4b.js';
-IELTS_MORE.push(...IELTS_MORE4A, ...IELTS_MORE4B);
+import { IELTS_MORE4C } from './reading-ielts4c.js';
+IELTS_MORE.push(...IELTS_MORE4A, ...IELTS_MORE4B, ...IELTS_MORE4C);
+import { TOEFL_MORE4A } from './reading-toefl4a.js';
+TOEFL_MORE.push(...TOEFL_MORE4A);

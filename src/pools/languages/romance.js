@@ -4,6 +4,7 @@
 import { T } from '../bank.js';
 import { SPANISH_MORE3 } from './romance-es3.js';
 import { FRENCH_MORE3 } from './romance-fr3.js';
+import { SPANISH_GEN, FRENCH_GEN } from './romance-gen4.js';
 
 export const SPANISH = [
   // ----- A1 -----
@@ -265,3 +266,5 @@ export const FRENCH = [
 
 SPANISH.push(...SPANISH_MORE3);
 FRENCH.push(...FRENCH_MORE3);
+SPANISH.push(...SPANISH_GEN);
+FRENCH.push(...FRENCH_GEN);

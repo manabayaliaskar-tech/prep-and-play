@@ -101,8 +101,8 @@ export const IELTS_MORE4B = [
     ],
   },
   {
-    id: 'honey-bees2',
-    title: 'The Language of Camels? No, of Whales',
+    id: 'whale-songs',
+    title: 'Songs of the Humpback Whale',
     text:
       'Humpback whales are famous for their songs, which can last up to twenty minutes and be heard many kilometers away. Only males sing, and scientists believe the songs are used to attract mates. All the males in one population sing the same song at a given time, and the song gradually changes over the months: new phrases appear and old ones disappear.\n' +
       'In some cases, a new song spreads across the ocean. In the 1990s, researchers recorded a song from the west coast of Australia that, within two years, was being sung by whales on the east coast, thousands of kilometers away. Scientists compare this to the way a catchy pop song can spread from city to city. They do not yet know how whales learn the songs or why the changes occur. Because ships and industry have made the oceans noisier, researchers also worry that human noise may interfere with whales’ communication.',
