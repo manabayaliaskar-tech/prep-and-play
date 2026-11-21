@@ -7,6 +7,8 @@
 //   onButton(i, st, v, api) - своя логика кнопок; вернуть объект { key: цель, $dur } → плавный переход;
 //   pressed(i, v, st) - кнопка-переключатель; onSlide(key, v, st); onDrag(key, point, v, st) - перетаскивание
 //   элементов с data-drag; live(dt, v, st) - постоянное движение (маятник, молекулы).
+// Режимы: у ползунка hidden(v, st) → true прячет его, у сцены btnHidden(i, v, st) прячет кнопку i.
+// mountScene(host, id) показывает анимацию в любом контейнере (страница анимации, урок).
 // f - «дробный шаг»: при смене шага кнопкой он плавно идёт от старого шага к новому (для анимации переходов).
 // SVG не пересоздаётся целиком, а обновляется по месту (morph), поэтому работают CSS-переходы.
 
@@ -85,13 +87,14 @@ export function explainIndexRoute(app) {
   return { relabel: render };
 }
 
-export function explainRoute(app, { id }) {
-  const meta = explainerById(id);
+/**
+ * Анимация в контейнере host: картинка, подпись, ползунки и кнопки. Используется на странице анимации
+ * и внутри урока. Возвращает { cleanup, relabel }. Когда контейнер убрали со страницы, движение
+ * останавливается само.
+ */
+export function mountScene(host, id) {
   const scene = SCENES[id];
-  if (!meta || !scene) {
-    navigate('/explain');
-    return null;
-  }
+  if (!scene || !host) return null;
   const values = { ...(scene.values ?? {}), ...Object.fromEntries(scene.sliders.map((s) => [s.id, s.value])) };
   const st = scene.state?.() ?? {};
   let step = 0; // целевой шаг
@@ -102,11 +105,7 @@ export function explainRoute(app, { id }) {
   let liveId = 0; // постоянное движение
   let liveT = 0;
   let els = null;
-  let session = null;
   const tmp = typeof document !== 'undefined' ? document.createElementNS(SVGNS, 'svg') : null;
-  const p = getProfile();
-  p.counters.explained = (p.counters.explained ?? 0) + 1;
-  saveProfile();
 
   const spec = (k) => scene.sliders.find((s) => s.id === k);
   const isInt = (k) => {
@@ -134,6 +133,17 @@ export function explainRoute(app, { id }) {
         input.setAttribute('aria-valuetext', txt);
       }
     }
+    // Ползунки и кнопки, которые не нужны в текущем режиме: hidden(v, st) у ползунка, btnHidden(i, v, st) у сцены.
+    for (const s of scene.sliders) {
+      const hide = Boolean(s.hidden?.(values, st));
+      const label = els.inputs[s.id].closest('.ex-slider');
+      if (label.hidden !== hide) label.hidden = hide;
+    }
+    if (scene.btnHidden)
+      els.btns.forEach((b, i) => {
+        const hide = Boolean(scene.btnHidden(i, values, st));
+        if (b.hidden !== hide) b.hidden = hide;
+      });
     if (scene.pressed)
       els.btns.forEach((b, i) => {
         const on = Boolean(scene.pressed(i, values, st));
@@ -240,6 +250,7 @@ export function explainRoute(app, { id }) {
     if (!scene.live || reduced()) return;
     let last = performance.now();
     const loop = (now) => {
+      if (!els?.svg.isConnected) return cleanup();
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       scene.live(dt, values, st);
@@ -251,22 +262,14 @@ export function explainRoute(app, { id }) {
 
   const render = () => {
     stopMotion();
-    const topic = meta.topics[0];
-    app.innerHTML = `
-      <section class="page explain-page">
-        <a class="crumb" href="#/explain">← ${t('explain.title')}</a>
-        <div class="explain-head"><span class="explain-icon big" aria-hidden="true">${meta.icon}</span><div><h1>${esc(tx(scene.title))}</h1><p class="muted">${esc(tx(scene.intro))}</p></div></div>
+    host.innerHTML = `
         <div class="ex-card">
           <div class="ex-stage${scene.onDrag ? ' has-drag' : ''}"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(tx(scene.title))}"></svg></div>
           <p class="ex-caption" aria-live="polite"></p>
           ${scene.sliders.length ? `<div class="ex-controls">${scene.sliders.map((s) => slider({ ...s, label: tx(s.label), value: values[s.id] }, shown(s, values[s.id]))).join('')}</div>` : ''}
           ${scene.buttons.length ? `<div class="ex-buttons${scene.pressed ? ' ex-toggles' : ''}">${scene.buttons.map((b, i) => `<button type="button" class="btn ${i === 0 && !scene.pressed ? 'btn-primary' : 'btn-soft'} btn-sm" data-b="${i}">${esc(tx(b))}</button>`).join('')}</div>` : ''}
-        </div>
-        <div class="explain-next">
-          <button type="button" class="btn btn-primary ex-train">▶ ${t('explain.train', { name: tx(skillName(topic)) })}</button>
-          ${EXPLAINERS.length > 1 ? `<a class="btn btn-soft" href="#/explain/${EXPLAINERS[(EXPLAINERS.indexOf(meta) + 1) % EXPLAINERS.length].id}">${t('explain.next')} →</a>` : ''}
-        </div>
-      </section>`;
+        </div>`;
+    const app = host;
     els = {
       svg: app.querySelector('.ex-stage svg'),
       stage: app.querySelector('.ex-stage'),
@@ -332,11 +335,50 @@ export function explainRoute(app, { id }) {
       svg.addEventListener('pointerup', end);
       svg.addEventListener('pointercancel', end);
     }
+    draw();
+    startLive();
+  };
+  function cleanup() {
+    stopMotion();
+    cancelAnimationFrame(frame);
+    cancelAnimationFrame(liveId);
+    liveId = 0;
+    clearTimeout(liveT);
+    els = null;
+  }
+  render();
+  return { cleanup, relabel: render };
+}
+
+export function explainRoute(app, { id }) {
+  const meta = explainerById(id);
+  const scene = SCENES[id];
+  if (!meta || !scene) {
+    navigate('/explain');
+    return null;
+  }
+  const p = getProfile();
+  p.counters.explained = (p.counters.explained ?? 0) + 1;
+  saveProfile();
+  let mounted = null;
+  let session = null;
+  const render = () => {
+    mounted?.cleanup();
+    const topic = meta.topics[0];
+    app.innerHTML = `
+      <section class="page explain-page">
+        <a class="crumb" href="#/explain">← ${t('explain.title')}</a>
+        <div class="explain-head"><span class="explain-icon big" aria-hidden="true">${meta.icon}</span><div><h1>${esc(tx(scene.title))}</h1><p class="muted">${esc(tx(scene.intro))}</p></div></div>
+        <div class="ex-mount"></div>
+        <div class="explain-next">
+          <button type="button" class="btn btn-primary ex-train">▶ ${t('explain.train', { name: tx(skillName(topic)) })}</button>
+          ${EXPLAINERS.length > 1 ? `<a class="btn btn-soft" href="#/explain/${EXPLAINERS[(EXPLAINERS.indexOf(meta) + 1) % EXPLAINERS.length].id}">${t('explain.next')} →</a>` : ''}
+        </div>
+      </section>`;
+    mounted = mountScene(app.querySelector('.ex-mount'), id);
     app.querySelector('.ex-train').addEventListener('click', () => {
-      stopMotion();
-      cancelAnimationFrame(liveId);
-      liveId = 0;
-      els = null;
+      mounted?.cleanup();
+      mounted = null;
       session = runAdaptive(app, {
         title: () => `🎬 ${tx(skillName(topic))}`,
         spec: [[topic, [1, 2, 3]]],
@@ -346,17 +388,11 @@ export function explainRoute(app, { id }) {
         back: { label: `🎬 ${t('explain.back')}`, href: `/explain/${id}` },
       });
     });
-    draw();
-    startLive();
   };
   render();
   return {
     cleanup: () => {
-      stopMotion();
-      cancelAnimationFrame(frame);
-      cancelAnimationFrame(liveId);
-      clearTimeout(liveT);
-      els = null;
+      mounted?.cleanup();
       session?.cleanup?.();
     },
     relabel: () => (session ? session.relabel() : render()),

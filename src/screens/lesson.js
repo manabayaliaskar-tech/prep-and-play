@@ -38,6 +38,7 @@ export function lessonHtml(topic, { withAnim = true } = {}) {
     <div class="lesson" data-topic="${topic}">
       <p class="lesson-rule">${esc(tx(les.rule))}</p>
       ${les.points?.length ? `<ul class="lesson-points">${les.points.map((p) => `<li>${esc(tx(p))}</li>`).join('')}</ul>` : ''}
+      ${anim ? `<div class="lesson-anim-box" data-anim="${anim}"><button type="button" class="btn btn-soft lesson-anim-open">🎬 ${t('lesson.anim')}</button></div>` : ''}
       <div class="lesson-example">
         <h3>${t('lesson.example')}</h3>
         <p class="lesson-q">${esc(tx(les.example.q))}</p>
@@ -49,12 +50,25 @@ export function lessonHtml(topic, { withAnim = true } = {}) {
         <div class="lesson-options">${les.check.options.map((o, i) => `<button type="button" class="lesson-opt" data-i="${i}">${esc(tx(o))}</button>`).join('')}</div>
         <p class="lesson-why" hidden></p>
       </div>
-      ${anim ? `<a class="btn btn-soft btn-sm lesson-anim" href="#/explain/${anim}">🎬 ${t('lesson.anim')}</a>` : ''}
     </div>`;
 }
 
 /** Оживляет вопрос «проверь себя» внутри root. */
 export function bindLesson(root) {
+  // Анимация темы прямо в уроке: подгружается по нажатию, чтобы урок открывался быстро.
+  root.querySelectorAll('.lesson-anim-open').forEach((btn) =>
+    btn.addEventListener('click', async () => {
+      const box = btn.closest('.lesson-anim-box');
+      const id = box.dataset.anim;
+      btn.disabled = true;
+      const { mountScene } = await import('./explain.js');
+      const mount = document.createElement('div');
+      box.replaceChildren(mount);
+      box.classList.add('is-open');
+      mountScene(mount, id);
+      box.insertAdjacentHTML('beforeend', `<a class="lesson-anim-full" href="#/explain/${id}">⤢ ${t('lesson.animFull')}</a>`);
+    }),
+  );
   root.querySelectorAll('.lesson').forEach((box) => {
     const les = lessonFor(box.dataset.topic);
     const why = box.querySelector('.lesson-why');
