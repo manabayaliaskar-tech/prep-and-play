@@ -1252,9 +1252,10 @@ export const SCENES_SCIENCE = {
       const bX = X(bx);
       const bY = Y(by);
       // Масштаб векторов: 1,6 px на м/с, но стрелки не выходят за кадр.
-      const vs = Math.min(1.6, vy < 0 ? (212 - bY) / -vy : (bY - 10) / Math.max(vy, 0.01), (306 - bX) / Math.max(f.vx, 0.01));
-      const vecs = st.vec
-        ? `${varrow(bX, bY, bX + f.vx * vs, bY - vy * vs, 'exc-o', 'v', 2.5, 8, 0)}${varrow(bX, bY, bX + f.vx * vs, bY, 'exc-g', 'vₓ', 1.8, 9, 4)}${Math.abs(vy) > 0.6 ? varrow(bX, bY, bX, bY - vy * vs, 'exc-k', 'v_y'.replace('_y', 'ᵧ'), 1.8, -9, vy > 0 ? 4 : 8) : '<g/>'}`
+      const vs = Math.max(0.7, Math.min(1.6, vy < 0 ? (212 - bY) / -vy : (bY - 10) / Math.max(vy, 0.01), (306 - bX) / Math.max(f.vx, 0.01)));
+      // Когда мяч уже упал, векторы не рисуем: у земли они не помещаются.
+      const vecs = st.vec && st.k < 0.995
+        ? `${varrow(bX, bY, bX + f.vx * vs, bY - vy * vs, 'exc-o', 'v', 2.5, 8, Math.min(0, 214 - (bY - vy * vs)))}${varrow(bX, bY, bX + f.vx * vs, bY, 'exc-g', 'vₓ', 1.8, 9, 4)}${Math.abs(vy) > 0.6 ? varrow(bX, bY, bX, bY - vy * vs, 'exc-k', 'vᵧ', 1.8, -10, vy > 0 ? 4 : Math.min(-2, 214 - (bY - vy * vs))) : '<g/>'}`
         : '<g/><g/><g/>';
       // Энергия: доля Eк и Eп (от земли).
       const E = (v.v0 * v.v0) / 2 + g * v.h0;
