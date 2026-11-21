@@ -3623,13 +3623,13 @@ const motion = modes({
     // график s(t)
     const gx = (tt) => 40 + (tt / Tv) * 268;
     const gy = (km2) => 205 - (km2 / Xm) * 105;
-    let gr = `${ln(40, 205, 312, 205, 'exc-m', 1.2)}${ln(40, 96, 40, 205, 'exc-m', 1.2)}${T(36, 100, `${fmt(Xm, 0)}`, 'm9 exm-mut ex-end')}${T(36, 208, '0', 'm9 exm-mut ex-end')}${T(312, 216, `t, ${hU}`, 'm9 exm-mut ex-end')}`;
+    let gr = `${ln(40, 205, 312, 205, 'exc-m', 1.2)}${ln(40, 96, 40, 205, 'exc-m', 1.2)}${T(36, 100, `${fmt(Xm, 0)}`, 'm9 exm-mut ex-end')}${T(36, 208, '0', 'm9 exm-mut ex-end')}${T(312, 198, `t, ${hU}`, 'm9 exm-mut ex-end')}`;
     for (let i = 1; i <= Tv; i++) if (Tv <= 12 || i % 2 === 0) gr += ln(gx(i), 203, gx(i), 207, 'exc-m', 1) + T(gx(i), 216, i, 'm9 exm-mut');
     const lineT = (fn, cls) => pth(`M${n1(gx(0))} ${n1(gy(clamp(fn(0), 0, Xm)))} L${n1(gx(Tv))} ${n1(gy(clamp(fn(Tv), 0, Xm)))}`, cls, 2.2);
     gr += lineT(p1, 'exc-p') + lineT(p2, 'exc-b') + ln(gx(t), 96, gx(t), 205, 'exc-o', 1.2) + dot(gx(t), gy(clamp(p1(t), 0, Xm)), 3.5, 'exc-p') + dot(gx(t), gy(clamp(p2(t), 0, Xm)), 3.5, 'exc-b');
     if (Number.isFinite(tm) && tm <= Tv) gr += dot(gx(tm), gy(p1(tm)), 5, 'exc-g') + T(gx(tm) + 6, gy(p1(tm)) - 6, `t = ${fmt(tm)}`, 'm10 tc exc-g ex-start h');
     const head = T(8, 14, `t = ${fmt(t, 1)} ${hU}`, 'm10 ex-start');
-    const sv = `${g}${gr}${head}${T(312, 14, `v = ${catchUp ? `${fmt(v1)} − ${fmt(v2)}` : `${fmt(v1)} + ${fmt(v2)}`} = ${fmt(closing)}`, 'm10 ex-end')}`;
+    const sv = `${g}${gr}${head}${T(80, 14, `v = ${catchUp ? `${fmt(v1)} − ${fmt(v2)}` : `${fmt(v1)} + ${fmt(v2)}`} = ${fmt(closing)} ${km}/${hU}`, 'm10 ex-start')}`;
 
     if (st.m === 2) {
       const tk = st.task ?? (motTask(st), st.task);
@@ -3826,7 +3826,7 @@ const inequality = modes({
       const xb = sx(hi);
       arcs += pth(`M${n1(xa)} 150 Q${n1((xa + xb) / 2)} ${plus ? 112 : 126} ${n1(xb)} 150`, plus ? 'exc-g' : 'exc-r', 1.5) + T((xa + xb) / 2, plus ? 118 : 128, plus ? '+' : '−', `m15 tc ${plus ? 'exc-g' : 'exc-r'}`);
     });
-    const svg = `${nl.svg}${arcs}${drawSet(set, sx, 170, 'exc-p', 5)}${[...new Set([r1, r2])].map((r) => (Math.abs(r) <= 8 ? T(sx(r), 186, fmt(r), 'm11 tc exc-p h') : '')).join('')}${T(160, 30, `(x${term(-p)})(x${term(-q)}) ${S} 0`, 'm18')}${T(160, 58, `x ∈ ${setStr(set)}`, 'm15 tc exc-p')}`;
+    const svg = `${nl.svg}${arcs}${drawSet(set, sx, 184, 'exc-p', 5)}${[...new Set([r1, r2])].map((r) => (Math.abs(r) <= 8 ? T(sx(r), 204, fmt(r), 'm11 tc exc-p h') : '')).join('')}${T(160, 30, `(x${term(-p)})(x${term(-q)}) ${S} 0`, 'm18')}${T(160, 58, `x ∈ ${setStr(set)}`, 'm15 tc exc-p')}`;
     if (tk) {
       const ok = check(st, sameSet(set, tk.want));
       return {
