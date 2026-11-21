@@ -355,4 +355,29 @@ export default {
       why: L("Hot is short, so hotter (double t).", "Hot короткое слово: hotter (двойная t).", "Hot қысқа сөз: hotter (қос t)."),
     },
   },
+  'e.ukus': {
+    rule: L(
+      "British and American English are one language with small differences: some words (flat - apartment), spelling (colour - color) and a few grammar habits (have got - have). Both are correct; just don't mix them in one text.",
+      "Британский и американский английский - один язык с небольшими различиями: некоторые слова (flat - apartment), написание (colour - color) и немного грамматики (have got - have). Оба варианта правильные, просто не смешивай их в одном тексте.",
+      "Британ және американ ағылшыны - кішкене айырмашылықтары бар бір тіл: кейбір сөздер (flat - apartment), жазылуы (colour - color) және аздаған грамматика (have got - have). Екеуі де дұрыс, тек бір мәтінде араластырма.",
+    ),
+    points: [
+      L("Spelling: -our / -or, -re / -er, -ise / -ize, travelled / traveled.", "Написание: -our / -or, -re / -er, -ise / -ize, travelled / traveled.", "Жазылуы: -our / -or, -re / -er, -ise / -ize, travelled / traveled."),
+      L("Words: lift - elevator, holiday - vacation, autumn - fall, rubbish - garbage.", "Слова: lift - elevator, holiday - vacation, autumn - fall, rubbish - garbage.", "Сөздер: lift - elevator, holiday - vacation, autumn - fall, rubbish - garbage."),
+      L("Exams: IELTS and Cambridge are usually British, TOEFL and SAT - American; both spellings are accepted if you are consistent.", "Экзамены: IELTS и Cambridge обычно британские, TOEFL и SAT - американские; любое написание засчитают, если оно одинаковое во всём тексте.", "Емтихандар: IELTS пен Cambridge көбіне британдық, TOEFL мен SAT - американдық; бүкіл мәтінде бірдей болса, кез келген жазылу есептеледі."),
+    ],
+    example: {
+      q: same("I live on the 5th floor, so I take the ___ (UK) / ___ (US)."),
+      steps: [
+        L("The machine that carries people between floors.", "Кабина, которая возит людей между этажами.", "Адамдарды қабаттар арасында тасымалдайтын кабина."),
+        L("British: lift. American: elevator.", "Британское: lift. Американское: elevator.", "Британша: lift. Американша: elevator."),
+      ],
+    },
+    check: {
+      q: L("Which spelling is American?", "Какое написание американское?", "Қай жазылу американдық?"),
+      options: [same("centre"), same("center"), same("centere")],
+      answer: 1,
+      why: L("-re in British English becomes -er in American: centre - center.", "Британское -re в американском становится -er: centre - center.", "Британдық -re американ тілінде -er болады: centre - center."),
+    },
+  },
 };

@@ -11,6 +11,8 @@ import { mixtures, motion, work } from './math/word.js';
 import { early } from './math/early.js';
 import { complexNumbers, integrals, limits, matrices, vectors } from './math/higher.js';
 import { englishMaker } from './english/index.js';
+import { ukusMaker, variantize } from './english/variant.js';
+import { getEnVariant } from '../core/en-variant.js';
 import { readingMaker } from './reading.js';
 import { listeningMaker } from './listening.js';
 import { CODE_LANGS, CODE_TOPIC_NAMES, codeTopics } from './code.js';
@@ -40,6 +42,8 @@ import { INFORMATICS_THEORY, algorithms, infoUnits, logic as boolLogic, numberSy
 import { counting, diophantine, divisors, factorials, lastDigit, logic, paths, pigeonhole, remainders, shapes, sums, tournaments } from './olymp.js';
 
 const topic = (pool, name, make) => ({ pool, name, make });
+/** Задания английского - в выбранном варианте: британское или американское написание. */
+const enV = (make) => (ctx, key) => variantize(make(ctx, key), getEnVariant());
 
 export const TOPICS = {
   // ----- Математика -----
@@ -82,20 +86,21 @@ export const TOPICS = {
   'm.matrix': topic('math', L('Matrices', 'Матрицы', 'Матрицалар'), matrices),
 
   // ----- Английский язык -----
-  'e.basics': topic('english', L('Basics: to be, pronouns, nouns', 'Основы: to be, местоимения, существительные', 'Негіздер: to be, есімдіктер, зат есімдер'), englishMaker('e.basics')),
-  'e.tenses': topic('english', L('Tenses', 'Времена', 'Шақтар'), englishMaker('e.tenses')),
-  'e.det': topic('english', L('Articles, quantity, comparison', 'Артикли, количество, сравнение', 'Артикльдер, мөлшер, салыстыру'), englishMaker('e.det')),
-  'e.prep': topic('english', L('Prepositions', 'Предлоги', 'Предлогтар'), englishMaker('e.prep')),
-  'e.modal': topic('english', L('Modal verbs', 'Модальные глаголы', 'Модаль етістіктер'), englishMaker('e.modal')),
-  'e.struct': topic('english', L('Conditionals, passive, verb patterns', 'Условные, пассив, формы глагола', 'Шартты сөйлемдер, ырықсыз етіс, етістік түрлері'), englishMaker('e.struct')),
-  'e.adv': topic('english', L('Advanced structures', 'Продвинутые конструкции', 'Күрделі құрылымдар'), englishMaker('e.adv')),
-  'e.vocab': topic('english', L('Vocabulary', 'Лексика', 'Лексика'), englishMaker('e.vocab')),
-  'e.phrasal': topic('english', L('Phrasal verbs and idioms', 'Фразовые глаголы и идиомы', 'Фразалық етістіктер мен идиомалар'), englishMaker('e.phrasal')),
-  'e.wordform': topic('english', L('Word formation', 'Словообразование', 'Сөзжасам'), englishMaker('e.wordform')),
-  'e.words': topic('english', L('Words', 'Слова', 'Сөздер'), wordsMaker('e.words', 'en')),
-  'e.gram': topic('english', L('Tenses in sentences', 'Времена в предложениях', 'Сөйлемдегі шақтар'), grammarMaker('e.gram')),
-  'e.irreg': topic('english', L('Irregular verbs', 'Неправильные глаголы', 'Бұрыс етістіктер'), irregularMaker('e.irreg')),
-  'e.comp': topic('english', L('Comparison of adjectives', 'Степени сравнения', 'Сын есімнің шырайлары'), comparisonMaker('e.comp')),
+  'e.basics': topic('english', L('Basics: to be, pronouns, nouns', 'Основы: to be, местоимения, существительные', 'Негіздер: to be, есімдіктер, зат есімдер'), enV(englishMaker('e.basics'))),
+  'e.tenses': topic('english', L('Tenses', 'Времена', 'Шақтар'), enV(englishMaker('e.tenses'))),
+  'e.det': topic('english', L('Articles, quantity, comparison', 'Артикли, количество, сравнение', 'Артикльдер, мөлшер, салыстыру'), enV(englishMaker('e.det'))),
+  'e.prep': topic('english', L('Prepositions', 'Предлоги', 'Предлогтар'), enV(englishMaker('e.prep'))),
+  'e.modal': topic('english', L('Modal verbs', 'Модальные глаголы', 'Модаль етістіктер'), enV(englishMaker('e.modal'))),
+  'e.struct': topic('english', L('Conditionals, passive, verb patterns', 'Условные, пассив, формы глагола', 'Шартты сөйлемдер, ырықсыз етіс, етістік түрлері'), enV(englishMaker('e.struct'))),
+  'e.adv': topic('english', L('Advanced structures', 'Продвинутые конструкции', 'Күрделі құрылымдар'), enV(englishMaker('e.adv'))),
+  'e.vocab': topic('english', L('Vocabulary', 'Лексика', 'Лексика'), enV(englishMaker('e.vocab'))),
+  'e.phrasal': topic('english', L('Phrasal verbs and idioms', 'Фразовые глаголы и идиомы', 'Фразалық етістіктер мен идиомалар'), enV(englishMaker('e.phrasal'))),
+  'e.wordform': topic('english', L('Word formation', 'Словообразование', 'Сөзжасам'), enV(englishMaker('e.wordform'))),
+  'e.words': topic('english', L('Words', 'Слова', 'Сөздер'), enV(wordsMaker('e.words', 'en'))),
+  'e.gram': topic('english', L('Tenses in sentences', 'Времена в предложениях', 'Сөйлемдегі шақтар'), enV(grammarMaker('e.gram'))),
+  'e.irreg': topic('english', L('Irregular verbs', 'Неправильные глаголы', 'Бұрыс етістіктер'), enV(irregularMaker('e.irreg'))),
+  'e.ukus': topic('english', L('British and American English', 'Британский и американский английский', 'Британ және американ ағылшыны'), ukusMaker('e.ukus')),
+  'e.comp': topic('english', L('Comparison of adjectives', 'Степени сравнения', 'Сын есімнің шырайлары'), enV(comparisonMaker('e.comp'))),
 
   // ----- Физика -----
   'p.kin': topic('physics', L('Kinematics', 'Кинематика', 'Кинематика'), kinematics),

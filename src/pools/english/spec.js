@@ -15,6 +15,9 @@ export function englishSpec(levels) {
   spec.push(['e.words', levels], ['e.gram', levels]);
   const irreg = levels.filter((l) => l <= 5);
   if (irreg.length) spec.push(['e.irreg', irreg]);
+  // Британский и американский: с A2 до C1.
+  const ukus = levels.filter((l) => l >= 2 && l <= 5);
+  if (ukus.length) spec.push(['e.ukus', ukus]);
   const comp = levels.filter((l) => l <= 3);
   if (comp.length) spec.push(['e.comp', comp]);
   return spec;

@@ -2,7 +2,11 @@
 // Выбираем самый естественный голос нужного языка из тех, что есть на устройстве
 // (Google, Siri, Microsoft Natural и т. п.). Если голоса нет - кнопка не показывается.
 
-const LOCALE = { en: 'en-US', es: 'es-ES', fr: 'fr-FR', zh: 'zh-CN' };
+import { getEnVariant } from './en-variant.js';
+
+// Английский звучит с британским или американским акцентом - как выбрано в курсе английского.
+const LOCALES = { es: 'es-ES', fr: 'fr-FR', zh: 'zh-CN' };
+const LOCALE = new Proxy(LOCALES, { get: (o, k) => (k === 'en' ? (getEnVariant() === 'us' ? 'en-US' : 'en-GB') : o[k]) });
 const synth = () => globalThis.speechSynthesis ?? null;
 
 /** Оценка голоса: чем выше, тем естественнее звучит. */
@@ -22,12 +26,12 @@ export function voiceFor(lang) {
   const s = synth();
   const locale = LOCALE[lang];
   if (!s || !locale) return null;
-  if (cache[lang] !== undefined) return cache[lang];
+  if (cache[locale] !== undefined) return cache[locale];
   const prefix = locale.slice(0, 2);
   const voices = s.getVoices().filter((v) => v.lang?.replace('_', '-').toLowerCase().startsWith(prefix));
   const best = voices.sort((a, b) => score(b, locale) - score(a, locale))[0] ?? null;
   // Пока браузер не загрузил список голосов, не запоминаем пустой результат.
-  if (s.getVoices().length) cache[lang] = best;
+  if (s.getVoices().length) cache[locale] = best;
   return best;
 }
 

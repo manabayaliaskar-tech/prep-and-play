@@ -638,12 +638,13 @@ export const SCENES_HUMAN = {
         .map((val, p) => ({ val, p }))
         .sort((a, b) => a.val - b.val)
         .map(({ val, p }) => {
-          const h = 14 + val * (112 / n);
+          const h = 12 + val * (96 / n);
           const cls = fr.fin.includes(p) ? 'ok' : fr.hl.includes(p) ? (fr.kind === 'swp' ? 'swp' : 'cmp') : p === fr.piv ? 'piv' : fr.pre && p <= fr.pre ? 'pre' : fr.range && (p < fr.range[0] || p > fr.range[1]) ? 'out' : '';
           return `<g class="ex-sortbar" style="transform:translate(${n1(12 + p * slot + (slot - bw) / 2)}px,0)"><rect class="${cls}" x="0" y="${n1(170 - h)}" width="${n1(bw)}" height="${n1(h)}" rx="4"/><text class="exh-f10" x="${n1(bw / 2)}" y="${n1(165 - h)}">${val}</text></g>`;
         })
         .join('');
-      const ptr = fr.hl.map((p, k) => `<path class="ex-fill ${fr.kind === 'swp' ? 'exc-k' : 'exc-o'}" d="M${n1(12 + p * slot + slot / 2)} 176 l-5 8 h10 Z"/><text class="exh-f9 tc exc-m" x="${n1(12 + p * slot + slot / 2)}" y="195">${p}</text>`).join('');
+      const pivX = fr.piv >= 0 ? `<text class="exh-f9 tc exc-y" x="${n1(12 + fr.piv * slot + slot / 2)}" y="186">${esc(u('pivot', 'опорный', 'тірек'))}</text>` : '';
+      const ptr = pivX + fr.hl.map((p, k) => `<path class="ex-fill ${fr.kind === 'swp' ? 'exc-k' : 'exc-o'}" d="M${n1(12 + p * slot + slot / 2)} 176 l-5 8 h10 Z"/><text class="exh-f9 tc exc-m" x="${n1(12 + p * slot + slot / 2)}" y="195">${p}</text>`).join('');
       const A = SORT_NAMES[st.alg];
       const done = st.pos >= st.trace.length - 1;
       let cap = fr.msg;
@@ -653,9 +654,9 @@ export const SCENES_HUMAN = {
           return [tx(SORT_NAMES[a].short), tr.at(-1).cmp, tr.at(-1).sw];
         });
         cap = L(
-          `Sorted: ${fr.cmp} comparisons, ${fr.sw} swaps. On this array: ${stats.map(([nm, c, s]) => `${nm} ${c}/${s}`).join(', ')} (comparisons/swaps).`,
-          `Отсортировано: ${fr.cmp} сравнений, ${fr.sw} обменов. На этом массиве: ${stats.map(([nm, c, s]) => `${nm} ${c}/${s}`).join(', ')} (сравнения/обмены).`,
-          `Сұрыпталды: ${fr.cmp} салыстыру, ${fr.sw} алмасу. Осы массивте: ${stats.map(([nm, c, s]) => `${nm} ${c}/${s}`).join(', ')} (салыстыру/алмасу).`,
+          `Sorted: comparisons ${fr.cmp}, swaps ${fr.sw}. On this array: ${stats.map(([nm, c, s]) => `${nm} ${c}/${s}`).join(', ')} (comparisons/swaps).`,
+          `Отсортировано: сравнений ${fr.cmp}, обменов ${fr.sw}. На этом массиве: ${stats.map(([nm, c, s]) => `${nm} ${c}/${s}`).join(', ')} (сравнения/обмены).`,
+          `Сұрыпталды: салыстыру ${fr.cmp}, алмасу ${fr.sw}. Осы массивте: ${stats.map(([nm, c, s]) => `${nm} ${c}/${s}`).join(', ')} (салыстыру/алмасу).`,
         );
       }
       return {
@@ -909,58 +910,75 @@ export const SCENES_HUMAN = {
   },
 
   loop: {
-    title: L('A loop step by step', 'Цикл по шагам', 'Цикл қадаммен'),
-    intro: L('A for loop repeats its body for each value of i. Here we add up numbers: total grows on every pass. Note that the end value is NOT included.', 'Цикл for повторяет тело для каждого значения i. Здесь мы складываем числа: total растёт на каждом проходе. Обрати внимание: конечное значение НЕ входит.', 'for циклі денесін i-дің әр мәні үшін қайталайды. Мұнда сандарды қосамыз: total әр өтуде өседі. Назар аудар: соңғы мән КІРМЕЙДІ.'),
+    title: L('Loops step by step', 'Циклы по шагам', 'Циклдар қадаммен'),
+    intro: L('Four typical loops in Python, C++, JavaScript and Java. Run them line by line: the highlighted line is executing, the table shows the variables after each pass. Guess first how many times the body runs!', 'Четыре типичных цикла на Python, C++, JavaScript и Java. Выполняй построчно: подсвечена текущая строка, таблица показывает переменные после каждого прохода. Сначала угадай, сколько раз выполнится тело!', 'Python, C++, JavaScript және Java тілдеріндегі төрт типтік цикл. Жол-жолымен орында: ағымдағы жол белгіленген, кесте әр өтуден кейінгі айнымалыларды көрсетеді. Алдымен дене неше рет орындалатынын тап!'),
     sliders: [
-      { id: 'a', label: L('start', 'начало', 'бастау'), min: 0, max: 5, value: 1 },
-      { id: 'b', label: L('stop', 'конец', 'соңы'), min: 1, max: 11, value: 6 },
-      { id: 'h', label: L('step', 'шаг', 'қадам'), min: 1, max: 3, value: 1 },
+      { id: 'ex', label: L('example', 'пример', 'мысал'), min: 0, max: 3, value: 0, show: (x) => tx(LOOP_EX[clamp(x, 0, 3)].name) },
+      { id: 'n', label: 'n', min: 1, max: 12, value: 5, hidden: (v) => Math.round(v.ex) > 1 },
+      { id: 'num', label: 'num', min: 1, max: 99999, value: 2024, hidden: (v) => Math.round(v.ex) !== 2 },
+      { id: 'lim', label: 'lim', min: 2, max: 300, value: 50, hidden: (v) => Math.round(v.ex) !== 3 },
     ],
-    buttons: [L('Next pass', 'Следующий проход', 'Келесі өту'), L('▶ Run', '▶ Запустить', '▶ Іске қосу'), 'Python', 'C++', 'JavaScript', 'Java'],
-    state: () => ({ k: 0, lang: 0 }),
+    buttons: [L('Step', 'Шаг', 'Қадам'), L('▶ Run', '▶ Запустить', '▶ Іске қосу'), 'Python', 'C++', 'JavaScript', 'Java'],
+    state: () => ({ k: 0, lang: 0, guess: -1 }),
     pressed: (i, v, st) => i >= 2 && i - 2 === st.lang,
     onSlide(key, v, st) {
       st.k = 0;
+      st.guess = -1;
     },
     onButton(i, st, v, api) {
-      const vals = [];
-      for (let x = Math.round(v.a); x < Math.round(v.b); x += Math.round(v.h)) vals.push(x);
-      if (i === 0) st.k = st.k >= vals.length ? 0 : st.k + 1;
-      else if (i === 1) {
-        st.k = 0;
-        api.run(() => (st.k < vals.length ? ++st.k <= vals.length : false), 600);
+      const tr = loopTrace(v);
+      if (i === 0) {
+        api.stop();
+        st.k = st.k >= tr.steps.length - 1 ? 0 : st.k + 1;
+      } else if (i === 1) {
+        if (st.k >= tr.steps.length - 1) st.k = 0;
+        api.run(() => ++st.k < tr.steps.length - 1, 520);
       } else st.lang = i - 2;
     },
+    onDrag(key, p, v, st) {
+      if (key[0] === 'g' && st.guess < 0 && tapOnce(st, key)) st.guess = Number(key.slice(1));
+    },
     draw(v, step, st) {
-      const a = Math.round(v.a);
-      const b = Math.round(v.b);
-      const h = Math.round(v.h);
-      const vals = [];
-      for (let x = a; x < b; x += h) vals.push(x);
-      const done = vals.slice(0, st.k);
-      const sum = done.reduce((s, x) => s + x, 0);
-      const code = [
-        [`total = 0`, `for i in range(${a}, ${b}, ${h}):`, `    total += i`],
-        [`int total = 0;`, `for (int i = ${a}; i < ${b}; i += ${h})`, `    total += i;`],
-        [`let total = 0;`, `for (let i = ${a}; i < ${b}; i += ${h})`, `    total += i;`],
-        [`int total = 0;`, `for (int i = ${a}; i < ${b}; i += ${h})`, `    total += i;`],
-      ][st.lang];
-      const cells = Array.from({ length: 12 }, (_, x) => {
-        const inLoop = vals.includes(x);
-        const passed = done.includes(x);
-        return `<rect x="${12 + x * 25}" y="120" width="22" height="26" rx="5" class="ex-fill ${passed ? 'exc-g' : inLoop ? 'exc-b' : 'exc-m'}" style="opacity:${passed ? 0.9 : inLoop ? 0.45 : 0.12}"/><text class="ex-tiny" x="${23 + x * 25}" y="137">${x}</text>`;
-      }).join('');
+      const tr = loopTrace(v);
+      const k = clamp(st.k, 0, tr.steps.length - 1);
+      const S = tr.steps[k];
+      const ex = LOOP_EX[tr.ex];
+      const code = ex.code[st.lang](tr.p);
+      const map = ex.map[st.lang];
+      let s = codePanel(code, (map[S.line] ?? []).flat());
+      const top = code.length * (code.length > 5 ? 13 : 14) + 22;
+      // Переменные сейчас.
+      s += `<rect class="exh-box" x="6" y="${top}" width="104" height="${150 - top + 18}" rx="8"/><text class="exh-f9 ex-start tc exc-m" x="12" y="${top + 13}">${esc(u('variables', 'переменные', 'айнымалылар'))}</text>`;
+      Object.entries(S.vars).forEach(([name, val], r) => (s += `<text class="exh-f13 exh-mono ex-start" x="12" y="${top + 31 + r * 17}">${esc(`${name} = ${val}`)}</text>`));
+      // Справа: угадай число проходов (до запуска) или таблица проходов.
+      const passes = tr.steps.filter((x) => x.pass).length;
+      if (k === 0 && st.guess < 0) {
+        const opts = loopGuessOpts(passes);
+        s += `<text class="exh-f11 ex-start" x="118" y="${top + 14}">${esc(u('How many times will the body run?', 'Сколько раз выполнится тело?', 'Дене неше рет орындалады?'))}</text>`;
+        opts.forEach((o, i) => (s += chip(118 + (i % 2) * 98, top + 22 + Math.floor(i / 2) * 30, 92, 25, String(o), `g${o}`, '', 13)));
+      } else {
+        const hist = tr.steps.slice(0, k + 1).filter((x) => x.pass);
+        const cols = Object.keys(S.vars);
+        s += `<rect class="exh-box" x="116" y="${top}" width="198" height="${150 - top + 18}" rx="8"/><text class="exh-f9 ex-start tc exc-m" x="122" y="${top + 13}">${esc(u('pass', 'проход', 'өту'))}</text>${cols.map((c, j) => `<text class="exh-f9 tc exc-m" x="${178 + j * 46}" y="${top + 13}">${esc(c)}</text>`).join('')}`;
+        const rows = Math.max(1, Math.floor((150 - top) / 15));
+        hist.slice(-rows).forEach((h, r) => {
+          const y = top + 29 + r * 15;
+          s += `<text class="exh-f11 ex-start" x="126" y="${y}">${h.pass}</text>${cols.map((c, j) => `<text class="exh-f11 exh-mono" x="${178 + j * 46}" y="${y}">${esc(String(h.vars[c]))}</text>`).join('')}`;
+        });
+        if (st.guess >= 0) s += `<text class="exh-f10 ex-end tc ${st.guess === passes ? 'exc-g' : 'exc-r'}" x="310" y="${top + 13}">${esc(`${u('guess', 'догадка', 'болжам')}: ${st.guess}${k >= tr.steps.length - 1 ? (st.guess === passes ? ' ✓' : ' ✗') : ''}`)}</text>`;
+      }
+      s += `<rect class="exh-box" x="6" y="174" width="308" height="40" rx="8"/><text class="exh-f9 ex-start tc exc-m" x="12" y="187">${esc(u('output', 'вывод', 'шығыс'))}</text><text class="exh-f12 exh-mono ex-start" x="12" y="205">${esc(S.out.join(' ').slice(-44) || ' ')}</text>`;
+      const end = k >= tr.steps.length - 1;
       return {
-        svg: `<rect x="8" y="10" width="304" height="72" rx="10" class="ex-fill exc-m" style="opacity:.12"/>${code.map((c, i) => `<text class="ex-tag" x="16" y="${32 + i * 20}" style="font-family:ui-monospace,Menlo,Consolas,monospace;white-space:pre">${esc(c)}</text>`).join('')}
-          ${cells}<text class="ex-tag" x="12" y="175">i = ${done.length ? done.at(-1) : '-'} · ${u('passes', 'проходов', 'өту')}: ${done.length}/${vals.length}</text><text class="ex-big" x="250" y="200">total = ${sum}</text>`,
-        caption:
-          st.k >= vals.length && vals.length
-            ? L(`Done: i took the values ${vals.join(', ')} (${vals.length} passes) - ${b} itself is not included. total = ${vals.join(' + ')} = ${sum}.`, `Готово: i принимало значения ${vals.join(', ')} (${vals.length} проходов) - само ${b} не входит. total = ${vals.join(' + ')} = ${sum}.`, `Дайын: i ${vals.join(', ')} мәндерін қабылдады (${vals.length} өту) - ${b}-тің өзі кірмейді. total = ${vals.join(' + ')} = ${sum}.`)
-            : L(`Blue cells are the values i will take; green - already done. Press "Next pass" or "Run".`, `Синие клетки - значения, которые примет i; зелёные - уже пройденные. Нажимай «Следующий проход» или «Запустить».`, `Көк торлар - i қабылдайтын мәндер; жасылдар - өтілгендер. «Келесі өту» не «Іске қосу» бас.`),
+        svg: s,
+        caption: end
+          ? L(`Done: the body ran ${passes} time${passes === 1 ? '' : 's'}. ${ex.sum.en(tr)}${st.guess >= 0 ? (st.guess === passes ? ' Your guess was right ✓' : ` Your guess was ${st.guess} ✗`) : ''}`, `Готово: проходов тела - ${passes}. ${ex.sum.ru(tr)}${st.guess >= 0 ? (st.guess === passes ? ' Твоя догадка верна ✓' : ` Ты предположил ${st.guess} ✗`) : ''}`, `Дайын: дене ${passes} рет орындалды. ${ex.sum.kk(tr)}${st.guess >= 0 ? (st.guess === passes ? ' Болжамың дұрыс ✓' : ` Сенің болжамың ${st.guess} ✗`) : ''}`)
+          : k === 0
+            ? L(`${tx(ex.hint)} Guess the number of passes, then press "Step" or "Run".`, `${tx(ex.hint)} Угадай число проходов и нажимай «Шаг» или «Запустить».`, `${tx(ex.hint)} Өту санын тап, сосын «Қадам» не «Іске қосу» бас.`)
+            : S.note,
       };
     },
   },
-
   array: {
     title: L('Arrays: indexes start at 0', 'Массивы: индексы с нуля', 'Массивтер: индекстер нөлден'),
     intro: L('The first element has index 0, the last one index length − 1. Asking for index = length is an error. In Python a[-1] is the last element.', 'У первого элемента индекс 0, у последнего - длина − 1. Обращение к индексу, равному длине, - ошибка. В Python a[-1] - последний элемент.', 'Бірінші элементтің индексі 0, соңғысының - ұзындық − 1. Ұзындыққа тең индекске жүгіну - қате. Python-да a[-1] - соңғы элемент.'),
@@ -1388,7 +1406,7 @@ const SORT_NAMES = [
   { short: L('Bubble', 'Пузырёк', 'Көпіршік'), name: L('Bubble sort', 'Сортировка пузырьком', 'Көпіршікті сұрыптау'), o: 'O(n²)', idea: L('compare neighbours, swap if the left one is bigger', 'сравниваем соседей, меняем, если левый больше', 'көршілерді салыстырып, сол жағы үлкен болса ауыстырамыз') },
   { short: L('Selection', 'Выбором', 'Таңдау'), name: L('Selection sort', 'Сортировка выбором', 'Таңдау арқылы сұрыптау'), o: 'O(n²)', idea: L('find the minimum of the rest and put it in place', 'находим минимум в остатке и ставим его на место', 'қалғандардың ең кішісін тауып, орнына қоямыз') },
   { short: L('Insertion', 'Вставками', 'Кірістіру'), name: L('Insertion sort', 'Сортировка вставками', 'Кірістіру арқылы сұрыптау'), o: 'O(n²)', idea: L('take the next bar and slide it into the sorted part', 'берём следующий и вставляем в отсортированную часть', 'келесісін алып, сұрыпталған бөлікке кірістіреміз') },
-  { short: L('Quick', 'Быстрая', 'Жылдам'), name: L('Quick sort (pivot = last)', 'Быстрая сортировка (опорный - последний)', 'Жылдам сұрыптау (тірек - соңғысы)'), o: 'O(n log n)', idea: L('smaller than the pivot go left, bigger go right, then repeat', 'меньшие опорного - влево, большие - вправо, и так в каждой части', 'тіректен кішілер солға, үлкендер оңға, әр бөлікте қайталаймыз') },
+  { short: L('Quick', 'Быстрая', 'Жылдам'), name: L('Quick sort', 'Быстрая сортировка', 'Жылдам сұрыптау'), o: 'O(n log n)', idea: L('smaller than the pivot go left, bigger go right, then repeat', 'меньшие опорного - влево, большие - вправо, и так в каждой части', 'тіректен кішілер солға, үлкендер оңға, әр бөлікте қайталаймыз') },
 ];
 
 function randomArr(n) {
@@ -1510,4 +1528,135 @@ function sortTrace(start, alg) {
   for (let k = 0; k < n; k++) if (!fin.includes(k)) fin.push(k);
   push({ msg: L('Sorted!', 'Отсортировано!', 'Сұрыпталды!') });
   return out;
+}
+
+// ---------- Код по шагам: общая панель кода ----------
+
+/** Панель кода: строки моноширинным шрифтом, подсвечены строки cur. */
+function codePanel(code, cur = [], y = 6) {
+  const lh = code.length > 5 ? 13 : 14;
+  const h = code.length * lh + 10;
+  let s = `<rect class="exh-box" x="6" y="${y}" width="308" height="${h}" rx="8"/>`;
+  for (const i of cur) s += `<rect class="exh-hl" x="9" y="${y + 4 + i * lh}" width="302" height="${lh + 1}" rx="4"/><path class="ex-fill exc-p" d="M10 ${y + 6 + i * lh} l5 ${lh / 2 - 2} l-5 ${lh / 2 - 2} Z"/>`;
+  code.forEach((ln, i) => (s += `<text class="exh-f11 exh-mono ex-start" x="18" y="${y + 4 + i * lh + lh - 3}">${esc(ln)}</text>`));
+  return s;
+}
+
+// ---------- Циклы ----------
+
+const LOOP_EX = [
+  {
+    name: L('Σ 1..n', 'Σ 1..n', 'Σ 1..n'),
+    code: [
+      (n) => [`n = ${n}`, 'total = 0', 'for i in range(1, n + 1):', '    total += i', 'print(total)'],
+      (n) => [`int n = ${n}, total = 0;`, 'for (int i = 1; i <= n; i++)', '    total += i;', 'cout << total;'],
+      (n) => [`let n = ${n}, total = 0;`, 'for (let i = 1; i <= n; i++)', '    total += i;', 'console.log(total);'],
+      (n) => [`int n = ${n}, total = 0;`, 'for (int i = 1; i <= n; i++)', '    total += i;', 'System.out.println(total);'],
+    ],
+    map: [{ init: [0, 1], cond: [2], b1: [3], out: [4] }, { init: [0], cond: [1], b1: [2], out: [3] }, { init: [0], cond: [1], b1: [2], out: [3] }, { init: [0], cond: [1], b1: [2], out: [3] }],
+    hint: L('A for loop with a counter: i goes from 1 to n and total grows on every pass.', 'Цикл for со счётчиком: i идёт от 1 до n, total растёт на каждом проходе.', 'Санауышы бар for циклі: i 1-ден n-ге дейін жүреді, total әр өтуде өседі.'),
+    sum: { en: (t) => `total = 1 + 2 + … + ${t.p} = ${(t.p * (t.p + 1)) / 2} (formula n(n + 1)/2).`, ru: (t) => `total = 1 + 2 + … + ${t.p} = ${(t.p * (t.p + 1)) / 2} (формула n(n + 1)/2).`, kk: (t) => `total = 1 + 2 + … + ${t.p} = ${(t.p * (t.p + 1)) / 2} (n(n + 1)/2 формуласы).` },
+  },
+  {
+    name: L('Evens', 'Чётные', 'Жұп'),
+    code: [
+      (n) => [`n = ${n}`, 'for i in range(0, n, 2):', '    print(i)'],
+      (n) => [`int n = ${n};`, 'for (int i = 0; i < n; i += 2)', '    cout << i << " ";'],
+      (n) => [`let n = ${n};`, 'for (let i = 0; i < n; i += 2)', '    console.log(i);'],
+      (n) => [`int n = ${n};`, 'for (int i = 0; i < n; i += 2)', '    System.out.println(i);'],
+    ],
+    map: [{ init: [0], cond: [1], b1: [2] }, { init: [0], cond: [1], b1: [2] }, { init: [0], cond: [1], b1: [2] }, { init: [0], cond: [1], b1: [2] }],
+    hint: L('The step is 2, and the end value n is NOT included (i < n, range(0, n, 2)).', 'Шаг 2, а конечное значение n НЕ входит (i < n, range(0, n, 2)).', 'Қадам 2, ал соңғы n мәні КІРМЕЙДІ (i < n, range(0, n, 2)).'),
+    sum: { en: (t) => `i took the values ${t.vals.join(', ')}; ${t.p} itself is not included.`, ru: (t) => `i принимало значения ${t.vals.join(', ')}; само ${t.p} не входит.`, kk: (t) => `i ${t.vals.join(', ')} мәндерін қабылдады; ${t.p}-тің өзі кірмейді.` },
+  },
+  {
+    name: L('Digits', 'Цифры', 'Цифрлар'),
+    code: [
+      (n) => [`num = ${n}`, 'count = 0', 'while num > 0:', '    num //= 10', '    count += 1', 'print(count)'],
+      (n) => [`int num = ${n}, count = 0;`, 'while (num > 0) {', '    num /= 10;', '    count++;', '}', 'cout << count;'],
+      (n) => [`let num = ${n}, count = 0;`, 'while (num > 0) {', '    num = Math.floor(num / 10);', '    count++;', '}', 'console.log(count);'],
+      (n) => [`int num = ${n}, count = 0;`, 'while (num > 0) {', '    num /= 10;', '    count++;', '}', 'System.out.println(count);'],
+    ],
+    map: [{ init: [0, 1], cond: [2], b1: [3], b2: [4], out: [5] }, { init: [0], cond: [1], b1: [2], b2: [3], out: [5] }, { init: [0], cond: [1], b1: [2], b2: [3], out: [5] }, { init: [0], cond: [1], b1: [2], b2: [3], out: [5] }],
+    hint: L('A while loop runs while the condition is true. Integer division by 10 drops the last digit.', 'Цикл while работает, пока условие верно. Целочисленное деление на 10 отбрасывает последнюю цифру.', 'while циклі шарт ақиқат болғанша жұмыс істейді. 10-ға бүтін бөлу соңғы цифрды алып тастайды.'),
+    sum: { en: (t) => `${t.p} has ${t.passes} digit${t.passes > 1 ? 's' : ''}: each pass removed one.`, ru: (t) => `В числе ${t.p} цифр: ${t.passes} - каждый проход убирал одну.`, kk: (t) => `${t.p} санында ${t.passes} цифр бар: әр өту біреуін алып тастады.` },
+  },
+  {
+    name: L('Doubling', 'Удвоение', 'Еселеу'),
+    code: [
+      (n) => [`lim = ${n}`, 'x, steps = 1, 0', 'while x < lim:', '    x *= 2', '    steps += 1', 'print(x, steps)'],
+      (n) => [`int lim = ${n}, x = 1, steps = 0;`, 'while (x < lim) {', '    x *= 2;', '    steps++;', '}', 'cout << x << " " << steps;'],
+      (n) => [`let lim = ${n}, x = 1, steps = 0;`, 'while (x < lim) {', '    x *= 2;', '    steps++;', '}', 'console.log(x, steps);'],
+      (n) => [`int lim = ${n}, x = 1, steps = 0;`, 'while (x < lim) {', '    x *= 2;', '    steps++;', '}', 'System.out.println(x + " " + steps);'],
+    ],
+    map: [{ init: [0, 1], cond: [2], b1: [3], b2: [4], out: [5] }, { init: [0], cond: [1], b1: [2], b2: [3], out: [5] }, { init: [0], cond: [1], b1: [2], b2: [3], out: [5] }, { init: [0], cond: [1], b1: [2], b2: [3], out: [5] }],
+    hint: L('x doubles until it reaches lim. The number of passes is the logarithm of lim to base 2, rounded up.', 'x удваивается, пока не достигнет lim. Число проходов - логарифм lim по основанию 2, округлённый вверх.', 'x lim-ге жеткенше екі еселенеді. Өту саны - lim-нің 2 негізді логарифмі, жоғары дөңгелектенген.'),
+    sum: { en: (t) => `2^${t.passes} = ${2 ** t.passes} is the first power of two ≥ ${t.p}.`, ru: (t) => `2^${t.passes} = ${2 ** t.passes} - первая степень двойки ≥ ${t.p}.`, kk: (t) => `2^${t.passes} = ${2 ** t.passes} - ${t.p}-ден кіші емес екінің алғашқы дәрежесі.` },
+  },
+];
+
+/** Шаги цикла: { line, vars, out, pass, note }. */
+function loopTrace(v) {
+  const ex = clamp(Math.round(v.ex), 0, 3);
+  const p = Math.round([v.n, v.n, v.num, v.lim][ex]);
+  const steps = [];
+  const out = [];
+  let pass = 0;
+  const add = (line, vars, note, isPass = false) => steps.push({ line, vars: { ...vars }, out: [...out], pass: isPass ? ++pass : 0, note });
+  const vals = [];
+  if (ex === 0) {
+    let total = 0;
+    add('init', { i: '-', total }, L('total = 0.', 'total = 0.', 'total = 0.'));
+    for (let i = 1; i <= p; i++) {
+      add('cond', { i, total }, L(`i = ${i}: ${i} <= ${p} - true, enter the body.`, `i = ${i}: ${i} <= ${p} - верно, входим в тело.`, `i = ${i}: ${i} <= ${p} - ақиқат, денеге кіреміз.`));
+      total += i;
+      add('b1', { i, total }, L(`total = ${total - i} + ${i} = ${total}.`, `total = ${total - i} + ${i} = ${total}.`, `total = ${total - i} + ${i} = ${total}.`), true);
+    }
+    add('cond', { i: p + 1, total }, L(`i = ${p + 1}: ${p + 1} <= ${p} - false, the loop ends.`, `i = ${p + 1}: ${p + 1} <= ${p} - ложно, цикл закончен.`, `i = ${p + 1}: ${p + 1} <= ${p} - жалған, цикл аяқталды.`));
+    out.push(total);
+    add('out', { i: p + 1, total }, L(`Print total = ${total}.`, `Выводим total = ${total}.`, `total = ${total} шығарамыз.`));
+  } else if (ex === 1) {
+    add('init', { i: '-' }, L(`n = ${p}.`, `n = ${p}.`, `n = ${p}.`));
+    for (let i = 0; i < p; i += 2) {
+      vals.push(i);
+      add('cond', { i }, L(`i = ${i}: ${i} < ${p} - true.`, `i = ${i}: ${i} < ${p} - верно.`, `i = ${i}: ${i} < ${p} - ақиқат.`));
+      out.push(i);
+      add('b1', { i }, L(`Print ${i}, then i += 2.`, `Выводим ${i}, затем i += 2.`, `${i} шығарамыз, сосын i += 2.`), true);
+    }
+    const last = vals.length ? vals.at(-1) + 2 : 0;
+    add('cond', { i: last }, L(`i = ${last}: ${last} < ${p} - false, the loop ends.`, `i = ${last}: ${last} < ${p} - ложно, цикл закончен.`, `i = ${last}: ${last} < ${p} - жалған, цикл аяқталды.`));
+  } else if (ex === 2) {
+    let num = p;
+    let count = 0;
+    add('init', { num, count }, L(`num = ${p}, count = 0.`, `num = ${p}, count = 0.`, `num = ${p}, count = 0.`));
+    while (num > 0) {
+      add('cond', { num, count }, L(`${num} > 0 - true.`, `${num} > 0 - верно.`, `${num} > 0 - ақиқат.`));
+      const was = num;
+      num = Math.floor(num / 10);
+      add('b1', { num, count }, L(`${was} // 10 = ${num}: the last digit ${was % 10} is gone.`, `${was} // 10 = ${num}: последняя цифра ${was % 10} отброшена.`, `${was} // 10 = ${num}: соңғы ${was % 10} цифры алынды.`));
+      count += 1;
+      add('b2', { num, count }, L(`count = ${count}.`, `count = ${count}.`, `count = ${count}.`), true);
+    }
+    add('cond', { num, count }, L('0 > 0 - false, the loop ends.', '0 > 0 - ложно, цикл закончен.', '0 > 0 - жалған, цикл аяқталды.'));
+    out.push(count);
+    add('out', { num, count }, L(`Print ${count}.`, `Выводим ${count}.`, `${count} шығарамыз.`));
+  } else {
+    let x = 1;
+    let st = 0;
+    add('init', { x, steps: st }, L(`lim = ${p}, x = 1, steps = 0.`, `lim = ${p}, x = 1, steps = 0.`, `lim = ${p}, x = 1, steps = 0.`));
+    while (x < p) {
+      add('cond', { x, steps: st }, L(`${x} < ${p} - true.`, `${x} < ${p} - верно.`, `${x} < ${p} - ақиқат.`));
+      x *= 2;
+      add('b1', { x, steps: st }, L(`x = ${x / 2} · 2 = ${x}.`, `x = ${x / 2} · 2 = ${x}.`, `x = ${x / 2} · 2 = ${x}.`));
+      st += 1;
+      add('b2', { x, steps: st }, L(`steps = ${st}.`, `steps = ${st}.`, `steps = ${st}.`), true);
+    }
+    add('cond', { x, steps: st }, L(`${x} < ${p} - false, the loop ends.`, `${x} < ${p} - ложно, цикл закончен.`, `${x} < ${p} - жалған, цикл аяқталды.`));
+    out.push(`${x} ${st}`);
+    add('out', { x, steps: st }, L(`Print ${x} ${st}.`, `Выводим ${x} ${st}.`, `${x} ${st} шығарамыз.`));
+  }
+  return { ex, p, steps, vals, passes: pass };
+}
+function loopGuessOpts(p) {
+  return [...new Set([p - 1, p, p + 1, p + 2].map((x) => Math.max(0, x)))].sort((a, b) => a - b);
 }

@@ -587,6 +587,34 @@ const psTask = () => {
   return { type, light: 80, co2: 0.1, t: 5 };
 };
 
+// Газ под поршнем: изотерма, изобара, изохора (pV = νRT), молекулы, графики, задания.
+const GAS_NU = 0.0802; // моль: при 2 л и 300 К давление ≈ 100 кПа
+const gasP = (V, T) => (GAS_NU * 8.31 * T) / (V / 1000) / 1000; // кПа, V в литрах
+const gasTask = () => {
+  const type = ri(0, 2);
+  if (type === 0) {
+    const [V0, V1] = pick([[2, 1], [3, 1.5], [2, 4], [4, 2], [3, 1]]);
+    return { type, V0, T0: 300, p: gasP(V1, 300), ans: V1 };
+  }
+  if (type === 1) {
+    const [T0, T1] = pick([[300, 450], [300, 600], [400, 200], [300, 150], [200, 500]]);
+    return { type, V0: (GAS_NU * 8.31 * T0) / 100, T0, p0: 100, ans: T1, V1: (GAS_NU * 8.31 * T1) / 100 };
+  }
+  const [T0, T1] = pick([[300, 450], [300, 600], [400, 200], [300, 150]]);
+  return { type, V0: 2, T0, ans: T1, p: gasP(2, T1) };
+};
+
+// Математический маятник: период, планеты, сравнение l и l/4, энергия, секундомер, задание.
+const pendTask = (g) => {
+  for (let k = 0; k < 100; k++) {
+    const l = ri(2, 24) / 10;
+    const T = Math.round(2 * Math.PI * Math.sqrt(l / g) * 10) / 10;
+    const lt = (g * T * T) / (4 * Math.PI * Math.PI);
+    if (lt >= 0.12 && lt <= 2.45) return { T, l: lt };
+  }
+  return { T: 2, l: (g * 4) / (4 * Math.PI * Math.PI) };
+};
+
 export const SCENES_SCIENCE = {
   ohm: {
     title: L("Ohm's law: I = U / R", 'Закон Ома: I = U / R', 'Ом заңы: I = U / R'),
@@ -1760,6 +1788,189 @@ export const SCENES_SCIENCE = {
       return { svg, caption };
     },
   },
+
+  gas: {
+    title: L('Gas laws: isotherm, isobar, isochore', 'Газовые законы: изотерма, изобара, изохора', 'Газ заңдары: изотерма, изобара, изохора'),
+    intro: L('For a fixed amount of gas pV = νRT. Keep one of p, V, T constant and see how the other two change.', 'Для данного количества газа pV = νRT. Оставь одну из величин p, V, T постоянной и смотри, как меняются две другие.', 'Газдың берілген мөлшері үшін pV = νRT. p, V, T шамаларының бірін тұрақты қалдырып, қалған екеуінің өзгерісін бақыла.'),
+    sliders: [
+      { id: 'V', label: L('V, L', 'V, л', 'V, л'), min: 1, max: 4, step: 0.05, value: 2, hidden: (v, st) => st.mode === 1 || st.mode === 2 },
+      { id: 'T', label: L('T, K', 'T, К', 'T, К'), min: 150, max: 600, step: 1, value: 300, hidden: (v, st) => st.mode === 0 },
+    ],
+    buttons: [L('T = const', 'T = const', 'T = const'), L('p = const', 'p = const', 'p = const'), L('V = const', 'V = const', 'V = const'), TASK],
+    state: () => {
+      let seed = 7;
+      const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+      return { m: 0, mode: 0, p0: 100, task: null, mol: Array.from({ length: 26 }, () => ({ x: rnd(), y: rnd(), a: rnd() * Math.PI * 2 })) };
+    },
+    pressed: (i, v, st) => (st.m === 3 ? i === 3 : i === st.mode),
+    onButton(i, st, v) {
+      if (i < 3) {
+        st.m = i;
+        st.mode = i;
+        st.p0 = gasP(v.V, v.T);
+        return null;
+      }
+      st.m = 3;
+      st.task = gasTask();
+      st.mode = st.task.type;
+      st.p0 = st.task.p0 ?? 100;
+      return { V: st.task.V0, T: st.task.T0 };
+    },
+    live(dt, v, st) {
+      const sp = 0.9 * Math.sqrt(v.T / 300);
+      for (const p of st.mol) {
+        p.x += Math.cos(p.a) * sp * dt;
+        p.y += Math.sin(p.a) * sp * dt * 1.6;
+        if (p.x < 0 || p.x > 1) (p.x = clamp(p.x, 0, 1)), (p.a = Math.PI - p.a);
+        if (p.y < 0 || p.y > 1) (p.y = clamp(p.y, 0, 1)), (p.a = -p.a);
+      }
+    },
+    draw(v, step, st) {
+      // Изобара: объём следует за температурой.
+      if (st.mode === 1) v.V = clamp((GAS_NU * 8.31 * v.T) / st.p0, 1, 4);
+      const p = gasP(v.V, v.T);
+      const h = v.V * 40;
+      const top = 200 - h;
+      const hue = Math.round(220 - ((v.T - 150) / 450) * 220);
+      const mol = st.mol.map((m) => `<circle cx="${n1(22 + m.x * 96)}" cy="${n1(198 - m.y * (h - 6))}" r="3.3" style="fill:hsl(${hue} 80% 55%)"/>`).join('');
+      // График процесса.
+      const gx0 = 168;
+      const gy0 = 186;
+      let graph;
+      let xl;
+      let yl;
+      if (st.mode === 0) {
+        const sx = (V) => gx0 + (V - 0.5) * 38;
+        const sy = (pp) => gy0 - pp * 0.36;
+        graph = `${[200, 300, 450].map((T) => `<path class="ex-stroke exc-m ex-faint" style="stroke-width:1" d="${plot((V) => sy(gasP(V, T)), 0.9, 4, sx, (y) => y)}"/>`).join('')}<path class="ex-curve" d="${plot((V) => sy(gasP(V, v.T)), 0.9, 4, sx, (y) => y)}"/><circle class="ex-dot" cx="${n1(sx(v.V))}" cy="${n1(clamp(sy(p), 10, 190))}" r="5"/>${tt(312, sy(gasP(4, v.T)) - 8, `T = ${fmt(v.T, 0)} ${u('K', 'К', 'К')}`, 'exs-s ex-end tc exc-p')}${[1, 2, 3, 4].map((V) => tt(sx(V), gy0 + 12, String(V), 'exs-s')).join('')}`;
+        xl = `V, ${UN.L()}`;
+        yl = `p, ${UN.kPa()}`;
+      } else {
+        const sx = (T) => gx0 + T * 0.24;
+        const isoP = st.mode === 2;
+        const y = isoP ? p : v.V;
+        const sy = isoP ? (pp) => gy0 - pp * 0.36 : (V) => gy0 - V * 40;
+        const k = isoP ? p / v.T : v.V / v.T;
+        graph = `${ln(sx(0), sy(0), sx(150), sy(k * 150), 'exc-m ex-dash', 1.2)}${ln(sx(150), sy(k * 150), sx(600), sy(k * 600), 'exc-p', 3)}<circle class="ex-dot" cx="${n1(sx(v.T))}" cy="${n1(clamp(sy(y), 10, 190))}" r="5"/>${[0, 300, 600].map((T) => tt(sx(T), gy0 + 12, String(T), 'exs-s')).join('')}`;
+        xl = `T, ${u('K', 'К', 'К')}`;
+        yl = isoP ? `p, ${UN.kPa()}` : `V, ${UN.L()}`;
+      }
+      const law = [u('Boyle-Mariotte: pV = const', 'Бойль-Мариотт: pV = const', 'Бойль-Мариотт: pV = const'), u('Gay-Lussac: V/T = const', 'Гей-Люссак: V/T = const', 'Гей-Люссак: V/T = const'), u('Charles: p/T = const', 'Шарль: p/T = const', 'Шарль: p/T = const')][st.mode];
+      const svg = `<path class="ex-cyl" d="M18 26 V202 H122 V26"/><rect class="ex-piston" x="20" y="${n1(top - 10)}" width="100" height="10" rx="3"/><line class="ex-rod" x1="70" y1="${n1(top - 10)}" x2="70" y2="4"/>${mol}
+        ${tt(98, top - 16, `V = ${fmt(v.V, 2)} ${UN.L()}`, 'exs-t')}
+        ${box(126, 4, 40, 60)}${tt(146, 18, 'p', 'exs-s')}${tt(146, 33, fmt(p, 0), 'exs-t tc exc-r')}${tt(146, 46, UN.kPa(), 'exs-s')}${tt(146, 59, `${fmt(p / 101.3, 2)} ${u('atm', 'атм', 'атм')}`, 'exs-s')}
+        ${box(126, 150, 40, 52)}${tt(146, 165, 'T', 'exs-s')}${tt(146, 180, fmt(v.T, 0), 'exs-t tc exc-o')}${tt(146, 195, `${fmt(v.T - 273, 0)} °C`, 'exs-s')}
+        <line class="ex-axis" x1="${gx0}" y1="${gy0}" x2="316" y2="${gy0}"/><line class="ex-axis" x1="${gx0}" y1="${gy0}" x2="${gx0}" y2="14"/>${tt(316, 212, xl, 'exs-s ex-end')}${tt(gx0 + 4, 14, yl, 'exs-s ex-start')}
+        ${graph}${tt(242, 30, law, 'exs-s tc exc-p')}`;
+      const nm = [u('isothermal', 'изотермический', 'изотермиялық'), u('isobaric', 'изобарный', 'изобаралық'), u('isochoric', 'изохорный', 'изохоралық')][st.mode];
+      let caption = [
+        u(`Isothermal process (T = ${fmt(v.T, 0)} K): pV = ${fmt(p, 1)} · ${fmt(v.V, 2)} = ${fmt(p * v.V, 0)} kPa·L stays constant. Squeeze the gas 2 times - the molecules hit the walls 2 times more often, p doubles.`, `Изотермический процесс (T = ${fmt(v.T, 0)} К): pV = ${fmt(p, 1)} · ${fmt(v.V, 2)} = ${fmt(p * v.V, 0)} кПа·л не меняется. Сожми газ в 2 раза - молекулы бьют о стенки в 2 раза чаще, p вдвое больше.`, `Изотермиялық процесс (T = ${fmt(v.T, 0)} К): pV = ${fmt(p, 1)} · ${fmt(v.V, 2)} = ${fmt(p * v.V, 0)} кПа·л өзгермейді. Газды 2 есе сықсаң - молекулалар қабырғаға 2 есе жиі соғылады, p екі есе артады.`),
+        u(`Isobaric process (p = ${fmt(p, 0)} kPa): V/T = ${fmt(v.V, 2)} / ${fmt(v.T, 0)} = ${fmt((v.V / v.T) * 1000, 2)}·10⁻³ L/K. Heat the gas - it expands and pushes the piston up.`, `Изобарный процесс (p = ${fmt(p, 0)} кПа): V/T = ${fmt(v.V, 2)} / ${fmt(v.T, 0)} = ${fmt((v.V / v.T) * 1000, 2)}·10⁻³ л/К. Нагреваешь газ - он расширяется и поднимает поршень.`, `Изобаралық процесс (p = ${fmt(p, 0)} кПа): V/T = ${fmt(v.V, 2)} / ${fmt(v.T, 0)} = ${fmt((v.V / v.T) * 1000, 2)}·10⁻³ л/К. Газды қыздырсаң - ол ұлғайып, поршеньді көтереді.`),
+        u(`Isochoric process (V = ${fmt(v.V, 2)} L): p/T = ${fmt(p, 0)} / ${fmt(v.T, 0)} = ${fmt(p / v.T, 3)} kPa/K. The piston is fixed: faster molecules hit harder, so p grows with T.`, `Изохорный процесс (V = ${fmt(v.V, 2)} л): p/T = ${fmt(p, 0)} / ${fmt(v.T, 0)} = ${fmt(p / v.T, 3)} кПа/К. Поршень закреплён: быстрые молекулы бьют сильнее, и p растёт вместе с T.`, `Изохоралық процесс (V = ${fmt(v.V, 2)} л): p/T = ${fmt(p, 0)} / ${fmt(v.T, 0)} = ${fmt(p / v.T, 3)} кПа/К. Поршень бекітілген: жылдам молекулалар қатты соғады, p T-мен бірге өседі.`),
+      ][st.mode];
+      if (st.m === 3) {
+        const q = st.task;
+        let ok;
+        let goal;
+        let done;
+        if (q.type === 0) {
+          ok = near(v.V, q.ans, 0.03);
+          goal = u(`${nm} process at 300 K. Change the volume so that the pressure becomes ${fmt(q.p, 0)} kPa.`, `${nm} процесс при 300 К. Измени объём так, чтобы давление стало ${fmt(q.p, 0)} кПа.`, `300 К-дегі ${nm} процесс. Қысым ${fmt(q.p, 0)} кПа болатындай көлемді өзгерт.`);
+          done = `p₁V₁ = p₂V₂: V₂ = ${fmt(gasP(q.V0, 300), 0)} · ${q.V0} / ${fmt(q.p, 0)} = ${fmt(q.ans, 2)} ${UN.L()}.`;
+        } else if (q.type === 1) {
+          ok = near(v.T, q.ans, 3);
+          goal = u(`${nm} process at 100 kPa. Bring the volume to ${fmt(q.V1, 2)} L.`, `${nm} процесс при 100 кПа. Доведи объём до ${fmt(q.V1, 2)} л.`, `100 кПа-дағы ${nm} процесс. Көлемді ${fmt(q.V1, 2)} л-ге жеткіз.`);
+          done = `V₁/T₁ = V₂/T₂: T₂ = ${q.T0} · ${fmt(q.V1, 2)} / ${fmt(q.V0, 2)} = ${q.ans} ${u('K', 'К', 'К')}.`;
+        } else {
+          ok = near(v.T, q.ans, 3);
+          goal = u(`${nm} process, V = 2 L. At what temperature is the pressure ${fmt(q.p, 0)} kPa?`, `${nm} процесс, V = 2 л. При какой температуре давление станет ${fmt(q.p, 0)} кПа?`, `${nm} процесс, V = 2 л. Қандай температурада қысым ${fmt(q.p, 0)} кПа болады?`);
+          done = `p₁/T₁ = p₂/T₂: T₂ = ${q.T0} · ${fmt(q.p, 0)} / ${fmt(gasP(2, q.T0), 0)} = ${q.ans} ${u('K', 'К', 'К')}.`;
+        }
+        caption = taskCap(goal, ok, u(`Now p = ${fmt(p, 0)} kPa, V = ${fmt(v.V, 2)} L, T = ${fmt(v.T, 0)} K.`, `Сейчас p = ${fmt(p, 0)} кПа, V = ${fmt(v.V, 2)} л, T = ${fmt(v.T, 0)} К.`, `Қазір p = ${fmt(p, 0)} кПа, V = ${fmt(v.V, 2)} л, T = ${fmt(v.T, 0)} К.`), done);
+        return { svg: svg + taskBadge(ok, 316, 46), caption };
+      }
+      return { svg, caption };
+    },
+  },
+
+  pendulum: {
+    title: L('Pendulum period', 'Период маятника', 'Маятник периоды'),
+    intro: L('T = 2π√(l/g): the period depends on the length and gravity only - not on the mass and (for small swings) not on the amplitude.', 'T = 2π√(l/g): период зависит только от длины и g - не от массы и (при малых размахах) не от амплитуды.', 'T = 2π√(l/g): период тек ұзындық пен g-ге тәуелді - массаға және (кіші тербелісте) амплитудаға тәуелді емес.'),
+    sliders: [
+      { id: 'l', label: L('length l, m', 'длина l, м', 'ұзындық l, м'), min: 0.1, max: 2.5, step: 0.01, value: 1.5 },
+      { id: 'm', label: L('mass m, kg', 'масса m, кг', 'масса m, кг'), min: 0.1, max: 2, step: 0.1, value: 0.5, hidden: (v, st) => st.m === 1 },
+      { id: 'th', label: L('amplitude, °', 'амплитуда, °', 'амплитуда, °'), min: 3, max: 30, step: 1, value: 15, hidden: (v, st) => st.m === 1 },
+    ],
+    buttons: [L('Planet ↻', 'Планета ↻', 'Ғаламшар ↻'), L('Compare with l/4', 'Сравнить с l/4', 'l/4-пен салыстыру'), TASK, FREE],
+    state: () => ({ p: 0, cmp: false, m: 0, time: 0, task: null }),
+    pressed: (i, v, st) => (i === 1 && st.cmp) || (i === 2 && st.m === 1),
+    btnHidden: (i, v, st) => (i === 3 ? st.m !== 1 : st.m === 1 && i < 2),
+    onButton(i, st) {
+      st.time = 0;
+      if (i === 0) st.p = (st.p + 1) % 3;
+      else if (i === 1) st.cmp = !st.cmp;
+      else if (i === 3) st.m = 0;
+      else {
+        st.m = 1;
+        st.cmp = false;
+        st.task = pendTask(PLANETS[st.p].g);
+        return { l: 0.3 };
+      }
+      return null;
+    },
+    live(dt, v, st) {
+      st.time += dt;
+    },
+    draw(v, step, st) {
+      const P = PLANETS[st.p];
+      const g = P.g;
+      const T = 2 * Math.PI * Math.sqrt(v.l / g);
+      const w = (2 * Math.PI) / T;
+      const th0 = rad(v.th);
+      const sc = 72;
+      const px = st.cmp ? 110 : 128;
+      const py = 14;
+      const bob = (l, ph, cls, r) => {
+        const th = th0 * Math.cos(ph);
+        const L1 = l * sc;
+        const bx = px + L1 * Math.sin(th);
+        const by = py + L1 * Math.cos(th);
+        const arc = `M${n1(px - L1 * Math.sin(th0))} ${n1(py + L1 * Math.cos(th0))} A${n1(L1)} ${n1(L1)} 0 0 0 ${n1(px + L1 * Math.sin(th0))} ${n1(py + L1 * Math.cos(th0))}`;
+        return `<path class="ex-stroke exc-m ex-dash" style="stroke-width:1" d="${arc}"/><line class="ex-rad" x1="${px}" y1="${py}" x2="${n1(bx)}" y2="${n1(by)}"/><circle class="ex-fill ${cls}" cx="${n1(bx)}" cy="${n1(by)}" r="${r}" style="stroke:var(--card);stroke-width:2"/>`;
+      };
+      const ph = w * st.time;
+      const r = 6 + v.m * 3;
+      let pend = `${ln(px - 40, py, px + 40, py, 'exc-m', 3)}${ln(px, py, px, py + v.l * sc + 10, 'exc-m ex-faint', 1)}${bob(v.l, ph, 'exc-o', r)}`;
+      const T4 = T / 2;
+      if (st.cmp) pend += bob(v.l / 4, (2 * Math.PI * st.time) / T4, 'exc-b', r);
+      // Энергия: доля Eк и Eп в данный момент.
+      const ep = Math.cos(ph) ** 2;
+      const vmax = Math.sqrt(2 * g * v.l * (1 - Math.cos(th0)));
+      const n = Math.floor(st.time / T);
+      const info = `${box(206, 4, 110, 132)}${tt(212, 18, `${tx(P.name)}: g = ${fmt(g, 2)}`, 'exs-t ex-start')}${tt(212, 36, `T = ${fmt(T, 2)} ${UN.s()}`, 'exs-h ex-start tc exc-o')}${tt(212, 52, `ν = 1/T = ${fmt(1 / T, 2)} ${UN.Hz()}`, 'exs-t ex-start')}
+        ${st.cmp ? tt(212, 68, `l/4: T = ${fmt(T4, 2)} ${UN.s()}`, 'exs-t ex-start tc exc-b') : tt(212, 68, `${u('v at bottom', 'v внизу', 'v төменде')} = ${fmt(vmax, 2)} ${UN.ms()}`, 'exs-t ex-start')}
+        ${tt(212, 86, `t = ${fmt(st.time, 1)} ${UN.s()} · ${n} ${u('osc.', 'кол.', 'терб.')}`, 'exs-s ex-start')}
+        <rect x="212" y="96" width="${n1(98 * (1 - ep))}" height="9" rx="3" class="ex-fill exc-o"/><rect x="${n1(212 + 98 * (1 - ep))}" y="96" width="${n1(98 * ep)}" height="9" rx="3" class="ex-fill exc-b"/>${tt(212, 118, u('KE', 'Eк', 'Eк'), 'exs-s ex-start tc exc-o')}${tt(310, 118, u('PE', 'Eп', 'Eп'), 'exs-s ex-end tc exc-b')}${tt(261, 130, `E = ${fmt(v.m * g * v.l * (1 - Math.cos(th0)), 3)} ${UN.J()}`, 'exs-s')}`;
+      const svg = `${pend}${info}${tt(px, 214, `l = ${fmt(v.l, 2)} ${UN.m()}, m = ${fmt(v.m, 1)} ${UN.kg()}`, 'exs-t')}`;
+      let caption = u(
+        `T = 2π√(l/g) = 2π√(${fmt(v.l, 2)} / ${fmt(g, 2)}) = ${fmt(T, 2)} s. ${st.cmp ? `A pendulum 4 times shorter swings 2 times faster: T = ${fmt(T4, 2)} s.` : `The mass ${fmt(v.m, 1)} kg does not matter: change it - T stays the same. At the bottom all energy is kinetic, at the ends - potential.`}`,
+        `T = 2π√(l/g) = 2π√(${fmt(v.l, 2)} / ${fmt(g, 2)}) = ${fmt(T, 2)} с. ${st.cmp ? `Маятник в 4 раза короче качается в 2 раза чаще: T = ${fmt(T4, 2)} с.` : `Масса ${fmt(v.m, 1)} кг не важна: измени её - T не изменится. Внизу вся энергия кинетическая, в крайних точках - потенциальная.`}`,
+        `T = 2π√(l/g) = 2π√(${fmt(v.l, 2)} / ${fmt(g, 2)}) = ${fmt(T, 2)} с. ${st.cmp ? `4 есе қысқа маятник 2 есе жиі тербеледі: T = ${fmt(T4, 2)} с.` : `${fmt(v.m, 1)} кг масса маңызды емес: өзгертсең де T өзгермейді. Төменде энергия толық кинетикалық, шеткі нүктелерде - потенциалдық.`}`,
+      );
+      if (st.m === 1) {
+        const q = st.task;
+        const ok = near(T, q.T, 0.02);
+        caption = taskCap(
+          u(`on ${tx(P.name)} (g = ${fmt(g, 2)} m/s²) make a pendulum with period T = ${fmt(q.T, 1)} s.`, `на планете ${tx(P.name)} (g = ${fmt(g, 2)} м/с²) сделай маятник с периодом T = ${fmt(q.T, 1)} с.`, `${tx(P.name)} ғаламшарында (g = ${fmt(g, 2)} м/с²) периоды T = ${fmt(q.T, 1)} с маятник жаса.`),
+          ok,
+          u(`Now T = ${fmt(T, 2)} s. Longer string - longer period.`, `Сейчас T = ${fmt(T, 2)} с. Длиннее нить - больше период.`, `Қазір T = ${fmt(T, 2)} с. Жіп ұзын болса - период үлкен.`),
+          `l = gT² / 4π² = ${fmt(g, 2)} · ${fmt(q.T, 1)}² / 39,48 ≈ ${fmt(q.l, 2)} ${UN.m()}.`,
+        );
+        return { svg: svg + taskBadge(ok, 316, 154), caption };
+      }
+      return { svg, caption };
+    },
+  },
   'sine-wave': {
     title: L('Waves: amplitude, frequency, phase', 'Волна: амплитуда, частота, фаза', 'Толқын: амплитуда, жиілік, фаза'),
     intro: L('y = A·sin(2π·f·t + φ). A is the height of the crest, f is how many waves fit in one second, φ shifts the wave sideways.', 'y = A·sin(2π·f·t + φ). A - высота гребня, f - сколько волн умещается за секунду, φ сдвигает волну вбок.', 'y = A·sin(2π·f·t + φ). A - толқын жотасының биіктігі, f - бір секундта неше толқын сыяды, φ толқынды бүйірге ығыстырады.'),
@@ -1792,96 +2003,6 @@ export const SCENES_SCIENCE = {
           `A = ${fmt(v.A)}: the crest rises ${fmt(v.A)} above the middle line. f = ${fmt(v.f)} Hz: ${fmt(v.f)} waves per second, so one wave lasts T = 1/f = ${fmt(T)} s. φ = ${fmt(v.ph)}° shifts the wave by ${fmt(v.ph / 360)} of a period. The grey wave is A = 1, f = 1, φ = 0.`,
           `A = ${fmt(v.A)}: гребень поднимается на ${fmt(v.A)} над средней линией. f = ${fmt(v.f)} Гц: ${fmt(v.f)} волны в секунду, значит одна волна длится T = 1/f = ${fmt(T)} с. φ = ${fmt(v.ph)}° сдвигает волну на ${fmt(v.ph / 360)} периода. Серая волна - A = 1, f = 1, φ = 0.`,
           `A = ${fmt(v.A)}: жота орта сызықтан ${fmt(v.A)}-ге көтеріледі. f = ${fmt(v.f)} Гц: секундына ${fmt(v.f)} толқын, демек бір толқын T = 1/f = ${fmt(T)} с созылады. φ = ${fmt(v.ph)}° толқынды периодтың ${fmt(v.ph / 360)} бөлігіне ығыстырады. Сұр толқын - A = 1, f = 1, φ = 0.`,
-        ),
-      };
-    },
-  },
-
-  pendulum: {
-    title: L('The period of a pendulum', 'Период маятника', 'Маятниктің периоды'),
-    intro: L('A pendulum swings with period T = 2π√(l/g). It depends only on the string length and gravity - not on the mass of the bob.', 'Маятник качается с периодом T = 2π√(l/g). Он зависит только от длины нити и силы тяжести - масса груза не важна.', 'Маятник T = 2π√(l/g) периодымен тербеледі. Ол тек жіптің ұзындығы мен ауырлық күшіне тәуелді - жүктің массасы маңызды емес.'),
-    sliders: [
-      { id: 'l', label: L('l, m', 'l, м', 'l, м'), min: 0.2, max: 2.5, step: C, value: 1 },
-      { id: 'g', label: L('g, m/s²', 'g, м/с²', 'g, м/с²'), min: 1.6, max: 25, step: C, value: 9.81 },
-    ],
-    buttons: [L('Moon', 'Луна', 'Ай'), L('Earth', 'Земля', 'Жер'), L('Jupiter', 'Юпитер', 'Юпитер')],
-    onButton: (i) => ({ g: [1.62, 9.81, 24.79][i] }),
-    pressed: (i, v) => Math.abs(v.g - [1.62, 9.81, 24.79][i]) < 0.02,
-    state: () => ({ ph: 0 }),
-    live(dt, v, st) {
-      st.ph = (st.ph + dt * Math.sqrt(v.g / v.l)) % (Math.PI * 2);
-    },
-    draw(v, step, st) {
-      const T = 2 * Math.PI * Math.sqrt(v.l / v.g);
-      const th0 = (20 * Math.PI) / 180;
-      const th = th0 * Math.cos(st.ph);
-      const Lp = v.l * 72;
-      const px = 160;
-      const py = 18;
-      const bx = px + Lp * Math.sin(th);
-      const by = py + Lp * Math.cos(th);
-      const arc = `M${n1(px + Lp * Math.sin(-th0))} ${n1(py + Lp * Math.cos(th0))} A${n1(Lp)} ${n1(Lp)} 0 0 0 ${n1(px + Lp * Math.sin(th0))} ${n1(py + Lp * Math.cos(th0))}`;
-      return {
-        svg: `<line class="ex-axis" x1="110" y1="${py}" x2="210" y2="${py}" style="stroke-width:3"/><path class="ex-stroke exc-m ex-dash" style="stroke-width:1.2" d="${arc}"/><line class="ex-grid" x1="${px}" y1="${py}" x2="${px}" y2="${n1(py + Lp + 12)}"/>
-          <line class="ex-rad" x1="${px}" y1="${py}" x2="${n1(bx)}" y2="${n1(by)}"/><circle class="ex-ball" cx="${n1(bx)}" cy="${n1(by)}" r="10"/>
-          <text class="ex-tag" x="8" y="40">T = ${fmt(T)} ${u('s', 'с', 'с')}</text><text class="ex-tag" x="8" y="58">${fmt(60 / T, 1)} ${u('swings/min', 'кол./мин', 'тербеліс/мин')}</text>`,
-        caption: L(
-          `T = 2π·√(${fmt(v.l)} / ${fmt(v.g)}) = ${fmt(T)} s. A 4 times longer string gives a 2 times longer period. On the Moon gravity is weak, so the pendulum swings slowly; on Jupiter - fast.`,
-          `T = 2π·√(${fmt(v.l)} / ${fmt(v.g)}) = ${fmt(T)} с. Нить в 4 раза длиннее - период в 2 раза больше. На Луне тяготение слабое, и маятник качается медленно, на Юпитере - быстро.`,
-          `T = 2π·√(${fmt(v.l)} / ${fmt(v.g)}) = ${fmt(T)} с. Жіп 4 есе ұзын болса - период 2 есе артады. Айда тартылыс әлсіз, маятник баяу тербеледі, Юпитерде - жылдам.`,
-        ),
-      };
-    },
-  },
-
-  gas: {
-    title: L('Gas in a cylinder: pressure, volume, temperature', 'Газ под поршнем: давление, объём, температура', 'Поршень астындағы газ: қысым, көлем, температура'),
-    intro: L('Pressure is the molecules hitting the walls. Squeeze the gas - they hit more often; heat it - they move faster. For a fixed amount of gas pV/T stays constant.', 'Давление - это удары молекул о стенки. Сожмёшь газ - удары чаще, нагреешь - молекулы быстрее. Для данной массы газа pV/T не меняется.', 'Қысым - молекулалардың қабырғаға соқтығысуы. Газды сықсаң - соққылар жиілейді, қыздырсаң - молекулалар жылдамдайды. Газдың берілген массасы үшін pV/T өзгермейді.'),
-    sliders: [
-      { id: 'V', label: L('V, L', 'V, л', 'V, л'), min: 1, max: 4, step: C, value: 2 },
-      { id: 'T', label: L('T, K', 'T, К', 'T, К'), min: 150, max: 600, step: C, value: 300 },
-    ],
-    buttons: [L('Compress ×2', 'Сжать в 2 раза', '2 есе сығу'), L('Heat ×2', 'Нагреть в 2 раза', '2 есе қыздыру'), RESET],
-    onButton: (i, st, v) => [{ V: clamp(v.V / 2, 1, 4) }, { T: clamp(v.T * 2, 150, 600) }, { V: 2, T: 300 }][i],
-    state: () => {
-      let seed = 7;
-      const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-      return { m: Array.from({ length: 28 }, () => ({ x: rnd() * 180, y: rnd() * 80, a: rnd() * Math.PI * 2 })) };
-    },
-    live(dt, v, st) {
-      const h = v.V * 42;
-      const sp = 90 * Math.sqrt(v.T / 300);
-      for (const p of st.m) {
-        p.x += Math.cos(p.a) * sp * dt;
-        p.y += Math.sin(p.a) * sp * dt;
-        if (p.x < 0 || p.x > 180) {
-          p.x = clamp(p.x, 0, 180);
-          p.a = Math.PI - p.a;
-        }
-        if (p.y < 0 || p.y > h) {
-          p.y = clamp(p.y, 0, h);
-          p.a = -p.a;
-        }
-      }
-    },
-    draw(v, step, st) {
-      const p = 100 * (v.T / 300) * (2 / v.V);
-      const h = v.V * 42;
-      const top = 196 - h;
-      const hue = Math.round(220 - ((v.T - 150) / 450) * 220);
-      const mol = st.m.map((m) => `<circle cx="${n1(70 + m.x)}" cy="${n1(196 - Math.min(m.y, h))}" r="4" style="fill:hsl(${hue} 80% 55%)"/>`).join('');
-      const ang = -135 + 270 * clamp(p / 400, 0, 1);
-      const ra = (ang * Math.PI) / 180;
-      const th = clamp((v.T - 150) / 450, 0, 1);
-      return {
-        svg: `<path class="ex-cyl" d="M64 20 V200 H256 V20"/><rect class="ex-piston" x="66" y="${n1(top - 12)}" width="188" height="12" rx="3"/><line class="ex-rod" x1="160" y1="${n1(top - 12)}" x2="160" y2="4"/>${mol}
-          <circle class="ex-ring" cx="290" cy="70" r="22"/><line class="ex-rad" x1="290" y1="70" x2="${n1(290 + 18 * Math.sin(ra))}" y2="${n1(70 - 18 * Math.cos(ra))}"/><text class="ex-tiny" x="290" y="108">p</text>
-          <rect class="ex-thermo" x="24" y="40" width="12" height="150" rx="6"/><rect x="26" y="${n1(188 - 146 * th)}" width="8" height="${n1(146 * th)}" rx="4" style="fill:hsl(${hue} 80% 55%)"/><text class="ex-tiny" x="30" y="206">T</text>
-          <text class="ex-small" x="290" y="140">${fmt(p, 1)}</text><text class="ex-tiny" x="290" y="154">${u('kPa', 'кПа', 'кПа')}</text>`,
-        caption: L(
-          `p = ${fmt(p, 1)} kPa. pV/T = ${fmt(p, 1)}·${fmt(v.V)}/${fmt(v.T)} = ${fmt((p * v.V) / v.T, 3)} - always the same. Halve the volume → the pressure doubles; double the temperature (in kelvins) → the pressure doubles too.`,
-          `p = ${fmt(p, 1)} кПа. pV/T = ${fmt(p, 1)}·${fmt(v.V)}/${fmt(v.T)} = ${fmt((p * v.V) / v.T, 3)} - всегда одно и то же. Объём меньше вдвое → давление вдвое больше; температура (в кельвинах) вдвое выше → давление тоже вдвое больше.`,
-          `p = ${fmt(p, 1)} кПа. pV/T = ${fmt(p, 1)}·${fmt(v.V)}/${fmt(v.T)} = ${fmt((p * v.V) / v.T, 3)} - әрқашан бірдей. Көлем екі есе азайса → қысым екі есе артады; температура (кельвинмен) екі есе артса → қысым да екі есе артады.`,
         ),
       };
     },

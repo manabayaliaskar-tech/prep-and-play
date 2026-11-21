@@ -16966,7 +16966,7 @@ body.welcoming {
 /* Плавное движение (столбики, кадры стека, переходы). */
 .exh-move { transition: transform 0.35s var(--ease-out); }
 .exh-fade { transition: opacity 0.3s ease; }
-.ex-sortbar rect.piv { fill: var(--accent); }
+.ex-sortbar rect.piv { fill: var(--yellow); }
 .ex-sortbar rect.pre { fill: color-mix(in srgb, var(--green) 45%, var(--primary)); }
 .ex-sortbar rect.out { opacity: 0.3; }
 @media (prefers-reduced-motion: reduce) {
@@ -16974,3 +16974,11 @@ body.welcoming {
   .exh-move,
   .exh-fade { transition: none; }
 }
+
+/* Вариант английского: британский или американский (страница курса английского). */
+.env-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 12px 0; padding: 12px 14px; border-radius: 18px; border: 1.5px solid var(--line); background: var(--card); }
+.env-card > div:first-child { display: grid; gap: 2px; }
+.env-card small { color: var(--muted); font-weight: 700; }
+.env-switch { display: flex; gap: 4px; padding: 4px; border-radius: 14px; background: var(--bg); }
+.env-switch button { padding: 8px 12px; border: 0; border-radius: 10px; background: transparent; color: var(--muted); font: inherit; font-weight: 800; cursor: pointer; }
+.env-switch button.is-on { background: var(--card); color: var(--primary); box-shadow: 0 1px 4px rgba(30, 27, 58, 0.15); }

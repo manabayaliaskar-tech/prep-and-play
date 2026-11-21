@@ -1,5 +1,6 @@
 // Каталог: список экзаменов, страница курса (экзамен или набор уровней), раздел «Ежедневная практика».
 
+import { getEnVariant, setEnVariant } from '../core/en-variant.js';
 import { learnRowHtml, levelChips } from './hub.js';
 import { mockCardHtml } from './mock.js';
 import { courseById, courseHref, coursesIn, groupById, levelLabel, trackHref, trackRecord } from '../catalog/index.js';
@@ -149,6 +150,7 @@ export function courseScreen(app, { course: id }) {
       <section class="page catalog">
         <a class="crumb" href="#${group.id === 'olymp' ? '/' : group.href}">← ${group.id === 'olymp' ? t('nav.home') : esc(tx(group.name))}</a>
         ${courseHero(course)}
+        ${course.id === 'english' ? enVariantHtml() : ''}
         ${courseToolsHtml(course)}
         ${mockCardHtml(course)}
         ${fullReadCardHtml(course)}
@@ -170,9 +172,22 @@ export function courseScreen(app, { course: id }) {
         }
         ${course.group === 'exams' ? `<p class="muted tiny catalog-note">${t('cat.disclaimer')}</p>` : ''}
       </section>`;
+    app.querySelectorAll('[data-env]').forEach((b) =>
+      b.addEventListener('click', () => {
+        setEnVariant(b.dataset.env);
+        render();
+      }),
+    );
   };
   render();
   return { relabel: render };
+}
+
+/** Переключатель «британский / американский» на странице курса английского. */
+function enVariantHtml() {
+  const v = getEnVariant();
+  const btn = (id, label) => `<button type="button" class="${v === id ? 'is-on' : ''}" data-env="${id}" aria-pressed="${v === id}">${label}</button>`;
+  return `<div class="env-card"><div><b>${t('env.title')}</b><small>${t('env.desc')}</small></div><div class="env-switch" role="group" aria-label="${t('env.title')}">${btn('uk', t('env.uk'))}${btn('us', t('env.us'))}</div></div>`;
 }
 
 export function practiceHubScreen(app, groupId = 'daily') {

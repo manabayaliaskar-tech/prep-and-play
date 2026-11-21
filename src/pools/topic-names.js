@@ -51,6 +51,7 @@ export const TOPIC_NAMES = {
   "e.words": ["english", {"en":"Words","ru":"Слова","kk":"Сөздер"}],
   "e.gram": ["english", {"en":"Tenses in sentences","ru":"Времена в предложениях","kk":"Сөйлемдегі шақтар"}],
   "e.irreg": ["english", {"en":"Irregular verbs","ru":"Неправильные глаголы","kk":"Бұрыс етістіктер"}],
+  "e.ukus": ["english", {"en":"British and American English","ru":"Британский и американский английский","kk":"Британ және американ ағылшыны"}],
   "e.comp": ["english", {"en":"Comparison of adjectives","ru":"Степени сравнения","kk":"Сын есімнің шырайлары"}],
   "p.kin": ["physics", {"en":"Kinematics","ru":"Кинематика","kk":"Кинематика"}],
   "p.dyn": ["physics", {"en":"Forces, pressure, density","ru":"Силы, давление, плотность","kk":"Күштер, қысым, тығыздық"}],
