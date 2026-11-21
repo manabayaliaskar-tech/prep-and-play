@@ -44,6 +44,7 @@ export const EXPLAINERS = [
   { id: 'foodchain', subj: 'biology', icon: '🦊', topics: ['b.eco'] },
   { id: 'enzyme', subj: 'biology', icon: '🧬', topics: ['b.body'] },
   { id: 'cellsize', subj: 'biology', icon: '🔬', topics: ['b.cell'] },
+  { id: 'mitosis', subj: 'biology', icon: '🧬', topics: ['b.cell'] },
   { id: 'seasons', subj: 'geo', icon: '☀️', topics: ['g.bank'] },
   { id: 'mapscale', subj: 'geo', icon: '🗺️', topics: ['g.kz'] },
   { id: 'gates', subj: 'cs', icon: '💡', topics: ['i.logic'] },

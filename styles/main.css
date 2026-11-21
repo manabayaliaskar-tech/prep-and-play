@@ -16987,3 +16987,101 @@ body.welcoming {
 .env-switch { display: flex; gap: 4px; padding: 4px; border-radius: 14px; background: var(--bg); }
 .env-switch button { padding: 8px 12px; border: 0; border-radius: 10px; background: transparent; color: var(--muted); font: inherit; font-weight: 800; cursor: pointer; }
 .env-switch button.is-on { background: var(--card); color: var(--primary); box-shadow: 0 1px 4px rgba(30, 27, 58, 0.15); }
+
+/* =====================================================================
+   Широкий компьютер: контент на всю ширину без пустых полей по бокам,
+   страницы уровня и анимации - в две колонки.
+   ===================================================================== */
+@media (min-width: 1200px) {
+  /* Страница уровня: слева описание и темы, справа - кнопки старта. */
+  .page.setup .setup-card.wide {
+    max-width: 1120px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(320px, 1fr);
+    column-gap: 40px;
+    align-items: start;
+    text-align: left;
+  }
+
+  .page.setup .setup-card.wide > * {
+    grid-column: 1;
+  }
+
+  .page.setup .setup-card.wide > .start-options {
+    grid-column: 2;
+    grid-row: 1 / span 12;
+    align-self: center;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    margin: 0;
+  }
+
+  .page.setup .setup-card.wide > .start-options .option-card {
+    min-height: 120px;
+  }
+
+  .page.setup .setup-card.wide .topic-chips.center,
+  .page.setup .setup-card.wide .theory-row {
+    justify-content: flex-start;
+  }
+
+  .page.setup .setup-card.wide > .code-badge {
+    justify-self: start;
+  }
+
+  /* Анимация: картинка слева, подпись и управление справа. */
+  .explain-page .ex-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr);
+    column-gap: 28px;
+    align-items: start;
+  }
+
+  .explain-page .ex-card > .ex-stage {
+    grid-row: 1 / span 4;
+  }
+
+  .explain-page .ex-card > :not(.ex-stage) {
+    grid-column: 2;
+  }
+
+  .explain-page .ex-caption {
+    margin-top: 0;
+    font-size: 1.05rem;
+  }
+}
+
+@media (min-width: 1500px) {
+  body:not(.in-session) .app {
+    max-width: 1640px;
+    padding-inline: 48px;
+  }
+
+  .hub-layout {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 32px;
+  }
+
+  .hub-main .hero-card {
+    grid-template-columns: auto minmax(0, 1fr) minmax(280px, 380px);
+  }
+
+  .hub .daily-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .hub .course-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1800px) {
+  body:not(.in-session) .app {
+    max-width: 1760px;
+  }
+
+  .hub-layout {
+    grid-template-columns: minmax(0, 1fr) 380px;
+  }
+}

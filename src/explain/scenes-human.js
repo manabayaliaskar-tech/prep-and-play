@@ -98,7 +98,8 @@ const dotEnd = (s) => (/[.!?…]$/.test(s) ? s : `${s}.`);
 /** Сцена «лента времени» по массиву событий data и эпохам eras. */
 function timelineScene({ title, intro, data, eras, start }) {
   const ALL = data;
-  const m = (ALL.at(-1).y - ALL[0].y) * 0.03;
+  // Небольшой запас по краям ленты (не больше 8 лет, чтобы справа не было пустого «будущего»).
+  const m = Math.min((ALL.at(-1).y - ALL[0].y) * 0.03, 8);
   const D0 = ALL[0].y - m;
   const D1 = ALL.at(-1).y + m;
   let cur = ALL; // события после фильтра - для подписи ползунка
@@ -1313,7 +1314,7 @@ export const SCENES_HUMAN = {
       return {
         svg: s,
         caption: end
-          ? L(`Done: the body ran ${passes} time${passes === 1 ? '' : 's'}. ${ex.sum.en(tr)}${st.guess >= 0 ? (st.guess === passes ? ' Your guess was right ✓' : ` Your guess was ${st.guess} ✗`) : ''}`, `Готово: проходов тела - ${passes}. ${ex.sum.ru(tr)}${st.guess >= 0 ? (st.guess === passes ? ' Твоя догадка верна ✓' : ` Ты предположил ${st.guess} ✗`) : ''}`, `Дайын: дене ${passes} рет орындалды. ${ex.sum.kk(tr)}${st.guess >= 0 ? (st.guess === passes ? ' Болжамың дұрыс ✓' : ` Сенің болжамың ${st.guess} ✗`) : ''}`)
+          ? L(`Done: the body ran ${passes} time${passes === 1 ? '' : 's'}. ${ex.sum.en(tr)}${st.guess >= 0 ? (st.guess === passes ? ' Your guess was right ✓' : ` Your guess was ${st.guess} ✗`) : ''}`, `Готово: проходов тела - ${passes}. ${ex.sum.ru(tr)}${st.guess >= 0 ? (st.guess === passes ? ' Твоя догадка верна ✓' : ` Твоя догадка: ${st.guess} ✗`) : ''}`, `Дайын: дене ${passes} рет орындалды. ${ex.sum.kk(tr)}${st.guess >= 0 ? (st.guess === passes ? ' Болжамың дұрыс ✓' : ` Сенің болжамың ${st.guess} ✗`) : ''}`)
           : k === 0
             ? L(`${tx(ex.hint)} Guess the number of passes, then press "Step" or "Run".`, `${tx(ex.hint)} Угадай число проходов и нажимай «Шаг» или «Запустить».`, `${tx(ex.hint)} Өту санын тап, сосын «Қадам» не «Іске қосу» бас.`)
             : S.note,
