@@ -112,7 +112,7 @@ export function mountScene(host, id) {
     const s = spec(k);
     return Boolean(s) && (s.step ?? 1) >= 1;
   };
-  const shown = (s, x) => (s.show ? s.show(Math.round(x)) : fmt(x, (s.step ?? 1) < 1 ? 2 : 0));
+  const shown = (s, x) => (s.show ? s.show(Math.round(x), st) : fmt(x, (s.step ?? 1) < 1 ? 2 : 0));
 
   const draw = () => {
     if (!els) return;
