@@ -77,6 +77,7 @@ export const EXPLAINERS = [
   { id: 'timeline-world', subj: 'history', icon: '🌍', topics: ['h.world'] },
   { id: 'timeline-ru', subj: 'history', icon: '🏰', topics: ['h.ru', 'h.rut'] },
   { id: 'tenses', subj: 'english', icon: '⏳', topics: ['e.tenses'] },
+  { id: 'conditionals', subj: 'english', icon: '🔮', topics: ['e.struct'] },
 ];
 
 // У темы может быть несколько анимаций - в уроке и разборе показываем первую.

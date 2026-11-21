@@ -1528,6 +1528,63 @@ export const SCENES_HUMAN = {
       };
     },
   },
+  conditionals: {
+    title: L('English conditionals: if-sentences', 'Условные предложения в английском', 'Ағылшын тіліндегі шартты сөйлемдер'),
+    intro: L('Four types of if-sentences: from facts that are always true to regrets about the past. See the formula, how real the situation is, examples with translation - and fill the gaps in the quiz.', 'Четыре типа if-предложений: от фактов, которые верны всегда, до сожалений о прошлом. Смотри формулу, насколько ситуация реальна, примеры с переводом - и заполняй пропуски в задании.', 'if-сөйлемдердің төрт түрі: әрқашан ақиқат фактілерден өткенге өкінішке дейін. Формуланы, жағдайдың қаншалық шын екенін, аудармасы бар мысалдарды көр - тапсырмада бос орындарды толтыр.'),
+    sliders: [{ id: 'k', label: L('type', 'тип', 'түрі'), min: 0, max: 3, value: 1, show: (x) => ['Zero', 'First', 'Second', 'Third'][clamp(x, 0, 3)], hidden: (v, st) => Boolean(st.q) }],
+    buttons: [L('Another example', 'Другой пример', 'Басқа мысал'), L('Quiz', 'Задание', 'Тапсырма'), L('New task', 'Новое задание', 'Жаңа тапсырма'), L('Hint', 'Подсказка', 'Кеңес')],
+    state: () => ({ ex: 0, q: null, score: [0, 0] }),
+    pressed: (i, v, st) => i === 1 && Boolean(st.q),
+    btnHidden: (i, v, st) => (st.q ? i === 0 : i > 1),
+    onButton(i, st) {
+      if (i === 0) st.ex = (st.ex + 1) % 3;
+      else if (i === 1) st.q = st.q ? null : condQuiz(st);
+      else if (i === 2) st.q = condQuiz(st);
+      else if (st.q) st.q.hint = true;
+    },
+    onDrag(key, p, v, st) {
+      if (!tapOnce(st, key)) return;
+      if (key[0] === 'k') v.k = Number(key.slice(1));
+      else if (key[0] === 'o' && st.q && !st.q.done) {
+        const q = st.q;
+        q.pick = Number(key.slice(1));
+        q.done = true;
+        q.ok = q.opts[q.pick] === q.a;
+        st.score[1] += 1;
+        if (q.ok) st.score[0] += 1;
+      }
+    },
+    draw(v, step, st) {
+      if (st.q) return condQuizDraw(st);
+      const k = clamp(Math.round(v.k), 0, 3);
+      const T = COND[k];
+      let s = '';
+      ['Zero', 'First', 'Second', 'Third'].forEach((x, i) => (s += chip(5 + i * 78.5, 2, 75, 19, x, `k${i}`, i === k ? 'on' : '', 11)));
+      s += `<text class="exh-f16 ex-start" x="8" y="42">${['Zero', 'First', 'Second', 'Third'][k]} Conditional</text><text class="exh-f10 ex-start tc exc-m" x="8" y="57">${esc(tx(T.use))}</text>`;
+      s += `<text class="exh-f12 exh-mono ex-start tc exc-o" x="8" y="76">If + ${T.ifF},</text><text class="exh-f12 exh-mono ex-end tc exc-p" x="312" y="76">${T.mainF}</text>`;
+      // Когда: прошлое / сейчас / будущее / всегда.
+      const when = [u('past', 'прошлое', 'өткен'), u('now', 'сейчас', 'қазір'), u('future', 'будущее', 'келер')];
+      when.forEach((w, i) => {
+        const on = T.when.includes(i);
+        s += `<rect class="ex-fill ${on ? (T.real ? 'exc-g' : 'exc-k') : 'exc-m'}" x="${8 + i * 102}" y="88" width="98" height="18" rx="9" style="opacity:${on ? 0.35 : 0.12}"/><text class="exh-f10${on ? '' : ' tc exc-m'}" x="${57 + i * 102}" y="101">${esc(w)}</text>`;
+      });
+      // Насколько ситуация реальна.
+      s += `<text class="exh-f10 ex-start tc exc-m" x="8" y="124">${esc(u('how real', 'реальность', 'шындық'))}</text><rect class="exh-box" x="80" y="115" width="232" height="12" rx="6"/><rect class="ex-fill ${T.real ? 'exc-g' : 'exc-k'}" x="80" y="115" width="${n1(2.32 * T.pct)}" height="12" rx="6" style="opacity:.75"/><text class="exh-f10 ex-end" x="312" y="141">${esc(tx(T.realTxt))}</text>`;
+      // Пример: условие оранжевым, следствие - основным цветом.
+      const [en, ru, kk] = T.ex[st.ex];
+      const [ifPart, mainPart] = en.split(', ');
+      const rows = wrapTokens([...ifPart.split(' ').map((w) => ({ w, v: 1 })), ...`, ${mainPart}`.slice(2).split(' ').map((w) => ({ w, v: 2 }))], 44);
+      rows.forEach((row, r) => {
+        s += `<text class="exh-f13 exh-it ex-start" x="8" y="${165 + r * 17}">${row.map((w, j) => `<tspan class="tc ${w.v === 1 ? 'exc-o' : 'exc-p'}">${esc(w.w + (w.v === 1 && row[j + 1]?.v === 2 ? ',' : ''))}</tspan>`).join(' ')}</text>`;
+      });
+      const tr = getLang() === 'en' ? '' : tx(L('', ru, kk));
+      if (tr) s += lines(wrap(tr, 52, 2), 8, 203, 13, 'exh-f10 ex-start tc exc-m');
+      return {
+        svg: s,
+        caption: L(`${['Zero', 'First', 'Second', 'Third'][k]} conditional: ${T.use.en}. If + ${T.ifF}, ${T.mainF}. Example: «${en}»`, `${['Zero', 'First', 'Second', 'Third'][k]} conditional: ${T.use.ru}. If + ${T.ifF}, ${T.mainF}. Пример: «${en}» - ${ru}`, `${['Zero', 'First', 'Second', 'Third'][k]} conditional: ${T.use.kk}. If + ${T.ifF}, ${T.mainF}. Мысал: «${en}» - ${kk}`),
+      };
+    },
+  },
 };
 
 // Данные для сцен.
@@ -2804,4 +2861,108 @@ function ifQuiz() {
   const x = ex === 0 ? rnd(101) : ex === 1 ? rnd(100) : pick([1900, 2000, 1996, 2023, 2024, 2100, 1988, 2010, 2016, 1800 + 4 * rnd(75)]);
   const E = IF_EX[ex];
   return { ex, x, out: E.eval(x).out, opts: E.opts, pick: -1, done: false, ok: false };
+}
+
+// ---------- Условные предложения ----------
+
+const COND = [
+  {
+    ifF: 'Present Simple',
+    mainF: 'Present Simple',
+    use: L('facts and laws that are always true', 'факты и законы, которые верны всегда', 'әрқашан ақиқат фактілер мен заңдар'),
+    when: [0, 1, 2],
+    real: true,
+    pct: 100,
+    realTxt: L('always true', 'верно всегда', 'әрқашан ақиқат'),
+    ex: [
+      ['If you heat ice, it melts.', 'Если нагреть лёд, он тает.', 'Мұзды қыздырсаң, ол ериді.'],
+      ['If it rains, the grass gets wet.', 'Если идёт дождь, трава становится мокрой.', 'Жаңбыр жауса, шөп суланады.'],
+      ['If you mix red and blue, you get purple.', 'Если смешать красный и синий, получится фиолетовый.', 'Қызыл мен көкті араластырсаң, күлгін шығады.'],
+    ],
+  },
+  {
+    ifF: 'Present Simple',
+    mainF: 'will + V',
+    use: L('a real possible situation in the future', 'реальная возможная ситуация в будущем', 'келешектегі шын мүмкін жағдай'),
+    when: [2],
+    real: true,
+    pct: 70,
+    realTxt: L('real, quite possible', 'реально, вполне возможно', 'шын, әбден мүмкін'),
+    ex: [
+      ['If it rains tomorrow, we will stay at home.', 'Если завтра пойдёт дождь, мы останемся дома.', 'Ертең жаңбыр жауса, біз үйде қаламыз.'],
+      ['If you study hard, you will pass the exam.', 'Если будешь усердно учиться, сдашь экзамен.', 'Жақсы оқысаң, емтиханнан өтесің.'],
+      ['If she calls, I will tell her the news.', 'Если она позвонит, я расскажу ей новость.', 'Ол қоңырау шалса, мен оған жаңалықты айтамын.'],
+    ],
+  },
+  {
+    ifF: 'Past Simple',
+    mainF: 'would + V',
+    use: L('an imaginary situation now or in the future (were for all persons)', 'воображаемая ситуация сейчас или в будущем (were для всех лиц)', 'қазіргі не келешектегі қиялдағы жағдай (барлық жақта were)'),
+    when: [1, 2],
+    real: false,
+    pct: 25,
+    realTxt: L('imagined, unlikely', 'воображаемо, маловероятно', 'қиялдағы, екіталай'),
+    ex: [
+      ['If I were you, I would study more.', 'На твоём месте я бы занимался больше.', 'Сенің орныңда болсам, көбірек оқыр едім.'],
+      ['If I had a million, I would travel the world.', 'Если бы у меня был миллион, я бы путешествовал по миру.', 'Миллионым болса, әлемді аралар едім.'],
+      ['If he lived in Astana, he would visit us more often.', 'Если бы он жил в Астане, он бы чаще к нам приезжал.', 'Ол Астанада тұрса, бізге жиірек келер еді.'],
+    ],
+  },
+  {
+    ifF: 'Past Perfect',
+    mainF: 'would have + V3',
+    use: L('the past that cannot be changed: regrets and criticism', 'прошлое, которое уже не изменить: сожаления и упрёки', 'өзгертуге болмайтын өткен: өкініш пен сын'),
+    when: [0],
+    real: false,
+    pct: 3,
+    realTxt: L('impossible: it is already past', 'невозможно: это уже в прошлом', 'мүмкін емес: бұл өтіп кетті'),
+    ex: [
+      ['If I had studied harder, I would have passed the exam.', 'Если бы я учился усерднее, я бы сдал экзамен (но не сдал).', 'Жақсырақ оқығанымда, емтиханнан өтер едім (бірақ өтпедім).'],
+      ['If we had left earlier, we would have caught the train.', 'Если бы мы вышли раньше, мы бы успели на поезд.', 'Ертерек шыққанымызда, пойызға үлгерер едік.'],
+      ['If she had known, she would have helped us.', 'Если бы она знала, она бы нам помогла.', 'Ол білгенде, бізге көмектесер еді.'],
+    ],
+  },
+];
+
+/** Задания: предложение, ответ, неверные варианты, тип. */
+const COND_QUIZ = [
+  ['If you heat water to 100 °C, it ___ (boil).', 'boils', ['would boil', 'boiled', 'would have boiled'], 0],
+  ['If you ___ (press) this button, the light goes on.', 'press', ['pressed', 'had pressed', 'would press'], 0],
+  ['If it ___ (rain) tomorrow, we will stay at home.', 'rains', ['will rain', 'would rain', 'had rained'], 1],
+  ['If you study hard, you ___ (pass) the exam.', 'will pass', ['would have passed', 'passed', 'had passed'], 1],
+  ['If I ___ (be) you, I would apologise.', 'were', ['am', 'will be', 'had been'], 2],
+  ['If I had a car, I ___ (drive) to work.', 'would drive', ['will drive', 'drive', 'would have driven'], 2],
+  ['If we ___ (leave) earlier, we would have caught the train.', 'had left', ['left', 'would leave', 'leave'], 3],
+  ['If she had known, she ___ (help) us.', 'would have helped', ['will help', 'helps', 'had helped'], 3],
+  ['If they ___ (not / be) so busy, they would come to the party.', "weren't", ["aren't", "won't be", "hadn't been"], 2],
+  ['If you don’t hurry, you ___ (miss) the bus.', 'will miss', ['would miss', 'missed', 'would have missed'], 1],
+];
+
+function condQuiz(st) {
+  const prev = st.q?.n ?? -1;
+  let n = rnd(COND_QUIZ.length);
+  if (n === prev) n = (n + 1) % COND_QUIZ.length;
+  const [s, a, wrong, k] = COND_QUIZ[n];
+  return { n, s, a, k, opts: shuffle([a, ...wrong]), pick: -1, done: false, ok: false, hint: false };
+}
+
+function condQuizDraw(st) {
+  const q = st.q;
+  const T = COND[q.k];
+  const name = `${['Zero', 'First', 'Second', 'Third'][q.k]} Conditional`;
+  let s = `<text class="exh-f13 ex-start" x="8" y="16">${esc(u('Fill the gap', 'Заполни пропуск', 'Бос орынды толтыр'))}</text><text class="exh-f12 ex-end tc exc-g" x="312" y="16">✓ ${st.score[0]} / ${st.score[1]}</text>`;
+  const filled = q.done ? q.s.replace('___', q.a).replace(/ \([^)]*\)/, '') : q.s;
+  const tl = wrap(filled, 40, 3);
+  s += `<rect class="exh-card" x="6" y="24" width="308" height="66" rx="10"/>${lines(tl, 160, 58 - (tl.length - 1) * 8, 16, 'exh-f13 exh-it')}`;
+  q.opts.forEach((o, i) => {
+    const cls = q.done ? (o === q.a ? 'ok' : i === q.pick ? 'bad' : '') : '';
+    s += chip(i % 2 ? 164 : 8, i < 2 ? 98 : 134, 148, 30, o, `o${i}`, cls, 12);
+  });
+  if (q.done || q.hint) s += `<text class="exh-f12 tc exc-p" x="160" y="190">${esc(q.done ? name : u('Look at the other half of the sentence', 'Посмотри на вторую половину предложения', 'Сөйлемнің екінші жартысына қара'))}</text><text class="exh-f11 exh-mono tc exc-m" x="160" y="208">${esc(`If + ${T.ifF}, ${T.mainF}`)}</text>`;
+  return {
+    svg: s,
+    caption: !q.done
+      ? L(`Fill the gap: «${q.s}»`, `Заполни пропуск: «${q.s}»`, `Бос орынды толтыр: «${q.s}»`)
+      : L(`${q.ok ? '✓ Right' : `✗ The answer is «${q.a}»`}: ${name} - ${T.use.en}. If + ${T.ifF}, ${T.mainF}.`, `${q.ok ? '✓ Верно' : `✗ Правильно «${q.a}»`}: ${name} - ${T.use.ru}. If + ${T.ifF}, ${T.mainF}.`, `${q.ok ? '✓ Дұрыс' : `✗ Дұрысы «${q.a}»`}: ${name} - ${T.use.kk}. If + ${T.ifF}, ${T.mainF}.`),
+  };
 }
