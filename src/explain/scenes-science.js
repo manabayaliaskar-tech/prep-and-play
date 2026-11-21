@@ -1,12 +1,638 @@
-// Анимации тем: Физика, химия и биология. Формат сцены описан в src/screens/explain.js.
+// Анимации тем: физика, химия и биология. Формат сцены описан в src/screens/explain.js.
+// В каждой сцене есть режимы (кнопки-переключатели), подписи с числами и почти везде «Задание» со случайной целью.
 
 import { getLang, t, tx } from '../core/i18n.js';
 import { L } from '../pools/gen.js';
 import { esc } from '../ui/dom.js';
 import { W, H, C, SVGNS, reduced, clamp, lerp, ease, n1, fmt, term, coef, lineEq, u, hhmm, arrow, plot, axes, slider, morph, AGAIN, RESET, PROGRESS } from './kit.js';
 
-export const SCENES_SCIENCE = {
+// ---------- Общие помощники сцен ----------
 
+/** Текст в SVG. cls: exs-t (10,5), exs-s (9,5 серый), exs-m (12), exs-h (15), ex-big (22); якорь - ex-start / ex-end. */
+const tt = (x, y, s, cls = 'exs-t', more = '') => `<text class="${cls}" x="${n1(x)}" y="${n1(y)}"${more}>${s}</text>`;
+/** Линия цвета cls (exc-*). */
+const ln = (x1, y1, x2, y2, cls = 'exc-m', w = 1.5, more = '') => `<line class="ex-stroke ${cls}" style="stroke-width:${w}" x1="${n1(x1)}" y1="${n1(y1)}" x2="${n1(x2)}" y2="${n1(y2)}"${more}/>`;
+/** Подложка под подписи. */
+const box = (x, y, w, h, more = '') => `<rect class="exs-panel" x="${n1(x)}" y="${n1(y)}" width="${n1(w)}" height="${n1(h)}" rx="6"${more}/>`;
+/** Стрелка с подписью у конца (подпись не рисуется, если стрелка слишком короткая). */
+const varrow = (x1, y1, x2, y2, cls, label, w = 2.5, dx = 0, dy = 0) => {
+  if (Math.hypot(x2 - x1, y2 - y1) < 2) return '<g/>';
+  return `${arrow(x1, y1, x2, y2, cls, w)}${label ? tt(x2 + dx, y2 + dy, label, `exs-t tc ${cls}`) : ''}`;
+};
+const ri = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const pick = (a) => a[Math.floor(Math.random() * a.length)];
+const near = (x, y, tol) => Math.abs(x - y) <= tol;
+const rad = (d) => (d * Math.PI) / 180;
+const deg = (r) => (r * 180) / Math.PI;
+/** Подстрочные и надстрочные цифры. */
+const sub = (n) => String(n).replace(/\d/g, (d) => '₀₁₂₃₄₅₆₇₈₉'[d]);
+const sup = (n) => String(n).replace(/\d/g, (d) => '⁰¹²³⁴⁵⁶⁷⁸⁹'[d]).replace('-', '⁻').replace('+', '⁺');
+/** Русские окончания: ruN(5, 'атом', 'атома', 'атомов'). */
+const ruN = (n, a, b, c) => {
+  const k = Math.abs(Math.round(n));
+  return k % 10 === 1 && k % 100 !== 11 ? a : k % 10 >= 2 && k % 10 <= 4 && (k % 100 < 12 || k % 100 > 14) ? b : c;
+};
+/** Единицы на трёх языках (для SVG - строкой на текущем языке). */
+const UN = {
+  V: () => u('V', 'В', 'В'),
+  A: () => u('A', 'А', 'А'),
+  Om: () => u('Ω', 'Ом', 'Ом'),
+  W: () => u('W', 'Вт', 'Вт'),
+  N: () => u('N', 'Н', 'Н'),
+  kg: () => u('kg', 'кг', 'кг'),
+  g: () => u('g', 'г', 'г'),
+  m: () => u('m', 'м', 'м'),
+  cm: () => u('cm', 'см', 'см'),
+  s: () => u('s', 'с', 'с'),
+  ms: () => u('m/s', 'м/с', 'м/с'),
+  ms2: () => u('m/s²', 'м/с²', 'м/с²'),
+  kPa: () => u('kPa', 'кПа', 'кПа'),
+  kJ: () => u('kJ', 'кДж', 'кДж'),
+  J: () => u('J', 'Дж', 'Дж'),
+  mol: () => u('mol', 'моль', 'моль'),
+  Hz: () => u('Hz', 'Гц', 'Гц'),
+  L: () => u('L', 'л', 'л'),
+};
+// Кнопка «Задание»: первое нажатие включает режим задания, следующие дают новое.
+const TASK = L('Task', 'Задание', 'Тапсырма');
+const FREE = L('Free play', 'Свободно', 'Еркін');
+const NEXT_TASK = u.bind(null, 'Press «Task» again for a new one.', 'Нажми «Задание» ещё раз - будет новое.', 'Жаңасы үшін «Тапсырма» батырмасын тағы бас.');
+/** Подпись задания: условие + проверка. ok - решено ли; hint - подсказка, пока не решено. */
+const taskCap = (goal, ok, hint, done) =>
+  ok ? `✓ ${u('Correct!', 'Верно!', 'Дұрыс!')} ${done} ${NEXT_TASK()}` : `${u('Task', 'Задание', 'Тапсырма')}: ${goal} ${hint}`;
+/** Значок задания на картинке. */
+const taskBadge = (ok, x = 316, y = 14) =>
+  `<g class="${ok ? 'exc-g' : 'exc-o'}"><rect class="ex-fill" x="${x - 74}" y="${y - 11}" width="74" height="16" rx="8" style="opacity:.18"/>${tt(x - 37, y + 1, ok ? `✓ ${u('solved', 'решено', 'шешілді')}` : u('task', 'задание', 'тапсырма'), 'exs-t tc')}</g>`;
+
+// Закон Ома: схема с амперметром и вольтметром, график I(U), задания.
+const ohmTask = () => {
+  const type = ri(0, 2);
+  for (let g = 0; g < 200; g++) {
+    if (type === 0) {
+      const R = pick([2, 3, 4, 5, 6, 8, 10, 12, 15, 16, 20]);
+      const U = ri(2, 12);
+      if ((U * 100) % R === 0 && U / R >= 0.3 && U / R <= 4) return { type, U, R, I: U / R };
+    } else if (type === 1) {
+      const R = ri(2, 10);
+      const I = pick([0.5, 1, 1.5, 2]);
+      if (I * R <= 12 && I * R >= 2) return { type, U: I * R, R, I };
+    } else {
+      const U = pick([6, 9, 12]);
+      const R = ri(2, 20);
+      if ((U * U) % R === 0) return { type, U, R, I: U / R, P: (U * U) / R };
+    }
+  }
+  return { type: 0, U: 12, R: 4, I: 3 };
+};
+
+// Схема: батарейка слева, резистор сверху, вольтметр параллельно резистору, амперметр справа.
+function ohmCircuit(v, st, I) {
+  const along = (s) => {
+    s = ((s % 700) + 700) % 700;
+    if (s < 240) return [40 + s, 40];
+    if (s < 350) return [280, 40 + (s - 240) * (136 / 110)];
+    if (s < 590) return [280 - (s - 350), 176];
+    return [40, 176 - (s - 590) * (136 / 110)];
+  };
+  // Электроны идут от «−» к «+» по внешней цепи: против направления тока.
+  const el = Array.from({ length: 22 }, (_, i) => {
+    const [x, y] = along(-(i * 32 + st.ph));
+    const hideR = y === 40 && x > 112 && x < 208;
+    return `<circle class="ex-fill exc-b" cx="${n1(x)}" cy="${n1(y)}" r="${I > 0.005 && !hideR ? 2.4 : 0}"/>`;
+  }).join('');
+  const P = v.U * I;
+  const heat = clamp(P / 40, 0, 1);
+  const meter = (x, y, s, val, cls) => `<circle class="exs-panel" cx="${x}" cy="${y}" r="13"/><g class="${cls}"><circle class="ex-stroke" style="stroke-width:2" cx="${x}" cy="${y}" r="13"/></g>${tt(x, y + 4.5, s, 'exs-m')}${val}`;
+  return `<path class="ex-wire" d="M40 40 H280 V176 H40 Z"/>
+    <path class="ex-wire" style="stroke-width:2" d="M100 40 V78 H147 M173 78 H220 V40"/>
+    <circle class="ex-glow" cx="160" cy="40" r="${n1(10 + 22 * heat)}" opacity="${n1(heat * 70) / 100}" style="fill:var(--orange)"/>
+    <rect x="118" y="31" width="84" height="18" rx="4" class="ex-res" style="fill:color-mix(in srgb, var(--orange) ${Math.round(20 + heat * 70)}%, var(--card))"/>
+    ${tt(160, 26, `R = ${fmt(v.R, 1)} ${UN.Om()}`, 'exs-t')}
+    <rect x="30" y="100" width="20" height="18" style="fill:var(--surface)"/><line class="ex-batt" x1="27" y1="103" x2="53" y2="103"/><line class="ex-batt thin" x1="33" y1="114" x2="47" y2="114"/>
+    ${tt(22, 99, '+', 'exs-m tc exc-r')}${tt(22, 123, '−', 'exs-m tc exc-b')}
+    ${tt(58, 113, `U = ${fmt(v.U, 1)} ${UN.V()}`, 'exs-t ex-start')}
+    ${el}
+    ${meter(160, 78, 'V', tt(160, 104, `${fmt(v.U, 1)} ${UN.V()}`, 'exs-t tc exc-p'), 'exc-p')}
+    ${meter(280, 108, 'A', tt(262, 112, `${fmt(I, 2)} ${UN.A()}`, 'exs-t ex-end tc exc-g'), 'exc-g')}
+    ${I > 0.005 ? varrow(232, 52, 262, 52, 'exc-r', '', 2) + tt(247, 66, 'I', 'exs-t tc exc-r') : '<g/>'}
+    ${box(66, 124, 188, 44)}
+    ${tt(160, 141, `I = U / R = ${fmt(v.U, 1)} / ${fmt(v.R, 1)} = ${fmt(I, 2)} ${UN.A()}`, 'exs-t')}
+    ${tt(160, 159, `P = U · I = ${fmt(P, 1)} ${UN.W()}`, 'exs-s')}
+    ${tt(160, 200, u('blue dots - electrons (move from − to +), red arrow - current', 'синие точки - электроны (идут от − к +), красная стрелка - ток', 'көк нүктелер - электрондар (− -тен + -ке), қызыл нұсқар - ток'), 'exs-s')}`;
+}
+
+function ohmGraph(v, I) {
+  const sx = (U) => 42 + U * 22;
+  const sy = (i) => 186 - i * 40;
+  let g = '';
+  for (let U = 0; U <= 12; U += 2) g += `<line class="ex-grid" x1="${sx(U)}" y1="${sy(0)}" x2="${sx(U)}" y2="${sy(4)}"/>${tt(sx(U), 199, fmt(U, 0), 'exs-s')}`;
+  for (let i = 0; i <= 4; i++) g += `<line class="ex-grid" x1="${sx(0)}" y1="${sy(i)}" x2="${sx(12)}" y2="${sy(i)}"/>${tt(34, sy(i) + 3, fmt(i, 0), 'exs-s ex-end')}`;
+  const line = (R, cls, w) => {
+    const Ue = Math.min(12, 4 * R);
+    return `${ln(sx(0), sy(0), sx(Ue), sy(Ue / R), cls, w)}`;
+  };
+  const refs = [2, 4, 8]
+    .map((R) => {
+      const Ue = Math.min(12, 4 * R);
+      return `<g class="ex-faint">${line(R, 'exc-m', 1.3)}</g>${tt(Ue < 12 ? sx(Ue) + 4 : sx(12), sy(Ue / R) - 5, `${R} ${UN.Om()}`, `exs-s ${Ue < 12 ? 'ex-start' : 'ex-end'}`)}`;
+    })
+    .join('');
+  const Ue = Math.min(12, 4 * v.R);
+  const shown = I <= 4.05;
+  return `${g}<line class="ex-axis" x1="${sx(0)}" y1="${sy(0)}" x2="${sx(12) + 6}" y2="${sy(0)}"/><line class="ex-axis" x1="${sx(0)}" y1="${sy(0)}" x2="${sx(0)}" y2="${sy(4) - 6}"/>
+    ${tt(sx(12) + 4, 212, `U, ${UN.V()}`, 'exs-t ex-end')}${tt(sx(0) + 4, 14, `I, ${UN.A()}`, 'exs-t ex-start')}
+    ${refs}${line(v.R, 'exc-p', 3)}${tt(sx(Ue) - 4, sy(Ue / v.R) + 14, `R = ${fmt(v.R, 1)} ${UN.Om()}`, 'exs-t ex-end tc exc-p')}
+    ${shown ? `${ln(sx(v.U), sy(I), sx(v.U), sy(0), 'exc-o ex-dash', 1.2)}${ln(sx(v.U), sy(I), sx(0), sy(I), 'exc-o ex-dash', 1.2)}<circle class="ex-dot" cx="${n1(sx(v.U))}" cy="${n1(sy(I))}" r="5"/>` : '<g/><g/><g/>'}
+    ${box(50, 20, 104, 38)}${tt(102, 35, `I = ${fmt(I, 2)} ${UN.A()}`, 'exs-m')}${tt(102, 50, u('slope = 1 / R', 'наклон = 1 / R', 'көлбеулік = 1 / R'), 'exs-s')}`;
+}
+
+// Соединения проводников: последовательно, параллельно, смешанно (U = 12 В), задание на амперметр.
+const CIR_U = 12;
+const cirTotal = (m, a, b, c) => (m === 0 ? a + b + c : m === 1 ? 1 / (1 / a + 1 / b + 1 / c) : a + (b * c) / (b + c));
+const cirTask = () => {
+  for (let g = 0; g < 500; g++) {
+    const m = ri(0, 2);
+    const r1 = ri(1, 12);
+    const r2 = ri(2, 20);
+    const r3 = ri(1, 20);
+    const R = cirTotal(m, r1, r2, r3);
+    const I = CIR_U / R;
+    if (Math.abs(I * 100 - Math.round(I * 100)) < 1e-6 && I >= 0.5 && I <= 12) return { m, r1, r2, r3, I };
+  }
+  return { m: 0, r1: 2, r2: 4, r3: 6, I: 1 };
+};
+// Резистор с подписью: R над ним, U и I под ним.
+const cirRes = (cx, y, i, R, U, I, side = false) =>
+  `<rect x="${cx - 22}" y="${y - 8}" width="44" height="16" rx="4" class="ex-res"/>${tt(cx, y - 13, `R${sub(i)} = ${fmt(R, 0)} ${UN.Om()}`, 'exs-t')}${side ? tt(cx + 28, y + 16, `${fmt(U, 1)} ${UN.V()} · ${fmt(I, 2)} ${UN.A()}`, 'exs-s ex-start tc exc-p') : tt(cx, y + 20, `${fmt(U, 1)} ${UN.V()} · ${fmt(I, 2)} ${UN.A()}`, 'exs-s tc exc-p')}`;
+const cirBatt = (x, y, below = false) =>
+  `<rect x="${x - 8}" y="${y - 14}" width="16" height="28" style="fill:var(--surface)"/><line class="ex-batt" x1="${x - 5}" y1="${y - 13}" x2="${x - 5}" y2="${y + 13}"/><line class="ex-batt thin" x1="${x + 5}" y1="${y - 7}" x2="${x + 5}" y2="${y + 7}"/>${tt(x, below ? y + 26 : y - 18, `${CIR_U} ${UN.V()}`, 'exs-t')}`;
+const cirAmm = (x, y, I) =>
+  `<circle class="exs-panel" cx="${x}" cy="${y}" r="11"/><g class="exc-g"><circle class="ex-stroke" style="stroke-width:2" cx="${x}" cy="${y}" r="11"/></g>${tt(x, y + 4, 'A', 'exs-m')}${tt(x, y - 16, `${fmt(I, 2)} ${UN.A()}`, 'exs-t tc exc-g')}`;
+
+function cirDraw(m, v) {
+  const [a, b, c] = [v.r1, v.r2, v.r3];
+  const R = cirTotal(m, a, b, c);
+  const I = CIR_U / R;
+  let svg;
+  if (m === 0) {
+    svg = `<path class="ex-wire" d="M30 50 H290 V170 H30 Z"/>${cirBatt(110, 170)}${cirAmm(210, 170, I)}
+      ${cirRes(80, 50, 1, a, I * a, I)}${cirRes(160, 50, 2, b, I * b, I)}${cirRes(240, 50, 3, c, I * c, I)}
+      ${box(46, 92, 228, 52)}${tt(160, 110, `R = ${fmt(a, 0)} + ${fmt(b, 0)} + ${fmt(c, 0)} = ${fmt(R, 2)} ${UN.Om()}`, 'exs-t')}
+      ${tt(160, 126, `I = U / R = ${CIR_U} / ${fmt(R, 2)} = ${fmt(I, 2)} ${UN.A()}`, 'exs-t')}
+      ${tt(160, 139, u('the same current everywhere, U adds up', 'ток везде одинаковый, U складываются', 'ток бәрінде бірдей, U қосылады'), 'exs-s')}`;
+  } else if (m === 1) {
+    const ys = [34, 72, 110];
+    const rs = [a, b, c];
+    svg = `<path class="ex-wire" d="M70 34 V186 H250 V34 M70 34 H250 M70 72 H250 M70 110 H250"/>
+      ${ys.map((y) => `<circle class="ex-fill" style="color:var(--ink)" cx="70" cy="${y}" r="3"/><circle class="ex-fill" style="color:var(--ink)" cx="250" cy="${y}" r="3"/>`).join('')}
+      ${ys.map((y, i) => cirRes(140, y, i + 1, rs[i], CIR_U, CIR_U / rs[i], true)).join('')}
+      ${cirBatt(110, 186, true)}${cirAmm(196, 186, I)}
+      ${box(76, 128, 168, 32)}${tt(160, 141, `1/R = 1/${fmt(a, 0)} + 1/${fmt(b, 0)} + 1/${fmt(c, 0)}`, 'exs-t')}${tt(160, 155, `R = ${fmt(R, 2)} ${UN.Om()}, I = ${fmt(I, 2)} ${UN.A()}`, 'exs-t')}`;
+  } else {
+    const p = (b * c) / (b + c);
+    const I1 = I;
+    const Up = I * p;
+    svg = `<path class="ex-wire" d="M30 70 H140 M140 40 V100 M140 40 H260 M140 100 H260 M260 40 V100 M260 70 H290 V184 H30 V70"/>
+      <circle class="ex-fill" style="color:var(--ink)" cx="140" cy="70" r="3"/><circle class="ex-fill" style="color:var(--ink)" cx="260" cy="70" r="3"/>
+      ${cirRes(80, 70, 1, a, I * a, I1)}${cirRes(200, 40, 2, b, Up, Up / b)}${cirRes(200, 100, 3, c, Up, Up / c)}
+      ${cirBatt(110, 184, true)}${cirAmm(210, 184, I)}
+      ${box(40, 122, 240, 30)}${tt(160, 134, `R = ${fmt(a, 0)} + ${fmt(b, 0)}·${fmt(c, 0)}/(${fmt(b, 0)} + ${fmt(c, 0)}) = ${fmt(R, 2)} ${UN.Om()}`, 'exs-t')}${tt(160, 147, `I = ${CIR_U} / ${fmt(R, 2)} = ${fmt(I, 2)} ${UN.A()}`, 'exs-t')}`;
+  }
+  return { svg, R, I };
+}
+
+// Второй закон Ньютона с трением: силы на тележке, движение, график v(t), задания.
+const G = 9.8;
+const nwtA = (F, m, mu) => Math.max(0, (F - mu * m * G) / m);
+const nwtTask = () => {
+  const type = ri(0, 2);
+  for (let g = 0; g < 300; g++) {
+    if (type === 0) {
+      const m = pick([1, 2, 4, 5]);
+      const mu = pick([0, 0.1, 0.2]);
+      const a = pick([0.5, 1, 1.5, 2, 3]);
+      const F = m * (a + mu * G);
+      if (F <= 19.5) return { type, m, mu, a, F };
+    } else if (type === 1) {
+      const m = pick([1, 2, 2.5, 4, 5, 8]);
+      const F = ri(4, 20);
+      const a = F / m;
+      if (Math.abs(a * 10 - Math.round(a * 10)) < 1e-9 && a <= 10) return { type, m, mu: 0, a, F };
+    } else {
+      const m = pick([2, 3, 4, 5]);
+      const mu = pick([0.2, 0.3, 0.4]);
+      const F = mu * m * G;
+      if (F <= 19.5) return { type, m, mu, a: 0, F };
+    }
+  }
+  return { type: 0, m: 2, mu: 0, a: 2, F: 4 };
+};
+
+// Бросок под углом (и горизонтальный с высоты): Земля, Луна, Марс, векторы скорости, энергия, задания.
+const PLANETS = [
+  { g: 9.8, name: L('Earth', 'Земля', 'Жер') },
+  { g: 1.62, name: L('Moon', 'Луна', 'Ай') },
+  { g: 3.7, name: L('Mars', 'Марс', 'Марс') },
+];
+/** Полёт: время, дальность, наибольшая высота. */
+const flight = (v0, al, h0, g) => {
+  const vx = v0 * Math.cos(rad(al));
+  const vy = v0 * Math.sin(rad(al));
+  const T = (vy + Math.sqrt(vy * vy + 2 * g * h0)) / g;
+  return { vx, vy, T, L: vx * T, Hm: h0 + (vy > 0 ? (vy * vy) / (2 * g) : 0), tTop: vy > 0 ? vy / g : 0 };
+};
+const prjTask = (g) => {
+  const type = ri(0, 3);
+  if (type === 0) {
+    const v0 = pick([15, 18, 20]);
+    const h0 = pick([0, 0, 10]);
+    const a = ri(15, 70);
+    return { type, v0, h0, D: Math.round(flight(v0, a, h0, g).L), al: 80 };
+  }
+  if (type === 1) return { type, v0: pick([12, 16, 20, 24]), h0: 0, al: 20 };
+  if (type === 2) {
+    const a0 = pick([15, 20, 25, 30, 35, 40]);
+    return { type, v0: pick([16, 20]), h0: 0, a0, al: 45 };
+  }
+  const h0 = pick([5, 20, 30]);
+  const v = pick([8, 10, 12, 15]);
+  return { type, v0: 5, h0, al: 0, D: Math.round(v * Math.sqrt((2 * h0) / g)) };
+};
+
+export const SCENES_SCIENCE = {
+  ohm: {
+    title: L("Ohm's law: I = U / R", 'Закон Ома: I = U / R', 'Ом заңы: I = U / R'),
+    intro: L('Voltage pushes the charges, resistance holds them back: the current is I = U / R.', 'Напряжение толкает заряды, сопротивление их тормозит: сила тока I = U / R.', 'Кернеу зарядтарды итереді, кедергі тежейді: ток күші I = U / R.'),
+    sliders: [
+      { id: 'U', label: L('U, V', 'U, В', 'U, В'), min: 0, max: 12, step: 0.1, value: 6, hidden: (v, st) => st.m === 2 && st.task.type !== 1 },
+      { id: 'R', label: L('R, Ω', 'R, Ом', 'R, Ом'), min: 1, max: 20, step: 0.1, value: 4, hidden: (v, st) => st.m === 2 && st.task.type === 1 },
+    ],
+    buttons: [L('Circuit', 'Схема', 'Схема'), L('Graph I(U)', 'График I(U)', 'I(U) графигі'), TASK],
+    state: () => ({ ph: 0, m: 0, task: null }),
+    pressed: (i, v, st) => i === st.m,
+    onButton(i, st) {
+      if (i < 2) {
+        st.m = i;
+        return null;
+      }
+      st.m = 2;
+      st.task = ohmTask();
+      return st.task.type === 1 ? { R: st.task.R, U: 1 } : { U: st.task.U, R: 20 };
+    },
+    live(dt, v, st) {
+      st.ph = (st.ph + dt * (v.U / v.R) * 40) % 700;
+    },
+    draw(v, step, st) {
+      const I = v.U / v.R;
+      if (st.m === 1)
+        return {
+          svg: ohmGraph(v, I),
+          caption: u(
+            `The graph I(U) is a straight line through zero: I = U / R = ${fmt(v.U, 1)} / ${fmt(v.R, 1)} = ${fmt(I, 2)} A. The bigger R, the flatter the line (grey lines: 2, 4 and 8 Ω). Doubling U doubles I.`,
+            `График I(U) - прямая через ноль: I = U / R = ${fmt(v.U, 1)} / ${fmt(v.R, 1)} = ${fmt(I, 2)} А. Чем больше R, тем положе прямая (серые - 2, 4 и 8 Ом). Увеличишь U вдвое - вдвое вырастет и I.`,
+            `I(U) графигі - нөлден өтетін түзу: I = U / R = ${fmt(v.U, 1)} / ${fmt(v.R, 1)} = ${fmt(I, 2)} А. R неғұрлым үлкен болса, түзу соғұрлым жатық (сұр түзулер - 2, 4 және 8 Ом). U екі есе артса, I да екі есе артады.`,
+          ),
+        };
+      let caption = u(
+        `I = U / R = ${fmt(v.U, 1)} V ÷ ${fmt(v.R, 1)} Ω = ${fmt(I, 2)} A. The ammeter (in series) shows the current, the voltmeter (in parallel to R) shows the voltage. Power P = U · I = ${fmt(v.U * I, 1)} W - the resistor heats up.`,
+        `I = U / R = ${fmt(v.U, 1)} В ÷ ${fmt(v.R, 1)} Ом = ${fmt(I, 2)} А. Амперметр (последовательно) показывает ток, вольтметр (параллельно R) - напряжение. Мощность P = U · I = ${fmt(v.U * I, 1)} Вт - резистор греется.`,
+        `I = U / R = ${fmt(v.U, 1)} В ÷ ${fmt(v.R, 1)} Ом = ${fmt(I, 2)} А. Амперметр (тізбектей) токты, вольтметр (R-ге параллель) кернеуді көрсетеді. Қуат P = U · I = ${fmt(v.U * I, 1)} Вт - резистор қызады.`,
+      );
+      let extra = '';
+      if (st.m === 2) {
+        const k = st.task;
+        let ok;
+        let goal;
+        let hint;
+        let done;
+        if (k.type === 0) {
+          ok = near(v.R, k.R, 0.15);
+          goal = u(`at U = ${k.U} V, choose R so that the ammeter shows I = ${fmt(k.I, 2)} A.`, `при U = ${k.U} В подбери R, чтобы амперметр показал I = ${fmt(k.I, 2)} А.`, `U = ${k.U} В кезінде амперметр I = ${fmt(k.I, 2)} А көрсететіндей R-ді тап.`);
+          hint = I > k.I ? u('The current is too big - increase R.', 'Ток слишком большой - увеличь R.', 'Ток тым үлкен - R-ді арттыр.') : u('The current is too small - decrease R.', 'Ток слишком мал - уменьши R.', 'Ток тым аз - R-ді азайт.');
+          done = `R = U / I = ${k.U} / ${fmt(k.I, 2)} = ${k.R} ${UN.Om()}.`;
+        } else if (k.type === 1) {
+          ok = near(v.U, k.U, 0.15);
+          goal = u(`the resistor is R = ${k.R} Ω. What voltage gives I = ${fmt(k.I, 2)} A?`, `резистор R = ${k.R} Ом. Какое напряжение даст ток I = ${fmt(k.I, 2)} А?`, `резистор R = ${k.R} Ом. Қандай кернеу I = ${fmt(k.I, 2)} А ток береді?`);
+          hint = I > k.I ? u('Too much current - lower U.', 'Ток больше нужного - уменьши U.', 'Ток артық - U-ды азайт.') : u('Too little current - raise U.', 'Ток меньше нужного - увеличь U.', 'Ток аз - U-ды арттыр.');
+          done = `U = I · R = ${fmt(k.I, 2)} · ${k.R} = ${fmt(k.U, 1)} ${UN.V()}.`;
+        } else {
+          ok = near(v.R, k.R, 0.15);
+          goal = u(`at U = ${k.U} V the resistor must give out P = ${fmt(k.P, 1)} W of heat. Choose R.`, `при U = ${k.U} В резистор должен выделять мощность P = ${fmt(k.P, 1)} Вт. Подбери R.`, `U = ${k.U} В кезінде резистор P = ${fmt(k.P, 1)} Вт қуат бөлуі керек. R-ді тап.`);
+          hint = v.U * I > k.P ? u(`Now P = ${fmt(v.U * I, 1)} W - too much, increase R (P = U² / R).`, `Сейчас P = ${fmt(v.U * I, 1)} Вт - много, увеличь R (P = U² / R).`, `Қазір P = ${fmt(v.U * I, 1)} Вт - көп, R-ді арттыр (P = U² / R).`) : u(`Now P = ${fmt(v.U * I, 1)} W - too little, decrease R (P = U² / R).`, `Сейчас P = ${fmt(v.U * I, 1)} Вт - мало, уменьши R (P = U² / R).`, `Қазір P = ${fmt(v.U * I, 1)} Вт - аз, R-ді азайт (P = U² / R).`);
+          done = `R = U² / P = ${k.U * k.U} / ${fmt(k.P, 1)} = ${k.R} ${UN.Om()}.`;
+        }
+        caption = taskCap(goal, ok, hint, done);
+        extra = taskBadge(ok, 318, 14);
+      }
+      return { svg: ohmCircuit(v, st, I) + extra, caption };
+    },
+  },
+
+  circuits: {
+    title: L('Series, parallel and mixed circuits', 'Последовательное, параллельное и смешанное соединение', 'Тізбектей, параллель және аралас жалғау'),
+    intro: L('In series resistances add up, in parallel the reciprocals add up. The battery gives U = 12 V.', 'При последовательном соединении складываются сопротивления, при параллельном - обратные величины. Батарея даёт U = 12 В.', 'Тізбектей жалғағанда кедергілер, параллель жалғағанда кері шамалар қосылады. Батарея U = 12 В береді.'),
+    sliders: [
+      { id: 'r1', label: L('R₁, Ω', 'R₁, Ом', 'R₁, Ом'), min: 1, max: 20, step: 1, value: 6, hidden: (v, st) => st.m === 3 },
+      { id: 'r2', label: L('R₂, Ω', 'R₂, Ом', 'R₂, Ом'), min: 1, max: 20, step: 1, value: 3, hidden: (v, st) => st.m === 3 },
+      { id: 'r3', label: L('R₃, Ω', 'R₃, Ом', 'R₃, Ом'), min: 1, max: 20, step: 1, value: 2 },
+    ],
+    buttons: [L('Series', 'Последовательно', 'Тізбектей'), L('Parallel', 'Параллельно', 'Параллель'), L('Mixed', 'Смешанно', 'Аралас'), TASK],
+    state: () => ({ m: 0, task: null }),
+    pressed: (i, v, st) => i === st.m,
+    onButton(i, st) {
+      st.m = i;
+      if (i < 3) return null;
+      st.task = cirTask();
+      return { r1: st.task.r1, r2: st.task.r2, r3: 1 };
+    },
+    draw(v, step, st) {
+      const task = st.m === 3 ? st.task : null;
+      const m = task ? task.m : st.m;
+      const { svg, R, I } = cirDraw(m, v);
+      const [a, b, c] = [v.r1, v.r2, v.r3];
+      let caption;
+      if (task) {
+        const ok = near(I, task.I, 0.004);
+        const need = CIR_U / task.I;
+        const kind = [u('series', 'последовательно', 'тізбектей'), u('parallel', 'параллельно', 'параллель'), u('R₁ in series with R₂ ∥ R₃', 'R₁ последовательно с R₂ ∥ R₃', 'R₁ мен R₂ ∥ R₃ тізбектей')][m];
+        caption = taskCap(
+          u(`(${kind}) choose R₃ so that the ammeter shows ${fmt(task.I, 2)} A.`, `(${kind}) подбери R₃, чтобы амперметр показал ${fmt(task.I, 2)} А.`, `(${kind}) амперметр ${fmt(task.I, 2)} А көрсететіндей R₃-ті тап.`),
+          ok,
+          u(`You need R = U / I = 12 / ${fmt(task.I, 2)} = ${fmt(need, 2)} Ω in total; now R = ${fmt(R, 2)} Ω.`, `Нужно общее R = U / I = 12 / ${fmt(task.I, 2)} = ${fmt(need, 2)} Ом, сейчас R = ${fmt(R, 2)} Ом.`, `Жалпы R = U / I = 12 / ${fmt(task.I, 2)} = ${fmt(need, 2)} Ом керек, қазір R = ${fmt(R, 2)} Ом.`),
+          u(`R₃ = ${task.r3} Ω gives R = ${fmt(R, 2)} Ω and I = ${fmt(I, 2)} A.`, `R₃ = ${task.r3} Ом даёт R = ${fmt(R, 2)} Ом и I = ${fmt(I, 2)} А.`, `R₃ = ${task.r3} Ом R = ${fmt(R, 2)} Ом және I = ${fmt(I, 2)} А береді.`),
+        );
+        return { svg: svg + taskBadge(ok, 318, 12), caption };
+      }
+      if (m === 0)
+        caption = u(
+          `Series: R = R₁ + R₂ + R₃ = ${fmt(R, 0)} Ω. The same current I = ${fmt(I, 2)} A flows through all; the voltage splits in proportion to R: ${fmt(I * a, 1)} + ${fmt(I * b, 1)} + ${fmt(I * c, 1)} = 12 V.`,
+          `Последовательно: R = R₁ + R₂ + R₃ = ${fmt(R, 0)} Ом. Через все течёт один ток I = ${fmt(I, 2)} А, а напряжение делится пропорционально R: ${fmt(I * a, 1)} + ${fmt(I * b, 1)} + ${fmt(I * c, 1)} = 12 В.`,
+          `Тізбектей: R = R₁ + R₂ + R₃ = ${fmt(R, 0)} Ом. Барлығынан бір ток I = ${fmt(I, 2)} А өтеді, ал кернеу R-ге пропорционал бөлінеді: ${fmt(I * a, 1)} + ${fmt(I * b, 1)} + ${fmt(I * c, 1)} = 12 В.`,
+        );
+      else if (m === 1)
+        caption = u(
+          `Parallel: every resistor gets the full 12 V, the currents add up: ${fmt(12 / a, 2)} + ${fmt(12 / b, 2)} + ${fmt(12 / c, 2)} = ${fmt(I, 2)} A. The total R = ${fmt(R, 2)} Ω is smaller than the smallest resistor.`,
+          `Параллельно: на каждом резисторе все 12 В, а токи складываются: ${fmt(12 / a, 2)} + ${fmt(12 / b, 2)} + ${fmt(12 / c, 2)} = ${fmt(I, 2)} А. Общее R = ${fmt(R, 2)} Ом меньше самого маленького.`,
+          `Параллель: әр резисторда толық 12 В, ал токтар қосылады: ${fmt(12 / a, 2)} + ${fmt(12 / b, 2)} + ${fmt(12 / c, 2)} = ${fmt(I, 2)} А. Жалпы R = ${fmt(R, 2)} Ом ең кішісінен де аз.`,
+        );
+      else {
+        const p = (b * c) / (b + c);
+        caption = u(
+          `First the parallel part: R₂₃ = ${fmt(b, 0)}·${fmt(c, 0)}/(${fmt(b, 0)} + ${fmt(c, 0)}) = ${fmt(p, 2)} Ω, then add R₁: R = ${fmt(R, 2)} Ω, I = ${fmt(I, 2)} A. R₁ takes ${fmt(I * a, 1)} V, the pair ${fmt(I * p, 1)} V.`,
+          `Сначала параллельный участок: R₂₃ = ${fmt(b, 0)}·${fmt(c, 0)}/(${fmt(b, 0)} + ${fmt(c, 0)}) = ${fmt(p, 2)} Ом, потом прибавляем R₁: R = ${fmt(R, 2)} Ом, I = ${fmt(I, 2)} А. На R₁ ${fmt(I * a, 1)} В, на паре ${fmt(I * p, 1)} В.`,
+          `Алдымен параллель бөлік: R₂₃ = ${fmt(b, 0)}·${fmt(c, 0)}/(${fmt(b, 0)} + ${fmt(c, 0)}) = ${fmt(p, 2)} Ом, сосын R₁ қосамыз: R = ${fmt(R, 2)} Ом, I = ${fmt(I, 2)} А. R₁-де ${fmt(I * a, 1)} В, жұпта ${fmt(I * p, 1)} В.`,
+        );
+      }
+      return { svg, caption };
+    },
+  },
+
+  newton: {
+    title: L("Newton's second law: F = m · a", 'Второй закон Ньютона: F = m · a', 'Ньютонның екінші заңы: F = m · a'),
+    intro: L('The resultant force gives the body an acceleration a = F / m. Friction Fтр = μmg works against the motion.', 'Равнодействующая сила сообщает телу ускорение a = F / m. Сила трения Fтр = μmg мешает движению.', 'Тең әсерлі күш денеге a = F / m үдеу береді. Үйкеліс күші Fүйк = μmg қозғалысқа кедергі жасайды.'),
+    sliders: [
+      { id: 'F', label: L('F, N', 'F, Н', 'F, Н'), min: 0, max: 20, step: 0.1, value: 8, hidden: (v, st) => st.m === 1 && st.task.type === 1 },
+      { id: 'm', label: L('m, kg', 'm, кг', 'm, кг'), min: 0.5, max: 10, step: 0.1, value: 2, hidden: (v, st) => st.m === 1 && st.task.type !== 1 },
+      { id: 'mu', label: L('friction μ', 'трение μ', 'үйкеліс μ'), min: 0, max: 0.6, step: 0.01, value: 0.1, hidden: (v, st) => st.m === 1 },
+    ],
+    buttons: [L('▶ Push', '▶ Толкнуть', '▶ Итеру'), L('F × 2', 'F × 2', 'F × 2'), L('m × 2', 'm × 2', 'm × 2'), TASK, FREE],
+    state: () => ({ m: 0, t: 1.5, run: false, task: null }),
+    pressed: (i, v, st) => i === 3 && st.m === 1,
+    btnHidden: (i, v, st) => (st.m === 1 ? i === 1 || i === 2 : i === 4),
+    onButton(i, st, v) {
+      if (i === 0) {
+        st.t = reduced() ? 3 : 0;
+        st.run = !reduced();
+        return null;
+      }
+      st.t = 3;
+      st.run = false;
+      if (i === 1) return { F: clamp(v.F * 2, 0, 20) };
+      if (i === 2) return { m: clamp(v.m * 2, 0.5, 10) };
+      if (i === 4) {
+        st.m = 0;
+        return null;
+      }
+      st.m = 1;
+      st.task = nwtTask();
+      const k = st.task;
+      return k.type === 1 ? { F: k.F, mu: 0, m: 10 } : { m: k.m, mu: k.mu, F: 0 };
+    },
+    live(dt, v, st) {
+      if (!st.run) return;
+      st.t = Math.min(3, st.t + dt);
+      if (st.t >= 3) st.run = false;
+    },
+    draw(v, step, st) {
+      const { F, m, mu } = v;
+      const fmax = mu * m * G;
+      const moving = F > fmax + 1e-9;
+      const fr = moving ? fmax : F;
+      const a = nwtA(F, m, mu);
+      const t = st.t;
+      const s = (a * t * t) / 2;
+      const vel = a * t;
+      const s3 = a * 4.5;
+      const Ltr = [1, 2, 5, 10, 20, 50, 100, 200].find((x) => x >= s3) ?? 200;
+      const X0 = 62;
+      const px = 200 / Ltr;
+      const cw = 30 + m * 2.6;
+      const ch = 18 + m * 1.2;
+      const gy = 168;
+      const x = X0 + s * px;
+      const cy = gy - 6 - ch / 2;
+      // Масштаб сил: самая большая сила - 46 px.
+      const k = 46 / Math.max(F, m * G, 1);
+      let ticks = '';
+      for (let i = 0; i <= 5; i++) ticks += `${ln(X0 + (i * 200) / 5, gy, X0 + (i * 200) / 5, gy + 4, 'exc-m', 1)}${tt(X0 + (i * 200) / 5, gy + 22, fmt((i * Ltr) / 5, 1), 'exs-s')}`;
+      const cart = `<g transform="translate(${n1(x)} 0)"><rect class="ex-cart" x="0" y="${n1(gy - 6 - ch)}" width="${n1(cw)}" height="${n1(ch)}" rx="4"/><circle class="ex-wheel" cx="${n1(cw * 0.25)}" cy="${gy - 4}" r="4"/><circle class="ex-wheel" cx="${n1(cw * 0.75)}" cy="${gy - 4}" r="4"/>${tt(cw / 2, cy + 4, `${fmt(m, 1)} ${UN.kg()}`, 'exs-t ex-cartt')}</g>`;
+      const cxm = x + cw / 2;
+      const forces = `${F > 0.05 ? varrow(x - F * k - 6, cy, x - 2, cy, 'exc-o', '', 2.5) + tt(x - F * k - 10, cy + 4, 'F', 'exs-t ex-end tc exc-o') : '<g/><g/>'}
+        ${fr > 0.05 ? varrow(x + cw, gy + 7, x + cw - fr * k - 4, gy + 7, 'exc-r', '', 2.5) + tt(x + cw + 3, gy + 11, u('Ffr', 'Fтр', 'Fүйк'), 'exs-s ex-start tc exc-r') : '<g/><g/>'}
+        ${varrow(cxm, cy, cxm, cy + m * G * k, 'exc-b', 'mg', 2, -13, -2)}${varrow(cxm, cy, cxm, cy - m * G * k, 'exc-g', 'N', 2, 9, 6)}
+        ${a > 0.005 ? varrow(x - 30, gy - 12 - ch, x - 4, gy - 12 - ch, 'exc-p', 'a', 2, -13, -5) : '<g/>'}`;
+      // График v(t) в правом верхнем углу.
+      const vmax = Math.max(1, nwtA(20, m, mu) * 3);
+      const gx = (tt2) => 232 + tt2 * 26;
+      const gyv = (vv) => 66 - (vv / vmax) * 48;
+      const graph = `${box(214, 4, 104, 80)}<line class="ex-axis" x1="232" y1="66" x2="314" y2="66"/><line class="ex-axis" x1="232" y1="66" x2="232" y2="14"/>
+        ${tt(312, 78, 't, ' + UN.s(), 'exs-s ex-end')}${tt(236, 16, 'v', 'exs-s ex-start')}
+        ${ln(232, 66, gx(3), gyv(a * 3), 'exc-p ex-faint', 1.5)}${ln(232, 66, gx(t), gyv(vel), 'exc-p', 2.5)}<circle class="ex-dot" cx="${n1(gx(t))}" cy="${n1(gyv(vel))}" r="3.5"/>`;
+      const info = `${box(4, 4, 200, 62)}${tt(10, 20, `a = (F − μmg) / m = ${fmt(a, 2)} ${UN.ms2()}`, 'exs-t ex-start')}${tt(10, 36, `${u('t', 't', 't')} = ${fmt(t, 1)} ${UN.s()}: v = a·t = ${fmt(vel, 2)} ${UN.ms()}`, 'exs-t ex-start')}${tt(10, 52, `s = a·t²/2 = ${fmt(s, 2)} ${UN.m()}`, 'exs-t ex-start')}`;
+      const svg = `<line class="ex-axis" x1="10" y1="${gy}" x2="312" y2="${gy}" style="stroke-width:2"/>${ticks}${tt(300, gy + 22, UN.m(), 'exs-s')}
+        ${mu > 0 ? `<rect x="10" y="${gy}" width="302" height="4" class="ex-fill exc-m" style="opacity:${n1(0.1 + mu)}"/>` : '<g/>'}${cart}${forces}${graph}${info}`;
+      const fric = u(
+        `Friction Fтр = μmg = ${fmt(mu, 2)} · ${fmt(m, 1)} · 9.8 = ${fmt(fmax, 2)} N.`,
+        `Трение Fтр = μmg = ${fmt(mu, 2)} · ${fmt(m, 1)} · 9,8 = ${fmt(fmax, 2)} Н.`,
+        `Үйкеліс Fүйк = μmg = ${fmt(mu, 2)} · ${fmt(m, 1)} · 9,8 = ${fmt(fmax, 2)} Н.`,
+      );
+      let caption = moving
+        ? u(
+            `${fric} Resultant F − Fтр = ${fmt(F - fr, 2)} N, so a = ${fmt(F - fr, 2)} / ${fmt(m, 1)} = ${fmt(a, 2)} m/s². Twice the force - more acceleration, twice the mass - less.`,
+            `${fric} Равнодействующая F − Fтр = ${fmt(F - fr, 2)} Н, поэтому a = ${fmt(F - fr, 2)} / ${fmt(m, 1)} = ${fmt(a, 2)} м/с². Больше сила - больше ускорение, больше масса - меньше.`,
+            `${fric} Тең әсерлі күш F − Fүйк = ${fmt(F - fr, 2)} Н, сондықтан a = ${fmt(F - fr, 2)} / ${fmt(m, 1)} = ${fmt(a, 2)} м/с². Күш көп - үдеу көп, масса көп - үдеу аз.`,
+          )
+        : u(
+            `F = ${fmt(F, 1)} N is not more than the maximum friction ${fmt(fmax, 2)} N: the cart stays, static friction equals F and a = 0.`,
+            `F = ${fmt(F, 1)} Н не больше наибольшей силы трения ${fmt(fmax, 2)} Н: тележка стоит, трение покоя равно F, a = 0.`,
+            `F = ${fmt(F, 1)} Н ең үлкен үйкеліс күшінен ${fmt(fmax, 2)} Н артық емес: арба тұр, тыныштық үйкелісі F-ке тең, a = 0.`,
+          );
+      let extra = '';
+      if (st.m === 1) {
+        const q = st.task;
+        let ok;
+        let goal;
+        let hint;
+        let done;
+        if (q.type === 0) {
+          ok = near(a, q.a, 0.05);
+          goal = u(`a cart of ${q.m} kg, μ = ${fmt(q.mu, 1)}. Find the force that gives a = ${fmt(q.a, 1)} m/s².`, `тележка ${q.m} кг, μ = ${fmt(q.mu, 1)}. Подбери силу, чтобы ускорение было a = ${fmt(q.a, 1)} м/с².`, `арба ${q.m} кг, μ = ${fmt(q.mu, 1)}. Үдеу a = ${fmt(q.a, 1)} м/с² болатындай күшті тап.`);
+          hint = u(`Now a = ${fmt(a, 2)} m/s². Use F = m·a + μmg.`, `Сейчас a = ${fmt(a, 2)} м/с². Подсказка: F = m·a + μmg.`, `Қазір a = ${fmt(a, 2)} м/с². Кеңес: F = m·a + μmg.`);
+          done = `F = ${q.m}·${fmt(q.a, 1)} + ${fmt(q.mu, 1)}·${q.m}·9,8 = ${fmt(q.F, 2)} ${UN.N()}.`;
+        } else if (q.type === 1) {
+          ok = near(m, q.m, 0.05);
+          goal = u(`a force of ${q.F} N, no friction. What mass gets a = ${fmt(q.a, 1)} m/s²?`, `сила ${q.F} Н, трения нет. Какая масса получит ускорение a = ${fmt(q.a, 1)} м/с²?`, `күш ${q.F} Н, үйкеліс жоқ. Қандай масса a = ${fmt(q.a, 1)} м/с² үдеу алады?`);
+          hint = u(`Now a = ${fmt(a, 2)} m/s². m = F / a.`, `Сейчас a = ${fmt(a, 2)} м/с². m = F / a.`, `Қазір a = ${fmt(a, 2)} м/с². m = F / a.`);
+          done = `m = F / a = ${q.F} / ${fmt(q.a, 1)} = ${fmt(q.m, 1)} ${UN.kg()}.`;
+        } else {
+          ok = F > q.F - 0.02 && F <= q.F + 0.2;
+          goal = u(`a cart of ${q.m} kg, μ = ${fmt(q.mu, 1)}. Find the smallest force that starts it moving.`, `тележка ${q.m} кг, μ = ${fmt(q.mu, 1)}. Найди наименьшую силу, которая сдвинет её с места.`, `арба ${q.m} кг, μ = ${fmt(q.mu, 1)}. Оны орнынан қозғайтын ең кіші күшті тап.`);
+          hint = F < q.F ? u('The cart does not move yet - push harder.', 'Тележка пока стоит - толкни сильнее.', 'Арба әлі тұр - қаттырақ ит.') : u('It moves, but the force is bigger than needed.', 'Едет, но сила больше, чем нужно.', 'Қозғалды, бірақ күш қажеттіден көп.');
+          done = `F = μmg = ${fmt(q.mu, 1)} · ${q.m} · 9,8 = ${fmt(q.F, 2)} ${UN.N()}.`;
+        }
+        caption = taskCap(goal, ok, hint, done);
+        extra = taskBadge(ok, 318, 100);
+      }
+      return { svg: svg + extra, caption };
+    },
+  },
+
+  projectile: {
+    title: L('Throwing at an angle', 'Бросок под углом к горизонту', 'Көкжиекке бұрыш жасай лақтыру'),
+    intro: L('Horizontally the ball keeps its speed, vertically gravity changes it. The path is a parabola; on the Moon it is much longer.', 'По горизонтали мяч сохраняет скорость, по вертикали её меняет сила тяжести. Траектория - парабола, на Луне она намного длиннее.', 'Көлденеңінен доп жылдамдығын сақтайды, тігінен оны ауырлық күші өзгертеді. Траектория - парабола, Айда әлдеқайда ұзын.'),
+    sliders: [
+      { id: 'v0', label: L('v₀, m/s', 'v₀, м/с', 'v₀, м/с'), min: 5, max: 30, step: 0.5, value: 20, hidden: (v, st) => st.m === 1 && st.task.type !== 3 },
+      { id: 'al', label: 'α, °', min: 0, max: 90, step: 1, value: 50, hidden: (v, st) => st.m === 1 && st.task.type === 3 },
+      { id: 'h0', label: L('height h₀, m', 'высота h₀, м', 'биіктік h₀, м'), min: 0, max: 40, step: 1, value: 0, hidden: (v, st) => st.m === 1 },
+    ],
+    buttons: [L('▶ Throw', '▶ Бросить', '▶ Лақтыру'), L('Planet ↻', 'Планета ↻', 'Ғаламшар ↻'), L('Velocity vectors', 'Векторы скорости', 'Жылдамдық векторлары'), TASK, FREE],
+    state: () => ({ k: 0.3, run: false, p: 0, vec: true, m: 0, task: null, prev: null }),
+    pressed: (i, v, st) => (i === 2 && st.vec) || (i === 3 && st.m === 1),
+    btnHidden: (i, v, st) => (i === 4 ? st.m !== 1 : i === 1 && st.m === 1),
+    onButton(i, st, v) {
+      if (i === 0) {
+        st.prev = { v0: v.v0, al: v.al, h0: v.h0, p: st.p };
+        st.k = reduced() ? 1 : 0;
+        st.run = !reduced();
+      } else if (i === 1) {
+        st.p = (st.p + 1) % 3;
+        st.prev = null;
+      } else if (i === 2) st.vec = !st.vec;
+      else if (i === 4) st.m = 0;
+      else {
+        st.m = 1;
+        st.prev = null;
+        st.task = prjTask(PLANETS[st.p].g);
+        st.k = 1;
+        return { v0: st.task.v0, h0: st.task.h0, al: st.task.al };
+      }
+      return null;
+    },
+    live(dt, v, st) {
+      if (!st.run) return;
+      st.k = Math.min(1, st.k + dt / 2.6);
+      if (st.k >= 1) st.run = false;
+    },
+    draw(v, step, st) {
+      const P = PLANETS[st.p];
+      const g = P.g;
+      const f = flight(v.v0, v.al, v.h0, g);
+      const sc = 2.15 * (g / 9.8);
+      const X0 = 26;
+      const GY = 200;
+      const X = (x) => X0 + x * sc;
+      const Y = (y) => GY - y * sc;
+      const path = (q, upto = 1) => {
+        const ff = flight(q.v0, q.al, q.h0, g);
+        let d = '';
+        for (let i = 0; i <= 60; i++) {
+          const t = (ff.T * upto * i) / 60;
+          d += `${i ? 'L' : 'M'}${n1(X(ff.vx * t))} ${n1(Y(q.h0 + ff.vy * t - (g * t * t) / 2))} `;
+        }
+        return d;
+      };
+      const t = f.T * st.k;
+      const bx = f.vx * t;
+      const by = v.h0 + f.vy * t - (g * t * t) / 2;
+      const vy = f.vy - g * t;
+      const stepM = [5, 10, 20, 50, 100, 200, 500].find((s2) => s2 * sc >= 38);
+      let ticks = '';
+      for (let x = 0; X(x) <= 312; x += stepM) ticks += `${ln(X(x), GY, X(x), GY + 4, 'exc-m', 1)}${tt(X(x), GY + 14, fmt(x, 0), 'exs-s')}`;
+      const task = st.m === 1 ? st.task : null;
+      let target = '<g/>';
+      if (task && (task.type === 0 || task.type === 3)) {
+        const tx2 = X(task.D);
+        target = `<g class="exc-r">${ln(tx2, GY, tx2, GY - 26, 'exc-r', 2)}<path class="ex-fill" d="M${n1(tx2)} ${GY - 26} l14 5 l-14 5 Z"/></g>${tt(tx2, GY - 30, `${task.D} ${UN.m()}`, 'exs-t tc exc-r')}`;
+      }
+      if (task && task.type === 2) target = `<path class="ex-stroke exc-r ex-dash" style="stroke-width:1.5" d="${path({ v0: v.v0, al: task.a0, h0: 0 })}"/>`;
+      const prev = st.prev && st.prev.p === st.p ? `<path class="ex-stroke exc-m ex-faint" style="stroke-width:1.5" d="${path(st.prev)}"/>` : '<g/>';
+      const tower = v.h0 > 0 ? `<rect x="${X0 - 14}" y="${n1(Y(v.h0))}" width="14" height="${n1(v.h0 * sc)}" class="ex-fill exc-m" style="opacity:.35"/>${tt(X0 - 7, Y(v.h0) - 5, `${fmt(v.h0, 0)} ${UN.m()}`, 'exs-s')}` : '<g/>';
+      const bX = X(bx);
+      const bY = Y(by);
+      // Масштаб векторов: 1,6 px на м/с, но стрелки не выходят за кадр.
+      const vs = Math.min(1.6, vy < 0 ? (212 - bY) / -vy : (bY - 10) / Math.max(vy, 0.01), (306 - bX) / Math.max(f.vx, 0.01));
+      const vecs = st.vec
+        ? `${varrow(bX, bY, bX + f.vx * vs, bY - vy * vs, 'exc-o', 'v', 2.5, 8, 0)}${varrow(bX, bY, bX + f.vx * vs, bY, 'exc-g', 'vₓ', 1.8, 9, 4)}${Math.abs(vy) > 0.6 ? varrow(bX, bY, bX, bY - vy * vs, 'exc-k', 'v_y'.replace('_y', 'ᵧ'), 1.8, -9, vy > 0 ? 4 : 8) : '<g/>'}`
+        : '<g/><g/><g/>';
+      // Энергия: доля Eк и Eп (от земли).
+      const E = (v.v0 * v.v0) / 2 + g * v.h0;
+      const ep = clamp((g * Math.max(0, by)) / E, 0, 1);
+      const KE = u('KE', 'Eк', 'Eк');
+      const PE = u('PE', 'Eп', 'Eп');
+      const ebar = `<rect x="212" y="62" width="${n1(100 * (1 - ep))}" height="9" rx="3" class="ex-fill exc-o"/><rect x="${n1(212 + 100 * (1 - ep))}" y="62" width="${n1(100 * ep)}" height="9" rx="3" class="ex-fill exc-b"/>${tt(212, 82, KE, 'exs-s ex-start tc exc-o')}${tt(312, 82, PE, 'exs-s ex-end tc exc-b')}`;
+      const info = `${box(206, 4, 112, 84)}${tt(212, 17, `${tx(P.name)}: g = ${fmt(g, 2)}`, 'exs-t ex-start')}${tt(212, 31, `T = ${fmt(f.T, 2)} ${UN.s()}`, 'exs-t ex-start')}${tt(212, 44, `L = ${fmt(f.L, 1)} ${UN.m()}`, 'exs-t ex-start')}${tt(212, 57, `H = ${fmt(f.Hm, 1)} ${UN.m()}`, 'exs-t ex-start')}${ebar}`;
+      const angle = v.al > 0 && v.al < 90 ? `<path class="ex-stroke exc-p" style="stroke-width:1.2" d="M${X0 + 22} ${n1(Y(v.h0))} A22 22 0 0 0 ${n1(X0 + 22 * Math.cos(rad(v.al)))} ${n1(Y(v.h0) - 22 * Math.sin(rad(v.al)))}"/>${tt(X0 + 30, Y(v.h0) - 6, `${fmt(v.al, 0)}°`, 'exs-s ex-start tc exc-p')}` : '<g/><g/>';
+      const svg = `<rect x="0" y="${GY}" width="${W}" height="${H - GY}" class="exs-ground"/><line class="ex-axis" x1="0" y1="${GY}" x2="${W}" y2="${GY}"/>${ticks}${tt(316, GY + 14, UN.m(), 'exs-s ex-end')}
+        ${tower}${prev}${target}<path class="ex-stroke exc-m ex-dash" style="stroke-width:1.3" d="${path(v)}"/><path class="ex-curve" d="${path(v, st.k)}"/>${angle}
+        ${vecs}<circle class="ex-ball" cx="${n1(bX)}" cy="${n1(bY)}" r="6"/>${info}`;
+      let caption = u(
+        `${tx(P.name)}, g = ${fmt(g, 2)} m/s². Flight time T = ${fmt(f.T, 2)} s, range L = vₓ·T = ${fmt(f.vx, 2)} · ${fmt(f.T, 2)} = ${fmt(f.L, 1)} m, top height H = ${fmt(f.Hm, 1)} m. At t = ${fmt(t, 2)} s: vₓ = v₀cos α = ${fmt(f.vx, 1)} m/s (constant), vᵧ = v₀sin α − gt = ${fmt(vy, 1)} m/s.`,
+        `${tx(P.name)}, g = ${fmt(g, 2)} м/с². Время полёта T = ${fmt(f.T, 2)} с, дальность L = vₓ·T = ${fmt(f.vx, 2)} · ${fmt(f.T, 2)} = ${fmt(f.L, 1)} м, наибольшая высота H = ${fmt(f.Hm, 1)} м. При t = ${fmt(t, 2)} с: vₓ = v₀cos α = ${fmt(f.vx, 1)} м/с (не меняется), vᵧ = v₀sin α − gt = ${fmt(vy, 1)} м/с.`,
+        `${tx(P.name)}, g = ${fmt(g, 2)} м/с². Ұшу уақыты T = ${fmt(f.T, 2)} с, қашықтық L = vₓ·T = ${fmt(f.vx, 2)} · ${fmt(f.T, 2)} = ${fmt(f.L, 1)} м, ең үлкен биіктік H = ${fmt(f.Hm, 1)} м. t = ${fmt(t, 2)} с кезде: vₓ = v₀cos α = ${fmt(f.vx, 1)} м/с (өзгермейді), vᵧ = v₀sin α − gt = ${fmt(vy, 1)} м/с.`,
+      );
+      if (task) {
+        let ok;
+        let goal;
+        let hint;
+        let done;
+        if (task.type === 0) {
+          ok = near(f.L, task.D, 1.5);
+          goal = u(`v₀ = ${task.v0} m/s${task.h0 ? `, from ${task.h0} m` : ''}. Choose the angle so that the ball lands at the flag (${task.D} m).`, `v₀ = ${task.v0} м/с${task.h0 ? `, с высоты ${task.h0} м` : ''}. Подбери угол, чтобы мяч упал у флажка (${task.D} м).`, `v₀ = ${task.v0} м/с${task.h0 ? `, ${task.h0} м биіктіктен` : ''}. Доп жалаушаға (${task.D} м) түсетіндей бұрышты тап.`);
+          hint = u(`Now L = ${fmt(f.L, 1)} m - ${f.L < task.D ? 'short' : 'too far'}. Often there are two good angles.`, `Сейчас L = ${fmt(f.L, 1)} м - ${f.L < task.D ? 'недолёт' : 'перелёт'}. Часто подходят два угла.`, `Қазір L = ${fmt(f.L, 1)} м - ${f.L < task.D ? 'жетпей қалды' : 'асып кетті'}. Көбіне екі бұрыш сәйкес келеді.`);
+          done = u(`α = ${fmt(v.al, 0)}° gives L = ${fmt(f.L, 1)} m.`, `α = ${fmt(v.al, 0)}° даёт L = ${fmt(f.L, 1)} м.`, `α = ${fmt(v.al, 0)}° L = ${fmt(f.L, 1)} м береді.`);
+        } else if (task.type === 1) {
+          ok = v.al === 45;
+          goal = u(`at what angle does the ball fly farthest (v₀ = ${task.v0} m/s, from the ground)?`, `под каким углом мяч улетит дальше всего (v₀ = ${task.v0} м/с, с земли)?`, `доп қандай бұрышпен ең алысқа ұшады (v₀ = ${task.v0} м/с, жерден)?`);
+          hint = u(`Now L = ${fmt(f.L, 1)} m. Watch L in the corner and look for its maximum.`, `Сейчас L = ${fmt(f.L, 1)} м. Следи за L в углу и найди максимум.`, `Қазір L = ${fmt(f.L, 1)} м. Бұрыштағы L-ді бақылап, максимумын тап.`);
+          done = u(`L = v₀²·sin 2α / g is largest when sin 2α = 1, that is α = 45°: L = ${fmt(f.L, 1)} m.`, `L = v₀²·sin 2α / g больше всего при sin 2α = 1, то есть α = 45°: L = ${fmt(f.L, 1)} м.`, `L = v₀²·sin 2α / g ең үлкені sin 2α = 1 кезде, яғни α = 45°: L = ${fmt(f.L, 1)} м.`);
+        } else if (task.type === 2) {
+          ok = v.al === 90 - task.a0;
+          goal = u(`the red dashed path is a throw at ${task.a0}°. Find another angle with the same range.`, `красный пунктир - бросок под ${task.a0}°. Найди другой угол с той же дальностью.`, `қызыл пунктир - ${task.a0}° лақтыру. Дәл сондай қашықтық беретін басқа бұрышты тап.`);
+          hint = u(`Now L = ${fmt(f.L, 1)} m, needed ${fmt(flight(v.v0, task.a0, 0, g).L, 1)} m.`, `Сейчас L = ${fmt(f.L, 1)} м, нужно ${fmt(flight(v.v0, task.a0, 0, g).L, 1)} м.`, `Қазір L = ${fmt(f.L, 1)} м, керегі ${fmt(flight(v.v0, task.a0, 0, g).L, 1)} м.`);
+          done = u(`${task.a0}° and ${90 - task.a0}° add up to 90°, and sin 2α is the same for them.`, `${task.a0}° и ${90 - task.a0}° в сумме дают 90°, а sin 2α у них одинаковый.`, `${task.a0}° пен ${90 - task.a0}° қосындысы 90°, ал sin 2α бірдей.`);
+        } else {
+          ok = near(f.L, task.D, 1);
+          const T = Math.sqrt((2 * task.h0) / g);
+          goal = u(`throw horizontally from ${task.h0} m so that the ball lands at ${task.D} m. Choose v₀.`, `брось горизонтально с высоты ${task.h0} м так, чтобы мяч упал в ${task.D} м. Подбери v₀.`, `${task.h0} м биіктіктен көлденең лақтырып, доп ${task.D} м жерге түсетіндей v₀-ді тап.`);
+          hint = u(`The fall lasts t = √(2h/g) = ${fmt(T, 2)} s whatever v₀ is; L = v₀·t = ${fmt(f.L, 1)} m now.`, `Падение длится t = √(2h/g) = ${fmt(T, 2)} с при любой v₀; сейчас L = v₀·t = ${fmt(f.L, 1)} м.`, `Құлау кез келген v₀ үшін t = √(2h/g) = ${fmt(T, 2)} с созылады; қазір L = v₀·t = ${fmt(f.L, 1)} м.`);
+          done = `v₀ = L / t = ${task.D} / ${fmt(T, 2)} ≈ ${fmt(task.D / T, 1)} ${UN.ms()}.`;
+        }
+        caption = taskCap(goal, ok, hint, done);
+        return { svg: svg + taskBadge(ok, 200, 14), caption };
+      }
+      return { svg, caption };
+    },
+  },
   'sine-wave': {
     title: L('Waves: amplitude, frequency, phase', 'Волна: амплитуда, частота, фаза', 'Толқын: амплитуда, жиілік, фаза'),
     intro: L('y = A·sin(2π·f·t + φ). A is the height of the crest, f is how many waves fit in one second, φ shifts the wave sideways.', 'y = A·sin(2π·f·t + φ). A - высота гребня, f - сколько волн умещается за секунду, φ сдвигает волну вбок.', 'y = A·sin(2π·f·t + φ). A - толқын жотасының биіктігі, f - бір секундта неше толқын сыяды, φ толқынды бүйірге ығыстырады.'),
@@ -39,54 +665,6 @@ export const SCENES_SCIENCE = {
           `A = ${fmt(v.A)}: the crest rises ${fmt(v.A)} above the middle line. f = ${fmt(v.f)} Hz: ${fmt(v.f)} waves per second, so one wave lasts T = 1/f = ${fmt(T)} s. φ = ${fmt(v.ph)}° shifts the wave by ${fmt(v.ph / 360)} of a period. The grey wave is A = 1, f = 1, φ = 0.`,
           `A = ${fmt(v.A)}: гребень поднимается на ${fmt(v.A)} над средней линией. f = ${fmt(v.f)} Гц: ${fmt(v.f)} волны в секунду, значит одна волна длится T = 1/f = ${fmt(T)} с. φ = ${fmt(v.ph)}° сдвигает волну на ${fmt(v.ph / 360)} периода. Серая волна - A = 1, f = 1, φ = 0.`,
           `A = ${fmt(v.A)}: жота орта сызықтан ${fmt(v.A)}-ге көтеріледі. f = ${fmt(v.f)} Гц: секундына ${fmt(v.f)} толқын, демек бір толқын T = 1/f = ${fmt(T)} с созылады. φ = ${fmt(v.ph)}° толқынды периодтың ${fmt(v.ph / 360)} бөлігіне ығыстырады. Сұр толқын - A = 1, f = 1, φ = 0.`,
-        ),
-      };
-    },
-  },
-
-  ohm: {
-    title: L("Ohm's law: I = U / R", 'Закон Ома: I = U / R', 'Ом заңы: I = U / R'),
-    intro: L('Voltage pushes the charges, resistance holds them back. The current is voltage divided by resistance - and the bulb shines brighter when more current flows.', 'Напряжение толкает заряды, сопротивление их тормозит. Сила тока - это напряжение, делённое на сопротивление; чем больше ток, тем ярче лампа.', 'Кернеу зарядтарды итереді, кедергі оларды тежейді. Ток күші - кернеуді кедергіге бөлгенге тең; ток неғұрлым көп болса, шам соғұрлым жарқын.'),
-    sliders: [
-      { id: 'U', label: L('U, V', 'U, В', 'U, В'), min: 0, max: 12, step: C, value: 6 },
-      { id: 'R', label: L('R, Ω', 'R, Ом', 'R, Ом'), min: 1, max: 20, step: C, value: 4 },
-    ],
-    buttons: [L('U × 2', 'U × 2', 'U × 2'), L('R × 2', 'R × 2', 'R × 2'), RESET],
-    onButton: (i, st, v) => [{ U: clamp(v.U * 2, 0, 12) }, { R: clamp(v.R * 2, 1, 20) }, { U: 6, R: 4 }][i],
-    state: () => ({ ph: 0 }),
-    live(dt, v, st) {
-      st.ph = (st.ph + dt * (v.U / v.R) * 45) % 740;
-    },
-    draw(v, step, st) {
-      const I = v.U / v.R;
-      const b = clamp(I / 3, 0, 1);
-      const P = v.U * I;
-      // Электроны бегут по прямоугольному контуру.
-      const along = (s) => {
-        s = ((s % 740) + 740) % 740;
-        if (s < 240) return [40 + s, 50];
-        if (s < 370) return [280, 50 + (s - 240)];
-        if (s < 610) return [280 - (s - 370), 180];
-        return [40, 180 - (s - 610)];
-      };
-      const el = Array.from({ length: 20 }, (_, i) => {
-        const [x, y] = along(i * 37 + st.ph);
-        return `<circle class="ex-fill exc-b" cx="${n1(x)}" cy="${n1(y)}" r="${I > 0.005 ? 2.6 : 0}"/>`;
-      }).join('');
-      const V = u('V', 'В', 'В');
-      const A = u('A', 'А', 'А');
-      const Om = u('Ω', 'Ом', 'Ом');
-      return {
-        svg: `<path class="ex-wire" d="M40 50 H280 V180 H40 Z"/>
-          <rect class="ex-res" x="125" y="40" width="70" height="20" rx="5"/><text class="ex-small" x="160" y="32">R = ${fmt(v.R)} ${Om}</text>
-          <rect x="30" y="98" width="20" height="34" style="fill:var(--surface)"/><line class="ex-batt" x1="26" y1="104" x2="54" y2="104"/><line class="ex-batt thin" x1="32" y1="126" x2="48" y2="126"/><text class="ex-tag" x="58" y="120">U = ${fmt(v.U)} ${V}</text>
-          ${el}
-          <circle class="ex-glow" cx="280" cy="115" r="${n1(16 + 26 * b)}" opacity="${n1(b * 80) / 100}"/><circle class="ex-bulb" cx="280" cy="115" r="16" style="fill:color-mix(in srgb, var(--yellow) ${Math.round(b * 100)}%, var(--surface))"/><path class="ex-fil" d="M272 118 l4 -8 l4 8 l4 -8 l4 8"/>
-          <text class="ex-big" x="160" y="125">I = ${fmt(I)} ${A}</text><text class="ex-small" x="160" y="150">${fmt(v.U)} ${V} ÷ ${fmt(v.R)} ${Om}</text><text class="ex-tag" x="8" y="210">P = U·I = ${fmt(P)} ${u('W', 'Вт', 'Вт')}</text>`,
-        caption: L(
-          `I = U / R = ${fmt(v.U)} V ÷ ${fmt(v.R)} Ω = ${fmt(I)} A. Double the voltage - the current doubles and the bulb gets brighter; double the resistance - the current halves. Power P = U·I = ${fmt(P)} W.`,
-          `I = U / R = ${fmt(v.U)} В ÷ ${fmt(v.R)} Ом = ${fmt(I)} А. Увеличь напряжение вдвое - ток вырастет вдвое и лампа станет ярче; увеличь вдвое сопротивление - ток уменьшится вдвое. Мощность P = U·I = ${fmt(P)} Вт.`,
-          `I = U / R = ${fmt(v.U)} В ÷ ${fmt(v.R)} Ом = ${fmt(I)} А. Кернеуді екі есе арттыр - ток екі есе өседі, шам жарқырайды; кедергіні екі есе арттыр - ток екі есе азаяды. Қуат P = U·I = ${fmt(P)} Вт.`,
         ),
       };
     },
@@ -139,58 +717,6 @@ export const SCENES_SCIENCE = {
     },
   },
 
-  projectile: {
-    title: L('A ball thrown at an angle', 'Бросок под углом к горизонту', 'Көкжиекке бұрыш жасай лақтыру'),
-    intro: L('Horizontally the ball flies at a constant speed, vertically gravity slows it down and then speeds it up. Kinetic and potential energy trade places, but their sum stays the same.', 'По горизонтали мяч летит с постоянной скоростью, а по вертикали сила тяжести сначала тормозит его, потом разгоняет. Кинетическая и потенциальная энергия переходят друг в друга, а их сумма не меняется.', 'Көлденеңінен доп тұрақты жылдамдықпен ұшады, ал тігінен ауырлық күші алдымен тежейді, содан кейін үдетеді. Кинетикалық және потенциалдық энергия бір-біріне ауысады, бірақ қосындысы өзгермейді.'),
-    sliders: [
-      { id: 'v0', label: L('v₀, m/s', 'v₀, м/с', 'v₀, м/с'), min: 5, max: 30, step: C, value: 20 },
-      { id: 'al', label: 'α, °', min: 5, max: 85, step: C, value: 60 },
-      { id: 'tt', label: PROGRESS, min: 0, max: 100, step: C, value: 40 },
-    ],
-    buttons: [L('▶ Throw', '▶ Бросить', '▶ Лақтыру'), L('α = 45°: farthest', 'α = 45°: дальше всего', 'α = 45°: ең алыс')],
-    onButton(i, st, v, api) {
-      if (i === 1) return { al: 45 };
-      api.play('tt', { linear: true, dur: 2600 });
-      return null;
-    },
-    draw(v) {
-      const g = 9.8;
-      const a = (v.al * Math.PI) / 180;
-      const vx = v.v0 * Math.cos(a);
-      const vy0 = v.v0 * Math.sin(a);
-      const T = (2 * vy0) / g;
-      const R = vx * T;
-      const Hm = (vy0 * vy0) / (2 * g);
-      const tm = (v.tt / 100) * T;
-      const s = 290 / 92;
-      const X = (t2) => 15 + vx * t2 * s;
-      const Y = (t2) => 200 - (vy0 * t2 - (g * t2 * t2) / 2) * s;
-      const full = plot((t2) => Y(t2), 0, T, X, (y) => y, 80);
-      const done = plot((t2) => Y(t2), 0, tm, X, (y) => y, 80);
-      const bx = X(tm);
-      const by = Y(tm);
-      const vy = vy0 - g * tm;
-      const E = (v.v0 * v.v0) / 2;
-      const Ep = g * Math.max(0, vy0 * tm - (g * tm * tm) / 2);
-      const kk = clamp((E - Ep) / E, 0, 1);
-      const KE = u('KE', 'Eк', 'Eк');
-      const PE = u('PE', 'Eп', 'Eп');
-      return {
-        svg: `<line class="ex-axis" x1="10" y1="200" x2="312" y2="200"/><path class="ex-stroke exc-m ex-dash" style="stroke-width:1.5" d="${full}"/><path class="ex-curve" d="${done || 'M0 0'}"/>
-          ${arrow(bx, by, bx + vx * 2, by, 'exc-g', 2)}${arrow(bx, by, bx, by - vy * 2, 'exc-k', 2)}
-          <circle class="ex-ball" cx="${n1(bx)}" cy="${n1(by)}" r="7"/>
-          <rect class="ex-fill exc-o" x="200" y="12" width="${n1(110 * kk)}" height="12" rx="3"/><rect class="ex-fill exc-b" x="${n1(200 + 110 * kk)}" y="12" width="${n1(110 * (1 - kk))}" height="12" rx="3"/>
-          <text class="ex-tag tc exc-o" x="200" y="38">${KE}</text><text class="ex-tag tc exc-b" x="282" y="38">${PE}</text>
-          <text class="ex-tag" x="8" y="18">L = ${fmt(R, 1)} ${u('m', 'м', 'м')}</text><text class="ex-tag" x="8" y="36">H = ${fmt(Hm, 1)} ${u('m', 'м', 'м')}</text><text class="ex-tag" x="8" y="54">T = ${fmt(T)} ${u('s', 'с', 'с')}</text>`,
-        caption: L(
-          `Flight time T = 2v₀·sin α / g = ${fmt(T)} s, range L = v₀²·sin 2α / g = ${fmt(R, 1)} m, height H = ${fmt(Hm, 1)} m. The horizontal speed (green) stays ${fmt(vx)} m/s; the vertical one (pink) is now ${fmt(vy)} m/s. At the top KE is smallest, PE largest.`,
-          `Время полёта T = 2v₀·sin α / g = ${fmt(T)} с, дальность L = v₀²·sin 2α / g = ${fmt(R, 1)} м, высота H = ${fmt(Hm, 1)} м. Горизонтальная скорость (зелёная) всё время ${fmt(vx)} м/с, вертикальная (розовая) сейчас ${fmt(vy)} м/с. В верхней точке Eк меньше всего, Eп больше всего.`,
-          `Ұшу уақыты T = 2v₀·sin α / g = ${fmt(T)} с, қашықтық L = v₀²·sin 2α / g = ${fmt(R, 1)} м, биіктік H = ${fmt(Hm, 1)} м. Көлденең жылдамдық (жасыл) үнемі ${fmt(vx)} м/с, тік жылдамдық (қызғылт) қазір ${fmt(vy)} м/с. Ең жоғарғы нүктеде Eк ең аз, Eп ең көп.`,
-        ),
-      };
-    },
-  },
-
   pendulum: {
     title: L('The period of a pendulum', 'Период маятника', 'Маятниктің периоды'),
     intro: L('A pendulum swings with period T = 2π√(l/g). It depends only on the string length and gravity - not on the mass of the bob.', 'Маятник качается с периодом T = 2π√(l/g). Он зависит только от длины нити и силы тяжести - масса груза не важна.', 'Маятник T = 2π√(l/g) периодымен тербеледі. Ол тек жіптің ұзындығы мен ауырлық күшіне тәуелді - жүктің массасы маңызды емес.'),
@@ -223,47 +749,6 @@ export const SCENES_SCIENCE = {
           `T = 2π·√(${fmt(v.l)} / ${fmt(v.g)}) = ${fmt(T)} s. A 4 times longer string gives a 2 times longer period. On the Moon gravity is weak, so the pendulum swings slowly; on Jupiter - fast.`,
           `T = 2π·√(${fmt(v.l)} / ${fmt(v.g)}) = ${fmt(T)} с. Нить в 4 раза длиннее - период в 2 раза больше. На Луне тяготение слабое, и маятник качается медленно, на Юпитере - быстро.`,
           `T = 2π·√(${fmt(v.l)} / ${fmt(v.g)}) = ${fmt(T)} с. Жіп 4 есе ұзын болса - период 2 есе артады. Айда тартылыс әлсіз, маятник баяу тербеледі, Юпитерде - жылдам.`,
-        ),
-      };
-    },
-  },
-
-  newton: {
-    title: L("Newton's second law: a = F / m", 'Второй закон Ньютона: a = F / m', 'Ньютонның екінші заңы: a = F / m'),
-    intro: L('The same force speeds up a light cart faster than a heavy one. Acceleration is force divided by mass.', 'Одна и та же сила разгоняет лёгкую тележку быстрее, чем тяжёлую. Ускорение - это сила, делённая на массу.', 'Бірдей күш жеңіл арбаны ауырға қарағанда тезірек үдетеді. Үдеу - күшті массаға бөлгенге тең.'),
-    sliders: [
-      { id: 'F', label: L('F, N', 'F, Н', 'F, Н'), min: 0, max: 20, step: C, value: 8 },
-      { id: 'm', label: L('m, kg', 'm, кг', 'm, кг'), min: 0.5, max: 10, step: C, value: 2 },
-      { id: 'tt', label: L('t, s', 't, с', 't, с'), min: 0, max: 3, step: C, value: 1.5 },
-    ],
-    buttons: [L('▶ Push', '▶ Толкнуть', '▶ Итеру'), L('F × 2', 'F × 2', 'F × 2'), L('m × 2', 'm × 2', 'm × 2')],
-    onButton(i, st, v, api) {
-      if (i === 0) {
-        api.play('tt', { linear: true, dur: 3000 });
-        return null;
-      }
-      return i === 1 ? { F: clamp(v.F * 2, 0, 20) } : { m: clamp(v.m * 2, 0.5, 10) };
-    },
-    draw(v) {
-      const a = v.F / v.m;
-      const t2 = v.tt;
-      const s = (a * t2 * t2) / 2;
-      const vel = a * t2;
-      const cw = 26 + v.m * 4;
-      const ch = 18 + v.m * 2;
-      const x = 40 + Math.min(s, 40) * 6.2;
-      const ms = u('m/s', 'м/с', 'м/с');
-      const vt = (tt) => 90 - (Math.min(a * tt, 60) / 60) * 66;
-      return {
-        svg: `<line class="ex-road" x1="10" y1="180" x2="312" y2="180"/><line class="ex-axis" x1="${40 + 40 * 6.2 + 26}" y1="140" x2="${40 + 40 * 6.2 + 26}" y2="180" style="stroke-width:3"/>
-          <g transform="translate(${n1(x)} 0)"><rect class="ex-cart" x="0" y="${n1(172 - ch)}" width="${n1(cw)}" height="${n1(ch)}" rx="4"/><circle class="ex-wheel" cx="${n1(cw * 0.25)}" cy="174" r="5"/><circle class="ex-wheel" cx="${n1(cw * 0.75)}" cy="174" r="5"/><text class="ex-tiny ex-cartt" x="${n1(cw / 2)}" y="${n1(172 - ch / 2 + 4)}">${fmt(v.m, 1)}</text></g>
-          ${v.F > 0.05 ? arrow(x - 6 - v.F * 3.2, 172 - ch / 2, x - 3, 172 - ch / 2, 'exc-o', 3) : '<g/>'}
-          <line class="ex-axis" x1="210" y1="90" x2="312" y2="90"/><line class="ex-axis" x1="210" y1="20" x2="210" y2="90"/><g class="exc-p"><path class="ex-stroke" d="M210 90 L${n1(210 + t2 * 33)} ${n1(vt(t2))}"/><path class="ex-stroke ex-dash ex-faint" style="stroke-width:1.5" d="M210 90 L309 ${n1(vt(3))}"/></g><text class="ex-tiny" x="300" y="102">t</text><text class="ex-tiny" x="202" y="26">v</text>
-          <text class="ex-tag" x="8" y="18">a = F / m = ${fmt(a)} ${u('m/s²', 'м/с²', 'м/с²')}</text><text class="ex-tag" x="8" y="36">v = a·t = ${fmt(vel)} ${ms}</text><text class="ex-tag" x="8" y="54">s = a·t²/2 = ${fmt(s)} ${u('m', 'м', 'м')}</text>`,
-        caption: L(
-          `a = F / m = ${fmt(v.F)} N ÷ ${fmt(v.m)} kg = ${fmt(a)} m/s². Twice the force → twice the acceleration; twice the mass → half of it. After ${fmt(t2)} s the cart moves at ${fmt(vel)} m/s.`,
-          `a = F / m = ${fmt(v.F)} Н ÷ ${fmt(v.m)} кг = ${fmt(a)} м/с². Сила вдвое больше → ускорение вдвое больше; масса вдвое больше → ускорение вдвое меньше. Через ${fmt(t2)} с скорость тележки ${fmt(vel)} м/с.`,
-          `a = F / m = ${fmt(v.F)} Н ÷ ${fmt(v.m)} кг = ${fmt(a)} м/с². Күш екі есе көп → үдеу екі есе көп; масса екі есе көп → үдеу екі есе аз. ${fmt(t2)} с кейін арбаның жылдамдығы ${fmt(vel)} м/с.`,
         ),
       };
     },
@@ -823,37 +1308,6 @@ export const SCENES_SCIENCE = {
     },
   },
 
-  circuits: {
-    title: L('Series and parallel circuits', 'Последовательное и параллельное соединение', 'Тізбектей және параллель жалғау'),
-    intro: L('In series the resistances add up: R = R₁ + R₂, the same current flows through both. In parallel 1/R = 1/R₁ + 1/R₂ - the total is smaller than the smallest one.', 'При последовательном соединении сопротивления складываются: R = R₁ + R₂, ток через оба одинаковый. При параллельном 1/R = 1/R₁ + 1/R₂ - общее меньше самого маленького.', 'Тізбектей жалғағанда кедергілер қосылады: R = R₁ + R₂, екеуінен бірдей ток өтеді. Параллель жалғағанда 1/R = 1/R₁ + 1/R₂ - жалпы кедергі ең кішісінен де аз.'),
-    sliders: [
-      { id: 'r1', label: 'R₁, Ω', min: 1, max: 20, step: C, value: 6 },
-      { id: 'r2', label: 'R₂, Ω', min: 1, max: 20, step: C, value: 3 },
-      { id: 'U', label: 'U, V', min: 1, max: 24, step: C, value: 12 },
-    ],
-    buttons: [L('Series', 'Последовательно', 'Тізбектей'), L('Parallel', 'Параллельно', 'Параллель')],
-    state: () => ({ par: 0 }),
-    pressed: (i, v, st) => i === st.par,
-    onButton(i, st) {
-      st.par = i;
-    },
-    draw(v, step, st) {
-      const R = st.par ? (v.r1 * v.r2) / (v.r1 + v.r2) : v.r1 + v.r2;
-      const I = v.U / R;
-      const res = (x, y, label) => `<rect x="${x}" y="${y - 10}" width="60" height="20" rx="5" class="ex-res"/><text class="ex-tiny" x="${x + 30}" y="${y - 16}">${label}</text>`;
-      const wires = st.par
-        ? `<path class="ex-wire" d="M40 180 V60 H130 M190 60 H260 V180 H40 M100 60 V140 H130 M190 140 H260"/>${res(130, 60, `R₁ ${fmt(v.r1, 1)}`)}${res(130, 140, `R₂ ${fmt(v.r2, 1)}`)}`
-        : `<path class="ex-wire" d="M40 180 V100 H70 M130 100 H180 M240 100 H270 V180 H40"/>${res(70, 100, `R₁ ${fmt(v.r1, 1)}`)}${res(180, 100, `R₂ ${fmt(v.r2, 1)}`)}`;
-      const batt = `<rect x="146" y="168" width="28" height="24" style="fill:var(--surface)"/><line class="ex-batt" x1="154" y1="166" x2="154" y2="194"/><line class="ex-batt thin" x1="166" y1="172" x2="166" y2="188"/>`;
-      return {
-        svg: `${wires}${batt}<text class="ex-tag" x="8" y="20">R = ${fmt(R)} Ω · I = U/R = ${fmt(I)} ${u('A', 'А', 'А')}</text><text class="ex-tiny" x="160" y="212">U = ${fmt(v.U, 1)} ${u('V', 'В', 'В')}</text>`,
-        caption: st.par
-          ? L(`Parallel: 1/R = 1/${fmt(v.r1, 1)} + 1/${fmt(v.r2, 1)}, R = ${fmt(R)} Ω - less than both. Each resistor gets the full voltage ${fmt(v.U, 1)} V; the currents add up to ${fmt(I)} A.`, `Параллельно: 1/R = 1/${fmt(v.r1, 1)} + 1/${fmt(v.r2, 1)}, R = ${fmt(R)} Ом - меньше обоих. На каждом резисторе всё напряжение ${fmt(v.U, 1)} В, токи складываются в ${fmt(I)} А.`, `Параллель: 1/R = 1/${fmt(v.r1, 1)} + 1/${fmt(v.r2, 1)}, R = ${fmt(R)} Ом - екеуінен де аз. Әр резисторда толық кернеу ${fmt(v.U, 1)} В, токтар қосылып ${fmt(I)} А болады.`)
-          : L(`Series: R = ${fmt(v.r1, 1)} + ${fmt(v.r2, 1)} = ${fmt(R)} Ω, the same current ${fmt(I)} A everywhere; the voltage splits: ${fmt(I * v.r1)} V and ${fmt(I * v.r2)} V.`, `Последовательно: R = ${fmt(v.r1, 1)} + ${fmt(v.r2, 1)} = ${fmt(R)} Ом, ток везде одинаковый ${fmt(I)} А, а напряжение делится: ${fmt(I * v.r1)} В и ${fmt(I * v.r2)} В.`, `Тізбектей: R = ${fmt(v.r1, 1)} + ${fmt(v.r2, 1)} = ${fmt(R)} Ом, ток барлық жерде бірдей ${fmt(I)} А, ал кернеу бөлінеді: ${fmt(I * v.r1)} В және ${fmt(I * v.r2)} В.`),
-      };
-    },
-  },
-
   refraction: {
     title: L('Refraction of light', 'Преломление света', 'Жарықтың сынуы'),
     intro: L('When light goes into a denser medium (glass, water), it slows down and bends toward the normal: n₁ sin α = n₂ sin β. Going the other way past a critical angle, it is totally reflected.', 'Переходя в более плотную среду (стекло, воду), свет замедляется и отклоняется к нормали: n₁ sin α = n₂ sin β. В обратную сторону после предельного угла он полностью отражается.', 'Тығызырақ ортаға (шыны, су) өткенде жарық баяулап, нормальға қарай ауытқиды: n₁ sin α = n₂ sin β. Кері бағытта шекті бұрыштан кейін толық шағылады.'),
@@ -969,7 +1423,6 @@ export const SCENES_SCIENCE = {
     },
   },
 };
-
 // Данные для сцен.
 
 const ATOM_R = { H: 5.5, O: 8, N: 8, Mg: 9 };
