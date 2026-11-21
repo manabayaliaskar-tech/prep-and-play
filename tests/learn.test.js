@@ -234,10 +234,13 @@ test('полные IELTS Reading: 8 тестов по 3 текста (650+ сл�
 
 test('анимации тем: каждая привязана к существующим темам и есть на странице', async () => {
   const { EXPLAINERS, explainerFor } = await import('../src/content/explainers.js');
-  const src = readFileSync('src/screens/explain.js', 'utf8');
+  const { SCENES_MATH } = await import('../src/explain/scenes-math.js');
+  const { SCENES_SCIENCE } = await import('../src/explain/scenes-science.js');
+  const { SCENES_HUMAN } = await import('../src/explain/scenes-human.js');
+  const scenes = { ...SCENES_MATH, ...SCENES_SCIENCE, ...SCENES_HUMAN };
   assert.ok(EXPLAINERS.length >= 10);
   for (const e of EXPLAINERS) {
-    assert.ok(src.includes(`${e.id.includes('-') ? `'${e.id}'` : e.id}: {`), `сцена ${e.id}`);
+    assert.ok(scenes[e.id], `сцена ${e.id}`);
     for (const topic of e.topics) {
       assert.ok(TOPICS[topic], topic);
       // Тема может входить в несколько анимаций: ссылка ведёт на одну из них, и она про эту тему.
