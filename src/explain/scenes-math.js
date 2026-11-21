@@ -56,6 +56,38 @@ const nice = (x, maxD = 12, d0 = 2) => {
   return fmt(x, d0);
 };
 
+/** Число для формулы: отрицательное - в скобках, «(−3)». */
+const pn = (x, d = 2) => (fmt(x, d).startsWith('−') ? `(${fmt(x, d)})` : fmt(x, d));
+/** Многочлен строкой: polyStr([[1, 'x²'], [-2, 'x'], [3, '']]) → «x² − 2x + 3». */
+const polyStr = (terms, f = (x) => fmt(x)) => {
+  let s = '';
+  for (const [k, v] of terms) {
+    if (Math.abs(k) < 1e-9) continue;
+    const num = v && f(Math.abs(k)) === '1' ? '' : f(Math.abs(k));
+    s += s ? (k < 0 ? ' − ' : ' + ') : k < 0 ? '−' : '';
+    s += num + v;
+  }
+  return s || '0';
+};
+/** Показатель степени верхними индексами: sup(-12) → «⁻¹²». */
+const sup = (n) => String(fmt(n, 2)).replace(/[−\d,.]/g, (c) => ({ '−': '⁻', ',': '\u00b7', '.': '\u00b7' })[c] ?? '⁰¹²³⁴⁵⁶⁷⁸⁹'[c]);
+/** Путь графика с разрывами там, где он выходит за полосу [ylo, yhi] пикселей. */
+function plotClip(fn, a, b, sx, sy, ylo, yhi, n = 160) {
+  let d = '';
+  let pen = false;
+  for (let i = 0; i <= n; i++) {
+    const x = a + ((b - a) * i) / n;
+    const y = fn(x);
+    const Y = sy(y);
+    if (!Number.isFinite(y) || Y < ylo - 2 || Y > yhi + 2) {
+      pen = false;
+      continue;
+    }
+    d += `${pen ? 'L' : 'M'}${n1(sx(x))} ${n1(Y)} `;
+    pen = true;
+  }
+  return d || 'M0 0';
+}
 /** Подпись из нескольких кусков L(...) или строк (через пробел). */
 const J = (...ps) => {
   const o = {};
@@ -1920,8 +1952,1464 @@ const percent = modes({
   },
 });
 
+// ---------- Линейная функция ----------
+
+const LIN = { x0: -8, x1: 8, y0: -5.5, y1: 5.5 };
+const lsx = (x) => 160 + x * 20;
+const lsy = (y) => 110 - y * 20;
+/** Прямая y = kx + b через всю сцену. */
+const fullLine = (k, b, cls = 'exc-p', w = 3) => pth(`M${lsx(-9)} ${n1(lsy(-9 * k + b))} L${lsx(9)} ${n1(lsy(9 * k + b))}`, cls, w);
+/** k как дробь для подписи. */
+const kStr = (k) => nice(k, 10);
+/** «y = 2x − 3» с красивыми дробями. */
+const lineStr = (k, b) => {
+  const K = kStr(k);
+  const kx = K === '0' ? '' : K === '1' ? 'x' : K === '−1' ? '−x' : K.includes('/') ? `${K.startsWith('−') ? '−' : ''}(${K.replace('−', '')})x` : `${K}x`;
+  const B = nice(b, 10);
+  if (!kx) return `y = ${B}`;
+  return `y = ${kx}${B === '0' ? '' : B.startsWith('−') ? ` − ${B.slice(1)}` : ` + ${B}`}`;
+};
+
+function linTask(st) {
+  const last = st.task?.type;
+  let type;
+  do type = rnd(0, 2);
+  while (type === last);
+  let K;
+  let B;
+  if (type === 0) {
+    K = pick([-3, -2, -1, -0.5, 0.5, 1, 2, 3]);
+    B = rnd(-4, 4);
+    st.task = { type, K, B, done: false };
+  } else if (type === 1) {
+    let x1;
+    let x2;
+    do {
+      K = pick([-2, -1, 1, 2, 0.5, -0.5]);
+      B = rnd(-3, 3);
+      x1 = rnd(-4, 0);
+      x2 = rnd(1, 4);
+    } while (!Number.isInteger(K * x1 + B) || !Number.isInteger(K * x2 + B) || Math.abs(K * x1 + B) > 5 || Math.abs(K * x2 + B) > 5);
+    st.task = { type, K, B, P: [x1, K * x1 + B], Q: [x2, K * x2 + B], done: false };
+  } else {
+    K = pick([-2, -1, 1, 2, 0.5]);
+    B = rnd(-4, 4);
+    let c;
+    do c = rnd(-4, 4);
+    while (c === B);
+    st.task = { type, K, B, c, done: false };
+  }
+  return { k: 0.5, b: 1 };
+}
+
+const linear = modes({
+  title: L('Linear function y = kx + b', 'Линейная функция y = kx + b', 'Сызықтық функция y = kx + b'),
+  intro: L('k is the slope: how much y changes when x grows by 1. b is where the line crosses the y-axis.', 'k - угловой коэффициент: на сколько меняется y, когда x растёт на 1. b - где прямая пересекает ось y.', 'k - бұрыштық коэффициент: x бірге өскенде y қаншаға өзгереді. b - түзу y осін қиятын нүкте.'),
+  sliders: [
+    { id: 'k', label: 'k', min: -4, max: 4, step: 0.1, value: 0.5, hidden: only(0, 2, 3) },
+    { id: 'b', label: 'b', min: -5, max: 5, step: 0.1, value: 1, hidden: only(0, 2, 3) },
+  ],
+  values: { xa: -2, ya: -1, xb: 2, yb: 3, px: 2, py: -3 },
+  tabs: [L('k and b', 'k и b', 'k және b'), L('Two points', 'По двум точкам', 'Екі нүкте'), L('Two lines', 'Две прямые', 'Екі түзу'), TASK],
+  acts: [{ label: MORE }],
+  state: () => ({ pre: 0 }),
+  onTab(m, st, v, again) {
+    if (m === 3 && (again || !st.task || st.task.done)) return linTask(st);
+    return null;
+  },
+  onAct(j, st) {
+    if (st.m === 3) return linTask(st);
+    st.pre += 1;
+    if (st.m === 1) return [{ xa: -3, ya: 4, xb: 3, yb: -2 }, { xa: -4, ya: 2, xb: 4, yb: 2 }, { xa: 0, ya: -3, xb: 2, yb: 3 }, { xa: -2, ya: -1, xb: 2, yb: 3 }][st.pre % 4];
+    if (st.m === 2) return [{ px: -3, py: 2 }, { px: 1, py: 4 }, { px: 2, py: -3 }][st.pre % 3];
+    return [{ k: 2, b: -3 }, { k: -1, b: 4 }, { k: 0, b: 2 }, { k: 1, b: 0 }, { k: -0.5, b: -2 }, { k: 0.5, b: 1 }][st.pre % 6];
+  },
+  onDrag(key, p, v, st) {
+    const x = clamp(Math.round((p.x - 160) / 20), -7, 7);
+    const y = clamp(Math.round((110 - p.y) / 20), -5, 5);
+    if (key === 'A' && !(x === v.xb && y === v.yb)) [v.xa, v.ya] = [x, y];
+    if (key === 'B' && !(x === v.xa && y === v.ya)) [v.xb, v.yb] = [x, y];
+    if (key === 'P') [v.px, v.py] = [x, y];
+  },
+  draw(v, step, st) {
+    const G = grid({ ...LIN, lab: 2 }).svg;
+    const slope = (k, b, cls = 'exc-o') => {
+      // ступенька: на 1 вправо, на k вверх/вниз
+      const x0 = [2, 1, 3, -3, 4, -4, -2].find((x) => Math.abs(k * x + b) < 4.6 && Math.abs(k * x + b + k) < 4.6 && Math.abs(x + b / (k || 1e-9)) > 0.8) ?? 1;
+      const y0 = k * x0 + b;
+      if (Math.abs(y0) > 5 || Math.abs(y0 + k) > 5.4) return '';
+      return `${pth(`M${lsx(x0)} ${n1(lsy(y0))} H${lsx(x0 + 1)} V${n1(lsy(y0 + k))}`, `${cls} ex-dash`, 2)}${T(lsx(x0 + 0.5), lsy(y0) + (k > 0 ? 13 : -5), '1', `m10 tc ${cls} h`)}${Math.abs(k) > 0.05 ? T(lsx(x0 + 1) + 4, (lsy(y0) + lsy(y0 + k)) / 2 + 4, kStr(k), `m10 tc ${cls} ex-start h`) : ''}`;
+    };
+
+    if (st.m === 1) {
+      const { xa, ya, xb, yb } = v;
+      const dx = xb - xa;
+      const dy = yb - ya;
+      const P = [lsx(xa), lsy(ya)];
+      const Q = [lsx(xb), lsy(yb)];
+      let line;
+      let cap;
+      if (dx === 0) {
+        line = ln(P[0], 0, P[0], H, 'exc-p', 3);
+        cap = L(`Both points have x = ${fmt(xa)}: the line is vertical, x = ${fmt(xa)}. It is not a function y(x) - k does not exist (we would divide by Δx = 0).`, `У обеих точек x = ${fmt(xa)}: прямая вертикальная, x = ${fmt(xa)}. Это не функция y(x) - k не существует (пришлось бы делить на Δx = 0).`, `Екі нүктеде де x = ${fmt(xa)}: түзу тік, x = ${fmt(xa)}. Бұл y(x) функциясы емес - k жоқ (Δx = 0-ге бөлуге тура келер еді).`);
+      } else {
+        const k = dy / dx;
+        const b = ya - k * xa;
+        line = fullLine(k, b);
+        cap = L(
+          `k = Δy/Δx = (${fmt(yb)} − ${pn(ya)})/(${fmt(xb)} − ${pn(xa)}) = ${fmt(dy)}/${fmt(dx)} = ${kStr(k)}. Then b = y₁ − k·x₁ = ${fmt(ya)} − ${kStr(k)}·${pn(xa)} = ${nice(b, 10)}. The line: ${lineStr(k, b)}. Drag the points.`,
+          `k = Δy/Δx = (${fmt(yb)} − ${pn(ya)})/(${fmt(xb)} − ${pn(xa)}) = ${fmt(dy)}/${fmt(dx)} = ${kStr(k)}. Тогда b = y₁ − k·x₁ = ${fmt(ya)} − ${kStr(k)}·${pn(xa)} = ${nice(b, 10)}. Прямая: ${lineStr(k, b)}. Перетаскивай точки.`,
+          `k = Δy/Δx = (${fmt(yb)} − ${pn(ya)})/(${fmt(xb)} − ${pn(xa)}) = ${fmt(dy)}/${fmt(dx)} = ${kStr(k)}. Онда b = y₁ − k·x₁ = ${fmt(ya)} − ${kStr(k)}·${pn(xa)} = ${nice(b, 10)}. Түзу: ${lineStr(k, b)}. Нүктелерді сүйре.`,
+        );
+      }
+      const tri = dx ? `${pth(`M${n1(P[0])} ${n1(P[1])} H${n1(Q[0])} V${n1(Q[1])}`, 'exc-o ex-dash', 2)}${T((P[0] + Q[0]) / 2, P[1] + (dy > 0 ? 13 : -5), `Δx = ${fmt(dx)}`, 'm10 tc exc-o h')}${T(Q[0] + (dx > 0 ? 5 : -5), (P[1] + Q[1]) / 2 + 4, `Δy = ${fmt(dy)}`, `m10 tc exc-o h ${dx > 0 ? 'ex-start' : 'ex-end'}`)}` : '';
+      return {
+        svg: `${G}${line}${tri}${dot(P[0], P[1], 6, 'exc-b')}${dot(Q[0], Q[1], 6, 'exc-k')}${T(P[0] - 8, P[1] - 8, `A(${fmt(xa)}; ${fmt(ya)})`, 'm10 tc exc-b ex-end h')}${T(Q[0] + 8, Q[1] - 8, `B(${fmt(xb)}; ${fmt(yb)})`, 'm10 tc exc-k ex-start h')}
+          ${T(8, 18, dx ? lineStr(dy / dx, ya - (dy / dx) * xa) : `x = ${fmt(xa)}`, 'm15 ex-start h')}${hit('A', P[0], P[1], 16)}${hit('B', Q[0], Q[1], 16)}`,
+        caption: cap,
+      };
+    }
+
+    const { k, b } = v;
+    const flat = Math.abs(k) < 0.05;
+
+    if (st.m === 2) {
+      const { px, py } = v;
+      const P = [lsx(px), lsy(py)];
+      const bp = py - k * px;
+      const perp = flat ? null : -1 / k;
+      const bq = flat ? 0 : py - perp * px;
+      const onL = Math.abs(py - (k * px + b)) < 0.05;
+      return {
+        svg: `${G}${fullLine(k, b)}${fullLine(k, bp, 'exc-b', 2.5)}${flat ? ln(P[0], 0, P[0], H, 'exc-g', 2.5) : fullLine(perp, bq, 'exc-g', 2.5)}${dot(P[0], P[1], 6, 'exc-o')}${hit('P', P[0], P[1], 16)}
+          ${T(8, 18, lineStr(k, b), 'm12 tc exc-p ex-start h')}${T(8, 36, `∥ ${lineStr(k, bp)}`, 'm12 tc exc-b ex-start h')}${T(8, 54, `⊥ ${flat ? `x = ${fmt(px)}` : lineStr(perp, bq)}`, 'm12 tc exc-g ex-start h')}${T(P[0] + 8, P[1] + 16, `P(${fmt(px)}; ${fmt(py)})`, 'm10 tc exc-o ex-start h')}`,
+        caption: flat
+          ? L(`k = 0: the parallel line through P is y = ${fmt(py)}, the perpendicular one is vertical, x = ${fmt(px)}.`, `k = 0: параллельная прямая через P - это y = ${fmt(py)}, перпендикулярная - вертикальная x = ${fmt(px)}.`, `k = 0: P арқылы параллель түзу - y = ${fmt(py)}, перпендикуляр түзу - тік x = ${fmt(px)}.`)
+          : L(
+              `Parallel lines have equal k: through P(${fmt(px)}; ${fmt(py)}) it is ${lineStr(k, bp)}${onL ? ' (P lies on the line - the lines coincide)' : ''}. Perpendicular: k₁·k₂ = −1, so k₂ = −1/${kStr(k)} = ${kStr(perp)}: ${lineStr(perp, bq)}. Drag P.`,
+              `У параллельных прямых равные k: через P(${fmt(px)}; ${fmt(py)}) это ${lineStr(k, bp)}${onL ? ' (P лежит на прямой - прямые совпали)' : ''}. Перпендикулярная: k₁·k₂ = −1, значит k₂ = −1/${kStr(k)} = ${kStr(perp)}: ${lineStr(perp, bq)}. Перетаскивай P.`,
+              `Параллель түзулердің k-сы тең: P(${fmt(px)}; ${fmt(py)}) арқылы ${lineStr(k, bp)}${onL ? ' (P түзуде жатыр - түзулер беттесті)' : ''}. Перпендикуляр: k₁·k₂ = −1, демек k₂ = −1/${kStr(k)} = ${kStr(perp)}: ${lineStr(perp, bq)}. P-ны сүйре.`,
+            ),
+      };
+    }
+
+    const root = flat ? null : -b / k;
+    const ang = (Math.atan(k) * 180) / Math.PI;
+    const base = `${G}${fullLine(k, b)}${slope(k, b)}${dot(lsx(0), lsy(b), 6, 'exc-b')}${T(lsx(0) + (k > 0 ? -7 : 7), lsy(b) - 7, `(0; ${fmt(b)})`, `m10 tc exc-b h ${k > 0 ? 'ex-end' : 'ex-start'}`)}
+      ${root !== null && Math.abs(root) < 7.5 ? `${dot(lsx(root), lsy(0), 5, 'exc-g')}${T(lsx(root), lsy(0) + (k > 0 ? 16 : -8), `x = ${fmt(root)}`, 'm10 tc exc-g h')}${Math.abs(k) > 0.05 ? pth(arcD(lsx(root), lsy(0), 16, 0, ang), 'exc-g', 1.5) : ''}` : ''}`;
+
+    if (st.m === 3) {
+      const tk = st.task ?? (linTask(st), st.task);
+      let ok = near(k, tk.K) && near(b, tk.type === 2 ? tk.B : tk.B);
+      let svg = base;
+      let ask;
+      let tag;
+      if (tk.type === 0) {
+        tag = lineStr(tk.K, tk.B);
+        ask = L(`Build the line ${lineStr(tk.K, tk.B)} with the sliders.`, `Построй прямую ${lineStr(tk.K, tk.B)} ползунками.`, `Жүгірткілермен ${lineStr(tk.K, tk.B)} түзуін тұрғыз.`);
+      } else if (tk.type === 1) {
+        tag = `(${fmt(tk.P[0])}; ${fmt(tk.P[1])}), (${fmt(tk.Q[0])}; ${fmt(tk.Q[1])})`;
+        svg += ring(lsx(tk.P[0]), lsy(tk.P[1]), 7, 'exc-o', 2.5) + ring(lsx(tk.Q[0]), lsy(tk.Q[1]), 7, 'exc-o', 2.5);
+        ask = L(`Draw the line through the orange points (${fmt(tk.P[0])}; ${fmt(tk.P[1])}) and (${fmt(tk.Q[0])}; ${fmt(tk.Q[1])}).`, `Проведи прямую через оранжевые точки (${fmt(tk.P[0])}; ${fmt(tk.P[1])}) и (${fmt(tk.Q[0])}; ${fmt(tk.Q[1])}).`, `(${fmt(tk.P[0])}; ${fmt(tk.P[1])}) және (${fmt(tk.Q[0])}; ${fmt(tk.Q[1])}) қызғылт сары нүктелері арқылы түзу жүргіз.`);
+      } else {
+        tag = `∥ ${lineStr(tk.K, tk.c)}, (0; ${fmt(tk.B)})`;
+        svg += fullLine(tk.K, tk.c, 'exc-m ex-dash', 2) + ring(lsx(0), lsy(tk.B), 7, 'exc-o', 2.5);
+        ask = L(`Make the line parallel to the dashed ${lineStr(tk.K, tk.c)} and passing through (0; ${fmt(tk.B)}).`, `Сделай прямую параллельной пунктирной ${lineStr(tk.K, tk.c)} и проходящей через (0; ${fmt(tk.B)}).`, `Түзуді пунктир ${lineStr(tk.K, tk.c)} түзуіне параллель және (0; ${fmt(tk.B)}) арқылы өтетін ет.`);
+      }
+      ok = check(st, ok);
+      const hint = L(
+        `Now ${lineStr(k, b)}. ${near(k, tk.K) ? 'k is right, now b.' : tk.type === 1 ? 'Hint: k = Δy/Δx.' : `Hint: k = ${kStr(tk.K)}.`}`,
+        `Сейчас ${lineStr(k, b)}. ${near(k, tk.K) ? 'k уже верный, осталось b.' : tk.type === 1 ? 'Подсказка: k = Δy/Δx.' : `Подсказка: k = ${kStr(tk.K)}.`}`,
+        `Қазір ${lineStr(k, b)}. ${near(k, tk.K) ? 'k дұрыс, енді b.' : tk.type === 1 ? 'Кеңес: k = Δy/Δx.' : `Кеңес: k = ${kStr(tk.K)}.`}`,
+      );
+      return { svg: `${svg}${T(8, 18, lineStr(k, b), 'm12 ex-start h')}${badge(tag, ok)}`, caption: taskCap(st, ok, ask, hint) };
+    }
+
+    return {
+      svg: `${base}${T(8, 18, lineStr(k, b), 'm15 ex-start h')}${T(8, 36, flat ? u('constant', 'постоянная', 'тұрақты') : k > 0 ? u('increasing ↗', 'возрастает ↗', 'өседі ↗') : u('decreasing ↘', 'убывает ↘', 'кемиді ↘'), `m11 ex-start h tc ${flat ? 'exc-m' : k > 0 ? 'exc-g' : 'exc-r'}`)}`,
+      caption: flat
+        ? L(`k = 0: the line is horizontal, y is always ${fmt(b)}.`, `k = 0: прямая горизонтальна, y всегда равен ${fmt(b)}.`, `k = 0: түзу көлденең, y әрқашан ${fmt(b)}.`)
+        : L(
+            `k = ${fmt(k)}: when x grows by 1, y ${k > 0 ? 'grows' : 'falls'} by ${fmt(Math.abs(k))} (orange step); the angle with the x-axis is ${fmt(ang, 0)}° (tg α = k). b = ${fmt(b)}: the line crosses the y-axis at (0; ${fmt(b)}), and the x-axis at x = −b/k = ${fmt(root)}.`,
+            `k = ${fmt(k)}: когда x растёт на 1, y ${k > 0 ? 'растёт' : 'уменьшается'} на ${fmt(Math.abs(k))} (оранжевая ступенька); угол с осью x - ${fmt(ang, 0)}° (tg α = k). b = ${fmt(b)}: прямая пересекает ось y в (0; ${fmt(b)}), а ось x - в x = −b/k = ${fmt(root)}.`,
+            `k = ${fmt(k)}: x бірге өскенде y ${fmt(Math.abs(k))}-ге ${k > 0 ? 'өседі' : 'кемиді'} (қызғылт сары баспалдақ); x осімен бұрышы ${fmt(ang, 0)}° (tg α = k). b = ${fmt(b)}: түзу y осін (0; ${fmt(b)}) нүктесінде, x осін x = −b/k = ${fmt(root)} нүктесінде қияды.`,
+          ),
+    };
+  },
+});
+
+// ---------- Парабола ----------
+
+const PSX = (x) => 160 + x * 20;
+const PSY = (y) => 120 - y * 10;
+
+function parTask(st) {
+  const last = st.task?.type;
+  let type;
+  do type = rnd(0, 3);
+  while (type === last);
+  let t;
+  if (type === 0) {
+    let r1;
+    let r2;
+    do {
+      r1 = rnd(-4, 3);
+      r2 = rnd(r1 + 1, 4);
+    } while (Math.abs(r1 * r2) > 6 || Math.abs(r1 + r2) > 6);
+    t = { r1, r2, tag: `x₁ = ${fmt(r1)}, x₂ = ${fmt(r2)}`, p: { a: 1, b: 0, c: 0 } };
+  } else if (type === 1) {
+    let h;
+    let m;
+    let a;
+    do {
+      a = pick([1, -1]);
+      h = rnd(-3, 3);
+      m = rnd(-4, 4);
+    } while (Math.abs(a * h * h + m) > 6 || h === 0);
+    t = { a, h, m, tag: `(${h}; ${m})`, p: { a, b: 0, c: 0 } };
+  } else if (type === 2) {
+    let a;
+    let b;
+    do {
+      a = pick([1, 2, -1, 0.5]);
+      b = pick([-4, -2, 2, 4, 3, -3]);
+    } while (Math.abs((b * b) / (4 * a)) > 6 || Math.abs(((b * b) / (4 * a)) * 10 - Math.round(((b * b) / (4 * a)) * 10)) > 1e-9);
+    t = { a, b, c: (b * b) / (4 * a), tag: 'D = 0', p: { a, b, c: 0 } };
+  } else t = { tag: 'a < 0, D < 0', p: { a: 1, b: -2, c: -3 } };
+  st.task = { type, done: false, ...t };
+  return t.p;
+}
+
+const parabola = modes({
+  title: L('The parabola y = ax² + bx + c', 'Парабола y = ax² + bx + c', 'Парабола y = ax² + bx + c'),
+  intro: L('a sets the direction and width, c lifts the graph, b moves the vertex sideways. The discriminant tells how many roots there are.', 'a задаёт направление ветвей и ширину, c поднимает график, b сдвигает вершину вбок. Дискриминант показывает, сколько корней.', 'a тармақтардың бағыты мен енін, c графикті көтереді, b төбені бүйірге жылжытады. Дискриминант түбір санын көрсетеді.'),
+  sliders: [
+    { id: 'a', label: 'a', min: -3, max: 3, step: 0.1, value: 1 },
+    { id: 'b', label: 'b', min: -6, max: 6, step: 0.1, value: -2 },
+    { id: 'c', label: 'c', min: -6, max: 6, step: 0.1, value: -3 },
+  ],
+  tabs: [L('Roots and D', 'Корни и D', 'Түбірлер және D'), L('Vertex', 'Вершина', 'Төбе'), L('Signs', 'Знаки', 'Таңбалар'), TASK],
+  acts: [{ label: 'a → −a', only: [0, 1, 2] }, { label: MORE }],
+  state: () => ({ pre: 0 }),
+  onTab(m, st, v, again) {
+    if (m === 3 && (again || !st.task || st.task.done)) return parTask(st);
+    return null;
+  },
+  onAct(j, st, v) {
+    if (j === 0) return { a: -v.a, b: -v.b, c: -v.c };
+    if (st.m === 3) return parTask(st);
+    st.pre = (st.pre + 1) % 6;
+    return [{ a: 1, b: -4, c: 4 }, { a: -1, b: 2, c: 3 }, { a: 0.5, b: 0, c: 2 }, { a: 2, b: 4, c: 0 }, { a: -0.5, b: -1, c: 4 }, { a: 1, b: -2, c: -3 }][st.pre];
+  },
+  draw(v, step, st) {
+    const a = Math.round(v.a * 10) / 10;
+    const b = Math.round(v.b * 10) / 10;
+    const c = Math.round(v.c * 10) / 10;
+    const f = (x) => a * x * x + b * x + c;
+    const G = grid({ x0: -8, x1: 8, y0: -10, y1: 12, step: 1, ystep: 2, lab: 2, ylab: 4 }).svg;
+    const eq = `y = ${polyStr([[a, 'x²'], [b, 'x'], [c, '']])}`;
+    const curve = pth(plot(f, -8.2, 8.2, PSX, PSY, 160), 'exc-p', 3);
+    const isLine = a === 0;
+    const D = b * b - 4 * a * c;
+    const Dz = Math.abs(D) < 1e-9;
+    const xv = isLine ? 0 : -b / (2 * a);
+    const yv = isLine ? 0 : f(xv);
+    const roots = isLine ? (b ? [-c / b] : []) : Dz ? [xv] : D < 0 ? [] : [(-b - Math.sqrt(D)) / (2 * a), (-b + Math.sqrt(D)) / (2 * a)].sort((p, q) => p - q);
+    const rootDots = roots.map((r) => `${dot(PSX(r), PSY(0), 5.5, 'exc-o')}${Math.abs(r) < 7.8 ? T(PSX(r), PSY(0) + 15, fmt(r), 'm10 tc exc-o h') : ''}`).join('');
+    const vtx = !isLine && Math.abs(yv) < 12 && Math.abs(xv) < 8 ? dot(PSX(xv), PSY(yv), 5, 'exc-k') : '';
+    const head = T(8, 18, eq, 'm12 ex-start h');
+
+    if (isLine)
+      return {
+        svg: `${G}${curve}${rootDots}${head}`,
+        caption: L(`a = 0: no x², so this is the straight line y = ${fmt(b)}x${term(c)}, not a parabola.${roots.length ? ` It crosses the x-axis at x = ${fmt(roots[0])}.` : ''}`, `a = 0: нет x², это уже не парабола, а прямая y = ${fmt(b)}x${term(c)}.${roots.length ? ` Она пересекает ось x в x = ${fmt(roots[0])}.` : ''}`, `a = 0: x² жоқ, бұл парабола емес, y = ${fmt(b)}x${term(c)} түзуі.${roots.length ? ` Ол x осін x = ${fmt(roots[0])} нүктесінде қияды.` : ''}`),
+      };
+
+    const howMany = (two, one, none) => (Dz ? one : D > 0 ? two : none);
+    const rs = roots.map((r) => fmt(r)).join('; ');
+
+    if (st.m === 1) {
+      const ghost = pth(plot((x) => a * x * x, -8.2, 8.2, PSX, PSY, 120), 'exc-m ex-dash', 1.5);
+      const vy = clamp(PSY(yv), 2, 218);
+      const vform = `y = ${coef(a)}${Math.abs(xv) > 1e-9 ? `(x${term(-xv)})²` : 'x²'}${fmt(yv) === '0' ? '' : term(yv)}`;
+      return {
+        svg: `${G}${ghost}${ln(PSX(xv), 0, PSX(xv), H, 'exc-k ex-dash', 1.5)}${curve}${arrow(PSX(0), PSY(0), PSX(xv), vy, 'exc-o', 2)}${vtx}${dot(PSX(0), PSY(0), 3.5, 'exc-m')}
+          ${head}${T(8, 36, vform, 'm12 tc exc-k ex-start h')}${T(PSX(xv) + 6, clamp(vy + (a > 0 ? 16 : -8), 12, 214), `(${fmt(xv)}; ${fmt(yv)})`, 'm10 tc exc-k ex-start h')}${T(312, 214, `x = ${fmt(xv)}`, 'm10 tc exc-k ex-end h')}`,
+        caption: L(
+          `Vertex: x₀ = −b/(2a) = ${fmt(-b)}/${fmt(2 * a)} = ${fmt(xv)}, y₀ = y(x₀) = ${fmt(yv)}. So ${vform}: the dashed parabola y = ${coef(a)}x² is moved by ${fmt(xv)} along x and ${fmt(yv)} along y (orange arrow). The line x = ${fmt(xv)} is the axis of symmetry; ${a > 0 ? `the smallest value is ${fmt(yv)}` : `the largest value is ${fmt(yv)}`}.`,
+          `Вершина: x₀ = −b/(2a) = ${fmt(-b)}/${fmt(2 * a)} = ${fmt(xv)}, y₀ = y(x₀) = ${fmt(yv)}. Значит ${vform}: пунктирную параболу y = ${coef(a)}x² сдвинули на ${fmt(xv)} по x и на ${fmt(yv)} по y (оранжевая стрелка). Прямая x = ${fmt(xv)} - ось симметрии; ${a > 0 ? `наименьшее значение ${fmt(yv)}` : `наибольшее значение ${fmt(yv)}`}.`,
+          `Төбе: x₀ = −b/(2a) = ${fmt(-b)}/${fmt(2 * a)} = ${fmt(xv)}, y₀ = y(x₀) = ${fmt(yv)}. Демек ${vform}: пунктир y = ${coef(a)}x² параболасы x бойынша ${fmt(xv)}-ге, y бойынша ${fmt(yv)}-ге жылжыды (қызғылт сары нұсқар). x = ${fmt(xv)} түзуі - симметрия осі; ${a > 0 ? `ең кіші мәні ${fmt(yv)}` : `ең үлкен мәні ${fmt(yv)}`}.`,
+        ),
+      };
+    }
+
+    if (st.m === 2) {
+      const pos = `M${PSX(-8.2)} ${PSY(0)} ${plot((x) => Math.max(0, f(x)), -8.2, 8.2, PSX, PSY, 160).replace(/^M/, 'L')} L${PSX(8.2)} ${PSY(0)} Z`;
+      const neg = `M${PSX(-8.2)} ${PSY(0)} ${plot((x) => Math.min(0, f(x)), -8.2, 8.2, PSX, PSY, 160).replace(/^M/, 'L')} L${PSX(8.2)} ${PSY(0)} Z`;
+      const cuts = [-9, ...roots, 9];
+      let segs = '';
+      for (let i = 0; i < cuts.length - 1; i++) {
+        const m = (cuts[i] + cuts[i + 1]) / 2;
+        const pos2 = f(m) > 0;
+        segs += ln(PSX(Math.max(cuts[i], -8.2)), PSY(0), PSX(Math.min(cuts[i + 1], 8.2)), PSY(0), pos2 ? 'exc-g' : 'exc-r', 5);
+        const lx = clamp((Math.max(cuts[i], -8) + Math.min(cuts[i + 1], 8)) / 2, -7.5, 7.5);
+        if (Math.min(cuts[i + 1], 8) - Math.max(cuts[i], -8) > 0.8) segs += T(PSX(lx), PSY(0) + (pos2 ? -8 : 20), pos2 ? '+' : '−', `m15 tc h ${pos2 ? 'exc-g' : 'exc-r'}`);
+      }
+      const iv = (lo, hi) => `(${lo === -Infinity ? '−∞' : fmt(lo)}; ${hi === Infinity ? '+∞' : fmt(hi)})`;
+      let posS;
+      let negS;
+      if (roots.length === 2) {
+        const out = `${iv(-Infinity, roots[0])} ∪ ${iv(roots[1], Infinity)}`;
+        const inn = iv(roots[0], roots[1]);
+        posS = a > 0 ? out : inn;
+        negS = a > 0 ? inn : out;
+      } else if (roots.length === 1) {
+        const all = `${iv(-Infinity, roots[0])} ∪ ${iv(roots[0], Infinity)}`;
+        posS = a > 0 ? all : '∅';
+        negS = a > 0 ? '∅' : all;
+      } else {
+        posS = a > 0 ? '(−∞; +∞)' : '∅';
+        negS = a > 0 ? '∅' : '(−∞; +∞)';
+      }
+      return {
+        svg: `${G}${area(pos, 'exc-g', 0.22)}${area(neg, 'exc-r', 0.22)}${curve}${segs}${rootDots}${head}`,
+        caption: L(
+          `Signs: y > 0 for x ∈ ${posS}; y < 0 for x ∈ ${negS}.${roots.length ? ` At ${rs} y = 0.` : ''} This is how a quadratic inequality is solved: find the roots, look at where the parabola is above or below the axis.`,
+          `Знаки: y > 0 при x ∈ ${posS}; y < 0 при x ∈ ${negS}.${roots.length ? ` В точках ${rs} y = 0.` : ''} Так решают квадратное неравенство: находим корни и смотрим, где парабола выше или ниже оси.`,
+          `Таңбалар: y > 0, егер x ∈ ${posS}; y < 0, егер x ∈ ${negS}.${roots.length ? ` ${rs} нүктелерінде y = 0.` : ''} Квадрат теңсіздік осылай шешіледі: түбірлерді тауып, парабола осьтен қай жерде жоғары не төмен екенін қараймыз.`,
+        ),
+      };
+    }
+
+    const base = `${G}${curve}${rootDots}${vtx}${dot(PSX(0), PSY(c), 4, 'exc-b')}${head}${T(8, 36, `D = ${fmt(Dz ? 0 : D)}`, `m12 ex-start h tc ${D > 0 ? 'exc-g' : Dz ? 'exc-o' : 'exc-r'}`)}`;
+
+    if (st.m === 3) {
+      const tk = st.task ?? (parTask(st), st.task);
+      let ok = false;
+      let ask;
+      let hint;
+      if (tk.type === 0) {
+        ok = roots.length === 2 && near(roots[0], tk.r1, 0.06) && near(roots[1], tk.r2, 0.06);
+        ask = L(`Make the roots x₁ = ${fmt(tk.r1)} and x₂ = ${fmt(tk.r2)}.`, `Сделай корни x₁ = ${fmt(tk.r1)} и x₂ = ${fmt(tk.r2)}.`, `Түбірлерді x₁ = ${fmt(tk.r1)} және x₂ = ${fmt(tk.r2)} ет.`);
+        hint = L(`Hint (Vieta, a = 1): b = −(x₁ + x₂) = ${fmt(-(tk.r1 + tk.r2))}, c = x₁·x₂ = ${fmt(tk.r1 * tk.r2)}.`, `Подсказка (Виет, a = 1): b = −(x₁ + x₂) = ${fmt(-(tk.r1 + tk.r2))}, c = x₁·x₂ = ${fmt(tk.r1 * tk.r2)}.`, `Кеңес (Виет, a = 1): b = −(x₁ + x₂) = ${fmt(-(tk.r1 + tk.r2))}, c = x₁·x₂ = ${fmt(tk.r1 * tk.r2)}.`);
+      } else if (tk.type === 1) {
+        ok = near(a, tk.a) && near(xv, tk.h, 0.06) && near(yv, tk.m, 0.06);
+        ask = L(`With a = ${tk.a}, put the vertex at (${fmt(tk.h)}; ${fmt(tk.m)}).`, `При a = ${tk.a} поставь вершину в точку (${fmt(tk.h)}; ${fmt(tk.m)}).`, `a = ${tk.a} болғанда төбені (${fmt(tk.h)}; ${fmt(tk.m)}) нүктесіне қой.`);
+        hint = L(`Now the vertex is (${fmt(xv)}; ${fmt(yv)}). Hint: x₀ = −b/(2a), so b = ${fmt(-2 * tk.a * tk.h)}; then pick c.`, `Сейчас вершина (${fmt(xv)}; ${fmt(yv)}). Подсказка: x₀ = −b/(2a), значит b = ${fmt(-2 * tk.a * tk.h)}; потом подбери c.`, `Қазір төбе (${fmt(xv)}; ${fmt(yv)}). Кеңес: x₀ = −b/(2a), демек b = ${fmt(-2 * tk.a * tk.h)}; сосын c-ны таңда.`);
+      } else if (tk.type === 2) {
+        ok = near(a, tk.a) && near(b, tk.b) && Dz;
+        ask = L(`a = ${fmt(tk.a)}, b = ${fmt(tk.b)}. Pick c so that the parabola only touches the x-axis (D = 0).`, `a = ${fmt(tk.a)}, b = ${fmt(tk.b)}. Подбери c, чтобы парабола только касалась оси x (D = 0).`, `a = ${fmt(tk.a)}, b = ${fmt(tk.b)}. Парабола x осін тек жанап өтетіндей c-ны таңда (D = 0).`);
+        hint = L(`Now D = ${fmt(D)}. Hint: b² − 4ac = 0 → c = b²/(4a).`, `Сейчас D = ${fmt(D)}. Подсказка: b² − 4ac = 0 → c = b²/(4a).`, `Қазір D = ${fmt(D)}. Кеңес: b² − 4ac = 0 → c = b²/(4a).`);
+      } else {
+        ok = a < 0 && D < 0 && !Dz;
+        ask = L('Make the branches point down and leave no roots at all.', 'Сделай так, чтобы ветви смотрели вниз и корней не было совсем.', 'Тармақтар төмен қарайтын және түбір мүлде болмайтындай ет.');
+        hint = L(`Now a = ${fmt(a)}, D = ${fmt(D)}. Hint: a < 0, and the vertex must be below the x-axis.`, `Сейчас a = ${fmt(a)}, D = ${fmt(D)}. Подсказка: a < 0, а вершина должна быть ниже оси x.`, `Қазір a = ${fmt(a)}, D = ${fmt(D)}. Кеңес: a < 0, ал төбе x осінен төмен болуы керек.`);
+      }
+      ok = check(st, ok);
+      return { svg: `${base}${badge(tk.tag, ok)}`, caption: taskCap(st, ok, ask, hint) };
+    }
+
+    return {
+      svg: base,
+      caption: L(
+        `${a > 0 ? 'a > 0: branches up' : 'a < 0: branches down'}. D = b² − 4ac = ${pn(b)}² − 4·${pn(a)}·${pn(c)} = ${fmt(Dz ? 0 : D)}: ${howMany('two roots', 'one root', 'no real roots')}.${roots.length ? ` x = (−b ± √D)/(2a): ${rs}.` : ''} The blue dot (0; ${fmt(c)}) is where the graph meets the y-axis.`,
+        `${a > 0 ? 'a > 0: ветви вверх' : 'a < 0: ветви вниз'}. D = b² − 4ac = ${pn(b)}² − 4·${pn(a)}·${pn(c)} = ${fmt(Dz ? 0 : D)}: ${howMany('два корня', 'один корень', 'корней нет')}.${roots.length ? ` x = (−b ± √D)/(2a): ${rs}.` : ''} Синяя точка (0; ${fmt(c)}) - пересечение с осью y.`,
+        `${a > 0 ? 'a > 0: тармақтар жоғары' : 'a < 0: тармақтар төмен'}. D = b² − 4ac = ${pn(b)}² − 4·${pn(a)}·${pn(c)} = ${fmt(Dz ? 0 : D)}: ${howMany('екі түбір', 'бір түбір', 'түбір жоқ')}.${roots.length ? ` x = (−b ± √D)/(2a): ${rs}.` : ''} Көк нүкте (0; ${fmt(c)}) - y осімен қиылысу.`,
+      ),
+    };
+  },
+});
+
+// ---------- Теорема Пифагора ----------
+
+const PY_TRIPLES = [[3, 4], [6, 8], [5, 12], [9, 12], [1, 1], [1, 2], [2.5, 6], [4, 7.5]];
+
+function pyTask(st) {
+  const last = st.task?.type;
+  let type;
+  do type = rnd(0, 2);
+  while (type === last);
+  let t;
+  if (type === 0) {
+    const [a, b] = pick([[3, 4], [5, 12], [6, 8], [9, 12], [8, 6], [12, 5], [4, 3], [12, 9], [1.5, 2], [4.5, 6]]);
+    t = { a, b, c: Math.hypot(a, b), p: { a, b: 1 } };
+  } else if (type === 1) {
+    const [a, b] = pick([[3, 4], [5, 12], [6, 8], [9, 12], [8, 6], [12, 5]]);
+    t = { a, b, c: Math.hypot(a, b), p: { a, b: 1 } };
+  } else {
+    const k = pick([2, 3, 4, 5, 6, 7, 8]);
+    t = { k, c2: 2 * k * k, p: { a: 1, b: 1 } };
+  }
+  st.task = { type, done: false, ...t };
+  return t.p;
+}
+
+/** Корень красиво: √50 = 5√2, √25 = 5. */
+const sqrtStr = (n) => {
+  if (Math.abs(n - Math.round(n)) > 1e-9) return `√${fmt(n)}`;
+  let out = 1;
+  let rest = Math.round(n);
+  for (let k = 2; k * k <= rest; k++)
+    while (rest % (k * k) === 0) {
+      out *= k;
+      rest /= k * k;
+    }
+  return rest === 1 ? String(out) : `${out === 1 ? '' : out}√${rest}`;
+};
+
+const pythagoras = modes({
+  title: L('The Pythagorean theorem', 'Теорема Пифагора', 'Пифагор теоремасы'),
+  intro: L('In a right triangle a² + b² = c²: the squares on the legs together equal the square on the hypotenuse.', 'В прямоугольном треугольнике a² + b² = c²: квадраты на катетах вместе равны квадрату на гипотенузе.', 'Тікбұрышты үшбұрышта a² + b² = c²: катеттердегі шаршылар бірге гипотенузадағы шаршыға тең.'),
+  sliders: [
+    { id: 'a', label: L('leg a', 'катет a', 'a катеті'), min: 1, max: 12, step: 0.5, value: 3 },
+    { id: 'b', label: L('leg b', 'катет b', 'b катеті'), min: 1, max: 12, step: 0.5, value: 4 },
+  ],
+  values: { ph: 0 },
+  tabs: [L('Squares', 'Квадраты', 'Шаршылар'), L('Proof', 'Доказательство', 'Дәлелдеу'), TASK],
+  acts: [{ label: L('▶ Rearrange', '▶ Переложить', '▶ Орнын ауыстыру'), only: [1] }, { label: MORE }],
+  state: () => ({ pre: 0 }),
+  onTab(m, st, v, again) {
+    if (m === 2 && (again || !st.task || st.task.done)) return pyTask(st);
+    return null;
+  },
+  onAct(j, st, v) {
+    if (j === 0) return { ph: v.ph > 0.5 ? 0 : 1, $dur: 1600 };
+    if (st.m === 2) return pyTask(st);
+    st.pre = (st.pre + 1) % PY_TRIPLES.length;
+    const [a, b] = PY_TRIPLES[st.pre];
+    return { a, b };
+  },
+  draw(v, step, st) {
+    const { a, b } = v;
+    const c2 = a * a + b * b;
+    const c = Math.sqrt(c2);
+    const cs = sqrtStr(c2);
+    const exact = Math.abs(c - Math.round(c)) < 1e-9;
+
+    if (st.m === 1) {
+      const S = a + b;
+      const s = 186 / S;
+      const X0 = 10;
+      const Y0 = 8;
+      const P = (x, y) => [X0 + x * s, Y0 + (S - y) * s];
+      const k = clamp(v.ph, 0, 1);
+      const kk = (i) => ease(clamp(k * 1.6 - i * 0.3, 0, 1));
+      const tri = (pts, dx, dy, i) => {
+        const e = kk(i);
+        return `<path class="ex-tri" style="stroke-width:1.5" d="M${pts.map(([x, y]) => P(x + dx * e, y + dy * e)).map((q) => `${n1(q[0])} ${n1(q[1])}`).join(' L')} Z"/>`;
+      };
+      const T1 = [[0, 0], [a, 0], [0, b]];
+      const T2 = [[S, 0], [S, a], [a, 0]];
+      const T3 = [[S, S], [b, S], [S, a]];
+      const T4 = [[0, S], [0, b], [b, S]];
+      const inner = [[a, 0], [S, a], [b, S], [0, b]].map(([x, y]) => P(x, y));
+      const sqA = [[0, 0], [a, 0], [a, a], [0, a]].map(([x, y]) => P(x, y));
+      const sqB = [[a, a], [S, a], [S, S], [a, S]].map(([x, y]) => P(x, y));
+      const done = k > 0.99;
+      return {
+        svg: `${poly(inner, 'exc-p', 0.55 * (1 - k))}${poly(sqA, 'exc-a', 0.6 * k)}${poly(sqB, 'exc-b', 0.6 * k)}
+          ${tri(T1, 0, a, 0)}${tri(T2, 0, 0, 1)}${tri(T3, -b, 0, 1)}${tri(T4, a, -b, 2)}
+          <rect class="ex-stroke exc-m" style="fill:none;stroke-width:2" x="${X0}" y="${Y0}" width="${n1(S * s)}" height="${n1(S * s)}"/>
+          ${k < 0.5 ? T(X0 + (S * s) / 2, Y0 + (S * s) / 2 + 6, 'c²', 'm18 tc exc-p h') : `${T(P(a / 2, 0)[0], P(0, a / 2)[1] + 6, 'a²', 'm15 h')}${T(P(a + b / 2, 0)[0], P(0, a + b / 2)[1] + 6, 'b²', 'm15 h')}`}
+          ${T(X0 + (a * s) / 2, Y0 + S * s + 13, 'a', 'm10 exm-mut')}${T(X0 + a * s + (b * s) / 2, Y0 + S * s + 13, 'b', 'm10 exm-mut')}
+          ${T(262, 40, `${u('side', 'сторона', 'қабырға')} a + b = ${fmt(S)}`, 'm11')}${T(262, 64, u('4 triangles', '4 треугольника', '4 үшбұрыш'), 'm10 exm-mut')}${T(262, 77, u('do not change', 'не меняются', 'өзгермейді'), 'm10 exm-mut')}
+          ${T(262, 104, done ? 'a² + b²' : 'c²', `m15 tc ${done ? 'exc-a' : 'exc-p'}`)}${T(262, 124, done ? `= ${fmt(a * a)} + ${fmt(b * b)}` : `= ${fmt(c2)}`, 'm12')}
+          ${T(262, 162, 'c² = a² + b²', `m12 tc ${done ? 'exc-g' : 'exc-m'}`)}`,
+        caption: done
+          ? L(
+              `The same 4 triangles, moved: now the free space is two squares a² + b² = ${fmt(a * a)} + ${fmt(b * b)}. The big square and the triangles did not change, so the free area is the same: c² = a² + b².`,
+              `Те же 4 треугольника переложили: теперь свободное место - два квадрата a² + b² = ${fmt(a * a)} + ${fmt(b * b)}. Большой квадрат и треугольники не изменились, значит и свободная площадь та же: c² = a² + b².`,
+              `Сол 4 үшбұрыштың орнын ауыстырдық: енді бос орын - екі шаршы a² + b² = ${fmt(a * a)} + ${fmt(b * b)}. Үлкен шаршы мен үшбұрыштар өзгерген жоқ, демек бос аудан да сол: c² = a² + b².`,
+            )
+          : L(
+              `A square with side a + b = ${fmt(S)} holds 4 equal right triangles; the free space in the middle is a square on the hypotenuse, c² = ${fmt(c2)}. Press "Rearrange".`,
+              `В квадрат со стороной a + b = ${fmt(S)} положили 4 одинаковых прямоугольных треугольника; свободное место в центре - квадрат на гипотенузе, c² = ${fmt(c2)}. Нажми «Переложить».`,
+              `Қабырғасы a + b = ${fmt(S)} шаршыға 4 бірдей тікбұрышты үшбұрыш салдық; ортадағы бос орын - гипотенузадағы шаршы, c² = ${fmt(c2)}. «Орнын ауыстыру» бас.`,
+            ),
+      };
+    }
+
+    // Квадраты на сторонах.
+    const s = Math.min(196 / (2 * a + b), 204 / (a + 2 * b));
+    const X0 = 6 + (200 - (2 * a + b) * s) / 2;
+    const Y0 = 8 + (204 - (a + 2 * b) * s) / 2;
+    const P = (x, y) => [X0 + (x + a) * s, Y0 + (a + b - y) * s];
+    const C0 = P(0, 0);
+    const A = P(0, a);
+    const B = P(b, 0);
+    const sqA = [[0, 0], [0, a], [-a, a], [-a, 0]].map(([x, y]) => P(x, y));
+    const sqB = [[0, 0], [b, 0], [b, -b], [0, -b]].map(([x, y]) => P(x, y));
+    const sqC = [[0, a], [b, 0], [b + a, b], [a, a + b]].map(([x, y]) => P(x, y));
+    // клетки 1×1 в квадратах катетов, если стороны целые
+    let cells = '';
+    const unit = (n) => Number.isInteger(n) && n * s >= 0 && n <= 12 && s >= 5;
+    if (unit(a)) for (let i = 1; i < a; i++) cells += ln(P(-i, 0)[0], P(0, 0)[1], P(-i, a)[0], P(0, a)[1], 'exc-a', 0.6) + ln(P(-a, i)[0], P(0, i)[1], P(0, i)[0], P(0, i)[1], 'exc-a', 0.6);
+    if (unit(b)) for (let i = 1; i < b; i++) cells += ln(P(i, 0)[0], P(0, 0)[1], P(i, -b)[0], P(0, -b)[1], 'exc-b', 0.6) + ln(P(0, -i)[0], P(0, -i)[1], P(b, -i)[0], P(0, -i)[1], 'exc-b', 0.6);
+    if (exact && c <= 15 && s >= 5)
+      for (let i = 1; i < c; i++) {
+        const t = i / c;
+        // линии, параллельные сторонам квадрата гипотенузы
+        const p1 = [0 + b * t, a - a * t];
+        const p2 = [p1[0] + a, p1[1] + b];
+        const q1 = [0 + a * t, a + b * t];
+        const q2 = [q1[0] + b, q1[1] - a];
+        cells += ln(...P(...p1), ...P(...p2), 'exc-p', 0.6) + ln(...P(...q1), ...P(...q2), 'exc-p', 0.6);
+      }
+    const mid = (p, q) => [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2];
+    const cA = mid(sqA[0], sqA[2]);
+    const cB = mid(sqB[0], sqB[2]);
+    const cC = mid(sqC[0], sqC[2]);
+    const big = (n) => n * s > 26;
+    const hide = st.m === 2 && !(st.task?.done);
+    const pic = `${poly(sqA, 'exc-a', 0.45)}${poly(sqB, 'exc-b', 0.45)}${poly(sqC, 'exc-p', 0.4)}${cells}
+      <path class="ex-tri" d="M${pts([C0, A, B])} Z"/>${pth(`M${n1(C0[0] + 8)} ${n1(C0[1])} V${n1(C0[1] - 8)} H${n1(C0[0])}`, 'exc-m', 1.2)}
+      ${big(a) ? T(cA[0], cA[1] + 4, `${fmt(a * a)}`, 'm11') : ''}${big(b) ? T(cB[0], cB[1] + 4, `${fmt(b * b)}`, 'm11') : ''}${big(c) ? T(cC[0], cC[1] + 4, hide ? '?' : fmt(c2), 'm12') : ''}
+      ${T((C0[0] + A[0]) / 2 + 6, (C0[1] + A[1]) / 2 + 4, 'a', 'm11 tc exc-a ex-start h')}${T((C0[0] + B[0]) / 2, C0[1] - 5, 'b', 'm11 tc exc-b h')}${T((A[0] + B[0]) / 2 - 5, (A[1] + B[1]) / 2 - 3, 'c', 'm12 tc exc-p ex-end h')}`;
+    const panel = (cTxt) => `${T(262, 30, 'a² + b² = c²', 'm12')}${T(262, 58, `a² = ${fmt(a * a)}`, 'm12 tc exc-a')}${T(262, 80, `b² = ${fmt(b * b)}`, 'm12 tc exc-b')}${T(262, 108, `c² = ${cTxt ?? fmt(c2)}`, 'm15 tc exc-p')}${T(262, 134, cTxt ? 'c = ?' : `c = ${cs}`, 'm15')}${!cTxt && !exact ? T(262, 154, `≈ ${fmt(c)}`, 'm12 exm-mut') : ''}`;
+
+    if (st.m === 2) {
+      const tk = st.task ?? (pyTask(st), st.task);
+      let ok;
+      let ask;
+      let hint;
+      let tag;
+      if (tk.type <= 1) {
+        ok = near(a, tk.a, 0.01) && near(b, tk.b, 0.01);
+        tag = `a = ${fmt(tk.a)}, c = ${fmt(tk.c)}`;
+        ask = L(`Leg a = ${fmt(tk.a)}, hypotenuse c = ${fmt(tk.c)}. Find leg b with the slider.`, `Катет a = ${fmt(tk.a)}, гипотенуза c = ${fmt(tk.c)}. Найди катет b ползунком.`, `a катеті = ${fmt(tk.a)}, гипотенуза c = ${fmt(tk.c)}. b катетін жүгірткімен тап.`);
+        hint = L(`Now c² = ${fmt(c2)}, we need ${fmt(tk.c * tk.c)}. Hint: b = √(c² − a²) = √(${fmt(tk.c * tk.c)} − ${fmt(tk.a * tk.a)}).`, `Сейчас c² = ${fmt(c2)}, а нужно ${fmt(tk.c * tk.c)}. Подсказка: b = √(c² − a²) = √(${fmt(tk.c * tk.c)} − ${fmt(tk.a * tk.a)}).`, `Қазір c² = ${fmt(c2)}, ал ${fmt(tk.c * tk.c)} керек. Кеңес: b = √(c² − a²) = √(${fmt(tk.c * tk.c)} − ${fmt(tk.a * tk.a)}).`);
+      } else {
+        ok = near(a, tk.k, 0.01) && near(b, tk.k, 0.01);
+        tag = `a = b, c = ${sqrtStr(tk.c2)}`;
+        ask = L(`Build an isosceles right triangle with hypotenuse c = ${sqrtStr(tk.c2)}.`, `Построй равнобедренный прямоугольный треугольник с гипотенузой c = ${sqrtStr(tk.c2)}.`, `Гипотенузасы c = ${sqrtStr(tk.c2)} болатын теңбүйірлі тікбұрышты үшбұрыш тұрғыз.`);
+        hint = L(`Now c² = ${fmt(c2)}, we need ${tk.c2}. Hint: a = b, so 2a² = ${tk.c2}.`, `Сейчас c² = ${fmt(c2)}, а нужно ${tk.c2}. Подсказка: a = b, значит 2a² = ${tk.c2}.`, `Қазір c² = ${fmt(c2)}, ал ${tk.c2} керек. Кеңес: a = b, демек 2a² = ${tk.c2}.`);
+      }
+      ok = check(st, ok);
+      return { svg: `${pic}${panel(ok ? null : '?')}${badge(tag, ok)}`, caption: taskCap(st, ok, ask, hint) };
+    }
+
+    return {
+      svg: `${pic}${panel()}`,
+      caption: L(
+        `${fmt(a)}² + ${fmt(b)}² = ${fmt(a * a)} + ${fmt(b * b)} = ${fmt(c2)}, so the hypotenuse c = √${fmt(c2)} ${exact ? '=' : '≈'} ${exact ? cs : fmt(c)}.${exact && Number.isInteger(a) && Number.isInteger(b) ? ' Integer sides: count the cells - they match!' : ''} The hypotenuse is always the longest side.`,
+        `${fmt(a)}² + ${fmt(b)}² = ${fmt(a * a)} + ${fmt(b * b)} = ${fmt(c2)}, значит гипотенуза c = √${fmt(c2)} ${exact ? '=' : '≈'} ${exact ? cs : fmt(c)}.${exact && Number.isInteger(a) && Number.isInteger(b) ? ' Стороны целые: посчитай клетки - сходится!' : ''} Гипотенуза всегда длиннее катетов.`,
+        `${fmt(a)}² + ${fmt(b)}² = ${fmt(a * a)} + ${fmt(b * b)} = ${fmt(c2)}, демек гипотенуза c = √${fmt(c2)} ${exact ? '=' : '≈'} ${exact ? cs : fmt(c)}.${exact && Number.isInteger(a) && Number.isInteger(b) ? ' Қабырғалар бүтін: торларды сана - сәйкес келеді!' : ''} Гипотенуза әрқашан катеттерден ұзын.`,
+      ),
+    };
+  },
+});
+
+// ---------- Единичная окружность ----------
+
+const SIN_EX = { 0: '0', 30: '1/2', 45: '√2/2', 60: '√3/2', 90: '1', 120: '√3/2', 135: '√2/2', 150: '1/2', 180: '0', 210: '−1/2', 225: '−√2/2', 240: '−√3/2', 270: '−1', 300: '−√3/2', 315: '−√2/2', 330: '−1/2' };
+const TAN_EX = { 0: '0', 30: '√3/3', 45: '1', 60: '√3', 120: '−√3', 135: '−1', 150: '−√3/3', 180: '0', 210: '√3/3', 225: '1', 240: '√3', 300: '−√3', 315: '−1', 330: '−√3/3' };
+const STD = Object.keys(SIN_EX).map(Number);
+const norm360 = (d) => ((Math.round(d * 1000) / 1000) % 360 + 360) % 360;
+const sinEx = (d) => SIN_EX[norm360(d)];
+const cosEx = (d) => SIN_EX[norm360(d + 90)];
+const tanEx = (d) => {
+  const r = norm360(d);
+  if (r === 90 || r === 270) return '∄';
+  return TAN_EX[r];
+};
+const cotEx = (d) => {
+  const r = norm360(d);
+  if (r === 0 || r === 180) return '∄';
+  return TAN_EX[norm360(90 - r)];
+};
+/** Угол в радианах: 150° → 5π/6. */
+const radStr = (d) => {
+  const f = nice(d / 180, 12, 3);
+  if (f === '0') return '0';
+  if (!/^[−\d/]+$/.test(f)) return `${fmt((d * Math.PI) / 180, 2)}`;
+  const [n, m] = f.split('/');
+  const num = n === '1' ? 'π' : n === '−1' ? '−π' : `${n}π`;
+  return m ? `${num}/${m}` : num;
+};
+const quarter = (d) => {
+  const r = norm360(d);
+  if (r % 90 === 0) return 0;
+  return Math.floor(r / 90) + 1;
+};
+
+function trigTask(st) {
+  const last = st.task?.type;
+  let type;
+  do type = rnd(0, 2);
+  while (type === last);
+  let A;
+  do A = pick(STD.filter((x) => x % 90 !== 0));
+  while (st.task && A === st.task.A);
+  st.task = { type, A, done: false };
+  return { deg: 0 };
+}
+
+const unitCircle = modes({
+  title: L('Unit circle: sin, cos, tg', 'Единичная окружность: sin, cos, tg', 'Бірлік шеңбер: sin, cos, tg'),
+  intro: L('A point moves around a circle of radius 1: its x is the cosine of the angle, its y is the sine, and tg = sin/cos.', 'Точка движется по окружности радиуса 1: её x - косинус угла, y - синус, а tg = sin/cos.', 'Нүкте радиусы 1 шеңбер бойымен қозғалады: оның x-і - бұрыштың косинусы, y-і - синусы, ал tg = sin/cos.'),
+  sliders: [{ id: 'deg', label: L('angle α, °', 'угол α, °', 'α бұрышы, °'), min: -360, max: 360, step: 1, value: 30 }],
+  tabs: [L('sin and cos', 'sin и cos', 'sin және cos'), L('tg and ctg', 'tg и ctg', 'tg және ctg'), L('Graphs', 'Графики', 'Графиктер'), TASK],
+  acts: [{ label: PLAY, only: [0, 1, 2] }, { label: L('Next angle ↻', 'Следующий угол ↻', 'Келесі бұрыш ↻'), only: [0, 1, 2] }, { label: MORE, only: [3] }],
+  playDur: 9000,
+  onTab(m, st, v, again) {
+    if (m === 3 && (again || !st.task || st.task.done)) return trigTask(st);
+    return null;
+  },
+  onAct(j, st, v, api) {
+    if (j === 0) {
+      api.play('deg', { dur: 9000, linear: true });
+      return null;
+    }
+    if (j === 2) return trigTask(st);
+    const nxt = STD.find((x) => x > norm360(v.deg) + 0.5) ?? 360;
+    const base = v.deg - norm360(v.deg);
+    return { deg: clamp(base + nxt > 360 ? nxt - 360 : base + nxt, -360, 360), $dur: 500 };
+  },
+  draw(v, step, st) {
+    const d = v.deg;
+    const a = deg(d);
+    const sn = Math.sin(a);
+    const cs = Math.cos(a);
+    const S = sinEx(d);
+    const Cc = cosEx(d);
+    const q = quarter(d);
+    const roman = ['', 'I', 'II', 'III', 'IV'];
+    const r2 = (x) => (Math.abs(x) < 5e-4 ? 0 : x);
+
+    const circle = (cx, cy, r, small = false) => {
+      const [px, py] = on(cx, cy, r, d);
+      let g = `${ln(cx - r - 14, cy, cx + r + 14, cy, 'exc-m', 1.2)}${ln(cx, cy - r - 12, cx, cy + r + 12, 'exc-m', 1.2)}<circle class="ex-ring" cx="${cx}" cy="${cy}" r="${r}"/>`;
+      if (q) g += area(arcD(cx, cy, r, (q - 1) * 90, q * 90, true), 'exc-y', 0.18);
+      if (!small)
+        for (const t of STD) {
+          const [x1, y1] = on(cx, cy, r - 4, t);
+          const [x2, y2] = on(cx, cy, r + 4, t);
+          g += ln(x1, y1, x2, y2, 'exc-m', 1);
+        }
+      if (!small) g += `${T(cx + r + 7, cy - 4, '1', 'm9 exm-mut ex-start')}${T(cx - r - 7, cy - 4, '−1', 'm9 exm-mut ex-end')}${T(cx + 5, cy - r - 4, '1', 'm9 exm-mut ex-start')}${T(cx + 5, cy + r + 11, '−1', 'm9 exm-mut ex-start')}`;
+      if (!small) for (let k = 1; k <= 4; k++) g += T(...on(cx, cy, r * 0.62, k * 90 - 45), roman[k], `m10 ${k === q ? '' : 'exm-mut'}`);
+      g += pth(arcD(cx, cy, small ? 12 : 18, 0, d), 'exc-o', 2);
+      g += ln(cx, cy, px, py, 'exc-m', 2);
+      return { g, px, py };
+    };
+
+    if (st.m === 2) {
+      const cx = 52;
+      const cy = 110;
+      const r = 42;
+      const c0 = circle(cx, cy, r, true);
+      const gx = (t) => 108 + ((t + 360) / 720) * 206;
+      const gy = (y) => cy - y * r;
+      let g = '';
+      for (let t = -360; t <= 360; t += 90) g += ln(gx(t), cy - r - 6, gx(t), cy + r + 6, 'exc-m', t === 0 ? 1.2 : 0.4) + (t % 180 === 0 ? T(gx(t), cy + r + 18, `${fmt(t)}°`, 'm9 exm-mut') : '');
+      g += ln(gx(-360), cy, gx(360), cy, 'exc-m', 1.2) + ln(gx(-360), gy(1), gx(360), gy(1), 'exc-m ex-dash', 0.6) + ln(gx(-360), gy(-1), gx(360), gy(-1), 'exc-m ex-dash', 0.6);
+      g += pth(plot((t) => gy(Math.sin(deg(t))), -360, 360, gx, (y) => y, 200), 'exc-k', 2.2) + pth(plot((t) => gy(Math.cos(deg(t))), -360, 360, gx, (y) => y, 200), 'exc-g', 2.2);
+      g += ln(c0.px, c0.py, gx(d), gy(sn), 'exc-k ex-dash', 1) + dot(gx(d), gy(sn), 4.5, 'exc-k') + dot(gx(d), gy(cs), 4.5, 'exc-g') + ln(gx(d), 18, gx(d), 202, 'exc-o', 1);
+      return {
+        svg: `${c0.g}${ln(cx, cy, c0.px, cy, 'exc-g', 3)}${ln(c0.px, cy, c0.px, c0.py, 'exc-k', 3)}${dot(c0.px, c0.py, 4.5, 'exc-p')}${g}
+          ${T(8, 18, `α = ${fmt(d, 0)}° = ${radStr(d)}`, 'm12 ex-start h')}${T(312, 18, `sin α = ${S ?? fmt(r2(sn))}`, 'm11 tc exc-k ex-end h')}${T(312, 34, `cos α = ${Cc ?? fmt(r2(cs))}`, 'm11 tc exc-g ex-end h')}`,
+        caption: L(
+          `The height of the point is the sine (pink wave), its x is the cosine (green wave). Both repeat every 360° (period 2π), values stay between −1 and 1, and cosine is the sine shifted by 90°: cos α = sin(α + 90°).`,
+          `Высота точки - синус (розовая волна), её x - косинус (зелёная). Обе повторяются через 360° (период 2π), значения от −1 до 1, а косинус - это синус, сдвинутый на 90°: cos α = sin(α + 90°).`,
+          `Нүктенің биіктігі - синус (қызғылт толқын), x-і - косинус (жасыл). Екеуі де 360° сайын қайталанады (период 2π), мәндері −1-ден 1-ге дейін, ал косинус - 90°-қа жылжыған синус: cos α = sin(α + 90°).`,
+        ),
+      };
+    }
+
+    const cx = 96;
+    const cy = 110;
+    const r = 78;
+    const c0 = circle(cx, cy, r);
+    const { px, py } = c0;
+    const signs = L(
+      `Quarter ${roman[q]}: sin ${sn > 0 ? '+' : '−'}, cos ${cs > 0 ? '+' : '−'}.`,
+      `${roman[q]} четверть: sin ${sn > 0 ? '+' : '−'}, cos ${cs > 0 ? '+' : '−'}.`,
+      `${roman[q]} ширек: sin ${sn > 0 ? '+' : '−'}, cos ${cs > 0 ? '+' : '−'}.`,
+    );
+    const val = (ex, x) => ex ?? fmt(r2(x));
+    const head = `${T(258, 24, `α = ${fmt(d, 0)}°`, 'm15')}${T(258, 42, `= ${radStr(d)} ${u('rad', 'рад', 'рад')}`, 'm11 exm-mut')}`;
+
+    if (st.m === 1) {
+      const tx = cx + r;
+      const ty = cy - r;
+      const okT = Math.abs(cs) > 1e-6;
+      const okC = Math.abs(sn) > 1e-6;
+      const tg = okT ? sn / cs : 0;
+      const ct = okC ? cs / sn : 0;
+      const tY = cy - clamp(tg, -1.35, 1.35) * r;
+      const cX = cx + clamp(ct, -1.15, 1.45) * r;
+      let g = `${ln(tx, 4, tx, 216, 'exc-o', 1.2)}${ln(4, ty, 216, ty, 'exc-b', 1.2)}${T(tx + 3, 214, 'tg', 'm10 tc exc-o ex-start')}${T(4, ty - 4, 'ctg', 'm10 tc exc-b ex-start')}`;
+      if (okT) g += ln(cx, cy, tx, tY, 'exc-o ex-dash', 1) + ln(tx, cy, tx, tY, 'exc-o', 4) + dot(tx, tY, 4.5, 'exc-o');
+      if (okC) g += ln(cx, cy, cX, ty, 'exc-b ex-dash', 1) + ln(cx, ty, cX, ty, 'exc-b', 4) + dot(cX, ty, 4.5, 'exc-b');
+      const T1 = tanEx(d);
+      const C1 = cotEx(d);
+      return {
+        svg: `${c0.g}${g}${dot(px, py, 5, 'exc-p')}${head}${T(258, 80, `tg α = ${okT ? val(T1, tg) : u('none', 'нет', 'жоқ')}`, 'm12 tc exc-o')}${T(258, 102, `ctg α = ${okC ? val(C1, ct) : u('none', 'нет', 'жоқ')}`, 'm12 tc exc-b')}${T(258, 132, 'tg = sin / cos', 'm10 exm-mut')}${T(258, 148, 'ctg = cos / sin', 'm10 exm-mut')}`,
+        caption: !okT
+          ? L(`cos ${fmt(d, 0)}° = 0, so tg = sin/cos does not exist: the ray is parallel to the tangent line x = 1 and never meets it.`, `cos ${fmt(d, 0)}° = 0, поэтому tg = sin/cos не существует: луч параллелен линии тангенсов x = 1 и не пересекает её.`, `cos ${fmt(d, 0)}° = 0, сондықтан tg = sin/cos жоқ: сәуле x = 1 тангенстер сызығына параллель, оны қимайды.`)
+          : L(
+              `tg α = sin/cos = ${fmt(r2(sn))} / ${fmt(r2(cs))} = ${fmt(tg)}: continue the radius to the orange line x = 1, the height of the meeting point is tg. ${okC ? `ctg α = 1/tg = ${fmt(ct)} - on the blue line y = 1.` : 'ctg does not exist here (sin = 0).'} tg repeats every 180°.`,
+              `tg α = sin/cos = ${fmt(r2(sn))} / ${fmt(r2(cs))} = ${fmt(tg)}: продолжим радиус до оранжевой прямой x = 1, высота точки встречи - это tg. ${okC ? `ctg α = 1/tg = ${fmt(ct)} - на синей прямой y = 1.` : 'ctg здесь не существует (sin = 0).'} tg повторяется через 180°.`,
+              `tg α = sin/cos = ${fmt(r2(sn))} / ${fmt(r2(cs))} = ${fmt(tg)}: радиусты x = 1 қызғылт сары түзуіне дейін созамыз, кездесу нүктесінің биіктігі - tg. ${okC ? `ctg α = 1/tg = ${fmt(ct)} - y = 1 көк түзуінде.` : 'Мұнда ctg жоқ (sin = 0).'} tg 180° сайын қайталанады.`,
+            ),
+      };
+    }
+
+    const pic = `${c0.g}${ln(cx, cy, px, cy, 'exc-g', 4)}${ln(px, cy, px, py, 'exc-k', 4)}${dot(px, py, 6, 'exc-p')}
+      ${Math.abs(cs) > 0.15 ? T((cx + px) / 2, cy + (sn > 0 ? 14 : -6), 'cos', 'm10 tc exc-g h') : ''}${Math.abs(sn) > 0.15 ? T(px + (cs >= 0 ? 5 : -5), (cy + py) / 2 + 4, 'sin', `m10 tc exc-k h ${cs >= 0 ? 'ex-start' : 'ex-end'}`) : ''}`;
+
+    if (st.m === 3) {
+      const tk = st.task ?? (trigTask(st), st.task);
+      const ok = check(st, Math.abs(norm360(d) - tk.A) < 0.5 || Math.abs(norm360(d) - tk.A) > 359.5);
+      const A = tk.A;
+      const sc = (x) => (Math.sin(deg(x)) > 0 ? '> 0' : '< 0');
+      const cc = (x) => (Math.cos(deg(x)) > 0 ? '> 0' : '< 0');
+      const ask = [
+        L(`Set the angle α = ${radStr(A)}.`, `Поставь угол α = ${radStr(A)}.`, `α = ${radStr(A)} бұрышын қой.`),
+        L(`Find α in [0°; 360°): sin α = ${sinEx(A)} and cos α ${cc(A)}.`, `Найди α из [0°; 360°): sin α = ${sinEx(A)} и cos α ${cc(A)}.`, `[0°; 360°) аралығынан α тап: sin α = ${sinEx(A)} және cos α ${cc(A)}.`),
+        L(`Find α in [0°; 360°): cos α = ${cosEx(A)} and sin α ${sc(A)}.`, `Найди α из [0°; 360°): cos α = ${cosEx(A)} и sin α ${sc(A)}.`, `[0°; 360°) аралығынан α тап: cos α = ${cosEx(A)} және sin α ${sc(A)}.`),
+      ][tk.type];
+      const tag = [`α = ${radStr(A)}`, `sin = ${sinEx(A)}, cos ${cc(A)}`, `cos = ${cosEx(A)}, sin ${sc(A)}`][tk.type];
+      const hint = [
+        L(`Now α = ${fmt(d, 0)}°. Hint: π = 180°, so π/6 = 30°, π/4 = 45°.`, `Сейчас α = ${fmt(d, 0)}°. Подсказка: π = 180°, значит π/6 = 30°, π/4 = 45°.`, `Қазір α = ${fmt(d, 0)}°. Кеңес: π = 180°, демек π/6 = 30°, π/4 = 45°.`),
+        J(L(`Now sin α = ${fmt(r2(sn))}.`, `Сейчас sin α = ${fmt(r2(sn))}.`, `Қазір sin α = ${fmt(r2(sn))}.`), L('Hint: look at the signs in the quarters.', 'Подсказка: смотри знаки по четвертям.', 'Кеңес: ширектердегі таңбаларды қара.')),
+        J(L(`Now cos α = ${fmt(r2(cs))}.`, `Сейчас cos α = ${fmt(r2(cs))}.`, `Қазір cos α = ${fmt(r2(cs))}.`), L('Hint: cos is the x of the point, sin is the y.', 'Подсказка: cos - это x точки, sin - её y.', 'Кеңес: cos - нүктенің x-і, sin - y-і.')),
+      ][tk.type];
+      return {
+        svg: `${pic}${T(250, 70, `α = ${fmt(d, 0)}°`, 'm15')}${T(250, 96, `sin α = ${fmt(r2(sn))}`, 'm12 tc exc-k')}${T(250, 118, `cos α = ${fmt(r2(cs))}`, 'm12 tc exc-g')}${badge(tag, ok)}`,
+        caption: taskCap(st, ok, ask, hint),
+      };
+    }
+
+    return {
+      svg: `${pic}${head}${T(258, 78, `sin α = ${val(S, sn)}`, 'm12 tc exc-k')}${S?.includes('√') ? T(258, 91, `≈ ${fmt(r2(sn))}`, 'm9 exm-mut') : ''}${T(258, 110, `cos α = ${val(Cc, cs)}`, 'm12 tc exc-g')}${Cc?.includes('√') ? T(258, 123, `≈ ${fmt(r2(cs))}`, 'm9 exm-mut') : ''}${T(258, 146, 'sin² α + cos² α = 1', 'm10 exm-mut')}${q ? T(258, 166, `${roman[q]}: sin ${sn > 0 ? '+' : '−'}, cos ${cs > 0 ? '+' : '−'}`, 'm11') : ''}`,
+      caption: J(
+        L(
+          `Angle ${fmt(d, 0)}° = ${radStr(d)}: cos α = ${val(Cc, cs)}${Cc?.includes('√') ? ` ≈ ${fmt(r2(cs))}` : ''} (green, along x), sin α = ${val(S, sn)} (pink, along y).`,
+          `Угол ${fmt(d, 0)}° = ${radStr(d)}: cos α = ${val(Cc, cs)}${Cc?.includes('√') ? ` ≈ ${fmt(r2(cs))}` : ''} (зелёный, по x), sin α = ${val(S, sn)} (розовый, по y).`,
+          `Бұрыш ${fmt(d, 0)}° = ${radStr(d)}: cos α = ${val(Cc, cs)}${Cc?.includes('√') ? ` ≈ ${fmt(r2(cs))}` : ''} (жасыл, x бойынша), sin α = ${val(S, sn)} (қызғылт, y бойынша).`,
+        ),
+        q ? signs : null,
+        d < 0 ? L('A negative angle goes clockwise.', 'Отрицательный угол отсчитывают по часовой стрелке.', 'Теріс бұрыш сағат тілімен өлшенеді.') : null,
+      ),
+    };
+  },
+});
+
+// ---------- Вероятность ----------
+
+const DICE_EV = [
+  { t: (S) => L(`sum = ${S}`, `сумма = ${S}`, `қосынды = ${S}`), f: (a, b, S) => a + b === S },
+  { t: (S) => L(`sum ≥ ${S}`, `сумма ≥ ${S}`, `қосынды ≥ ${S}`), f: (a, b, S) => a + b >= S },
+  { t: () => L('a double', 'дубль (одинаковые)', 'дубль (бірдей)'), f: (a, b) => a === b },
+  { t: () => L('at least one 6', 'хотя бы одна 6', 'кемінде бір 6'), f: (a, b) => a === 6 || b === 6 },
+];
+const URN_EV = [
+  L('1 ball: red', '1 шар: красный', '1 шар: қызыл'),
+  L('2 balls, no return: both red', '2 шара без возврата: оба красные', '2 шар, қайтармай: екеуі де қызыл'),
+  L('2 balls, with return: both red', '2 шара с возвратом: оба красные', '2 шар, қайтарып: екеуі де қызыл'),
+  L('2 balls, no return: different colours', '2 шара без возврата: разного цвета', '2 шар, қайтармай: түстері әртүрлі'),
+];
+/** Вероятность события урны и запись произведения. */
+function urnP(r, b, ev) {
+  const n = r + b;
+  if (!n) return null;
+  if (ev === 0) return { p: r / n, num: r, den: n, s: `${r}/${n}` };
+  if (ev === 2) return { p: (r / n) ** 2, num: r * r, den: n * n, s: `${r}/${n} · ${r}/${n}` };
+  if (n < 2) return null;
+  if (ev === 1) return { p: (r * (r - 1)) / (n * (n - 1)), num: r * (r - 1), den: n * (n - 1), s: `${r}/${n} · ${Math.max(0, r - 1)}/${n - 1}` };
+  return { p: (2 * r * b) / (n * (n - 1)), num: 2 * r * b, den: n * (n - 1), s: `${r}/${n} · ${b}/${n - 1} + ${b}/${n} · ${r}/${n - 1}` };
+}
+
+function probTask(st) {
+  const last = st.task?.type;
+  let type;
+  do type = rnd(0, 3);
+  while (type === last);
+  let t = {};
+  if (type === 0) {
+    const m = pick([1, 2, 3, 4, 5]);
+    t = { m };
+  } else if (type === 2) {
+    const [num, den, b] = pick([[1, 3, 6], [2, 5, 6], [1, 2, 5], [1, 4, 6], [3, 5, 4], [2, 3, 4], [1, 5, 8]]);
+    t = { num, den, b, r: (num * b) / (den - num) };
+  } else if (type === 3) {
+    const r = rnd(1, 9);
+    t = { r, b: 10 - r };
+  }
+  st.task = { type, done: false, urn: type >= 2, ...t };
+  st.sim = null;
+  st.S = 2;
+  return type === 2 ? { r: 1, bl: t.b } : type === 3 ? { r: 5, bl: 2 } : null;
+}
+
+const probability = modes({
+  title: L('Probability', 'Вероятность', 'Ықтималдық'),
+  intro: L('P(A) = favourable outcomes ÷ all equally likely outcomes. Check it with an experiment: the frequency gets close to P.', 'P(A) = благоприятные исходы ÷ все равновозможные исходы. Проверь опытом: частота приближается к P.', 'P(A) = қолайлы нәтижелер ÷ барлық тең мүмкін нәтижелер. Тәжірибемен тексер: жиілік P-ға жақындайды.'),
+  sliders: [
+    { id: 'r', label: L('red balls', 'красных шаров', 'қызыл шар'), min: 0, max: 10, value: 3, hidden: (v, st) => !(st.m === 1 || (st.m === 2 && st.task?.urn)) },
+    { id: 'bl', label: L('blue balls', 'синих шаров', 'көк шар'), min: 0, max: 10, value: 5, hidden: (v, st) => !(st.m === 1 || (st.m === 2 && st.task?.urn)) },
+  ],
+  tabs: [L('Two dice', 'Два кубика', 'Екі сүйек'), L('Balls', 'Шары', 'Шарлар'), TASK],
+  acts: [{ label: L('Experiment ×20', 'Опыт ×20', 'Тәжірибе ×20'), only: [0, 1] }, { label: L('Event ↻', 'Событие ↻', 'Оқиға ↻'), only: [0, 1] }, { label: MORE, only: [2] }],
+  state: () => ({ S: 7, ev: [0, 0], sim: null }),
+  onTab(m, st, v, again) {
+    st.sim = null;
+    if (m === 2 && (again || !st.task || st.task.done)) return probTask(st);
+    return null;
+  },
+  onSlide(k, v, st) {
+    st.sim = null;
+  },
+  onAct(j, st, v) {
+    if (j === 2) return probTask(st);
+    if (j === 1) {
+      st.ev[st.m] = (st.ev[st.m] + 1) % 4;
+      st.sim = null;
+      return null;
+    }
+    const sim = st.sim ?? { n: 0, k: 0, last: null };
+    for (let i = 0; i < 20; i++) {
+      if (st.m === 0) {
+        const a = rnd(1, 6);
+        const b = rnd(1, 6);
+        sim.last = [a, b];
+        sim.n += 1;
+        if (DICE_EV[st.ev[0]].f(a, b, st.S)) sim.k += 1;
+      } else {
+        const r = Math.round(v.r);
+        const n = r + Math.round(v.bl);
+        const ev = st.ev[1];
+        if (!n || (n < 2 && ev !== 0 && ev !== 2)) break;
+        const first = Math.random() < r / n;
+        let hitE;
+        if (ev === 0) hitE = first;
+        else {
+          const r2 = ev === 2 ? r : r - (first ? 1 : 0);
+          const n2 = ev === 2 ? n : n - 1;
+          const second = Math.random() < r2 / n2;
+          hitE = ev === 3 ? first !== second : first && second;
+          sim.last = [first, second];
+        }
+        if (ev === 0) sim.last = [first];
+        sim.n += 1;
+        if (hitE) sim.k += 1;
+      }
+    }
+    st.sim = sim;
+    return null;
+  },
+  onDrag(key, p, v, st) {
+    if (key.startsWith('s')) {
+      st.S = Number(key.slice(1));
+      if (st.m === 0) st.sim = null;
+    }
+  },
+  draw(v, step, st) {
+    const tk = st.m === 2 ? (st.task ?? (probTask(st), st.task)) : null;
+    const dice = st.m === 0 || (tk && !tk.urn);
+    if (dice) {
+      const ev = tk ? 0 : st.ev[0];
+      const E = DICE_EV[ev];
+      const S = st.S;
+      const c = 24;
+      const X0 = 28;
+      const Y0 = 34;
+      let g = '';
+      let m = 0;
+      for (let a = 1; a <= 6; a++)
+        for (let b = 1; b <= 6; b++) {
+          const inE = E.f(a, b, S);
+          if (inE) m += 1;
+          const x = X0 + (b - 1) * c;
+          const y = Y0 + (a - 1) * c;
+          const last = st.sim?.last && st.sim.last[0] === a && st.sim.last[1] === b;
+          g += `<rect class="ex-fill ${inE ? 'exc-p' : 'exm-off'}" x="${x}" y="${y}" width="${c - 2}" height="${c - 2}" rx="4"/>${T(x + c / 2 - 1, y + c / 2 + 3, a + b, `m10 ${inE ? 'exm-on' : 'exm-mut'}`)}${last ? `<rect class="ex-stroke exc-o" style="fill:none;stroke-width:2.5" x="${x - 1}" y="${y - 1}" width="${c}" height="${c}" rx="5"/>` : ''}<rect class="ex-hit" data-drag="s${a + b}" x="${x}" y="${y}" width="${c - 2}" height="${c - 2}"/>`;
+        }
+      for (let i = 1; i <= 6; i++) g += T(X0 + (i - 1) * c + c / 2 - 1, Y0 - 6, i, 'm10 tc exc-b') + T(X0 - 9, Y0 + (i - 1) * c + c / 2 + 3, i, 'm10 tc exc-o');
+      g += T(X0 + 4 * c, 14, u('die 2 →', 'кубик 2 →', '2-сүйек →'), 'm9 exm-mut') + T(4, 14, u('die 1 ↓', 'кубик 1 ↓', '1-сүйек ↓'), 'm9 exm-mut ex-start');
+      const P = frs(m, 36);
+      const sim = st.sim;
+      const right = `${T(250, 40, `A: ${tx(E.t(S))}`, 'm11')}${T(250, 70, `P(A) = ${m}/36`, 'm15 tc exc-p')}${T(250, 92, `= ${P} ≈ ${fmt(m / 36, 3)}`, 'm12')}
+        ${sim ? `${T(250, 130, `${u('rolls', 'бросков', 'лақтыру')}: ${sim.n}`, 'm11')}${T(250, 148, `${u('A happened', 'A было', 'A болды')}: ${sim.k}`, 'm11')}${T(250, 168, `${u('frequency', 'частота', 'жиілік')} ${fmt(sim.k / sim.n, 3)}`, 'm12 tc exc-o')}${box(190, 180, 120, 10, 'exm-off', 5)}${box(190, 180, 120 * (sim.k / sim.n), 10, 'exc-o', 5)}${ln(190 + 120 * (m / 36), 176, 190 + 120 * (m / 36), 194, 'exc-p', 2.5)}` : T(250, 140, u('tap a cell:', 'нажми на клетку:', 'торды бас:'), 'm9 exm-mut') + T(250, 153, u('pick the sum', 'выбери сумму', 'қосындыны таңда'), 'm9 exm-mut')}`;
+      if (tk) {
+        let ok;
+        let ask;
+        let hint;
+        let tag;
+        if (tk.type === 0) {
+          ok = m === tk.m;
+          tag = `P = ${frs(tk.m, 36)}`;
+          ask = L(`Tap a sum whose probability is ${tk.m}/36${frs(tk.m, 36) !== `${tk.m}/36` ? ` = ${frs(tk.m, 36)}` : ''}.`, `Нажми на сумму, вероятность которой ${tk.m}/36${frs(tk.m, 36) !== `${tk.m}/36` ? ` = ${frs(tk.m, 36)}` : ''}.`, `Ықтималдығы ${tk.m}/36${frs(tk.m, 36) !== `${tk.m}/36` ? ` = ${frs(tk.m, 36)}` : ''} болатын қосындыны бас.`);
+          hint = L(`Sum ${S} occurs in ${m} cells. We need ${tk.m} cells.`, `Сумма ${S} встречается в ${m} ${pl(m, 'клетке', 'клетках', 'клетках')}. Нужно ${tk.m}.`, `${S} қосындысы ${m} торда кездеседі. ${tk.m} керек.`);
+        } else {
+          ok = S === 7;
+          tag = 'max P';
+          ask = L('Which sum of two dice comes up most often? Tap it.', 'Какая сумма двух кубиков выпадает чаще всего? Нажми на неё.', 'Екі сүйектің қай қосындысы жиі түседі? Соны бас.');
+          hint = L(`Sum ${S}: ${m} of 36. Look for the longest diagonal.`, `Сумма ${S}: ${m} из 36. Ищи самую длинную диагональ.`, `${S} қосындысы: 36-дан ${m}. Ең ұзын диагональды ізде.`);
+        }
+        ok = check(st, ok);
+        return { svg: `${g}${T(250, 70, `P = ${m}/36`, 'm15 tc exc-p')}${T(250, 92, `= ${P}`, 'm12')}${T(250, 150, u('tap a cell', 'нажми на клетку', 'торды бас'), 'm9 exm-mut')}${badge(tag, ok)}`, caption: taskCap(st, ok, ask, hint) };
+      }
+      const capE = [
+        L(`Two dice give 6 · 6 = 36 equally likely pairs. The sum ${S} appears in ${m} of them: P = ${m}/36${P !== `${m}/36` ? ` = ${P}` : ''}. The middle sums are more likely: 7 has the longest diagonal (6 cells).`, `У двух кубиков 6 · 6 = 36 равновозможных пар. Сумма ${S} встречается в ${m} из них: P = ${m}/36${P !== `${m}/36` ? ` = ${P}` : ''}. Средние суммы вероятнее: у 7 самая длинная диагональ (6 клеток).`, `Екі сүйекте 6 · 6 = 36 тең мүмкін жұп бар. ${S} қосындысы олардың ${m}-інде кездеседі: P = ${m}/36${P !== `${m}/36` ? ` = ${P}` : ''}. Ортаңғы қосындылар ықтималырақ: 7-нің диагоналі ең ұзын (6 тор).`),
+        L(`Sum ≥ ${S}: ${m} cells of 36, P = ${P}. Counting the opposite event (sum < ${S}) can be faster: 1 − ${36 - m}/36.`, `Сумма ≥ ${S}: ${m} клеток из 36, P = ${P}. Иногда проще посчитать противоположное событие (сумма < ${S}): 1 − ${36 - m}/36.`, `Қосынды ≥ ${S}: 36-дан ${m} тор, P = ${P}. Кейде қарама-қарсы оқиғаны (қосынды < ${S}) санау оңай: 1 − ${36 - m}/36.`),
+        L(`A double is the diagonal: 6 of 36, P = 1/6. The second die just has to repeat the first one.`, `Дубль - это диагональ: 6 из 36, P = 1/6. Второй кубик просто должен повторить первый.`, `Дубль - диагональ: 36-дан 6, P = 1/6. Екінші сүйек біріншісін қайталауы керек.`),
+        L(`At least one 6: 11 of 36. Faster through the opposite event "no sixes": 1 − (5/6)·(5/6) = 1 − 25/36 = 11/36.`, `Хотя бы одна 6: 11 из 36. Быстрее через противоположное «ни одной шестёрки»: 1 − (5/6)·(5/6) = 1 − 25/36 = 11/36.`, `Кемінде бір 6: 36-дан 11. Қарама-қарсы «бірде-бір алтылық жоқ» арқылы тезірек: 1 − (5/6)·(5/6) = 1 − 25/36 = 11/36.`),
+      ][ev];
+      const capS = sim ? L(`After ${sim.n} rolls the frequency is ${sim.k}/${sim.n} ≈ ${fmt(sim.k / sim.n, 2)} (the purple mark is P ≈ ${fmt(m / 36, 2)}).`, `После ${sim.n} бросков частота ${sim.k}/${sim.n} ≈ ${fmt(sim.k / sim.n, 2)} (фиолетовая черта - P ≈ ${fmt(m / 36, 2)}).`, `${sim.n} лақтырудан кейін жиілік ${sim.k}/${sim.n} ≈ ${fmt(sim.k / sim.n, 2)} (күлгін сызық - P ≈ ${fmt(m / 36, 2)}).`) : null;
+      return { svg: g + right, caption: J(capE, capS) };
+    }
+
+    // ----- Шары -----
+    const r = Math.round(v.r);
+    const b = Math.round(v.bl);
+    const n = r + b;
+    const ev = tk ? 0 : st.ev[1];
+    let g = `<path class="ex-stroke exc-m" style="stroke-width:2.5" d="M12 50 V196 Q12 206 22 206 H108 Q118 206 118 196 V50"/>`;
+    for (let i = 0; i < n; i++) {
+      const row = Math.floor(i / 5);
+      g += `<circle class="ex-fill exm-dot ${i < r ? 'exc-r' : 'exc-b'}" cx="${26 + (i % 5) * 20}" cy="${193 - row * 20}" r="8.5"/>`;
+    }
+    g += T(65, 40, `${r} + ${b} = ${n}`, 'm12');
+    const res = urnP(r, b, ev);
+    // дерево
+    const tree = () => {
+      if (!n) return '';
+      const X1 = 140;
+      const X2 = 205;
+      const X3 = 268;
+      const R = (x, y, lab, cls) => `${dot(x, y, 7, cls)}${lab ? T(x + 10, y + 4, lab, 'm9 ex-start') : ''}`;
+      let s = '';
+      const pr = [r / n, b / n];
+      const ys = [70, 150];
+      if (ev === 0) {
+        s += ln(X1, 110, X2, ys[0], 'exc-r', 1.5 + 2.5 * pr[0]) + ln(X1, 110, X2, ys[1], 'exc-b', 1.5 + 2.5 * pr[1]);
+        s += T((X1 + X2) / 2 - 4, 86, `${r}/${n}`, 'm10 tc exc-r ex-end h') + T((X1 + X2) / 2 - 4, 142, `${b}/${n}`, 'm10 tc exc-b ex-end h');
+        s += R(X2, ys[0], u('red ✓', 'красный ✓', 'қызыл ✓'), 'exc-r') + R(X2, ys[1], '', 'exc-b');
+        return `${dot(X1, 110, 4, 'exc-m')}${s}`;
+      }
+      const back = ev === 2;
+      const leaves = [];
+      [0, 1].forEach((i) => {
+        const y = ys[i];
+        const first = i === 0;
+        s += ln(X1, 110, X2, y, first ? 'exc-r' : 'exc-b', 2) + T((X1 + X2) / 2 - 4, (110 + y) / 2 + (first ? -2 : 10), first ? `${r}/${n}` : `${b}/${n}`, `m9 tc ${first ? 'exc-r' : 'exc-b'} ex-end h`) + dot(X2, y, 6, first ? 'exc-r' : 'exc-b');
+        [0, 1].forEach((j) => {
+          const y2 = y - 26 + j * 52;
+          const second = j === 0;
+          const rr = back ? r : r - (first ? 1 : 0);
+          const nn = back ? n : n - 1;
+          const num = second ? rr : nn - rr;
+          const inE = ev === 3 ? first !== second : first && second;
+          leaves.push(inE);
+          s += ln(X2, y, X3, y2, second ? 'exc-r' : 'exc-b', inE ? 3 : 1.2) + T((X2 + X3) / 2, (y + y2) / 2 + (j ? 11 : -3), `${Math.max(0, num)}/${nn}`, `m9 tc ${second ? 'exc-r' : 'exc-b'} h`) + dot(X3, y2, 5, second ? 'exc-r' : 'exc-b') + (inE ? T(X3 + 9, y2 + 4, '✓', 'm12 tc exc-g ex-start') : '');
+        });
+      });
+      return `${dot(X1, 110, 4, 'exc-m')}${s}`;
+    };
+    const sim = st.sim;
+    const bottom = res ? `${T(220, 200, `P = ${res.s}`, 'm11')}${T(220, 216, `= ${frs(res.num, res.den)} ≈ ${fmt(res.p, 3)}`, 'm11 tc exc-p')}` : '';
+    if (tk) {
+      const want = tk.type === 2 ? `${tk.num}/${tk.den}` : `${fmt(tk.r / 10)}`;
+      const ok = check(st, tk.type === 2 ? b === tk.b && r * tk.den === tk.num * n && n > 0 : r === tk.r && b === tk.b);
+      const ask =
+        tk.type === 2
+          ? L(`There are ${tk.b} blue balls. How many red ones are needed so that P(red) = ${want}?`, `В урне ${tk.b} синих шаров. Сколько нужно красных, чтобы P(красный) = ${want}?`, `Ыдыста ${tk.b} көк шар бар. P(қызыл) = ${want} болу үшін неше қызыл шар керек?`)
+          : L(`Put 10 balls in total so that P(red) = ${want}.`, `Положи всего 10 шаров так, чтобы P(красный) = ${want}.`, `P(қызыл) = ${want} болатындай барлығы 10 шар сал.`);
+      const hint = L(`Now P(red) = ${r}/${n || 1} ≈ ${fmt(n ? r / n : 0, 3)}.${tk.type === 2 && b !== tk.b ? ` Keep ${tk.b} blue.` : ''}`, `Сейчас P(красный) = ${r}/${n || 1} ≈ ${fmt(n ? r / n : 0, 3)}.${tk.type === 2 && b !== tk.b ? ` Синих должно быть ${tk.b}.` : ''}`, `Қазір P(қызыл) = ${r}/${n || 1} ≈ ${fmt(n ? r / n : 0, 3)}.${tk.type === 2 && b !== tk.b ? ` Көк шар ${tk.b} болуы керек.` : ''}`);
+      return { svg: `${g}${tree()}${T(220, 210, `P(${u('red', 'красный', 'қызыл')}) = ${r}/${n || 0}`, 'm12')}${badge(`P = ${want}`, ok)}`, caption: taskCap(st, ok, ask, hint) };
+    }
+    const simTxt = sim ? T(220, 22, `${u('trials', 'опытов', 'тәжірибе')} ${sim.n}: ${u('freq.', 'частота', 'жиілік')} ${fmt(sim.k / Math.max(1, sim.n), 2)}`, 'm10 tc exc-o') : T(220, 22, tx(URN_EV[ev]), 'm10');
+    if (!res)
+      return {
+        svg: `${g}${simTxt}`,
+        caption: n ? L('With one ball you cannot draw two without returning it.', 'Из одного шара нельзя вынуть два без возвращения.', 'Бір шардан екі шарды қайтармай алу мүмкін емес.') : L('The urn is empty: add balls.', 'Урна пустая: добавь шаров.', 'Ыдыс бос: шар қос.'),
+      };
+    const capU = [
+      L(`${r} red of ${n}: P = ${r}/${n}${frs(r, n) !== `${r}/${n}` ? ` = ${frs(r, n)}` : ''} ≈ ${fmt(res.p, 3)}.`, `${r} красных из ${n}: P = ${r}/${n}${frs(r, n) !== `${r}/${n}` ? ` = ${frs(r, n)}` : ''} ≈ ${fmt(res.p, 3)}.`, `${n} шардың ${r}-і қызыл: P = ${r}/${n}${frs(r, n) !== `${r}/${n}` ? ` = ${frs(r, n)}` : ''} ≈ ${fmt(res.p, 3)}.`),
+      L(`Without return the second draw has one ball fewer: P = ${res.s} = ${frs(res.num, res.den)}. Multiply along the branch of the tree.`, `Без возврата во второй раз шаров на один меньше: P = ${res.s} = ${frs(res.num, res.den)}. Умножаем вероятности вдоль ветки дерева.`, `Қайтармағанда екінші рет шар біреуге аз: P = ${res.s} = ${frs(res.num, res.den)}. Ағаш бұтағы бойымен көбейтеміз.`),
+      L(`With return the draws are independent: P = ${res.s} = ${frs(res.num, res.den)}.`, `С возвратом вынимания независимы: P = ${res.s} = ${frs(res.num, res.den)}.`, `Қайтарғанда алулар тәуелсіз: P = ${res.s} = ${frs(res.num, res.den)}.`),
+      L(`Different colours: two branches (red-blue and blue-red), add them: P = ${res.s} = ${frs(res.num, res.den)}.`, `Разного цвета: две ветки (красный-синий и синий-красный), их складываем: P = ${res.s} = ${frs(res.num, res.den)}.`, `Түстері әртүрлі: екі бұтақ (қызыл-көк және көк-қызыл), оларды қосамыз: P = ${res.s} = ${frs(res.num, res.den)}.`),
+    ][ev];
+    return { svg: `${g}${tree()}${simTxt}${bottom}`, caption: J(capU, sim ? L(`Experiment: ${sim.k} of ${sim.n}.`, `Опыт: ${sim.k} из ${sim.n}.`, `Тәжірибе: ${sim.n}-ден ${sim.k}.`) : null) };
+  },
+});
+
+// ---------- Системы уравнений ----------
+
+const SSX = (x) => 160 + x * 18;
+const SSY = (y) => 110 - y * 18;
+
+function sysTask(st) {
+  const last = st.task?.type;
+  let type;
+  do type = rnd(0, 2);
+  while (type === last);
+  if (type === 0) {
+    let k1;
+    let k2;
+    let X;
+    let Y;
+    let b1;
+    let b2;
+    do {
+      k1 = pick([-2, -1, -0.5, 0.5, 1, 2]);
+      k2 = pick([-2, -1, -0.5, 0.5, 1, 2, 0]);
+      X = rnd(-3, 3);
+      Y = rnd(-3, 3);
+      b1 = Y - k1 * X;
+      b2 = Y - k2 * X;
+    } while (k1 === k2 || Math.abs(b1) > 5 || Math.abs(b2) > 5);
+    st.task = { type, X, Y, k1, b1, k2, b2, done: false };
+    return { k1, b1, k2, b2: clamp(b2 + pick([-3, 3]), -6, 6) };
+  }
+  st.task = { type, done: false };
+  return { k1: 1, b1: -1, k2: -0.5, b2: 2 };
+}
+
+const systems = modes({
+  title: L('A system of two equations', 'Система двух уравнений', 'Екі теңдеу жүйесі'),
+  intro: L('Each linear equation is a line. The solution of the system is the point lying on both lines.', 'Каждое линейное уравнение - прямая. Решение системы - точка, которая лежит на обеих прямых.', 'Әр сызықтық теңдеу - түзу. Жүйенің шешімі - екі түзуде де жатқан нүкте.'),
+  sliders: [
+    { id: 'k1', label: 'k₁', min: -3, max: 3, step: 0.5, value: 1 },
+    { id: 'b1', label: 'b₁', min: -6, max: 6, step: 0.5, value: -1 },
+    { id: 'k2', label: 'k₂', min: -3, max: 3, step: 0.5, value: -0.5 },
+    { id: 'b2', label: 'b₂', min: -6, max: 6, step: 0.5, value: 2 },
+  ],
+  tabs: [L('Graph', 'График', 'График'), L('Step by step', 'По шагам', 'Қадаммен'), TASK],
+  acts: [{ label: STEP, only: [1] }, { label: MORE }],
+  state: () => ({ s: 0, pre: 0 }),
+  onTab(m, st, v, again) {
+    if (m === 2 && (again || !st.task || st.task.done)) return sysTask(st);
+    return null;
+  },
+  onSlide(k, v, st) {
+    st.s = Math.min(st.s, 4);
+  },
+  onAct(j, st) {
+    if (j === 0) {
+      st.s = (st.s + 1) % 5;
+      return null;
+    }
+    if (st.m === 2) return sysTask(st);
+    st.pre = (st.pre + 1) % 5;
+    st.s = 0;
+    return [{ k1: 2, b1: -3, k2: -1, b2: 3 }, { k1: 1, b1: 1, k2: 1, b2: -2 }, { k1: -0.5, b1: 2, k2: -0.5, b2: 2 }, { k1: 0, b1: 3, k2: 1.5, b2: 0 }, { k1: 1, b1: -1, k2: -0.5, b2: 2 }][st.pre];
+  },
+  draw(v, step, st) {
+    const { k1, b1, k2, b2 } = v;
+    const par = Math.abs(k1 - k2) < 1e-9;
+    const same = par && Math.abs(b1 - b2) < 1e-9;
+    const X = par ? 0 : (b2 - b1) / (k1 - k2);
+    const Y = k1 * X + b1;
+    const e1 = lineStr(k1, b1);
+    const e2 = lineStr(k2, b2);
+    const narrow = st.m === 1;
+    const sx = narrow ? (x) => 80 + x * 14 : SSX;
+    const sy = narrow ? (y) => 110 - y * 14 : SSY;
+    const G = narrow ? grid({ x0: -5.5, x1: 5.5, y0: -7.5, y1: 7.5, X0: 3, X1: 157, Y0: 5, Y1: 215, lab: 2, ylab: 2 }).svg : grid({ x0: -8.8, x1: 8.8, y0: -6, y1: 6, lab: 2, ylab: 2 }).svg;
+    const xr = narrow ? 5.6 : 9;
+    const line = (k, b, cls) => pth(`M${n1(sx(-xr))} ${n1(sy(-xr * k + b))} L${n1(sx(xr))} ${n1(sy(xr * k + b))}`, cls, 3);
+    const vis = !par && Math.abs(X) < (narrow ? 5.5 : 8.8) && Math.abs(Y) < (narrow ? 7.5 : 6);
+    const pt = vis ? `${ln(sx(X), sy(Y), sx(X), sy(0), 'exc-m ex-dash', 1.2)}${ln(sx(X), sy(Y), sx(0), sy(Y), 'exc-m ex-dash', 1.2)}${dot(sx(X), sy(Y), 6, 'exc-o')}${T(sx(X) + 8, sy(Y) - 8, `(${nice(X)}; ${nice(Y)})`, 'm11 tc exc-o ex-start h')}` : '';
+    const lines = `${line(k2, b2, same ? 'exc-b' : 'exc-b')}${line(k1, b1, same ? 'exc-p ex-dash' : 'exc-p')}`;
+    const verdict = same
+      ? L('The lines coincide: every point is a solution - infinitely many solutions.', 'Прямые совпали: каждая их точка - решение, решений бесконечно много.', 'Түзулер беттесті: әр нүктесі - шешім, шешімдер шексіз көп.')
+      : par
+        ? L(`k₁ = k₂ = ${fmt(k1)}, b₁ ≠ b₂: the lines are parallel and never meet - no solutions.`, `k₁ = k₂ = ${fmt(k1)}, b₁ ≠ b₂: прямые параллельны и не пересекаются - решений нет.`, `k₁ = k₂ = ${fmt(k1)}, b₁ ≠ b₂: түзулер параллель, қиылыспайды - шешім жоқ.`)
+        : null;
+
+    if (st.m === 1) {
+      const rows = [
+        [`{ ${e1}`, 'exc-p'],
+        [`{ ${e2}`, 'exc-b'],
+        [`${polyStr([[k1, 'x'], [b1, '']])} = ${polyStr([[k2, 'x'], [b2, '']])}`, ''],
+        [`${polyStr([[k1 - k2, 'x']]) === '0' ? '0·x' : polyStr([[k1 - k2, 'x']])} = ${fmt(b2 - b1)}`, ''],
+        [par ? (same ? u('any x', 'x - любое', 'x - кез келген') : u('no x', 'нет x', 'x жоқ')) : `x = ${nice(b2 - b1)} : ${pn(k1 - k2)} = ${nice(X)}`, 'exc-o'],
+        [par ? '' : `y = ${fmt(k1)}·${pn(X)}${term(b1)} = ${nice(Y)}`, 'exc-o'],
+      ];
+      const shown = Math.min(rows.length, st.s + 3);
+      const txt = rows
+        .slice(0, shown)
+        .map(([s, c], i) => T(164, 26 + i * 28, s, `m10 ex-start ${c ? `tc ${c}` : ''}`))
+        .join('');
+      const caps = [
+        L('Both right sides equal y, so we can set them equal (substitution).', 'Обе правые части равны y, значит их можно приравнять (подстановка).', 'Екі оң жақ та y-ке тең, демек оларды теңестіруге болады (ауыстыру).'),
+        L('Collect x on the left, numbers on the right.', 'Переносим x влево, числа вправо.', 'x-ті солға, сандарды оңға шығарамыз.'),
+        verdict ?? L(`Divide by ${fmt(k1 - k2)}: x = ${nice(X)}.`, `Делим на ${fmt(k1 - k2)}: x = ${nice(X)}.`, `${fmt(k1 - k2)}-ге бөлеміз: x = ${nice(X)}.`),
+        verdict ?? L(`Put x into any equation: y = ${nice(Y)}. Answer: (${nice(X)}; ${nice(Y)}) - the orange point.`, `Подставим x в любое уравнение: y = ${nice(Y)}. Ответ: (${nice(X)}; ${nice(Y)}) - оранжевая точка.`, `x-ті кез келген теңдеуге қоямыз: y = ${nice(Y)}. Жауап: (${nice(X)}; ${nice(Y)}) - қызғылт сары нүкте.`),
+        verdict ?? L(`Check in the second equation: ${fmt(k2)}·${pn(X)}${term(b2)} = ${nice(k2 * X + b2)} ✓`, `Проверка во втором уравнении: ${fmt(k2)}·${pn(X)}${term(b2)} = ${nice(k2 * X + b2)} ✓`, `Екінші теңдеуде тексеру: ${fmt(k2)}·${pn(X)}${term(b2)} = ${nice(k2 * X + b2)} ✓`),
+      ];
+      return { svg: `${G}${lines}${st.s >= 3 ? pt : ''}${txt}`, caption: J(L(`Step ${st.s + 1} of 5.`, `Шаг ${st.s + 1} из 5.`, `${st.s + 1}-қадам (5-тен).`), caps[st.s]) };
+    }
+
+    const head = `${T(8, 18, e1, 'm12 tc exc-p ex-start h')}${T(8, 36, e2, 'm12 tc exc-b ex-start h')}`;
+    if (st.m === 2) {
+      const tk = st.task ?? (sysTask(st), st.task);
+      let ok;
+      let ask;
+      let hint;
+      let tag;
+      if (tk.type === 0) {
+        ok = !par && near(X, tk.X, 0.01) && near(Y, tk.Y, 0.01);
+        tag = `(${tk.X}; ${tk.Y})`.replace(/-/g, '−');
+        ask = L(`Move the lines so that the solution is (${fmt(tk.X)}; ${fmt(tk.Y)}) - the orange ring.`, `Сдвинь прямые так, чтобы решением была точка (${fmt(tk.X)}; ${fmt(tk.Y)}) - оранжевое кольцо.`, `Шешімі (${fmt(tk.X)}; ${fmt(tk.Y)}) нүктесі болатындай түзулерді жылжыт - қызғылт сары сақина.`);
+        hint = L(`Now ${par ? 'there is no single point' : `(${nice(X)}; ${nice(Y)})`}. Hint: the point must lie on both lines: b = y − kx.`, `Сейчас ${par ? 'одной точки нет' : `(${nice(X)}; ${nice(Y)})`}. Подсказка: точка должна лежать на обеих прямых: b = y − kx.`, `Қазір ${par ? 'бір нүкте жоқ' : `(${nice(X)}; ${nice(Y)})`}. Кеңес: нүкте екі түзуде де жатуы керек: b = y − kx.`);
+      } else if (tk.type === 1) {
+        ok = par && !same;
+        tag = u('no solutions', 'нет решений', 'шешім жоқ');
+        ask = L('Make a system with no solutions.', 'Сделай систему, у которой нет решений.', 'Шешімі жоқ жүйе құрастыр.');
+        hint = L('Hint: the lines must never meet. What must be equal: k or b?', 'Подсказка: прямые не должны встречаться. Что должно быть равно: k или b?', 'Кеңес: түзулер кездеспеуі керек. Не тең болуы керек: k ма, b ма?');
+      } else {
+        ok = same;
+        tag = u('infinitely many', 'бесконечно много', 'шексіз көп');
+        ask = L('Make a system with infinitely many solutions.', 'Сделай систему с бесконечным числом решений.', 'Шешімдері шексіз көп жүйе құрастыр.');
+        hint = L('Hint: every point of one line must lie on the other.', 'Подсказка: каждая точка одной прямой должна лежать на другой.', 'Кеңес: бір түзудің әр нүктесі екіншісінде жатуы керек.');
+      }
+      ok = check(st, ok);
+      const ringT = tk.type === 0 ? ring(SSX(tk.X), SSY(tk.Y), 8, 'exc-o', 2.5) : '';
+      return { svg: `${G}${lines}${pt}${ringT}${head}${badge(tag, ok)}`, caption: taskCap(st, ok, ask, hint) };
+    }
+
+    return {
+      svg: `${G}${lines}${pt}${head}`,
+      caption:
+        verdict ??
+        L(
+          `Set the right sides equal: ${polyStr([[k1, 'x'], [b1, '']])} = ${polyStr([[k2, 'x'], [b2, '']])} → x = ${nice(X)}, y = ${nice(Y)}. The lines cross at (${nice(X)}; ${nice(Y)}) - one solution, because k₁ ≠ k₂.`,
+          `Приравняем правые части: ${polyStr([[k1, 'x'], [b1, '']])} = ${polyStr([[k2, 'x'], [b2, '']])} → x = ${nice(X)}, y = ${nice(Y)}. Прямые пересекаются в (${nice(X)}; ${nice(Y)}) - одно решение, потому что k₁ ≠ k₂.`,
+          `Оң жақтарын теңестіреміз: ${polyStr([[k1, 'x'], [b1, '']])} = ${polyStr([[k2, 'x'], [b2, '']])} → x = ${nice(X)}, y = ${nice(Y)}. Түзулер (${nice(X)}; ${nice(Y)}) нүктесінде қиылысады - бір шешім, себебі k₁ ≠ k₂.`,
+        ),
+    };
+  },
+});
+
+// ---------- Прогрессии ----------
+
+const progVals = (a1, r, N, geo) => Array.from({ length: N }, (_, i) => (geo ? a1 * r ** i : a1 + i * r));
+
+function progTask(st) {
+  const last = st.task?.type;
+  let type;
+  do type = rnd(0, 3);
+  while (type === last);
+  let t;
+  if (type === 0) {
+    const a1 = rnd(-5, 6);
+    const d = pick([-3, -2, -1.5, -1, 0.5, 1, 1.5, 2, 3]);
+    const k = rnd(4, 8);
+    t = { a1, d, k, ak: a1 + (k - 1) * d, need: 'd', p: { a1, d: 0, n: k } };
+  } else if (type === 1) {
+    const [b1, q, k] = pick([[2, 3, 4], [1, 2, 6], [3, 2, 5], [5, -2, 4], [1, -3, 4], [16, 0.5, 5], [2, -2, 5], [4, 1.5, 3]]);
+    t = { a1: b1, q, k, bk: b1 * q ** (k - 1), need: 'q', p: { a1: b1, q: 1, n: k } };
+  } else if (type === 2) {
+    const a1 = rnd(-4, 5);
+    const d = pick([2, 3, -2, 1.5, 4]);
+    const k = rnd(5, 12);
+    t = { a1, d, k, ak: a1 + (k - 1) * d, need: 'n', p: { a1, d, n: 1 } };
+  } else {
+    const a1 = rnd(1, 4);
+    const d = pick([1, 2, 3]);
+    const k = rnd(4, 10);
+    t = { a1, d, k, S: ((2 * a1 + (k - 1) * d) * k) / 2, need: 'n', sum: true, p: { a1, d, n: 1 } };
+  }
+  st.task = { type, done: false, ...t };
+  return t.p;
+}
+
+const progression = modes({
+  title: L('Arithmetic and geometric progressions', 'Арифметическая и геометрическая прогрессии', 'Арифметикалық және геометриялық прогрессиялар'),
+  intro: L('An arithmetic progression adds the same d each time, a geometric one multiplies by the same q.', 'Арифметическая прогрессия каждый раз прибавляет одно и то же d, геометрическая - умножает на одно и то же q.', 'Арифметикалық прогрессия әр жолы бірдей d қосады, геометриялық - бірдей q-ға көбейтеді.'),
+  sliders: [
+    { id: 'a1', label: 'a₁', min: -10, max: 10, step: 0.5, value: 2, hidden: (v, st) => st.m === 3 },
+    { id: 'd', label: 'd', min: -4, max: 4, step: 0.5, value: 1.5, hidden: (v, st) => (st.m === 3 ? st.task?.need !== 'd' : st.m === 1) },
+    { id: 'q', label: 'q', min: -3, max: 3, step: 0.5, value: 1.5, hidden: (v, st) => (st.m === 3 ? st.task?.need !== 'q' : st.m !== 1) },
+    { id: 'n', label: 'n', min: 1, max: 12, value: 6, hidden: (v, st) => st.m === 3 && st.task?.need !== 'n' },
+  ],
+  tabs: [L('Arithmetic', 'Арифметическая', 'Арифметикалық'), L('Geometric', 'Геометрическая', 'Геометриялық'), L('Sum', 'Сумма', 'Қосынды'), TASK],
+  acts: [{ label: MORE }],
+  state: () => ({ pre: 0 }),
+  onTab(m, st, v, again) {
+    if (m === 3 && (again || !st.task || st.task.done)) return progTask(st);
+    return null;
+  },
+  onAct(j, st) {
+    if (st.m === 3) return progTask(st);
+    st.pre += 1;
+    if (st.m === 1) return [{ a1: 1, q: 2, n: 8 }, { a1: 8, q: 0.5, n: 6 }, { a1: 1, q: -2, n: 7 }, { a1: 3, q: 1, n: 5 }][st.pre % 4];
+    return [{ a1: 1, d: 1, n: 10 }, { a1: 10, d: -2, n: 8 }, { a1: -3, d: 1.5, n: 9 }, { a1: 2, d: 3, n: 6 }][st.pre % 4];
+  },
+  draw(v, step, st) {
+    const tk = st.m === 3 ? (st.task ?? (progTask(st), st.task)) : null;
+    const geo = st.m === 1 || tk?.need === 'q';
+    const a1 = v.a1;
+    const r = geo ? v.q : v.d;
+    const n = Math.round(v.n);
+    const N = Math.max(8, n);
+    const vals = progVals(a1, r, N, geo);
+    const an = vals[n - 1];
+    const sumN = vals.slice(0, n).reduce((s, x) => s + x, 0);
+    const sym = geo ? 'b' : 'a';
+
+    if (st.m === 2) {
+      const pos = vals.slice(0, n).every((x) => x >= 0);
+      const H0 = 190;
+      const tot = a1 + an;
+      const k = pos && tot > 0 ? 160 / tot : 0;
+      const w = Math.min(24, 250 / n);
+      let g = '';
+      for (let i = 0; i < n; i++) {
+        const x = 30 + i * w;
+        const h1 = vals[i] * k;
+        const h2 = vals[n - 1 - i] * k;
+        g += box(x, H0 - h1, w - 2, h1, 'exc-p', 2, 0.9) + box(x, H0 - h1 - h2, w - 2, h2, 'exc-o', 2, 0.55);
+        if (w > 15) g += T(x + w / 2 - 1, H0 + 12, i + 1, 'm9 exm-mut');
+      }
+      if (pos && tot > 0) g += `<rect class="ex-stroke exc-m ex-dash" style="fill:none;stroke-width:1.5" x="29" y="${n1(H0 - tot * k)}" width="${n1(n * w)}" height="${n1(tot * k)}"/>${T(36 + n * w, H0 - (tot * k) / 2 + 4, `a₁ + aₙ = ${fmt(tot)}`, 'm10 ex-start')}`;
+      const S = ((a1 + an) * n) / 2;
+      return {
+        svg: `${ln(24, H0, 316, H0, 'exc-m', 1.2)}${g}${T(8, 18, `Sₙ = (a₁ + aₙ)·n/2 = (${fmt(a1)} + ${pn(an)})·${n}/2 = ${fmt(S)}`, 'm11 ex-start h')}`,
+        caption: pos
+          ? L(
+              `Gauss's trick: write the sum forwards (purple) and backwards (orange). Every column is a₁ + aₙ = ${fmt(tot)}, there are ${n} columns, so 2S = ${n}·${fmt(tot)} and S${n} = ${fmt(S)}.`,
+              `Приём Гаусса: запишем сумму прямо (фиолетовые) и задом наперёд (оранжевые). Каждый столбик = a₁ + aₙ = ${fmt(tot)}, столбиков ${n}, значит 2S = ${n}·${fmt(tot)} и S${n} = ${fmt(S)}.`,
+              `Гаусс тәсілі: қосындыны тура (күлгін) және кері (қызғылт сары) жазамыз. Әр баған = a₁ + aₙ = ${fmt(tot)}, баған саны ${n}, демек 2S = ${n}·${fmt(tot)} және S${n} = ${fmt(S)}.`,
+            )
+          : L(`Some terms are negative, the picture is not drawn, but the formula still works: S${n} = (a₁ + aₙ)·n/2 = ${fmt(S)}.`, `Есть отрицательные члены - картинку не рисуем, но формула работает: S${n} = (a₁ + aₙ)·n/2 = ${fmt(S)}.`, `Теріс мүшелер бар - сурет салмаймыз, бірақ формула орындалады: S${n} = (a₁ + aₙ)·n/2 = ${fmt(S)}.`),
+      };
+    }
+
+    // столбики членов
+    const shown = vals.slice(0, N);
+    const mx = Math.max(...shown.map((x) => Math.abs(x)), 1e-9);
+    const neg = shown.some((x) => x < 0);
+    const zero = neg ? 118 : 190;
+    const sc = (neg ? 76 : 150) / mx;
+    const w = Math.min(30, 286 / N);
+    let g = ln(18, zero, 316, zero, 'exc-m', 1.2);
+    shown.forEach((x, i) => {
+      const X = 24 + i * w;
+      const h = x * sc;
+      const on = i === n - 1;
+      g += box(X, h >= 0 ? zero - h : zero, w - 4, Math.abs(h), on ? 'exc-o' : 'exc-p', 3, on ? 1 : 0.7);
+      g += T(X + w / 2 - 2, zero + (x >= 0 ? 12 : -5), i + 1, 'm9 exm-mut');
+      if (w > 21 || on) g += T(X + w / 2 - 2, h >= 0 ? zero - h - 4 : zero - h + 11, Math.abs(x) >= 1000 ? fmt(x, 0) : fmt(x, 1), `m9 ${on ? 'tc exc-o' : ''}`);
+      if (i < Math.min(N - 1, 5) && w > 21) g += T(X + w - 2, 44, geo ? `×${fmt(r)}` : `${r >= 0 ? '+' : '−'}${fmt(Math.abs(r))}`, 'm9 tc exc-g');
+    });
+    const formula = geo ? `bₙ = b₁·qⁿ⁻¹ = ${fmt(a1)}·${pn(r)}${sup(n - 1)} = ${fmt(an)}` : `aₙ = a₁ + (n − 1)d = ${fmt(a1)} + ${n - 1}·${pn(r)} = ${fmt(an)}`;
+    const head = T(8, 18, formula, 'm11 ex-start h');
+
+    if (tk) {
+      let ok;
+      let ask;
+      let hint;
+      let tag;
+      if (tk.type === 0) {
+        ok = near(v.d, tk.d, 0.01);
+        tag = `a₁ = ${fmt(tk.a1)}, a${tk.k} = ${fmt(tk.ak)}`;
+        ask = L(`a₁ = ${fmt(tk.a1)}, a${tk.k} = ${fmt(tk.ak)}. Find the difference d.`, `a₁ = ${fmt(tk.a1)}, a${tk.k} = ${fmt(tk.ak)}. Найди разность d.`, `a₁ = ${fmt(tk.a1)}, a${tk.k} = ${fmt(tk.ak)}. d айырмасын тап.`);
+        hint = L(`Now a${tk.k} = ${fmt(an)}. Hint: d = (a${tk.k} − a₁)/(${tk.k} − 1).`, `Сейчас a${tk.k} = ${fmt(an)}. Подсказка: d = (a${tk.k} − a₁)/(${tk.k} − 1).`, `Қазір a${tk.k} = ${fmt(an)}. Кеңес: d = (a${tk.k} − a₁)/(${tk.k} − 1).`);
+      } else if (tk.type === 1) {
+        ok = near(v.q, tk.q, 0.01);
+        tag = `b₁ = ${fmt(tk.a1)}, b${tk.k} = ${fmt(tk.bk)}`;
+        ask = L(`b₁ = ${fmt(tk.a1)}, b${tk.k} = ${fmt(tk.bk)}. Find the ratio q.`, `b₁ = ${fmt(tk.a1)}, b${tk.k} = ${fmt(tk.bk)}. Найди знаменатель q.`, `b₁ = ${fmt(tk.a1)}, b${tk.k} = ${fmt(tk.bk)}. q еселігін тап.`);
+        hint = L(`Now b${tk.k} = ${fmt(an)}. Hint: q${sup(tk.k - 1)} = ${fmt(tk.bk)} : ${fmt(tk.a1)} = ${fmt(tk.bk / tk.a1)}.`, `Сейчас b${tk.k} = ${fmt(an)}. Подсказка: q${sup(tk.k - 1)} = ${fmt(tk.bk)} : ${fmt(tk.a1)} = ${fmt(tk.bk / tk.a1)}.`, `Қазір b${tk.k} = ${fmt(an)}. Кеңес: q${sup(tk.k - 1)} = ${fmt(tk.bk)} : ${fmt(tk.a1)} = ${fmt(tk.bk / tk.a1)}.`);
+      } else if (tk.type === 2) {
+        ok = n === tk.k;
+        tag = `aₙ = ${fmt(tk.ak)}`;
+        ask = L(`a₁ = ${fmt(tk.a1)}, d = ${fmt(tk.d)}. Which term equals ${fmt(tk.ak)}? Set n.`, `a₁ = ${fmt(tk.a1)}, d = ${fmt(tk.d)}. Какой по номеру член равен ${fmt(tk.ak)}? Установи n.`, `a₁ = ${fmt(tk.a1)}, d = ${fmt(tk.d)}. Нешінші мүше ${fmt(tk.ak)}-ге тең? n-ді орнат.`);
+        hint = L(`Now a${n} = ${fmt(an)}. Hint: n = (aₙ − a₁)/d + 1.`, `Сейчас a${n} = ${fmt(an)}. Подсказка: n = (aₙ − a₁)/d + 1.`, `Қазір a${n} = ${fmt(an)}. Кеңес: n = (aₙ − a₁)/d + 1.`);
+      } else {
+        ok = n === tk.k;
+        tag = `Sₙ = ${fmt(tk.S)}`;
+        ask = L(`a₁ = ${fmt(tk.a1)}, d = ${fmt(tk.d)}. How many first terms add up to ${fmt(tk.S)}? Set n.`, `a₁ = ${fmt(tk.a1)}, d = ${fmt(tk.d)}. Сколько первых членов дают в сумме ${fmt(tk.S)}? Установи n.`, `a₁ = ${fmt(tk.a1)}, d = ${fmt(tk.d)}. Алғашқы неше мүшенің қосындысы ${fmt(tk.S)}? n-ді орнат.`);
+        hint = L(`Now S${n} = ${fmt(sumN)}.`, `Сейчас S${n} = ${fmt(sumN)}.`, `Қазір S${n} = ${fmt(sumN)}.`);
+      }
+      ok = check(st, ok);
+      return { svg: `${g}${head}${badge(tag, ok)}`, caption: taskCap(st, ok, ask, hint) };
+    }
+
+    if (geo) {
+      const q = r;
+      const Sg = Math.abs(q - 1) < 1e-9 ? a1 * n : (a1 * (q ** n - 1)) / (q - 1);
+      return {
+        svg: `${g}${head}`,
+        caption:
+          q === 0
+            ? L('q = 0 is not allowed: after the first term everything turns into 0, so a geometric progression needs q ≠ 0.', 'q = 0 нельзя: после первого члена всё превращается в 0, поэтому у геометрической прогрессии q ≠ 0.', 'q = 0 болмайды: бірінші мүшеден кейін бәрі 0-ге айналады, сондықтан геометриялық прогрессияда q ≠ 0.')
+            : L(
+                `Each term is the previous one ×${fmt(q)}: b${n} = ${fmt(a1)}·${pn(q)}${sup(n - 1)} = ${fmt(an)}. Sum of ${n} terms: S = b₁(qⁿ − 1)/(q − 1) = ${fmt(Sg)}.${q < 0 ? ' q < 0: the signs alternate.' : Math.abs(q) < 1 ? ' |q| < 1: the terms shrink towards 0.' : q === 1 ? ' q = 1: all terms are equal.' : ' q > 1: the terms grow faster and faster.'}`,
+                `Каждый член - предыдущий ×${fmt(q)}: b${n} = ${fmt(a1)}·${pn(q)}${sup(n - 1)} = ${fmt(an)}. Сумма ${n} членов: S = b₁(qⁿ − 1)/(q − 1) = ${fmt(Sg)}.${q < 0 ? ' q < 0: знаки чередуются.' : Math.abs(q) < 1 ? ' |q| < 1: члены уменьшаются к 0.' : q === 1 ? ' q = 1: все члены равны.' : ' q > 1: члены растут всё быстрее.'}`,
+                `Әр мүше - алдыңғысы ×${fmt(q)}: b${n} = ${fmt(a1)}·${pn(q)}${sup(n - 1)} = ${fmt(an)}. ${n} мүшенің қосындысы: S = b₁(qⁿ − 1)/(q − 1) = ${fmt(Sg)}.${q < 0 ? ' q < 0: таңбалар кезектеседі.' : Math.abs(q) < 1 ? ' |q| < 1: мүшелер 0-ге қарай кемиді.' : q === 1 ? ' q = 1: барлық мүшелер тең.' : ' q > 1: мүшелер барған сайын жылдам өседі.'}`,
+              ),
+      };
+    }
+    return {
+      svg: `${g}${head}`,
+      caption: L(
+        `Each term is the previous one ${r >= 0 ? '+' : '−'} ${fmt(Math.abs(r))}: a${n} = a₁ + (n − 1)d = ${fmt(a1)} + ${n - 1}·${pn(r)} = ${fmt(an)} (orange). The tops lie on a straight line. Sum of ${n} terms: ${fmt(sumN)}.${r === 0 ? ' d = 0: all terms are equal.' : ''}`,
+        `Каждый член - предыдущий ${r >= 0 ? '+' : '−'} ${fmt(Math.abs(r))}: a${n} = a₁ + (n − 1)d = ${fmt(a1)} + ${n - 1}·${pn(r)} = ${fmt(an)} (оранжевый). Вершины столбиков лежат на прямой. Сумма ${n} членов: ${fmt(sumN)}.${r === 0 ? ' d = 0: все члены равны.' : ''}`,
+        `Әр мүше - алдыңғысы ${r >= 0 ? '+' : '−'} ${fmt(Math.abs(r))}: a${n} = a₁ + (n − 1)d = ${fmt(a1)} + ${n - 1}·${pn(r)} = ${fmt(an)} (қызғылт сары). Бағандардың ұштары түзу бойында жатыр. ${n} мүшенің қосындысы: ${fmt(sumN)}.${r === 0 ? ' d = 0: барлық мүшелер тең.' : ''}`,
+      ),
+    };
+  },
+});
+
+// ---------- Производная ----------
+
+const FUNS = [
+  { f: (x) => x * x, df: (x) => 2 * x, s: 'x²', ds: '2x', y0: -1.5, y1: 9.5, x0: -3.2, x1: 3.2 },
+  { f: (x) => (x * x * x) / 3 - x, df: (x) => x * x - 1, s: 'x³/3 − x', ds: 'x² − 1', y0: -3, y1: 3, x0: -3.2, x1: 3.2 },
+  { f: Math.sin, df: Math.cos, s: 'sin x', ds: 'cos x', y0: -1.6, y1: 1.6, x0: -3.3, x1: 3.3 },
+  { f: Math.exp, df: Math.exp, s: 'eˣ', ds: 'eˣ', y0: -1, y1: 8, x0: -3.2, x1: 2.2 },
+];
+
+function derTask(st) {
+  const last = st.task?.type;
+  let type;
+  do type = rnd(0, 2);
+  while (type === last);
+  let t;
+  if (type === 0) {
+    const [fi, xs] = pick([[0, [0]], [1, [-1, 1]], [2, [-Math.PI / 2, Math.PI / 2]]]);
+    t = { fi, xs };
+  } else if (type === 1) {
+    const [fi, K, xs] = pick([[0, 3, [1.5]], [0, -2, [-1]], [1, 3, [-2, 2]], [1, 0, [-1, 1]], [3, 1, [0]], [2, 1, [0]], [0, 4, [2]]]);
+    t = { fi, K, xs };
+  } else t = { fi: pick([1, 2]) };
+  st.task = { type, done: false, ...t };
+  st.fi = t.fi;
+  return { x0: -2.5, h: 0 };
+}
+
+const derivative = modes({
+  title: L('The derivative is the slope of the tangent', 'Производная - наклон касательной', 'Туынды - жанаманың көлбеулігі'),
+  intro: L('Bring two points of the graph together: the secant turns into the tangent, and its slope is the derivative f′(x₀).', 'Сближаем две точки графика: секущая превращается в касательную, а её наклон - это производная f′(x₀).', 'График екі нүктесін жақындатамыз: қиюшы жанамаға айналады, оның көлбеулігі - f′(x₀) туындысы.'),
+  sliders: [
+    { id: 'x0', label: 'x₀', min: -3, max: 3, step: 0.01, value: 0.5 },
+    { id: 'h', label: 'h = Δx', min: 0, max: 2, step: 0.01, value: 1.5, hidden: only(0) },
+  ],
+  tabs: [L('Secant → tangent', 'Секущая → касательная', 'Қиюшы → жанама'), L('f and f′', 'f и f′', 'f және f′'), TASK],
+  acts: [{ label: PLAY, only: [0, 1] }, { label: L('Function ↻', 'Функция ↻', 'Функция ↻'), only: [0, 1] }, { label: MORE, only: [2] }],
+  state: () => ({ fi: 1 }),
+  onTab(m, st, v, again) {
+    if (m === 2 && (again || !st.task || st.task.done)) return derTask(st);
+    return null;
+  },
+  onAct(j, st, v, api) {
+    if (j === 0) {
+      if (st.m === 0) api.play('h', { reverse: true, dur: 2500 });
+      else api.play('x0', { dur: 5000, linear: true });
+      return null;
+    }
+    if (j === 1) {
+      st.fi = (st.fi + 1) % FUNS.length;
+      return null;
+    }
+    return derTask(st);
+  },
+  draw(v, step, st) {
+    const F = FUNS[st.fi];
+    const x0 = clamp(v.x0, F.x0 + 0.1, F.x1 - 0.1);
+    const { f, df } = F;
+    const y0 = f(x0);
+    const k = df(x0);
+    const kz = Math.abs(k) < 0.005 ? 0 : k;
+    const two = st.m === 1;
+    const box2 = two ? { Y0: 4, Y1: 120 } : { Y0: 0, Y1: H };
+    const G = grid({ x0: F.x0, x1: F.x1, y0: F.y0, y1: F.y1, ...box2, X0: 0, X1: W, lab: 1, ylab: F.y1 > 5 ? 2 : 1, ystep: F.y1 > 5 ? 1 : 0.5 });
+    const { sx, sy } = G;
+    const tanL = (m, cls, w = 2.5) => pth(`M${n1(sx(F.x0))} ${n1(clamp(sy(y0 + m * (F.x0 - x0)), -200, 400))} L${n1(sx(F.x1))} ${n1(clamp(sy(y0 + m * (F.x1 - x0)), -200, 400))}`, cls, w);
+    const curve = pth(plotClip(f, F.x0, F.x1, sx, sy, box2.Y0, box2.Y1), 'exc-p', 3);
+    const head = T(8, two ? 18 : 18, `f(x) = ${F.s}`, 'm12 ex-start h');
+    const P = dot(sx(x0), sy(y0), 6, 'exc-p');
+
+    if (st.m === 1) {
+      const Gd = grid({ x0: F.x0, x1: F.x1, y0: Math.min(-1.5, ...[F.x0, F.x1, 0].map(df)) - 0.3, y1: Math.max(1.5, ...[F.x0, F.x1, 0].map(df)) + 0.3, X0: 0, X1: W, Y0: 126, Y1: 216, lab: 1, ylab: 2, ystep: 1, labels: false });
+      // интервалы монотонности на оси f′
+      let bands = '';
+      const N = 120;
+      for (let i = 0; i < N; i++) {
+        const xa = F.x0 + ((F.x1 - F.x0) * i) / N;
+        const xb = F.x0 + ((F.x1 - F.x0) * (i + 1)) / N;
+        bands += ln(sx(xa), Gd.sy(0), sx(xb), Gd.sy(0), df((xa + xb) / 2) > 0 ? 'exc-g' : 'exc-r', 4);
+      }
+      // экстремумы
+      const ext = [];
+      for (let i = 0; i < 400; i++) {
+        const xa = F.x0 + ((F.x1 - F.x0) * i) / 400;
+        const xb = xa + (F.x1 - F.x0) / 400;
+        if (df(xa) * df(xb) < 0 || (Math.abs(df(xa)) < 1e-12 && i)) ext.push((xa + xb) / 2);
+      }
+      const extDots = ext.map((x) => `${dot(sx(x), sy(f(x)), 5, df(x - 0.01) > 0 ? 'exc-r' : 'exc-g')}${T(sx(x), sy(f(x)) + (df(x - 0.01) > 0 ? -8 : 16), df(x - 0.01) > 0 ? 'max' : 'min', `m9 h tc ${df(x - 0.01) > 0 ? 'exc-r' : 'exc-g'}`)}`).join('');
+      return {
+        svg: `${G.svg}${curve}${tanL(k, 'exc-g')}${extDots}${P}${Gd.svg}${bands}${pth(plotClip(df, F.x0, F.x1, sx, Gd.sy, 126, 216), 'exc-o', 2.5)}${ln(sx(x0), sy(y0), sx(x0), Gd.sy(k), 'exc-m ex-dash', 1)}${dot(sx(x0), clamp(Gd.sy(k), 126, 216), 5, 'exc-o')}
+          ${head}${T(8, 140, `f′(x) = ${F.ds}`, 'm11 tc exc-o ex-start h')}${T(312, 18, `f′(${fmt(x0)}) = ${fmt(kz)}`, 'm11 tc exc-g ex-end h')}`,
+        caption: J(
+          L(
+            `The slope of the tangent at x₀ = ${fmt(x0)} is f′(x₀) = ${fmt(kz)} (orange graph below). ${kz > 0 ? 'f′ > 0 - the function increases here.' : kz < 0 ? 'f′ < 0 - the function decreases here.' : 'f′ = 0 - a horizontal tangent: a possible maximum or minimum.'}`,
+            `Наклон касательной в x₀ = ${fmt(x0)} равен f′(x₀) = ${fmt(kz)} (оранжевый график внизу). ${kz > 0 ? 'f′ > 0 - здесь функция возрастает.' : kz < 0 ? 'f′ < 0 - здесь функция убывает.' : 'f′ = 0 - касательная горизонтальна: возможен максимум или минимум.'}`,
+            `x₀ = ${fmt(x0)} нүктесіндегі жанаманың көлбеулігі f′(x₀) = ${fmt(kz)} (төмендегі қызғылт сары график). ${kz > 0 ? 'f′ > 0 - мұнда функция өседі.' : kz < 0 ? 'f′ < 0 - мұнда функция кемиді.' : 'f′ = 0 - жанама көлденең: максимум не минимум болуы мүмкін.'}`,
+          ),
+          L('Green on the axis - f increases, red - it decreases.', 'Зелёное на оси - f возрастает, красное - убывает.', 'Осьтегі жасыл - f өседі, қызыл - кемиді.'),
+        ),
+      };
+    }
+
+    if (st.m === 2) {
+      const tk = st.task ?? (derTask(st), st.task);
+      let ok;
+      let ask;
+      let hint;
+      let tag;
+      if (tk.type === 0) {
+        ok = tk.xs.some((x) => Math.abs(x - x0) < 0.03);
+        tag = "f′(x₀) = 0";
+        ask = L(`f(x) = ${F.s}. Find a point where the tangent is horizontal.`, `f(x) = ${F.s}. Найди точку, где касательная горизонтальна.`, `f(x) = ${F.s}. Жанама көлденең болатын нүктені тап.`);
+        hint = L(`Now the slope is ${fmt(kz)}. Hint: solve f′(x) = ${F.ds} = 0.`, `Сейчас наклон ${fmt(kz)}. Подсказка: реши f′(x) = ${F.ds} = 0.`, `Қазір көлбеулік ${fmt(kz)}. Кеңес: f′(x) = ${F.ds} = 0 теңдеуін шеш.`);
+      } else if (tk.type === 1) {
+        ok = tk.xs.some((x) => Math.abs(x - x0) < 0.03);
+        tag = `f′(x₀) = ${fmt(tk.K)}`;
+        ask = L(`f(x) = ${F.s}. Find x₀ where the slope of the tangent is ${fmt(tk.K)}.`, `f(x) = ${F.s}. Найди x₀, где наклон касательной равен ${fmt(tk.K)}.`, `f(x) = ${F.s}. Жанаманың көлбеулігі ${fmt(tk.K)} болатын x₀ тап.`);
+        hint = L(`Now f′(${fmt(x0)}) = ${fmt(kz)}. Hint: solve ${F.ds} = ${fmt(tk.K)}.`, `Сейчас f′(${fmt(x0)}) = ${fmt(kz)}. Подсказка: реши ${F.ds} = ${fmt(tk.K)}.`, `Қазір f′(${fmt(x0)}) = ${fmt(kz)}. Кеңес: ${F.ds} = ${fmt(tk.K)} теңдеуін шеш.`);
+      } else {
+        ok = k < -0.02;
+        tag = "f′(x₀) < 0";
+        ask = L(`f(x) = ${F.s}. Put x₀ where the function decreases.`, `f(x) = ${F.s}. Поставь x₀ туда, где функция убывает.`, `f(x) = ${F.s}. x₀-ді функция кемитін жерге қой.`);
+        hint = L(`Now f′(${fmt(x0)}) = ${fmt(kz)}. Decreasing means f′ < 0: the tangent goes down.`, `Сейчас f′(${fmt(x0)}) = ${fmt(kz)}. Убывает - значит f′ < 0: касательная идёт вниз.`, `Қазір f′(${fmt(x0)}) = ${fmt(kz)}. Кемиді - f′ < 0: жанама төмен қарайды.`);
+      }
+      ok = check(st, ok);
+      return { svg: `${G.svg}${curve}${tanL(k, ok ? 'exc-g' : 'exc-o')}${P}${head}${T(8, 36, `f′(${fmt(x0)}) = ${fmt(kz)}`, 'm11 ex-start h')}${badge(tag, ok)}`, caption: taskCap(st, ok, ask, hint) };
+    }
+
+    const h = v.h;
+    const x1 = x0 + h;
+    const y1 = f(x1);
+    const ks = h > 0.001 ? (y1 - y0) / h : k;
+    const tri = h > 0.05 ? `${pth(`M${n1(sx(x0))} ${n1(sy(y0))} H${n1(sx(x1))} V${n1(clamp(sy(y1), -10, 230))}`, 'exc-o ex-dash', 1.5)}${T((sx(x0) + sx(x1)) / 2, sy(y0) + (y1 >= y0 ? 13 : -5), `Δx = ${fmt(h)}`, 'm9 tc exc-o h')}${T(sx(x1) + 4, (sy(y0) + sy(y1)) / 2 + 3, `Δy = ${fmt(y1 - y0)}`, 'm9 tc exc-o ex-start h')}` : '';
+    return {
+      svg: `${G.svg}${curve}${tanL(k, 'exc-g', 2)}${h > 0.001 ? tanL(ks, 'exc-o ex-dash', 2.2) : ''}${tri}${h > 0.001 ? dot(sx(x1), clamp(sy(y1), -10, 230), 5, 'exc-o') : ''}${P}
+        ${head}${T(312, 18, `Δy/Δx = ${fmt(ks)}`, 'm11 tc exc-o ex-end h')}${T(312, 34, `f′(${fmt(x0)}) = ${fmt(kz)}`, 'm11 tc exc-g ex-end h')}`,
+      caption: h <= 0.001 ? L(`h = 0: the two points merged, the secant became the tangent with slope f′(${fmt(x0)}) = ${F.ds} = ${fmt(kz)}.`, `h = 0: точки слились, секущая стала касательной с наклоном f′(${fmt(x0)}) = ${F.ds} = ${fmt(kz)}.`, `h = 0: нүктелер қосылды, қиюшы көлбеулігі f′(${fmt(x0)}) = ${F.ds} = ${fmt(kz)} жанамаға айналды.`) : L(
+        `Secant slope Δy/Δx = (f(x₀ + h) − f(x₀))/h = ${fmt(y1 - y0)}/${fmt(h)} = ${fmt(ks)}. As h → 0 it tends to f′(x₀) = ${F.ds} = ${fmt(kz)} - the slope of the green tangent. Press ▶.`,
+        `Наклон секущей Δy/Δx = (f(x₀ + h) − f(x₀))/h = ${fmt(y1 - y0)}/${fmt(h)} = ${fmt(ks)}. При h → 0 он стремится к f′(x₀) = ${F.ds} = ${fmt(kz)} - наклону зелёной касательной. Нажми ▶.`,
+        `Қиюшы көлбеулігі Δy/Δx = (f(x₀ + h) − f(x₀))/h = ${fmt(y1 - y0)}/${fmt(h)} = ${fmt(ks)}. h → 0 болғанда ол f′(x₀) = ${F.ds} = ${fmt(kz)} мәніне - жасыл жанаманың көлбеулігіне ұмтылады. ▶ бас.`,
+      ),
+    };
+  },
+});
+
 export const SCENES_MATH = {
   ...OLD,
   fractions,
   percent,
+  linear,
+  parabola,
+  pythagoras,
+  'unit-circle': unitCircle,
+  probability,
+  systems,
+  progression,
+  derivative,
 };

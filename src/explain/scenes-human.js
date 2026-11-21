@@ -4,6 +4,413 @@ import { getLang, t, tx } from '../core/i18n.js';
 import { L } from '../pools/gen.js';
 import { esc } from '../ui/dom.js';
 import { W, H, C, SVGNS, reduced, clamp, lerp, ease, n1, fmt, term, coef, lineEq, u, hhmm, arrow, plot, axes, slider, morph, AGAIN, RESET, PROGRESS } from './kit.js';
+import { KZ_TIMELINE, KZ_ERAS, WORLD_TIMELINE, WORLD_ERAS, RU_TIMELINE, RU_ERAS } from './data-history.js';
+
+// ---------- Общие помощники сцен этого файла ----------
+
+/** Перенос текста по словам: не длиннее max символов в строке, не больше lines строк (лишнее - «…»). */
+function wrap(s, max, lines = 9) {
+  const out = [];
+  let line = '';
+  for (const w of String(s).split(' ')) {
+    if (!line) line = w;
+    else if (line.length + 1 + w.length <= max) line += ` ${w}`;
+    else {
+      out.push(line);
+      line = w;
+    }
+  }
+  if (line) out.push(line);
+  if (out.length > lines) {
+    out.length = lines;
+    let last = out[lines - 1];
+    while (last.length + 1 > max && last.includes(' ')) last = last.slice(0, last.lastIndexOf(' '));
+    out[lines - 1] = `${last}…`;
+  }
+  return out;
+}
+
+/** Нажатие на элемент сцены (data-drag): onDrag зовётся и при движении пальца, засчитываем одно касание. */
+function tapOnce(st, key) {
+  const now = globalThis.performance?.now?.() ?? Date.now();
+  const same = st.$tap === key && now - st.$tapT < 450;
+  st.$tap = key;
+  st.$tapT = now;
+  return !same;
+}
+
+const rnd = (n) => Math.floor(Math.random() * n);
+const pick = (a) => a[rnd(a.length)];
+function shuffle(a) {
+  const b = [...a];
+  for (let i = b.length - 1; i > 0; i--) {
+    const j = rnd(i + 1);
+    [b[i], b[j]] = [b[j], b[i]];
+  }
+  return b;
+}
+/** Строки SVG-текста (каждая - отдельный <text>). */
+const lines = (arr, x, y, dy, cls, extra = '') => arr.map((s, i) => `<text class="${cls}" x="${n1(x)}" y="${n1(y + i * dy)}"${extra}>${esc(s)}</text>`).join('');
+/** Кнопка-«фишка» внутри SVG: нажатие приходит в onDrag(key). cls: on / ok / bad. */
+const chip = (x, y, w, h, label, key, cls = '', fs = 12) =>
+  `<g class="exh-chip ${cls}" data-drag="${key}"><rect x="${n1(x)}" y="${n1(y)}" width="${n1(w)}" height="${n1(h)}" rx="${Math.min(9, h / 2)}"/><text class="exh-f${fs}" x="${n1(x + w / 2)}" y="${n1(y + h / 2 + fs * 0.36)}">${esc(label)}</text></g>`;
+const ROMAN = (n) => {
+  let s = '';
+  for (const [v, r] of [[1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'], [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'], [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']])
+    while (n >= v) {
+      s += r;
+      n -= v;
+    }
+  return s;
+};
+const ord = (n) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] ?? 'th'}`;
+/** «XV век», «15th century», «XV ғасыр». */
+function century(y) {
+  const c = Math.ceil(Math.abs(y) / 100) || 1;
+  return y > 0 ? u(`${ord(c)} century`, `${ROMAN(c)} век`, `${ROMAN(c)} ғасыр`) : u(`${ord(c)} century BC`, `${ROMAN(c)} век до н. э.`, `б. з. д. ${ROMAN(c)} ғасыр`);
+}
+
+// ---------- Лента времени: эпохи, масштаб, фильтр, задания ----------
+
+const TL_CATS = [
+  { k: 's', c: 'exc-b', n: L('States', 'Власть', 'Билік'), f: L('states and rulers', 'государства и правители', 'мемлекеттер мен билеушілер') },
+  { k: 'w', c: 'exc-r', n: L('Wars', 'Войны', 'Соғыстар'), f: L('wars and uprisings', 'войны и восстания', 'соғыстар мен көтерілістер') },
+  { k: 'c', c: 'exc-g', n: L('Culture', 'Культура', 'Мәдениет'), f: L('culture and science', 'культура и наука', 'мәдениет пен ғылым') },
+  { k: 'e', c: 'exc-o', n: L('Society', 'Общество', 'Қоғам'), f: L('economy and society', 'экономика и общество', 'экономика және қоғам') },
+];
+const TL_CAT = Object.fromEntries(TL_CATS.map((c) => [c.k, c]));
+const ERA_C = ['exc-p', 'exc-a', 'exc-y', 'exc-k', 'exc-b', 'exc-g', 'exc-o', 'exc-r'];
+const ZOOM_N = [L('all', 'все', 'бәрі'), '1000', '100', '10'];
+const TL_X0 = 10;
+const TL_X1 = 310;
+
+/** Дата события полностью: «ок. 1450 г.», «530 г. до н. э.», «XVI-XVII вв.». */
+function tlDate(e) {
+  if (e.s) return tx(e.s);
+  const a = e.c ? u('c. ', 'ок. ', 'шамамен ') : '';
+  return a + (e.y < 0 ? u(`${-e.y} BC`, `${-e.y} г. до н. э.`, `б. з. д. ${-e.y} ж.`) : u(`${e.y}`, `${e.y} г.`, `${e.y} ж.`));
+}
+/** Короткая подпись года на шкале. */
+const tlShort = (y) => (y < 0 ? u(`${-y} BC`, `${-y} до н.э.`, `б.з.д. ${-y}`) : String(y));
+/** Точка в конце фразы, если её ещё нет («1729 г.» → без второй точки). */
+const dotEnd = (s) => (/[.!?…]$/.test(s) ? s : `${s}.`);
+
+/** Сцена «лента времени» по массиву событий data и эпохам eras. */
+function timelineScene({ title, intro, data, eras, start }) {
+  const ALL = data;
+  const m = (ALL.at(-1).y - ALL[0].y) * 0.03;
+  const D0 = ALL[0].y - m;
+  const D1 = ALL.at(-1).y + m;
+  let cur = ALL; // события после фильтра - для подписи ползунка
+  const list = (st) => ALL.filter((e) => st.cats[e.k]);
+  const kOf = (n, i) => (n > 1 ? Math.round((i / (n - 1)) * 1000) : 0);
+  const idxOf = (n, k) => (n > 1 ? (clamp(k, 0, 1000) / 1000) * (n - 1) : 0);
+  const eraOf = (y) => eras.find(([a, b]) => y >= a && y < b) ?? eras.at(-1);
+  const startI = Math.max(0, ALL.findIndex((e) => e.y === start));
+
+  function newQuiz(st) {
+    // В названии не должно быть года - иначе ответ виден сразу.
+    const noYear = (e) => !/\d{3}/.test(tx(e.t));
+    let pool = list(st).filter(noYear);
+    if (pool.length < 8) pool = ALL.filter(noYear);
+    const t = st.qn++ % 3;
+    const q = { t, ev: [], opts: [], pick: -1, seq: [], done: false, ok: false, hint: false };
+    if (t === 0) {
+      const exact = pool.filter((e) => !e.c && !e.s);
+      const e = pick(exact.length ? exact : pool);
+      const gi = ALL.indexOf(e);
+      const near = shuffle(ALL.filter((x, i) => Math.abs(i - gi) <= 9 && x.y !== e.y).map((x) => x.y));
+      const opts = [e.y];
+      for (const y of near) if (opts.length < 4 && !opts.includes(y)) opts.push(y);
+      while (opts.length < 4) {
+        const y = e.y + (rnd(2) ? 1 : -1) * (1 + rnd(40));
+        if (y !== 0 && !opts.includes(y)) opts.push(y);
+      }
+      q.ev = [gi];
+      q.opts = opts.sort((a, b) => a - b);
+    } else if (t === 1) {
+      for (let g = 0; g < 50; g++) {
+        const i = rnd(pool.length);
+        const j = clamp(i + (rnd(2) ? 1 : -1) * (1 + rnd(9)), 0, pool.length - 1);
+        if (pool[i].y !== pool[j].y) {
+          q.ev = shuffle([ALL.indexOf(pool[i]), ALL.indexOf(pool[j])]);
+          break;
+        }
+      }
+      if (!q.ev.length) q.ev = [0, ALL.length - 1];
+    } else {
+      const s0 = rnd(Math.max(1, pool.length - 16));
+      const win = pool.slice(s0, s0 + 16);
+      const got = [];
+      for (const e of shuffle(win)) if (got.length < 4 && !got.some((x) => x.y === e.y)) got.push(e);
+      q.ev = got.map((e) => ALL.indexOf(e));
+    }
+    return q;
+  }
+
+  /** Ответ в задании: нажатие на вариант i. */
+  function answer(st, i) {
+    const q = st.q;
+    if (!q || q.done) return;
+    const ev = q.ev.map((g) => ALL[g]);
+    if (q.t === 0) {
+      q.pick = i;
+      q.ok = q.opts[i] === ev[0].y;
+    } else if (q.t === 1) {
+      q.pick = i;
+      q.ok = ev[i].y < ev[1 - i].y;
+    } else {
+      const at = q.seq.indexOf(i);
+      if (at >= 0) q.seq.splice(at, 1);
+      else q.seq.push(i);
+      if (q.seq.length < ev.length) return;
+      q.ok = q.seq.every((r, n) => n === 0 || ev[q.seq[n - 1]].y <= ev[r].y);
+    }
+    q.done = true;
+    st.score[1] += 1;
+    if (q.ok) st.score[0] += 1;
+  }
+
+  /** Полоса эпох по всей ленте (для мини-карты и заданий). */
+  function eraStrip(y0, h, mark = [], hintY = null, A = D0, B = D1) {
+    const mx = (y) => TL_X0 + ((y - A) / (B - A)) * (TL_X1 - TL_X0);
+    let s = '';
+    eras.forEach(([a, b, name], i) => {
+      const x1 = mx(Math.max(a, A));
+      const x2 = mx(Math.min(b, B));
+      if (x2 <= x1) return;
+      const hl = hintY !== null && hintY >= a && hintY < b;
+      s += `<rect class="ex-fill ${ERA_C[i % ERA_C.length]}" x="${n1(x1)}" y="${y0}" width="${n1(x2 - x1)}" height="${h}" style="opacity:${hl ? 0.6 : 0.25}"/>`;
+      const label = tx(name);
+      if (h >= 12 && (x2 - x1) > label.length * 4.9 + 4) s += `<text class="exh-f9" x="${n1((x1 + x2) / 2)}" y="${y0 + h / 2 + 3.2}">${esc(label)}</text>`;
+    });
+    for (const [y, lab, cls] of mark) s += `<path class="ex-fill ${cls}" d="M${n1(mx(y))} ${y0 - 1} l-4 -7 h8 Z"/>${lab ? `<text class="exh-f9 tc ${cls}" x="${n1(clamp(mx(y), 16, 304))}" y="${y0 - 10}">${esc(lab)}</text>` : ''}`;
+    return { svg: s, mx };
+  }
+
+  /** Диапазон лет вокруг набора годов для полосы эпох в задании. */
+  function around(ys) {
+    const a = Math.min(...ys);
+    const b = Math.max(...ys);
+    const pad = Math.max(40, (b - a) * 0.35);
+    return [Math.max(D0, a - pad), Math.min(D1, b + pad)];
+  }
+
+  function drawQuiz(st) {
+    const q = st.q;
+    const ev = q.ev.map((g) => ALL[g]);
+    const head = [u('In what year?', 'В каком году?', 'Қай жылы?'), u('Which came first?', 'Что было раньше?', 'Қайсысы бұрын болды?'), u('Put in order', 'Расставь по порядку', 'Ретімен қой')][q.t];
+    let s = `<text class="exh-f13 ex-start" x="8" y="15">${esc(head)}</text><text class="exh-f12 ex-end tc exc-g" x="312" y="15">✓ ${st.score[0]} / ${st.score[1]}</text>`;
+    let cap;
+    const hintTxt = (e) => `${century(e.y)} · ${tx(eraOf(e.y)[2])}`;
+    if (q.t === 0) {
+      const e = ev[0];
+      const tl = wrap(tx(e.t), 40, 3);
+      s += `<rect class="exh-card" x="6" y="24" width="308" height="62" rx="10"/>${lines(tl, 160, 55 - (tl.length - 1) * 7.5, 15, 'exh-f12')}`;
+      if (q.hint && !q.done) s += `<text class="exh-f10 tc exc-p" x="160" y="81">${esc(hintTxt(e))}</text>`;
+      q.opts.forEach((y, i) => {
+        const cls = q.done ? (y === e.y ? 'ok' : i === q.pick ? 'bad' : '') : '';
+        s += chip(i % 2 ? 164 : 8, i < 2 ? 94 : 130, 148, 30, tlShort(y), `o${i}`, cls, 15);
+      });
+      const strip = eraStrip(184, 14, q.done ? [[e.y, tlDate(e), 'exc-p']] : [], q.hint ? e.y : null, ...around(q.opts));
+      s += strip.svg;
+      cap = !q.done
+        ? L(`When did it happen: «${tx(e.t)}»? Tap the year.${q.hint ? ` Hint: ${hintTxt(e)}.` : ''}`, `Когда это было: «${tx(e.t)}»? Нажми на год.${q.hint ? ` Подсказка: ${hintTxt(e)}.` : ''}`, `Бұл қашан болды: «${tx(e.t)}»? Жылды бас.${q.hint ? ` Кеңес: ${hintTxt(e)}.` : ''}`)
+        : q.ok
+          ? L(`✓ Right: ${dotEnd(tlDate(e))} ${tx(e.d)}`, `✓ Верно: ${dotEnd(tlDate(e))} ${tx(e.d)}`, `✓ Дұрыс: ${dotEnd(tlDate(e))} ${tx(e.d)}`)
+          : L(`✗ No - it was ${dotEnd(tlDate(e))} ${tx(e.d)}`, `✗ Нет, это ${dotEnd(tlDate(e))} ${tx(e.d)}`, `✗ Жоқ, бұл - ${dotEnd(tlDate(e))} ${tx(e.d)}`);
+    } else if (q.t === 1) {
+      ev.forEach((e, i) => {
+        const x = i ? 164 : 8;
+        const first = e.y < ev[1 - i].y;
+        const cls = q.done ? (first ? 'ok' : i === q.pick ? 'bad' : '') : '';
+        const tl = wrap(tx(e.t), 21, 5);
+        s += `<g class="exh-chip ${cls}" data-drag="o${i}"><rect x="${x}" y="26" width="148" height="110" rx="12"/>${lines(tl, x + 74, 81 - (tl.length - 1) * 7, 14, 'exh-f11')}</g>`;
+        if (q.done) s += `<text class="exh-f14 tc ${first ? 'exc-g' : 'exc-m'}" x="${x + 74}" y="156">${esc(tlDate(e))}${first ? ' ✓' : ''}</text>`;
+        else if (q.hint) s += `<text class="exh-f10 tc exc-p" x="${x + 74}" y="156">${esc(century(e.y))}</text>`;
+      });
+      s += eraStrip(184, 14, q.done ? ev.map((e) => [e.y, '', 'exc-p']) : [], null, ...around(ev.map((e) => e.y))).svg;
+      const [a, b] = ev[0].y < ev[1].y ? ev : [ev[1], ev[0]];
+      cap = !q.done
+        ? L(`Tap the event that happened earlier.${q.hint ? ` Hint: ${century(ev[0].y)} and ${century(ev[1].y)}.` : ''}`, `Нажми на событие, которое было раньше.${q.hint ? ` Подсказка: ${century(ev[0].y)} и ${century(ev[1].y)}.` : ''}`, `Бұрын болған оқиғаны бас.${q.hint ? ` Кеңес: ${century(ev[0].y)} және ${century(ev[1].y)}.` : ''}`)
+        : L(`${q.ok ? '✓ Right!' : '✗ Not quite.'} «${tx(a.t)}» (${tlDate(a)}) came before «${tx(b.t)}» (${tlDate(b)}).`, `${q.ok ? '✓ Верно!' : '✗ Не так.'} «${tx(a.t)}» (${tlDate(a)}) было раньше, чем «${tx(b.t)}» (${tlDate(b)}).`, `${q.ok ? '✓ Дұрыс!' : '✗ Олай емес.'} «${tx(a.t)}» (${tlDate(a)}) «${tx(b.t)}» (${tlDate(b)}) оқиғасынан бұрын болды.`);
+    } else {
+      const sorted = [...ev].sort((a, b) => a.y - b.y);
+      ev.forEach((e, i) => {
+        const y = 24 + i * 37;
+        const n = q.seq.indexOf(i);
+        const right = q.done && sorted[n] === e;
+        const cls = q.done ? (right || sorted[n].y === e.y ? 'ok' : 'bad') : n >= 0 ? 'on' : '';
+        const tl = wrap(tx(e.t), 40, 2);
+        s += `<g class="exh-chip ${cls}" data-drag="o${i}"><rect x="6" y="${y}" width="308" height="33" rx="9"/><circle class="exh-num" cx="22" cy="${y + 16.5}" r="10"/><text class="exh-f12" x="22" y="${y + 21}">${n >= 0 ? n + 1 : '?'}</text>${lines(tl, 38, y + (tl.length > 1 ? 14 : 21), 13, 'exh-f11 ex-start')}</g>`;
+        if (q.done) s += `<text class="exh-f10 ex-end tc ${cls === 'ok' ? 'exc-g' : 'exc-r'}" x="310" y="${y + 29}">${esc(tlShort(e.y))}</text>`;
+        else if (q.hint) s += `<text class="exh-f9 ex-end tc exc-p" x="310" y="${y + 29}">${esc(century(e.y))}</text>`;
+      });
+      s += eraStrip(190, 12, q.done ? sorted.map((e) => [e.y, '', 'exc-p']) : [], null, ...around(ev.map((e) => e.y))).svg;
+      const order = sorted.map((e) => `${tlShort(e.y)} ${tx(e.t)}`).join('; ');
+      cap = !q.done
+        ? L(`Tap the events from the earliest to the latest: ${q.seq.length} of 4 chosen. Tap again to undo.`, `Нажимай события от самого раннего к позднему: выбрано ${q.seq.length} из 4. Повторное нажатие отменяет.`, `Оқиғаларды ең ертесінен кейінгісіне қарай бас: 4-тің ${q.seq.length}-і таңдалды. Қайта басу болдырмайды.`)
+        : L(`${q.ok ? '✓ The order is right!' : '✗ The right order:'} ${order}.`, `${q.ok ? '✓ Порядок верный!' : '✗ Правильный порядок:'} ${order}.`, `${q.ok ? '✓ Рет дұрыс!' : '✗ Дұрыс рет:'} ${order}.`);
+    }
+    return { svg: s, caption: cap };
+  }
+
+  return {
+    title,
+    intro,
+    sliders: [
+      {
+        id: 'k',
+        label: L('event', 'событие', 'оқиға'),
+        min: 0,
+        max: 1000,
+        value: kOf(ALL.length, startI),
+        show: (k) => {
+          const e = cur[Math.round(idxOf(cur.length, k))];
+          return e ? tlShort(e.y) : '';
+        },
+        hidden: (v, st) => Boolean(st.q),
+      },
+      { id: 'z', label: L('zoom, years', 'масштаб, лет', 'масштаб, жыл'), min: 0, max: 3, step: C, value: 1.5, show: (z) => tx(ZOOM_N[clamp(z, 0, 3)]), hidden: (v, st) => Boolean(st.q) },
+    ],
+    buttons: ['◀', '▶', L('Quiz', 'Задание', 'Тапсырма'), L('New task', 'Новое задание', 'Жаңа тапсырма'), L('Hint', 'Подсказка', 'Кеңес')],
+    state: () => ({ cats: { s: 1, w: 1, c: 1, e: 1 }, q: null, qn: 0, score: [0, 0], view: [D0, D1] }),
+    pressed: (i, v, st) => i === 2 && Boolean(st.q),
+    btnHidden: (i, v, st) => (st.q ? i < 2 : i > 2),
+    onButton(i, st, v) {
+      if (i < 2) {
+        const n = list(st).length;
+        const j = clamp(Math.round(idxOf(n, v.k)) + (i ? 1 : -1), 0, n - 1);
+        return { k: kOf(n, j), $dur: 380 };
+      }
+      if (i === 2) st.q = st.q ? null : newQuiz(st);
+      else if (i === 3) st.q = newQuiz(st);
+      else if (st.q) st.q.hint = true;
+      return undefined;
+    },
+    onDrag(key, p, v, st) {
+      if (key[0] === 'o') {
+        if (tapOnce(st, key)) answer(st, Number(key.slice(1)));
+        return;
+      }
+      const L1 = list(st);
+      const near = (year) => {
+        let best = 0;
+        L1.forEach((e, i) => {
+          if (Math.abs(e.y - year) < Math.abs(L1[best].y - year)) best = i;
+        });
+        return best;
+      };
+      const fx = clamp((p.x - TL_X0) / (TL_X1 - TL_X0), 0, 1);
+      if (key === 'axis') v.k = kOf(L1.length, near(lerp(st.view[0], st.view[1], fx)));
+      else if (key === 'mini') v.k = kOf(L1.length, near(lerp(D0, D1, fx)));
+      else if (key.startsWith('cat') && tapOnce(st, key)) {
+        const was = L1[Math.round(idxOf(L1.length, v.k))];
+        const c = TL_CATS[Number(key.slice(3))].k;
+        st.cats[c] = st.cats[c] ? 0 : 1;
+        if (!Object.values(st.cats).some(Boolean)) for (const k of Object.keys(st.cats)) st.cats[k] = 1;
+        const L2 = list(st);
+        let j = L2.indexOf(was);
+        if (j < 0) {
+          j = 0;
+          L2.forEach((e, i) => {
+            if (Math.abs(e.y - was.y) < Math.abs(L2[j].y - was.y)) j = i;
+          });
+        }
+        v.k = kOf(L2.length, j);
+      }
+    },
+    draw(v, step, st) {
+      const L1 = list(st);
+      cur = L1;
+      if (st.q) return drawQuiz(st);
+      const n = L1.length;
+      const kf = idxOf(n, v.k);
+      const i0 = Math.floor(kf);
+      const i1 = Math.min(n - 1, i0 + 1);
+      const sel = L1[Math.round(kf)];
+      const cy = lerp(L1[i0].y, L1[i1].y, kf - i0);
+      // Окно масштаба: вся лента → 1000 → 100 → 10 лет, плавно (логарифмически).
+      const full = D1 - D0;
+      const an = [full, 1000, 100, 10].map((x) => Math.min(x, full));
+      const z = clamp(v.z, 0, 3);
+      const zi = Math.min(2, Math.floor(z));
+      const span = Math.exp(lerp(Math.log(an[zi]), Math.log(an[zi + 1]), z - zi));
+      let lo = cy - span / 2;
+      let hi = cy + span / 2;
+      if (lo < D0) [lo, hi] = [D0, D0 + span];
+      if (hi > D1) [lo, hi] = [D1 - span, D1];
+      st.view = [lo, hi];
+      const sx = (y) => TL_X0 + ((y - lo) / (hi - lo)) * (TL_X1 - TL_X0);
+      const AX = 146;
+      let s = '';
+      // Фильтр по категориям.
+      TL_CATS.forEach((c, i) => {
+        const on = st.cats[c.k];
+        s += `<g class="exh-chip${on ? ' on2' : ' off'}" data-drag="cat${i}"><rect x="${4 + i * 78.5}" y="2" width="75" height="18" rx="9"/><circle class="ex-fill ${c.c}" cx="${15 + i * 78.5}" cy="11" r="4"/><text class="exh-f10 ex-start" x="${23 + i * 78.5}" y="14.5">${esc(tx(c.n))}</text></g>`;
+      });
+      // Эпохи в окне.
+      eras.forEach(([a, b, name], i) => {
+        const x1 = Math.max(TL_X0, sx(a));
+        const x2 = Math.min(TL_X1, sx(b));
+        if (x2 - x1 < 0.5) return;
+        const label = tx(name);
+        s += `<rect class="ex-fill ${ERA_C[i % ERA_C.length]}" x="${n1(x1)}" y="24" width="${n1(x2 - x1)}" height="15" style="opacity:.28"/>`;
+        if (x2 - x1 > label.length * 5 + 6) s += `<text class="exh-f9" x="${n1((x1 + x2) / 2)}" y="34.5">${esc(label)}</text>`;
+        if (a > lo && a < hi) s += `<line class="exh-era" x1="${n1(sx(a))}" y1="24" x2="${n1(sx(a))}" y2="${AX + 4}"/>`;
+      });
+      // Карточка выбранного события.
+      const cat = TL_CAT[sel.k];
+      const tl = wrap(tx(sel.t), 46, 2);
+      const sxs = sx(sel.y);
+      const era = eraOf(sel.y);
+      s += `<line class="ex-stroke ${cat.c} ex-dash" style="stroke-width:1.5" x1="${n1(sxs)}" y1="104" x2="${n1(sxs)}" y2="${AX - 7}"/>
+        <rect class="exh-card" x="5" y="43" width="310" height="62" rx="10"/><rect class="ex-fill ${cat.c}" x="5" y="43" width="5" height="62" rx="2"/>
+        <text class="exh-f13 ex-start tc ${cat.c}" x="16" y="58">${esc(tlDate(sel))}</text><text class="exh-f9 ex-end tc exc-m" x="310" y="57">${esc(tx(cat.f))}</text>
+        ${lines(tl, 16, 74, 13.5, 'exh-f11 ex-start')}<text class="exh-f9 ex-start tc exc-m" x="16" y="${tl.length > 1 ? 100 : 89}">${esc(`${century(sel.y)} · ${tx(era[2])}`)}</text>`;
+      // Точки событий и подписи годов: показываем только те, что помещаются.
+      const vis = L1.map((e, i) => ({ e, i, x: sx(e.y) })).filter((o) => o.x > TL_X0 - 6 && o.x < TL_X1 + 6);
+      const lanes = [[[sxs - 3, sxs + 3]], [[sxs - 3, sxs + 3]]];
+      const labels = [];
+      const si = Math.round(kf);
+      for (const o of [...vis].sort((a, b) => Math.abs(a.i - si) - Math.abs(b.i - si))) {
+        if (o.i === si) continue;
+        const txt = (o.e.c || o.e.s ? '~' : '') + tlShort(o.e.y);
+        if (labels.some((l) => l.txt === txt && Math.abs(l.x - o.x) < 6)) continue;
+        const w = txt.length * 5 + 3;
+        const a = o.x - w / 2;
+        const b = o.x + w / 2;
+        if (a < 2 || b > 318) continue;
+        const lane = lanes.findIndex((ln) => ln.every(([p, q]) => b < p || a > q));
+        if (lane < 0) continue;
+        lanes[lane].push([a, b]);
+        labels.push({ txt, x: o.x, svg: `<text class="exh-f9 tc ${TL_CAT[o.e.k].c}" x="${n1(o.x)}" y="${lane ? 124 : 135}">${esc(txt)}</text>` });
+      }
+      s += `<line class="ex-axis" x1="${TL_X0}" y1="${AX}" x2="${TL_X1}" y2="${AX}"/>${labels.map((l) => l.svg).join('')}`;
+      s += vis.map((o) => (o.i === si ? '' : `<circle class="ex-fill ${TL_CAT[o.e.k].c}" cx="${n1(o.x)}" cy="${AX}" r="3.2"/>`)).join('');
+      s += `<circle class="ex-fill ${cat.c}" cx="${n1(sxs)}" cy="${AX}" r="10" style="opacity:.22"/><circle class="ex-fill ${cat.c} exh-ring" cx="${n1(sxs)}" cy="${AX}" r="6"/>`;
+      // Деления шкалы: шаг подбираем так, чтобы подписи не налезали.
+      const pxPerYear = (TL_X1 - TL_X0) / (hi - lo);
+      const wLab = Math.max(tlShort(Math.round(lo)).length, tlShort(Math.round(hi)).length) * 5 + 10;
+      const stepY = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000].find((d) => d * pxPerYear >= wLab) ?? 5000;
+      for (let y = Math.ceil(lo / stepY) * stepY; y <= hi; y += stepY) {
+        if (y === 0) continue;
+        s += `<line class="ex-axis" x1="${n1(sx(y))}" y1="${AX}" x2="${n1(sx(y))}" y2="${AX + 4}"/><text class="ex-tiny" x="${n1(sx(y))}" y="${AX + 14}">${esc(tlShort(y))}</text>`;
+      }
+      // Мини-карта всей ленты с рамкой текущего окна.
+      const strip = eraStrip(170, 8);
+      const mx = strip.mx;
+      s += strip.svg + L1.map((e) => `<line class="ex-stroke ${TL_CAT[e.k].c}" style="stroke-width:1;opacity:.75" x1="${n1(mx(e.y))}" y1="180" x2="${n1(mx(e.y))}" y2="188"/>`).join('');
+      s += `<rect class="exh-win" x="${n1(mx(lo))}" y="166" width="${n1(Math.max(3, mx(hi) - mx(lo)))}" height="26" rx="3"/>`;
+      s += `<text class="exh-f9 ex-start tc exc-m" x="8" y="210">${esc(`${si + 1} / ${n} · ${u('tap the line or the map below', 'нажимай на ленту или карту', 'таспаны не картаны бас')}`)}</text><text class="exh-f9 ex-end tc exc-m" x="312" y="210">${esc(`${tlShort(Math.round(D0 + m))} … ${tlShort(Math.round(D1 - m))}`)}</text>`;
+      s += `<rect class="ex-hit" data-drag="axis" x="0" y="112" width="${W}" height="48"/><rect class="ex-hit" data-drag="mini" x="0" y="162" width="${W}" height="34"/>`;
+      return {
+        svg: s,
+        caption: L(`${tlDate(sel)} - ${tx(sel.t)}. ${tx(sel.d)}`, `${tlDate(sel)} - ${tx(sel.t)}. ${tx(sel.d)}`, `${tlDate(sel)} - ${tx(sel.t)}. ${tx(sel.d)}`),
+      };
+    },
+  };
+}
 
 export const SCENES_HUMAN = {
 
@@ -46,75 +453,220 @@ export const SCENES_HUMAN = {
   },
 
   binary: {
-    title: L('Binary numbers: bits and bytes', 'Двоичные числа: биты и байты', 'Екілік сандар: биттер мен байттар'),
-    intro: L('A computer stores numbers as bits - lamps that are on (1) or off (0). Each bit is worth a power of two: 1, 2, 4, 8, … Eight bits make a byte.', 'Компьютер хранит числа в битах - лампочках, которые горят (1) или нет (0). Каждый бит стоит степень двойки: 1, 2, 4, 8, … Восемь битов - один байт.', 'Компьютер сандарды биттерде сақтайды - жанып (1) не сөніп (0) тұрған шамдар. Әр бит екінің дәрежесіне тең: 1, 2, 4, 8, … Сегіз бит - бір байт.'),
-    sliders: [{ id: 'n', label: 'n', min: 0, max: 255, value: 74 }],
-    buttons: ['128', '64', '32', '16', '8', '4', '2', '1'],
-    pressed: (i, v) => ((v.n >> (7 - i)) & 1) === 1,
-    onButton(i, st, v) {
-      v.n ^= 1 << (7 - i);
-    },
-    draw(v) {
-      const n = Math.round(v.n);
-      const bits = Array.from({ length: 8 }, (_, i) => (n >> (7 - i)) & 1);
-      const lamps = bits.map((b, i) => `<circle class="ex-lamp${b ? ' on' : ''}" cx="${30 + i * 37}" cy="96" r="15"/><text class="ex-small" x="${30 + i * 37}" y="101">${b}</text><text class="ex-tiny" x="${30 + i * 37}" y="130">2${'⁷⁶⁵⁴³²¹⁰'[i]}</text><text class="ex-tiny" x="${30 + i * 37}" y="144">${2 ** (7 - i)}</text>`).join('');
-      const parts = bits.map((b, i) => (b ? 2 ** (7 - i) : 0)).filter(Boolean);
-      const sum = parts.length ? `${parts.join(' + ')} = ${n}` : '0';
-      const bin = bits.join('');
-      const hex = n.toString(16).toUpperCase().padStart(2, '0');
-      return {
-        svg: `<text class="ex-big" x="160" y="40">${n} = ${bin}₂ = ${hex}₁₆</text>${lamps}<text class="ex-small" x="160" y="180">${sum}</text>`,
-        caption: L(
-          `${n} in binary is ${bin}: ${sum}. Tap a bit to switch it. 8 bits = 1 byte, so a byte has 2⁸ = 256 values (0-255); one hex digit is exactly 4 bits.`,
-          `${n} в двоичной системе - ${bin}: ${sum}. Нажми на бит, чтобы переключить его. 8 битов = 1 байт, значит в байте 2⁸ = 256 значений (0-255); одна шестнадцатеричная цифра - ровно 4 бита.`,
-          `${n} екілік жүйеде - ${bin}: ${sum}. Битті ауыстыру үшін оны бас. 8 бит = 1 байт, демек байтта 2⁸ = 256 мән бар (0-255); бір он алтылық цифр - дәл 4 бит.`,
-        ),
-      };
-    },
-  },
-
-  sorting: {
-    title: L('Bubble sort step by step', 'Сортировка пузырьком по шагам', 'Көпіршікті сұрыптау қадаммен'),
-    intro: L('Walk along the row and compare neighbours; if the left one is bigger, swap them. After each pass the biggest remaining value "bubbles up" to the end.', 'Идём по ряду и сравниваем соседей; если левый больше - меняем их местами. После каждого прохода самое большое из оставшихся значений «всплывает» в конец.', 'Қатар бойымен жүріп, көршілерді салыстырамыз; сол жақтағысы үлкен болса - орындарын ауыстырамыз. Әр өтуден кейін қалғандардың ең үлкені соңына «қалқып шығады».'),
-    sliders: [{ id: 'n', label: L('bars', 'столбиков', 'бағаналар'), min: 4, max: 12, value: 8 }],
-    buttons: [L('Next step', 'Следующий шаг', 'Келесі қадам'), L('▶ Sort automatically', '▶ Сортировать автоматически', '▶ Автоматты сұрыптау'), L('Shuffle', 'Перемешать', 'Араластыру')],
-    state: () => sortState(8),
+    title: L('Binary numbers: bits, bytes, hex', 'Двоичные числа: биты, байты, hex', 'Екілік сандар: бит, байт, hex'),
+    intro: L('A computer keeps numbers in bits - lamps that are on (1) or off (0). Each bit is worth a power of two. Toggle bits, convert by dividing by 2, add in binary and test yourself.', 'Компьютер хранит числа в битах - лампочках, которые горят (1) или нет (0). Каждый бит стоит степень двойки. Переключай биты, переводи делением на 2, складывай в двоичной системе и проверь себя.', 'Компьютер сандарды биттерде сақтайды - жанып (1) не сөніп (0) тұрған шамдар. Әр бит екінің дәрежесіне тең. Биттерді ауыстыр, 2-ге бөліп аудар, екілік жүйеде қос және өзіңді тексер.'),
+    sliders: [
+      { id: 'n', label: 'n', min: 0, max: 255, value: 74, hidden: (v, st) => st.mode > 1 },
+      { id: 'a', label: 'a', min: 0, max: 255, value: 45, hidden: (v, st) => st.mode !== 2 },
+      { id: 'b', label: 'b', min: 0, max: 255, value: 27, hidden: (v, st) => st.mode !== 2 },
+    ],
+    buttons: [L('Bits', 'Биты', 'Биттер'), L('Divide by 2', 'Деление на 2', '2-ге бөлу'), L('Addition', 'Сложение', 'Қосу'), L('Quiz', 'Задание', 'Тапсырма'), L('Step', 'Шаг', 'Қадам'), L('New task', 'Новое задание', 'Жаңа тапсырма')],
+    state: () => ({ mode: 0, k: 0, q: null, qn: 0, score: [0, 0] }),
+    pressed: (i, v, st) => i < 4 && i === st.mode,
+    btnHidden: (i, v, st) => (i === 4 ? st.mode !== 1 && st.mode !== 2 : i === 5 ? st.mode !== 3 : false),
     onSlide(key, v, st) {
-      Object.assign(st, sortState(v.n));
+      st.k = 0;
     },
     onButton(i, st, v, api) {
-      if (i === 0) {
-        api.stop();
-        sortStep(st);
-      } else if (i === 1) api.run(() => sortStep(st), 420);
-      else {
-        api.stop();
-        Object.assign(st, sortState(v.n));
+      api.stop();
+      if (i < 4) {
+        st.mode = i;
+        st.k = 0;
+        if (i === 3 && !st.q) st.q = binQuiz(st);
+      } else if (i === 4) {
+        const total = st.mode === 1 ? binDivs(Math.round(v.n)).length : 9;
+        st.k = st.k >= total ? 0 : st.k + 1;
+      } else st.q = binQuiz(st);
+    },
+    onDrag(key, p, v, st) {
+      if (!tapOnce(st, key)) return;
+      if (key.startsWith('bit')) {
+        const bit = 1 << (7 - Number(key.slice(3)));
+        if (st.mode === 0) v.n = Math.round(v.n) ^ bit;
+        else if (st.mode === 3 && st.q && st.q.t === 0 && !st.q.done) {
+          st.q.val ^= bit;
+          if (st.q.val === st.q.x) binDone(st, true);
+        }
+      } else if (key[0] === 'o' && st.mode === 3 && st.q && !st.q.done) {
+        st.q.pick = Number(key.slice(1));
+        binDone(st, st.q.opts[st.q.pick] === st.q.x);
       }
     },
     draw(v, step, st) {
-      const n = st.arr.length;
-      const slot = 290 / n;
+      const n = Math.round(v.n);
+      const bin8 = (x) => x.toString(2).padStart(8, '0');
+      const hex = (x) => x.toString(16).toUpperCase();
+      const lamps = (x, y0, hl = -1) =>
+        Array.from({ length: 8 }, (_, i) => {
+          const b = (x >> (7 - i)) & 1;
+          const cx = 30 + i * 37;
+          return `<g class="exh-chip" data-drag="bit${i}"><circle class="ex-lamp${b ? ' on' : ''}" cx="${cx}" cy="${y0}" r="15"/><text class="exh-f14" x="${cx}" y="${y0 + 5}">${b}</text></g><text class="exh-f9 tc exc-m" x="${cx}" y="${y0 + 28}">2${'⁷⁶⁵⁴³²¹⁰'[i]}</text><text class="exh-f10 tc ${b ? 'exc-p' : 'exc-m'}" x="${cx}" y="${y0 + 40}">${2 ** (7 - i)}</text>${hl === i ? `<circle class="ex-stroke exc-p" cx="${cx}" cy="${y0}" r="19" style="stroke-width:2"/>` : ''}`;
+        }).join('');
+      let s = '';
+      let cap;
+      if (st.mode === 0) {
+        const parts = Array.from({ length: 8 }, (_, i) => ((n >> (7 - i)) & 1 ? 2 ** (7 - i) : 0)).filter(Boolean);
+        const b = bin8(n);
+        s += `<text class="exh-f16" x="160" y="22">${n}₁₀ = ${b}₂ = ${n.toString(8)}₈ = ${hex(n)}₁₆</text>${lamps(n, 56)}
+          <path class="ex-stroke exc-a" style="stroke-width:1.5" d="M16 106 v5 H153 v-5 M164 106 v5 H301 v-5"/>
+          <text class="exh-f12 exh-mono tc exc-a" x="85" y="126">${b.slice(0, 4)} → ${hex(n >> 4)}</text><text class="exh-f12 exh-mono tc exc-a" x="232" y="126">${b.slice(4)} → ${hex(n & 15)}</text>
+          <text class="exh-f13" x="160" y="152">${parts.length ? `${parts.join(' + ')} = ${n}` : '0'}</text>
+          <text class="exh-f11 exh-mono tc exc-m" x="160" y="176">${esc(`${u('octal', 'восьм.', 'сегіздік')}: ${b.slice(0, 2)}|${b.slice(2, 5)}|${b.slice(5)} → ${n.toString(8).padStart(3, '0')}`)}</text>
+          <text class="exh-f10 tc exc-m" x="160" y="200">${esc(u('8 bits = 1 byte: 2⁸ = 256 values (0…255). Tap a lamp.', '8 бит = 1 байт: 2⁸ = 256 значений (0…255). Нажми на лампу.', '8 бит = 1 байт: 2⁸ = 256 мән (0…255). Шамды бас.'))}</text>`;
+        cap = L(
+          `${n} = ${parts.join(' + ') || 0}, so ${n}₁₀ = ${b}₂. Hex groups the bits by 4 (${b.slice(0, 4)} = ${hex(n >> 4)}, ${b.slice(4)} = ${hex(n & 15)}) → ${hex(n)}₁₆; octal groups them by 3 → ${n.toString(8)}₈.`,
+          `${n} = ${parts.join(' + ') || 0}, значит ${n}₁₀ = ${b}₂. Шестнадцатеричная запись делит биты по 4 (${b.slice(0, 4)} = ${hex(n >> 4)}, ${b.slice(4)} = ${hex(n & 15)}) → ${hex(n)}₁₆; восьмеричная - по 3 → ${n.toString(8)}₈.`,
+          `${n} = ${parts.join(' + ') || 0}, демек ${n}₁₀ = ${b}₂. Он алтылық жазу биттерді 4-тен бөледі (${b.slice(0, 4)} = ${hex(n >> 4)}, ${b.slice(4)} = ${hex(n & 15)}) → ${hex(n)}₁₆; сегіздік - 3-тен → ${n.toString(8)}₈.`,
+        );
+      } else if (st.mode === 1) {
+        const rows = binDivs(n);
+        const k = Math.min(st.k, rows.length);
+        s += `<text class="exh-f14 ex-start" x="8" y="20">${n}₁₀ → ?₂</text>`;
+        rows.slice(0, k).forEach(([x, q, r], i) => {
+          const y = 40 + i * 20;
+          s += `<text class="exh-f12 exh-mono ex-start" x="20" y="${y}">${esc(`${String(x).padStart(3)} : 2 = ${String(q).padStart(3)}`)}</text><text class="exh-f12 ex-start tc exc-m" x="160" y="${y}">${esc(u('rem.', 'ост.', 'қалд.'))}</text><circle class="ex-fill ${r ? 'exc-p' : 'exc-m'}" cx="222" cy="${y - 4}" r="8" style="opacity:.25"/><text class="exh-f13 tc ${r ? 'exc-p' : 'exc-m'}" x="222" y="${y + 1}">${r}</text>`;
+        });
+        const done = k >= rows.length;
+        if (done && rows.length) {
+          s += `${arrow(250, 40 + (rows.length - 1) * 20, 250, 30, 'exc-g', 2)}<text class="exh-f10 ex-start tc exc-g" x="258" y="${40 + (rows.length - 1) * 10}">${esc(u('read up', 'читаем', 'төменнен'))}</text><text class="exh-f10 ex-start tc exc-g" x="258" y="${52 + (rows.length - 1) * 10}">${esc(u('', 'снизу вверх', 'жоғары'))}</text>`;
+          s += `<text class="exh-f16 tc exc-g" x="160" y="210">${n}₁₀ = ${n.toString(2)}₂</text>`;
+        }
+        const last = rows[k - 1];
+        cap = rows.length === 0
+          ? L('0 in binary is just 0.', '0 в двоичной системе - просто 0.', '0 екілік жүйеде де 0.')
+          : done
+            ? L(`Write the remainders from the last to the first: ${n} = ${n.toString(2)}₂. Check: ${n.toString(2).split('').map((d, i, a) => (d === '1' ? 2 ** (a.length - 1 - i) : 0)).filter(Boolean).join(' + ')} = ${n}.`, `Записываем остатки от последнего к первому: ${n} = ${n.toString(2)}₂. Проверка: ${n.toString(2).split('').map((d, i, a) => (d === '1' ? 2 ** (a.length - 1 - i) : 0)).filter(Boolean).join(' + ')} = ${n}.`, `Қалдықтарды соңғысынан біріншісіне қарай жазамыз: ${n} = ${n.toString(2)}₂. Тексеру: ${n.toString(2).split('').map((d, i, a) => (d === '1' ? 2 ** (a.length - 1 - i) : 0)).filter(Boolean).join(' + ')} = ${n}.`)
+            : last
+              ? L(`${last[0]} : 2 = ${last[1]}, remainder ${last[2]}. Keep dividing the quotient until it becomes 0.`, `${last[0]} : 2 = ${last[1]}, остаток ${last[2]}. Делим частное дальше, пока не получится 0.`, `${last[0]} : 2 = ${last[1]}, қалдық ${last[2]}. Бөліндіні 0 болғанша бөле береміз.`)
+              : L(`Press "Step": divide ${n} by 2 and write down the remainder (0 or 1).`, `Нажимай «Шаг»: делим ${n} на 2 и записываем остаток (0 или 1).`, `«Қадам» бас: ${n}-ді 2-ге бөліп, қалдығын (0 не 1) жазамыз.`);
+      } else if (st.mode === 2) {
+        const a = Math.round(v.a);
+        const b = Math.round(v.b);
+        const sum = a + b;
+        const k = Math.min(st.k, 9);
+        const X = (c) => 56 + c * 28; // c = 0 - старший (2⁸)
+        const bit = (x, p) => (x >> p) & 1;
+        let carry = 0;
+        const carries = [0];
+        for (let p = 0; p < 9; p++) {
+          carry = (bit(a, p) + bit(b, p) + carry) >> 1;
+          carries.push(carry);
+        }
+        for (let c = 0; c < 9; c++) {
+          const p = 8 - c;
+          const doneCol = 8 - c < k;
+          const cur = p === k - 1;
+          if (cur) s += `<rect class="exh-hl" x="${X(c) - 12}" y="28" width="24" height="120" rx="6"/>`;
+          if (p < 8) s += `<text class="exh-f14 exh-mono" x="${X(c)}" y="76">${bit(a, p)}</text><text class="exh-f14 exh-mono" x="${X(c)}" y="102">${bit(b, p)}</text>`;
+          if (carries[p] && p <= k - 1) s += `<text class="exh-f11 tc exc-o" x="${X(c)}" y="48">1</text>`;
+          if (doneCol) s += `<text class="exh-f16 exh-mono tc ${p === 8 ? 'exc-o' : 'exc-p'}" x="${X(c)}" y="136">${bit(sum, p)}</text>`;
+          s += `<text class="exh-f9 tc exc-m" x="${X(c)}" y="160">${2 ** p}</text>`;
+        }
+        s += `<text class="exh-f10 ex-start tc exc-o" x="4" y="48">${esc(u('carry', 'перенос', 'көшіру'))}</text><text class="exh-f16" x="24" y="102">+</text><line class="ex-axis" x1="40" y1="112" x2="300" y2="112"/>
+          <text class="exh-f12 ex-end" x="316" y="76">${a}</text><text class="exh-f12 ex-end" x="316" y="102">${b}</text>${k >= 9 ? `<text class="exh-f12 ex-end tc exc-g" x="316" y="136">${sum}</text>` : ''}
+          <text class="exh-f11 exh-mono tc exc-m" x="160" y="184">0+0=0  0+1=1  1+1=10  1+1+1=11</text>
+          <text class="exh-f10 tc exc-m" x="160" y="204">${esc(u('write the last digit, carry the 1 to the left', 'пишем последнюю цифру, 1 переносим влево', 'соңғы цифрды жазамыз, 1-ді солға көшіреміз'))}</text>`;
+        const p = k - 1;
+        const col = p >= 0 ? bit(a, p) + bit(b, p) + (carries[p] ?? 0) : 0;
+        cap = k === 0
+          ? L(`${a} + ${b} in binary. Press "Step": we add column by column from the right, like in decimal.`, `${a} + ${b} в двоичной системе. Нажимай «Шаг»: складываем столбиком справа налево, как в десятичной.`, `${a} + ${b} екілік жүйеде. «Қадам» бас: оңнан солға қарай бағанмен қосамыз, ондықтағыдай.`)
+          : k >= 9
+            ? L(`Done: ${bin8(a)}₂ + ${bin8(b)}₂ = ${sum.toString(2)}₂ = ${sum}.${sum > 255 ? ' The sum needs 9 bits - in one byte this is an overflow!' : ''}`, `Готово: ${bin8(a)}₂ + ${bin8(b)}₂ = ${sum.toString(2)}₂ = ${sum}.${sum > 255 ? ' Сумме нужно 9 бит - в одном байте это переполнение!' : ''}`, `Дайын: ${bin8(a)}₂ + ${bin8(b)}₂ = ${sum.toString(2)}₂ = ${sum}.${sum > 255 ? ' Қосындыға 9 бит керек - бір байтта бұл толып кету!' : ''}`)
+            : L(`Column 2${'⁰¹²³⁴⁵⁶⁷⁸'[p]}: ${bit(a, p)} + ${bit(b, p)}${carries[p] ? ' + carry 1' : ''} = ${col} = ${col.toString(2)}₂ → write ${col & 1}${col > 1 ? ', carry 1' : ''}.`, `Столбец 2${'⁰¹²³⁴⁵⁶⁷⁸'[p]}: ${bit(a, p)} + ${bit(b, p)}${carries[p] ? ' + перенос 1' : ''} = ${col} = ${col.toString(2)}₂ → пишем ${col & 1}${col > 1 ? ', 1 переносим' : ''}.`, `2${'⁰¹²³⁴⁵⁶⁷⁸'[p]} бағаны: ${bit(a, p)} + ${bit(b, p)}${carries[p] ? ' + көшірілген 1' : ''} = ${col} = ${col.toString(2)}₂ → ${col & 1} жазамыз${col > 1 ? ', 1-ді көшіреміз' : ''}.`);
+      } else {
+        const q = st.q ?? binQuiz(st);
+        st.q = q;
+        const head = [u('Light up the number', 'Набери число', 'Санды жина'), u('Binary → decimal', 'Двоичное → десятичное', 'Екілік → ондық'), u('Decimal → hex', 'Десятичное → hex', 'Ондық → hex')][q.t];
+        s += `<text class="exh-f13 ex-start" x="8" y="16">${esc(head)}</text><text class="exh-f12 ex-end tc exc-g" x="312" y="16">✓ ${st.score[0]} / ${st.score[1]}</text>`;
+        if (q.t === 0) {
+          s += `<text class="exh-f22" x="160" y="48">${q.x}</text>${lamps(q.val, 84)}<text class="exh-f13 tc ${q.done ? 'exc-g' : 'exc-m'}" x="160" y="160">${esc(`${u('now', 'сейчас', 'қазір')}: ${q.val}${q.done ? ' ✓' : ''}`)}</text>`;
+          cap = q.done
+            ? L(`✓ ${q.x} = ${bin8(q.x)}₂. Press "New task".`, `✓ ${q.x} = ${bin8(q.x)}₂. Нажми «Новое задание».`, `✓ ${q.x} = ${bin8(q.x)}₂. «Жаңа тапсырма» бас.`)
+            : L(`Tap the lamps so that they make ${q.x}. Tip: start with the biggest power of two that fits (${2 ** Math.floor(Math.log2(q.x))}).`, `Нажимай лампы, чтобы получилось ${q.x}. Совет: начни с самой большой степени двойки, которая помещается (${2 ** Math.floor(Math.log2(q.x))}).`, `${q.x} шығатындай шамдарды бас. Кеңес: сыятын ең үлкен екі дәрежесінен баста (${2 ** Math.floor(Math.log2(q.x))}).`);
+        } else {
+          const shown = q.t === 1 ? `${bin8(q.x)}₂ = ?` : `${q.x}₁₀ = ?₁₆`;
+          s += `<text class="exh-f22" x="160" y="62">${shown}</text>`;
+          q.opts.forEach((o, i) => {
+            const cls = q.done ? (o === q.x ? 'ok' : i === q.pick ? 'bad' : '') : '';
+            s += chip(i % 2 ? 164 : 8, i < 2 ? 92 : 130, 148, 32, q.t === 1 ? String(o) : hex(o), `o${i}`, cls, 16);
+          });
+          if (q.done) s += `<text class="exh-f11 tc exc-m" x="160" y="190">${esc(q.t === 1 ? binParts(q.x) : `${q.x} = ${q.x >> 4}·16 + ${q.x & 15} → ${hex(q.x >> 4)}${hex(q.x & 15)}`)}</text>`;
+          cap = !q.done
+            ? L('Tap the right answer.', 'Нажми на правильный ответ.', 'Дұрыс жауапты бас.')
+            : L(`${q.ok ? '✓ Right' : '✗ No'}: ${q.t === 1 ? `${bin8(q.x)}₂ = ${binParts(q.x)}` : `${q.x} = ${hex(q.x)}₁₆ (${bin8(q.x).slice(0, 4)} ${bin8(q.x).slice(4)})`}.`, `${q.ok ? '✓ Верно' : '✗ Нет'}: ${q.t === 1 ? `${bin8(q.x)}₂ = ${binParts(q.x)}` : `${q.x} = ${hex(q.x)}₁₆ (${bin8(q.x).slice(0, 4)} ${bin8(q.x).slice(4)})`}.`, `${q.ok ? '✓ Дұрыс' : '✗ Жоқ'}: ${q.t === 1 ? `${bin8(q.x)}₂ = ${binParts(q.x)}` : `${q.x} = ${hex(q.x)}₁₆ (${bin8(q.x).slice(0, 4)} ${bin8(q.x).slice(4)})`}.`);
+        }
+      }
+      return { svg: s, caption: cap };
+    },
+  },
+  sorting: {
+    title: L('Sorting algorithms step by step', 'Алгоритмы сортировки по шагам', 'Сұрыптау алгоритмдері қадаммен'),
+    intro: L('Four classic algorithms on the same bars: bubble, selection, insertion and quick sort. Watch every comparison and swap and compare how much work each one does.', 'Четыре классических алгоритма на одних и тех же столбиках: пузырёк, выбор, вставки и быстрая сортировка. Следи за каждым сравнением и обменом и сравни, сколько работы делает каждый.', 'Бір бағаналардағы төрт классикалық алгоритм: көпіршік, таңдау, кірістіру және жылдам сұрыптау. Әр салыстыру мен алмасуды бақылап, әрқайсысының жұмыс көлемін салыстыр.'),
+    sliders: [
+      { id: 'alg', label: L('algorithm', 'алгоритм', 'алгоритм'), min: 0, max: 3, value: 0, show: (x) => tx(SORT_NAMES[clamp(x, 0, 3)].short) },
+      { id: 'n', label: L('bars', 'столбиков', 'бағаналар'), min: 4, max: 12, value: 8 },
+    ],
+    buttons: [L('Step', 'Шаг', 'Қадам'), L('▶ Auto', '▶ Авто', '▶ Авто'), L('Random', 'Случайный', 'Кездейсоқ'), L('Nearly sorted', 'Почти готов', 'Дерлік дайын'), L('Reversed', 'Обратный', 'Кері')],
+    state: () => sortInit(randomArr(8), 0),
+    onSlide(key, v, st) {
+      if (key === 'n') Object.assign(st, sortInit(randomArr(Math.round(v.n)), Math.round(v.alg)));
+      else Object.assign(st, sortInit(st.start, Math.round(v.alg)));
+    },
+    onButton(i, st, v, api) {
+      api.stop();
+      const n = Math.round(v.n);
+      if (i === 0) {
+        if (st.pos >= st.trace.length - 1) st.pos = 0;
+        else st.pos += 1;
+      } else if (i === 1) {
+        if (st.pos >= st.trace.length - 1) st.pos = 0;
+        api.run(() => {
+          st.pos = Math.min(st.trace.length - 1, st.pos + 1);
+          return st.pos < st.trace.length - 1;
+        }, 420);
+      } else {
+        const arr = i === 2 ? randomArr(n) : i === 3 ? nearlySorted(n) : Array.from({ length: n }, (_, k) => n - k);
+        Object.assign(st, sortInit(arr, Math.round(v.alg)));
+      }
+    },
+    draw(v, step, st) {
+      const fr = st.trace[clamp(st.pos, 0, st.trace.length - 1)];
+      const n = fr.arr.length;
+      const slot = 296 / n;
       const bw = Math.min(26, slot - 4);
-      const bars = Array.from({ length: n }, (_, k) => {
-        const val = k + 1;
-        const p = st.arr.indexOf(val);
-        const h = 18 + val * (130 / n);
-        const cls = st.done || p >= n - st.i ? 'ok' : st.last && (p === st.last.j || p === st.last.j + 1) ? (st.last.swapped ? 'swp' : 'cmp') : '';
-        return `<g class="ex-sortbar" style="transform:translate(${n1(15 + p * slot + (slot - bw) / 2)}px,0)"><rect class="${cls}" x="0" y="${n1(186 - h)}" width="${n1(bw)}" height="${n1(h)}" rx="4"/><text class="ex-tiny" x="${n1(bw / 2)}" y="200">${val}</text></g>`;
-      }).join('');
-      const L2 = st.last;
+      const bars = fr.arr
+        .map((val, p) => ({ val, p }))
+        .sort((a, b) => a.val - b.val)
+        .map(({ val, p }) => {
+          const h = 14 + val * (112 / n);
+          const cls = fr.fin.includes(p) ? 'ok' : fr.hl.includes(p) ? (fr.kind === 'swp' ? 'swp' : 'cmp') : p === fr.piv ? 'piv' : fr.pre && p <= fr.pre ? 'pre' : fr.range && (p < fr.range[0] || p > fr.range[1]) ? 'out' : '';
+          return `<g class="ex-sortbar" style="transform:translate(${n1(12 + p * slot + (slot - bw) / 2)}px,0)"><rect class="${cls}" x="0" y="${n1(170 - h)}" width="${n1(bw)}" height="${n1(h)}" rx="4"/><text class="exh-f10" x="${n1(bw / 2)}" y="${n1(165 - h)}">${val}</text></g>`;
+        })
+        .join('');
+      const ptr = fr.hl.map((p, k) => `<path class="ex-fill ${fr.kind === 'swp' ? 'exc-k' : 'exc-o'}" d="M${n1(12 + p * slot + slot / 2)} 176 l-5 8 h10 Z"/><text class="exh-f9 tc exc-m" x="${n1(12 + p * slot + slot / 2)}" y="195">${p}</text>`).join('');
+      const A = SORT_NAMES[st.alg];
+      const done = st.pos >= st.trace.length - 1;
+      let cap = fr.msg;
+      if (done) {
+        const stats = [0, 1, 2, 3].map((a) => {
+          const tr = sortTrace(st.start, a);
+          return [tx(SORT_NAMES[a].short), tr.at(-1).cmp, tr.at(-1).sw];
+        });
+        cap = L(
+          `Sorted: ${fr.cmp} comparisons, ${fr.sw} swaps. On this array: ${stats.map(([nm, c, s]) => `${nm} ${c}/${s}`).join(', ')} (comparisons/swaps).`,
+          `Отсортировано: ${fr.cmp} сравнений, ${fr.sw} обменов. На этом массиве: ${stats.map(([nm, c, s]) => `${nm} ${c}/${s}`).join(', ')} (сравнения/обмены).`,
+          `Сұрыпталды: ${fr.cmp} салыстыру, ${fr.sw} алмасу. Осы массивте: ${stats.map(([nm, c, s]) => `${nm} ${c}/${s}`).join(', ')} (салыстыру/алмасу).`,
+        );
+      }
       return {
-        svg: `<line class="ex-axis" x1="10" y1="186" x2="310" y2="186"/>${bars}<text class="ex-tag" x="8" y="18">${u('comparisons', 'сравнений', 'салыстыру')}: ${st.cmp} · ${u('swaps', 'обменов', 'алмасу')}: ${st.sw}</text>`,
-        caption: st.done
-          ? L(`Sorted! ${st.cmp} comparisons and ${st.sw} swaps. For ${n} values bubble sort needs at most n(n − 1)/2 = ${(n * (n - 1)) / 2} comparisons.`, `Отсортировано! ${st.cmp} сравнений и ${st.sw} обменов. Для ${n} значений пузырьку нужно не больше n(n − 1)/2 = ${(n * (n - 1)) / 2} сравнений.`, `Сұрыпталды! ${st.cmp} салыстыру және ${st.sw} алмасу. ${n} мән үшін көпіршікті сұрыптауға ең көбі n(n − 1)/2 = ${(n * (n - 1)) / 2} салыстыру керек.`)
-          : L2
-            ? L(`Pass ${L2.pass}: ${L2.a} ${L2.swapped ? '>' : '<'} ${L2.b} → ${L2.swapped ? 'swap them' : 'leave them'}. Green bars are already in place.`, `Проход ${L2.pass}: ${L2.a} ${L2.swapped ? '>' : '<'} ${L2.b} → ${L2.swapped ? 'меняем местами' : 'оставляем'}. Зелёные столбики уже на своих местах.`, `${L2.pass}-өту: ${L2.a} ${L2.swapped ? '>' : '<'} ${L2.b} → ${L2.swapped ? 'орындарын ауыстырамыз' : 'қалдырамыз'}. Жасыл бағаналар өз орнында.`)
-            : L('Press "Next step": we will compare the first two bars.', 'Нажми «Следующий шаг» - сравним первые два столбика.', '«Келесі қадам» бас - алғашқы екі бағананы салыстырамыз.'),
+        svg: `<text class="exh-f13 ex-start" x="8" y="16">${esc(tx(A.name))}</text><text class="exh-f11 ex-end tc exc-m" x="312" y="16">${A.o}</text>
+          <text class="exh-f11 ex-start tc exc-o" x="8" y="34">${esc(`${u('comparisons', 'сравнений', 'салыстыру')}: ${fr.cmp}`)}</text><text class="exh-f11 ex-start tc exc-k" x="130" y="34">${esc(`${u('swaps', 'обменов', 'алмасу')}: ${fr.sw}`)}</text><text class="exh-f11 ex-end tc exc-m" x="312" y="34">${u('step', 'шаг', 'қадам')} ${st.pos}/${st.trace.length - 1}</text>
+          <line class="ex-axis" x1="8" y1="171" x2="312" y2="171"/>${bars}${ptr}
+          <text class="exh-f9 tc exc-m" x="160" y="214">${esc(tx(A.idea))}</text>`,
+        caption: cap,
       };
     },
   },
-
   seasons: {
     title: L('Seasons and day length', 'Времена года и длина дня', 'Жыл мезгілдері және күн ұзақтығы'),
     intro: L('Earth’s axis is tilted by 23.4°. During the year first one hemisphere, then the other leans toward the Sun: the Sun rises higher, days get longer - summer comes.', 'Ось Земли наклонена на 23,4°. За год к Солнцу наклоняется то одно полушарие, то другое: Солнце поднимается выше, дни длиннее - наступает лето.', 'Жер осі 23,4°-қа көлбеген. Жыл бойы Күнге бірде бір жарты шар, бірде екіншісі еңкейеді: Күн биік көтеріліп, күн ұзарады - жаз келеді.'),
@@ -493,114 +1045,89 @@ export const SCENES_HUMAN = {
 
   // ===== История и английский: ленты времени и времена глаголов =====
 
-  'timeline-kz': {
+  'timeline-kz': timelineScene({
     title: L('Timeline: history of Kazakhstan', 'Лента времени: история Казахстана', 'Уақыт таспасы: Қазақстан тарихы'),
-    intro: L('Move along the centuries and see the key dates of Kazakhstan’s history in order - it is easier to remember them as one story.', 'Двигайся по векам и смотри ключевые даты истории Казахстана по порядку - так их проще запомнить как одну историю.', 'Ғасырлар бойымен жылжып, Қазақстан тарихының негізгі даталарын ретімен көр - оларды бір әңгіме ретінде есте сақтау оңай.'),
-    sliders: [{ id: 'k', label: L('event', 'событие', 'оқиға'), min: 0, max: 14, value: 0 }],
-    buttons: [L('◀', '◀', '◀'), L('▶', '▶', '▶')],
-    onButton: (i, st, v) => ({ k: clamp(v.k + (i ? 1 : -1), 0, 14) }),
-    draw(v) {
-      const E = [
-        [1465, L('The Kazakh Khanate is founded by Kerey and Zhanibek.', 'Керей и Жанибек основывают Казахское ханство.', 'Керей мен Жәнібек Қазақ хандығын құрады.')],
-        [1511, L('Kasym Khan (1511-1523): the khanate becomes strong, "Kasym Khan’s bright road" laws.', 'Касым-хан (1511-1523): ханство усиливается, законы «Қасым ханның қасқа жолы».', 'Қасым хан (1511-1523): хандық күшейеді, «Қасым ханның қасқа жолы» заңдары.')],
-        [1723, L('Dzungar invasion - "Aktaban Shubyryndy", the Years of Great Disaster.', 'Джунгарское нашествие - «Актабан шубырынды», годы великого бедствия.', 'Жоңғар шапқыншылығы - «Ақтабан шұбырынды», ұлы апат жылдары.')],
-        [1731, L('Abulkhair Khan of the Junior zhuz accepts Russian protection.', 'Абулхаир-хан Младшего жуза принимает подданство России.', 'Кіші жүздің ханы Әбілқайыр Ресейдің қамқорлығын қабылдайды.')],
-        [1771, L('Ablai becomes khan of all three zhuzes.', 'Абылай становится ханом трёх жузов.', 'Абылай үш жүздің ханы болады.')],
-        [1837, L('Kenesary’s uprising (1837-1847) - the last khan fights for independence.', 'Восстание Кенесары (1837-1847) - последний хан борется за независимость.', 'Кенесары көтерілісі (1837-1847) - соңғы хан тәуелсіздік үшін күреседі.')],
-        [1916, L('National liberation uprising against mobilisation for rear work.', 'Национально-освободительное восстание против мобилизации на тыловые работы.', 'Тыл жұмыстарына алуға қарсы ұлт-азаттық көтеріліс.')],
-        [1917, L('The Alash Orda autonomy is proclaimed (Alikhan Bokeikhanov).', 'Провозглашена автономия Алаш-Орда (Алихан Букейханов).', 'Алаш Орда автономиясы жарияланады (Әлихан Бөкейханов).')],
-        [1936, L('The Kazakh SSR becomes a union republic of the USSR.', 'Казахская ССР становится союзной республикой СССР.', 'Қазақ КСР КСРО-ның одақтас республикасы болады.')],
-        [1954, L('The Virgin Lands campaign begins in northern Kazakhstan.', 'Начинается освоение целины на севере Казахстана.', 'Солтүстік Қазақстанда тың игеру басталады.')],
-        [1986, L('December events (Zheltoksan) - youth protests in Almaty.', 'Декабрьские события (Желтоксан) - выступления молодёжи в Алматы.', 'Желтоқсан оқиғалары - Алматыдағы жастар наразылығы.')],
-        [1990, L('25 October: Declaration of State Sovereignty.', '25 октября: Декларация о государственном суверенитете.', '25 қазан: Мемлекеттік егемендік туралы декларация.')],
-        [1991, L('16 December: Independence of the Republic of Kazakhstan.', '16 декабря: независимость Республики Казахстан.', '16 желтоқсан: Қазақстан Республикасының тәуелсіздігі.')],
-        [1993, L('15 November: the national currency, the tenge, is introduced.', '15 ноября: введена национальная валюта - тенге.', '15 қараша: ұлттық валюта - теңге енгізілді.')],
-        [1997, L('The capital moves from Almaty to Akmola (Astana).', 'Столица переносится из Алматы в Акмолу (Астану).', 'Елорда Алматыдан Ақмолаға (Астанаға) көшіріледі.')],
-      ];
-      const k = Math.round(v.k);
-      const sx = (y) => 15 + ((y - 1450) / (2000 - 1450)) * 290;
-      const dots = E.map(([y], i) => `<circle class="ex-fill ${i === k ? 'exc-p' : i < k ? 'exc-b' : 'exc-m'}" cx="${n1(sx(y))}" cy="130" r="${i === k ? 7 : 4}" style="opacity:${i <= k ? 1 : 0.35}"/>`).join('');
-      const [year, text] = E[k];
-      return {
-        svg: `<line class="ex-axis" x1="10" y1="130" x2="310" y2="130"/>${[1500, 1600, 1700, 1800, 1900, 2000].map((y) => `<text class="ex-tiny" x="${n1(sx(y))}" y="152">${y}</text>`).join('')}${dots}
-          <text class="ex-big" x="160" y="60">${year}</text><line class="ex-stroke exc-p" x1="${n1(sx(year))}" y1="72" x2="${n1(sx(year))}" y2="120"/>`,
-        caption: text,
-      };
-    },
-  },
+    intro: L('About 120 key events from the Botai culture to our days. Zoom in, filter by topic, tap the line - and test yourself in the quiz.', 'Около 120 ключевых событий от Ботая до наших дней. Приближай, фильтруй по темам, нажимай на ленту - и проверь себя в задании.', 'Ботайдан бүгінге дейінгі 120-ға жуық негізгі оқиға. Жақындат, тақырып бойынша сүз, таспаны бас - тапсырмада өзіңді тексер.'),
+    data: KZ_TIMELINE,
+    eras: KZ_ERAS,
+    start: 1465,
+  }),
 
-  'timeline-world': {
+  'timeline-world': timelineScene({
     title: L('Timeline: world history', 'Лента времени: всемирная история', 'Уақыт таспасы: дүниежүзі тарихы'),
-    intro: L('From the fall of Rome to the end of the USSR - the turning points of world history on one line.', 'От падения Рима до распада СССР - поворотные моменты всемирной истории на одной линии.', 'Римнің құлауынан КСРО-ның ыдырауына дейін - дүниежүзі тарихының бетбұрыстары бір сызықта.'),
-    sliders: [{ id: 'k', label: L('event', 'событие', 'оқиға'), min: 0, max: 14, value: 0 }],
-    buttons: [L('◀', '◀', '◀'), L('▶', '▶', '▶')],
-    onButton: (i, st, v) => ({ k: clamp(v.k + (i ? 1 : -1), 0, 14) }),
-    draw(v) {
-      const E = [
-        [476, L('Fall of the Western Roman Empire - the start of the Middle Ages.', 'Падение Западной Римской империи - начало Средних веков.', 'Батыс Рим империясының құлауы - Орта ғасырлардың басы.')],
-        [1066, L('Battle of Hastings: the Normans conquer England.', 'Битва при Гастингсе: норманны завоёвывают Англию.', 'Гастингс шайқасы: норманндар Англияны жаулап алады.')],
-        [1206, L('Temujin is proclaimed Genghis Khan - the Mongol Empire begins.', 'Темучин провозглашён Чингисханом - начало Монгольской империи.', 'Темучин Шыңғыс хан деп жарияланады - Моңғол империясының басы.')],
-        [1453, L('The Ottomans take Constantinople - the end of Byzantium.', 'Османы берут Константинополь - конец Византии.', 'Османдар Константинопольді алады - Византияның соңы.')],
-        [1492, L('Columbus reaches America.', 'Колумб достигает Америки.', 'Колумб Америкаға жетеді.')],
-        [1517, L('Martin Luther’s theses start the Reformation.', 'Тезисы Мартина Лютера начинают Реформацию.', 'Мартин Лютердің тезистері Реформацияны бастайды.')],
-        [1776, L('The United States declares independence.', 'США провозглашают независимость.', 'АҚШ тәуелсіздігін жариялайды.')],
-        [1789, L('The French Revolution begins.', 'Начинается Великая французская революция.', 'Ұлы француз революциясы басталады.')],
-        [1914, L('World War I begins (1914-1918).', 'Начинается Первая мировая война (1914-1918).', 'Бірінші дүниежүзілік соғыс басталады (1914-1918).')],
-        [1917, L('Revolution in Russia.', 'Революция в России.', 'Ресейдегі революция.')],
-        [1939, L('World War II begins (1939-1945).', 'Начинается Вторая мировая война (1939-1945).', 'Екінші дүниежүзілік соғыс басталады (1939-1945).')],
-        [1945, L('The United Nations is founded.', 'Основана Организация Объединённых Наций.', 'Біріккен Ұлттар Ұйымы құрылады.')],
-        [1961, L('Yuri Gagarin is the first person in space - launched from Baikonur.', 'Юрий Гагарин - первый человек в космосе, старт с Байконура.', 'Юрий Гагарин - ғарыштағы алғашқы адам, Байқоңырдан ұшқан.')],
-        [1969, L('Apollo 11: people walk on the Moon.', '«Аполлон-11»: люди ступают на Луну.', '«Аполлон-11»: адамдар Айға қадам басады.')],
-        [1991, L('The USSR breaks up; new independent states appear.', 'Распад СССР, появляются новые независимые государства.', 'КСРО ыдырайды, жаңа тәуелсіз мемлекеттер пайда болады.')],
-      ];
-      const k = Math.round(v.k);
-      const sx = (y) => 15 + ((y - 400) / (2000 - 400)) * 290;
-      const dots = E.map(([y], i) => `<circle class="ex-fill ${i === k ? 'exc-p' : i < k ? 'exc-b' : 'exc-m'}" cx="${n1(sx(y))}" cy="130" r="${i === k ? 7 : 4}" style="opacity:${i <= k ? 1 : 0.35}"/>`).join('');
-      const [year, text] = E[k];
-      return {
-        svg: `<line class="ex-axis" x1="10" y1="130" x2="310" y2="130"/>${[500, 1000, 1500, 2000].map((y) => `<text class="ex-tiny" x="${n1(sx(y))}" y="152">${y}</text>`).join('')}${dots}
-          <text class="ex-big" x="160" y="60">${year}</text><line class="ex-stroke exc-p" x1="${n1(sx(year))}" y1="72" x2="${n1(sx(year))}" y2="120"/>`,
-        caption: text,
-      };
-    },
-  },
+    intro: L('About 150 turning points from the first writing to the 21st century. Zoom in, filter by topic, tap the line - and test yourself in the quiz.', 'Около 150 поворотных событий от первой письменности до XXI века. Приближай, фильтруй по темам, нажимай на ленту - и проверь себя в задании.', 'Алғашқы жазудан XXI ғасырға дейінгі 150-ге жуық бетбұрыс оқиға. Жақындат, тақырып бойынша сүз, таспаны бас - тапсырмада өзіңді тексер.'),
+    data: WORLD_TIMELINE,
+    eras: WORLD_ERAS,
+    start: 1492,
+  }),
+
+  'timeline-ru': timelineScene({
+    title: L('Timeline: history of Russia', 'Лента времени: история России', 'Уақыт таспасы: Ресей тарихы'),
+    intro: L('About 50 key dates from Rurik to the 1993 Constitution. Zoom in, filter by topic, tap the line - and test yourself in the quiz.', 'Около 50 ключевых дат от Рюрика до Конституции 1993 года. Приближай, фильтруй по темам, нажимай на ленту - и проверь себя в задании.', 'Рюриктен 1993 жылғы Конституцияға дейінгі 50-ге жуық негізгі дата. Жақындат, тақырып бойынша сүз, таспаны бас - тапсырмада өзіңді тексер.'),
+    data: RU_TIMELINE,
+    eras: RU_ERAS,
+    start: 1380,
+  }),
 
   tenses: {
-    title: L('English tenses on a timeline', 'Времена английского на шкале времени', 'Ағылшын шақтары уақыт шкаласында'),
-    intro: L('Every tense answers two questions: when (past, now, future) and how (a fact, a process, a result). See where each one sits on the line.', 'Каждое время отвечает на два вопроса: когда (прошлое, сейчас, будущее) и как (факт, процесс, результат). Посмотри, где каждое стоит на линии.', 'Әр шақ екі сұраққа жауап береді: қашан (өткен, қазір, келер) және қалай (факт, процесс, нәтиже). Әрқайсысы сызықтың қай жерінде тұрғанын көр.'),
-    sliders: [],
-    buttons: ['Present Simple', 'Present Continuous', 'Past Simple', 'Past Continuous', 'Present Perfect', 'Past Perfect', 'Future Simple'],
-    state: () => ({ k: 0 }),
-    pressed: (i, v, st) => i === st.k,
+    title: L('All 12 English tenses on a timeline', 'Все 12 времён английского на шкале времени', 'Ағылшын тілінің 12 шағы уақыт шкаласында'),
+    intro: L('A tense = time (past, present, future) + aspect (simple, continuous, perfect, perfect continuous). Pick both and see the picture, the formula and the sentence in +, − and ? forms.', 'Время = когда (прошлое, настоящее, будущее) + вид (простое, длительное, совершённое, совершённое длительное). Выбери оба - и увидишь схему, формулу и предложение в формах +, − и ?.', 'Шақ = қашан (өткен, осы, келер) + түрі (жай, созылыңқы, аяқталған, аяқталған созылыңқы). Екеуін таңда - сызба, формула және +, −, ? түріндегі сөйлемді көресің.'),
+    sliders: [
+      { id: 't', label: L('time', 'время', 'уақыт'), min: 0, max: 2, value: 1, show: (x) => ['Past', 'Present', 'Future'][clamp(x, 0, 2)], hidden: (v, st) => Boolean(st.q) },
+      { id: 'a', label: L('aspect', 'вид', 'түрі'), min: 0, max: 3, value: 2, show: (x) => ['Simple', 'Cont.', 'Perfect', 'Perf. C.'][clamp(x, 0, 3)], hidden: (v, st) => Boolean(st.q) },
+    ],
+    buttons: ['+', '−', '?', L('Another example', 'Другой пример', 'Басқа мысал'), L('Quiz', 'Задание', 'Тапсырма'), L('New task', 'Новое задание', 'Жаңа тапсырма'), L('Hint', 'Подсказка', 'Кеңес')],
+    state: () => ({ pol: 0, ex: 1, q: null, score: [0, 0] }),
+    pressed: (i, v, st) => (i < 3 ? !st.q && st.pol === i : i === 4 && Boolean(st.q)),
+    btnHidden: (i, v, st) => (st.q ? i < 4 : i > 4),
     onButton(i, st) {
-      st.k = i;
+      if (i < 3) st.pol = i;
+      else if (i === 3) st.ex = (st.ex + 1) % 12;
+      else if (i === 4) st.q = st.q ? null : tenseQuiz(st);
+      else if (i === 5) st.q = tenseQuiz(st);
+      else if (st.q) st.q.hint = true;
+    },
+    onDrag(key, p, v, st) {
+      if (!tapOnce(st, key)) return;
+      if (key[0] === 't') v.t = Number(key.slice(1));
+      else if (key[0] === 'a') v.a = Number(key.slice(1));
+      else if (key[0] === 'o' && st.q && !st.q.done) {
+        const q = st.q;
+        q.pick = Number(key.slice(1));
+        q.done = true;
+        q.ok = q.opts[q.pick] === q.item.a;
+        st.score[1] += 1;
+        if (q.ok) st.score[0] += 1;
+      }
     },
     draw(v, step, st) {
-      const T = [
-        { mark: 'repeat', ex: 'She walks to school every day.', f: 'V / V+s', note: L('habits and facts', 'привычки и факты', 'әдеттер мен фактілер') },
-        { mark: 'now', ex: 'She is walking to school now.', f: 'am / is / are + V-ing', note: L('happening right now', 'происходит прямо сейчас', 'дәл қазір болып жатыр') },
-        { mark: 'pastpoint', ex: 'She walked to school yesterday.', f: 'V2 (walked, went)', note: L('finished, with a past time', 'закончилось, есть время в прошлом', 'аяқталған, өткен уақыт көрсетілген') },
-        { mark: 'pastproc', ex: 'She was walking when it started to rain.', f: 'was / were + V-ing', note: L('a process in the past, often interrupted', 'процесс в прошлом, часто прерванный', 'өткендегі процесс, жиі үзілген') },
-        { mark: 'perfect', ex: 'She has already walked 5 km.', f: 'have / has + V3', note: L('past action, result now', 'действие в прошлом, результат сейчас', 'өткендегі әрекет, нәтижесі қазір') },
-        { mark: 'pastperf', ex: 'She had left before he arrived.', f: 'had + V3', note: L('earlier than another past moment', 'раньше другого момента в прошлом', 'өткендегі басқа сәттен ертерек') },
-        { mark: 'future', ex: 'She will walk to school tomorrow.', f: 'will + V', note: L('future, decisions, predictions', 'будущее, решения, прогнозы', 'келер шақ, шешімдер, болжамдар') },
-      ];
-      const t = T[st.k];
-      const NOW = 200;
-      const marks = {
-        repeat: [40, 90, 140, 190, 240, 290].map((x) => `<circle class="ex-fill exc-p" cx="${x}" cy="110" r="5"/>`).join(''),
-        now: `<rect x="${NOW - 30}" y="104" width="60" height="12" rx="6" class="ex-fill exc-p" style="opacity:.7"/>`,
-        pastpoint: `<circle class="ex-fill exc-p" cx="90" cy="110" r="8"/>`,
-        pastproc: `<rect x="60" y="104" width="70" height="12" rx="6" class="ex-fill exc-p" style="opacity:.7"/><path class="ex-fill exc-r" d="M110 92 l6 12 l6 -12 Z"/><text class="ex-tiny exc-r" x="116" y="86">rain</text>`,
-        perfect: `<circle class="ex-fill exc-p" cx="120" cy="110" r="7"/>${arrow(126, 100, NOW - 6, 100, 'exc-g', 2)}`,
-        pastperf: `<circle class="ex-fill exc-p" cx="60" cy="110" r="7"/><circle class="ex-fill exc-o" cx="130" cy="110" r="7"/><text class="ex-tiny" x="60" y="134">1</text><text class="ex-tiny" x="130" y="134">2</text>`,
-        future: `<circle class="ex-fill exc-p" cx="270" cy="110" r="8"/>`,
-      };
+      if (st.q) return tenseQuizDraw(st);
+      const t = clamp(Math.round(v.t), 0, 2);
+      const a = clamp(Math.round(v.a), 0, 3);
+      const id = t * 4 + a;
+      const name = TENSE_NAMES[id];
+      let s = '';
+      ['Past', 'Present', 'Future'].forEach((x, i) => (s += chip(5 + i * 104, 2, 102, 18, x, `t${i}`, i === t ? 'on' : '', 11)));
+      ['Simple', 'Continuous', 'Perfect', 'Perfect Cont.'].forEach((x, i) => (s += chip(5 + i * 78, 23, 76, 18, x, `a${i}`, i === a ? 'on' : '', 10)));
+      const f = tenseFormula(t, a, st.pol);
+      s += `<text class="exh-f16 ex-start" x="8" y="60">${name}</text><text class="exh-f12 exh-mono ex-start tc exc-p" x="8" y="77">${esc(f)}</text>`;
+      s += tenseSchema(t, a);
+      const sent = tenseSentence(t, a, st.ex % 3, Math.floor(st.ex / 3) % 4, st.pol);
+      const rows = wrapTokens(sent, 44);
+      rows.forEach((row, r) => {
+        const y = (rows.length > 1 ? 160 : 167) + r * 16;
+        s += `<text class="exh-f13 exh-it ex-start" x="8" y="${y}">${row.map((w) => (w.v ? `<tspan class="tc exc-p" style="font-weight:900">${esc(w.w)}</tspan>` : esc(w.w))).join(' ')}</text>`;
+      });
+      s += lines(wrap(`${u('Signal words', 'Слова-сигналы', 'Белгі сөздер')}: ${TENSE_SIGNALS[id]}`, 56, 2), 8, 200, 12, 'exh-f10 ex-start tc exc-m');
+      const plain = sent.map((w) => w.w).join(' ');
+      const pf = [L('affirmative', 'утверждение', 'болымды'), L('negative', 'отрицание', 'болымсыз'), L('question', 'вопрос', 'сұраулы')][st.pol];
       return {
-        svg: `<line class="ex-axis" x1="10" y1="110" x2="310" y2="110"/><path class="ex-fill exc-m" d="M310 110 l-8 -5 v10 Z"/><line class="ex-stroke exc-r" style="stroke-width:2" x1="${NOW}" y1="80" x2="${NOW}" y2="140"/><text class="ex-tiny exc-r" x="${NOW}" y="155">${u('now', 'сейчас', 'қазір')}</text>
-          <text class="ex-tiny" x="40" y="155">${u('past', 'прошлое', 'өткен')}</text><text class="ex-tiny" x="280" y="155">${u('future', 'будущее', 'келер')}</text>${marks[t.mark]}
-          <text class="ex-tag" x="160" y="40" style="text-anchor:middle">${t.f}</text><text class="ex-small" x="160" y="195" style="font-style:italic">${t.ex}</text>`,
-        caption: L(`${['Present Simple', 'Present Continuous', 'Past Simple', 'Past Continuous', 'Present Perfect', 'Past Perfect', 'Future Simple'][st.k]}: ${tx(t.note)}. Form: ${t.f}.`, `${['Present Simple', 'Present Continuous', 'Past Simple', 'Past Continuous', 'Present Perfect', 'Past Perfect', 'Future Simple'][st.k]}: ${tx(t.note)}. Образование: ${t.f}.`, `${['Present Simple', 'Present Continuous', 'Past Simple', 'Past Continuous', 'Present Perfect', 'Past Perfect', 'Future Simple'][st.k]}: ${tx(t.note)}. Жасалуы: ${t.f}.`),
+        svg: s,
+        caption: L(
+          `${name} - ${TENSE_USE[id].en}. ${tx(pf)[0].toUpperCase()}${tx(pf).slice(1)}: ${f} → «${plain}»`,
+          `${name} - ${TENSE_USE[id].ru}. ${tx(pf)[0].toUpperCase()}${tx(pf).slice(1)}: ${f} → «${plain}»`,
+          `${name} - ${TENSE_USE[id].kk}. ${tx(pf)[0].toUpperCase()}${tx(pf).slice(1)}: ${f} → «${plain}»`,
+        ),
       };
     },
   },
@@ -617,35 +1144,370 @@ const CITIES = [
   { n: L('Tokyo', 'Токио', 'Токио'), o: 9 },
 ];
 
-function sortState(n) {
-  const arr = Array.from({ length: n }, (_, i) => i + 1);
-  for (let i = n - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+// ---------- Времена английского: формы, схемы, задания ----------
+
+const TENSE_NAMES = ['Past Simple', 'Past Continuous', 'Past Perfect', 'Past Perfect Continuous', 'Present Simple', 'Present Continuous', 'Present Perfect', 'Present Perfect Continuous', 'Future Simple', 'Future Continuous', 'Future Perfect', 'Future Perfect Continuous'];
+const TENSE_USE = [
+  L('a finished action at a known time in the past', 'законченное действие в известное время в прошлом', 'өткенде белгілі уақытта аяқталған әрекет'),
+  L('a process at a moment in the past, often interrupted', 'процесс в определённый момент прошлого, часто прерванный', 'өткендегі белгілі бір сәттегі процесс, көбіне үзіледі'),
+  L('an action finished before another moment in the past', 'действие, закончившееся до другого момента в прошлом', 'өткендегі басқа сәтке дейін аяқталған әрекет'),
+  L('a process that lasted up to a moment in the past', 'процесс, который длился до момента в прошлом', 'өткендегі бір сәтке дейін созылған процесс'),
+  L('habits, schedules and facts', 'привычки, расписания и факты', 'әдеттер, кестелер және фактілер'),
+  L('an action happening now or around now', 'действие идёт сейчас или в этот период', 'әрекет дәл қазір немесе осы кезеңде болып жатыр'),
+  L('a past action with a result now, or life experience', 'действие в прошлом с результатом сейчас или жизненный опыт', 'нәтижесі қазір көрінетін өткен әрекет немесе өмірлік тәжірибе'),
+  L('a process that started in the past and is still going on', 'процесс начался в прошлом и продолжается до сих пор', 'өткенде басталып, әлі жалғасып жатқан процесс'),
+  L('predictions, promises and quick decisions', 'прогнозы, обещания и решения в момент речи', 'болжамдар, уәделер және сол сәттегі шешімдер'),
+  L('a process at a moment in the future', 'процесс в определённый момент будущего', 'келешектегі белгілі бір сәттегі процесс'),
+  L('an action that will be finished before a moment in the future', 'действие, которое закончится к моменту в будущем', 'келешектегі бір сәтке дейін аяқталатын әрекет'),
+  L('how long a process will have lasted by a moment in the future', 'сколько будет длиться процесс к моменту в будущем', 'келешектегі бір сәтке дейін процестің қанша уақыт созылатыны'),
+];
+const TENSE_SIGNALS = [
+  'yesterday, last week, two days ago, in 2010',
+  'at 6 pm yesterday, while, when, all day yesterday',
+  'before, after, by the time, already, by then',
+  'for two hours, since, before, how long',
+  'always, usually, often, every day, never, on Mondays',
+  'now, right now, at the moment, Look!, Listen!',
+  'already, just, yet, ever, never, since, for, so far',
+  'for, since, how long, all day, lately',
+  'tomorrow, next week, soon, I think, probably',
+  'at this time tomorrow, at 6 pm tomorrow',
+  'by Friday, by tomorrow, by the time, by 2030',
+  'for two hours by ..., by the end of ...',
+];
+const T_VERBS = [
+  { b: 'work', s: 'works', v2: 'worked', v3: 'worked', ing: 'working', o: 'in the garden' },
+  { b: 'write', s: 'writes', v2: 'wrote', v3: 'written', ing: 'writing', o: 'a letter' },
+  { b: 'read', s: 'reads', v2: 'read', v3: 'read', ing: 'reading', o: 'a book' },
+  { b: 'play', s: 'plays', v2: 'played', v3: 'played', ing: 'playing', o: 'chess' },
+];
+const T_NEG = { am: 'am not', is: "isn't", are: "aren't", was: "wasn't", were: "weren't", have: "haven't", has: "hasn't", had: "hadn't", will: "won't", do: "don't", does: "doesn't", did: "didn't" };
+/** Обстоятельство времени для каждого времени: [для +, для − и ?]. */
+const T_TAIL = [
+  ['yesterday', 'yesterday'],
+  ['at 6 pm yesterday', 'at 6 pm yesterday'],
+  ['before Mum came home', 'before Mum came home'],
+  ['for two hours before Mum came home', 'for two hours before Mum came home'],
+  ['every day', 'every day'],
+  ['now', 'now'],
+  ['', 'yet'],
+  ['for two hours', 'for two hours'],
+  ['tomorrow', 'tomorrow'],
+  ['at 6 pm tomorrow', 'at 6 pm tomorrow'],
+  ['by Friday', 'by Friday'],
+  ['for two hours by 6 pm', 'for two hours by 6 pm'],
+];
+
+/** Предложение: массив слов { w, v } (v - часть сказуемого, её подсвечиваем). */
+function tenseSentence(t, a, si, vi, pol) {
+  const S = ['I', 'she', 'they'][si];
+  const V = T_VERBS[vi];
+  const id = t * 4 + a;
+  const be = t === 0 ? (si === 2 ? 'were' : 'was') : si === 0 ? 'am' : si === 1 ? 'is' : 'are';
+  const have = t === 0 ? 'had' : si === 1 ? 'has' : 'have';
+  let op;
+  let rest;
+  if (a === 0 && t < 2) {
+    op = t === 0 ? 'did' : si === 1 ? 'does' : 'do';
+    rest = [V.b];
+  } else if (t === 2) {
+    op = 'will';
+    rest = [[V.b], ['be', V.ing], ['have', V.v3], ['have', 'been', V.ing]][a];
+  } else if (a === 1) {
+    op = be;
+    rest = [V.ing];
+  } else {
+    op = have;
+    rest = a === 2 ? [V.v3] : ['been', V.ing];
   }
-  return { arr, i: 0, j: 0, cmp: 0, sw: 0, last: null, done: n < 2 };
+  const tail = T_TAIL[id][pol ? 1 : 0];
+  const end = [...V.o.split(' '), ...(tail ? tail.split(' ') : [])].map((w) => ({ w }));
+  const cap = (w) => w[0].toUpperCase() + w.slice(1);
+  let words;
+  if (pol === 0) {
+    const verb = a === 0 && t < 2 ? [t === 0 ? V.v2 : si === 1 ? V.s : V.b] : [op, ...rest];
+    words = [{ w: cap(S) }, ...verb.map((w) => ({ w, v: true }))];
+    if (id === 6) words.splice(2, 0, { w: 'already' });
+  } else if (pol === 1) words = [{ w: cap(S) }, ...[T_NEG[op], ...rest].map((w) => ({ w, v: true }))];
+  else words = [{ w: cap(op), v: true }, { w: S }, ...rest.map((w) => ({ w, v: true }))];
+  words.push(...end);
+  const last = words.at(-1);
+  last.w += pol === 2 ? '?' : '.';
+  return words;
 }
 
-/** Один шаг пузырька. Возвращает true, пока сортировка не закончена. */
-function sortStep(st) {
-  const n = st.arr.length;
-  if (st.done) return false;
-  const j = st.j;
-  const a = st.arr[j];
-  const b = st.arr[j + 1];
-  const swapped = a > b;
-  st.cmp += 1;
-  if (swapped) {
-    st.arr[j] = b;
-    st.arr[j + 1] = a;
-    st.sw += 1;
+/** Формула времени для +, − или ?. */
+function tenseFormula(t, a, pol) {
+  if (a === 0 && t < 2) {
+    if (t === 1) return ['V / V-s (he, she, it)', "don't / doesn't + V", 'Do / Does + S + V?'][pol];
+    return ['V2 (worked, wrote)', "didn't + V", 'Did + S + V?'][pol];
   }
-  st.last = { j, a, b, swapped, pass: st.i + 1 };
-  st.j += 1;
-  if (st.j >= n - 1 - st.i) {
-    st.i += 1;
-    st.j = 0;
-    if (st.i >= n - 1) st.done = true;
+  const ops = t === 2 ? ['will', "won't", 'Will'] : a === 1 ? (t === 0 ? ['was / were', "wasn't / weren't", 'Was / Were'] : ['am / is / are', "am not / isn't / aren't", 'Am / Is / Are']) : t === 0 ? ['had', "hadn't", 'Had'] : ['have / has', "haven't / hasn't", 'Have / Has'];
+  const rest = t === 2 ? ['V', 'be V-ing', 'have V3', 'have been V-ing'][a] : a === 1 ? 'V-ing' : a === 2 ? 'V3' : 'been V-ing';
+  return pol === 2 ? `${ops[2]} + S + ${rest}?` : `${ops[pol]} + ${rest}`;
+}
+
+/** Перенос предложения из слов-токенов. */
+function wrapTokens(words, max) {
+  const rows = [[]];
+  let len = 0;
+  for (const w of words) {
+    if (len && len + 1 + w.w.length > max) {
+      rows.push([]);
+      len = 0;
+    }
+    rows.at(-1).push(w);
+    len += (len ? 1 : 0) + w.w.length;
   }
-  return !st.done;
+  return rows;
+}
+
+/** Схема времени на линии: точка, отрезок, стрелка к моменту отсчёта. */
+function tenseSchema(t, a) {
+  const Y = 118;
+  const NOW = 175;
+  const ref = [100, NOW, 255][t];
+  let s = `<line class="ex-axis" x1="8" y1="${Y}" x2="312" y2="${Y}"/><path class="ex-fill exc-m" d="M314 ${Y} l-8 -4 v8 Z"/>
+    <line class="ex-stroke exc-r" style="stroke-width:2" x1="${NOW}" y1="90" x2="${NOW}" y2="${Y + 8}"/><text class="exh-f10 tc exc-r" x="${NOW}" y="${Y + 19}">${esc(u('now', 'сейчас', 'қазір'))}</text>
+    <text class="exh-f10 tc exc-m" x="40" y="${Y + 19}">${esc(u('past', 'прошлое', 'өткен'))}</text><text class="exh-f10 tc exc-m" x="290" y="${Y + 19}">${esc(u('future', 'будущее', 'келер'))}</text>`;
+  const sixPm = u('6 pm', '18:00', '18:00');
+  const refLab = t === 0 ? (a === 1 ? sixPm : u('Mum came', 'мама пришла', 'анам келді')) : a === 2 ? u('Friday', 'пятница', 'жұма') : sixPm;
+  if (t !== 1 && a > 0) s += `<line class="ex-stroke exc-o" style="stroke-width:2" x1="${ref}" y1="93" x2="${ref}" y2="${Y + 6}"/><text class="exh-f10 tc exc-o" x="${ref}" y="89">${esc(refLab)}</text>`;
+  const dot = (x, r = 6) => `<circle class="ex-fill exc-p" cx="${x}" cy="${Y}" r="${r}"/>`;
+  const bar = (x1, x2) => `<rect class="ex-fill exc-p" x="${x1}" y="${Y - 6}" width="${x2 - x1}" height="12" rx="6" style="opacity:.75"/>`;
+  if (a === 0) {
+    if (t === 1) s += [30, 62, 94, 126, 158, 190, 222, 254, 286].map((x) => dot(x, 4)).join('') + `<text class="exh-f9 tc exc-p" x="110" y="100">${esc(u('again and again', 'снова и снова', 'қайта-қайта'))}</text>`;
+    else s += dot(t === 0 ? 95 : 255, 7);
+  } else if (a === 1) s += bar(ref - 38, ref + 38) + `<path class="ex-stroke exc-p" style="stroke-width:1.6" d="M${ref - 34} ${Y - 14} q8 -6 16 0 t16 0 t16 0 t16 0"/>`;
+  else if (a === 2) {
+    const x0 = ref - 55;
+    s += dot(x0, 6) + arrow(x0 + 8, Y - 12, ref - 4, Y - 12, 'exc-g', 2) + `<text class="exh-f9 tc exc-g" x="${(x0 + ref) / 2}" y="${Y - 18}">${esc(u('result', 'результат', 'нәтиже'))}</text>`;
+  } else {
+    const x0 = ref - 70;
+    s += bar(x0, ref) + `<path class="ex-stroke exc-g" style="stroke-width:1.5" d="M${x0} ${Y - 12} v-4 H${ref} v4"/><text class="exh-f9 tc exc-g" x="${(x0 + ref) / 2}" y="${Y - 20}">${esc(u('for two hours', 'два часа', 'екі сағат'))}</text>`;
+  }
+  return s;
+}
+
+/** Задания: предложение с пропуском, ответ, три неверных варианта, номер времени, слово-сигнал. */
+const TENSE_QUIZ = [
+  ['Look! The children ___ (play) in the yard now.', 'are playing', ['play', 'played', 'have played'], 5, 'Look! now'],
+  ['Water ___ (boil) at 100 °C.', 'boils', ['boil', 'boiled', 'has boil'], 4, 'a fact'],
+  ['I ___ (see) this film yesterday.', 'saw', ['have seen', 'see', 'am seeing'], 0, 'yesterday'],
+  ['I ___ (never / be) to London.', 'have never been', ['never was', 'am never', 'never been'], 6, 'never (life experience)'],
+  ['While I ___ (cook) dinner, the phone rang.', 'was cooking', ['am cooking', 'have cooked', 'cook'], 1, 'while + rang'],
+  ['By the time we arrived, the train ___ (leave).', 'had left', ['has left', 'leaves', 'will leave'], 2, 'by the time we arrived'],
+  ['I think it ___ (rain) tomorrow.', 'will rain', ['rains', 'rained', 'has rained'], 8, 'I think, tomorrow'],
+  ['This time tomorrow I ___ (fly) to Astana.', 'will be flying', ['fly', 'flew', 'have flown'], 9, 'this time tomorrow'],
+  ['By next June she ___ (finish) school.', 'will have finished', ['finishes', 'finished', 'has finished'], 10, 'by next June'],
+  ['They ___ (wait) for the bus for 20 minutes, and it is still not here.', 'have been waiting', ['wait', 'waited', 'are wait'], 7, 'for 20 minutes + still'],
+  ['He was tired because he ___ (run) for an hour.', 'had been running', ['has been running', 'runs', 'will run'], 3, 'was tired + for an hour'],
+  ['By 2030 we ___ (live) here for ten years.', 'will have been living', ['live', 'lived', 'have lived'], 11, 'by 2030 + for ten years'],
+  ['She ___ (not / like) coffee.', "doesn't like", ["don't like", "isn't like", 'not likes'], 4, 'a fact about her'],
+  ['___ he ___ (work) right now?', 'Is ... working', ['Does ... work', 'Did ... work', 'Has ... worked'], 5, 'right now'],
+  ['At 8 pm yesterday I ___ (watch) TV.', 'was watching', ['am watching', 'have watched', 'watch'], 1, 'at 8 pm yesterday'],
+  ['My parents ___ (buy) a new car last month.', 'bought', ['have bought', 'buy', 'are buying'], 0, 'last month'],
+  ['She ___ (not / see) him since 2020.', "hasn't seen", ["didn't see", "doesn't see", "isn't seeing"], 6, 'since 2020'],
+  ['Listen! Someone ___ (knock) at the door.', 'is knocking', ['knocks', 'knocked', 'has knocked'], 5, 'Listen!'],
+  ['When I came home, my sister ___ (already / cook) dinner.', 'had already cooked', ['has already cooked', 'already cooks', 'will already cook'], 2, 'already + came'],
+  ['Do not call me at 9 tonight: I ___ (study) then.', 'will be studying', ['study', 'studied', 'have studied'], 9, 'at 9 tonight'],
+  ['I ___ (learn) English since 2019.', 'have been learning', ['learn', 'learned', 'am learning'], 7, 'since 2019'],
+  ['He usually ___ (go) to bed at 10.', 'goes', ['is going', 'go', 'has gone'], 4, 'usually'],
+  ['I promise I ___ (help) you with maths tomorrow.', 'will help', ['help', 'helped', 'have helped'], 8, 'I promise, tomorrow'],
+  ['___ you ___ (finish) your homework yet?', 'Have ... finished', ['Do ... finish', 'Are ... finishing', 'Will ... finished'], 6, 'yet'],
+];
+
+function tenseQuiz(st) {
+  const prev = st.q?.n ?? -1;
+  let n = rnd(TENSE_QUIZ.length);
+  if (n === prev) n = (n + 1) % TENSE_QUIZ.length;
+  const [sx, a, wrong, k, sig] = TENSE_QUIZ[n];
+  return { n, item: { s: sx, a, k, sig }, opts: shuffle([a, ...wrong]), pick: -1, done: false, ok: false, hint: false };
+}
+
+function tenseQuizDraw(st) {
+  const q = st.q;
+  const it = q.item;
+  let s = `<text class="exh-f13 ex-start" x="8" y="15">${esc(u('Choose the right form', 'Выбери правильную форму', 'Дұрыс түрін таңда'))}</text><text class="exh-f12 ex-end tc exc-g" x="312" y="15">✓ ${st.score[0]} / ${st.score[1]}</text>`;
+  // После ответа вставляем правильную форму (у вопросов - две части: «Is ... working»).
+  const parts = it.a.split(' ... ');
+  const filled = q.done ? parts.reduce((acc, p) => acc.replace('___', p), it.s).replace(/ \([^)]*\)/, '') : it.s;
+  const tl = wrap(filled, 40, 3);
+  s += `<rect class="exh-card" x="6" y="24" width="308" height="66" rx="10"/>${lines(tl, 160, 58 - (tl.length - 1) * 8, 16, 'exh-f13 exh-it')}`;
+  q.opts.forEach((o, i) => {
+    const cls = q.done ? (o === it.a ? 'ok' : i === q.pick ? 'bad' : '') : '';
+    s += chip(i % 2 ? 164 : 8, i < 2 ? 98 : 134, 148, 30, o, `o${i}`, cls, 12);
+  });
+  if (q.done || q.hint) s += `<text class="exh-f12 tc exc-p" x="160" y="190">${esc(q.done ? TENSE_NAMES[it.k] : `${u('Signal', 'Сигнал', 'Белгі')}: ${it.sig}`)}</text>`;
+  if (q.done) s += `<text class="exh-f10 tc exc-m" x="160" y="207">${esc(`${u('Signal', 'Сигнал', 'Белгі')}: ${it.sig}`)}</text>`;
+  const use = TENSE_USE[it.k];
+  return {
+    svg: s,
+    caption: !q.done
+      ? L(`Fill the gap: «${it.s}» Tap the right form.${q.hint ? ` Look at the signal: ${it.sig}.` : ''}`, `Заполни пропуск: «${it.s}» Нажми на правильную форму.${q.hint ? ` Смотри на сигнал: ${it.sig}.` : ''}`, `Бос орынды толтыр: «${it.s}» Дұрыс түрін бас.${q.hint ? ` Белгіге қара: ${it.sig}.` : ''}`)
+      : L(`${q.ok ? '✓ Right' : `✗ The answer is «${it.a}»`}: ${TENSE_NAMES[it.k]} - ${use.en}. Signal: ${it.sig}.`, `${q.ok ? '✓ Верно' : `✗ Правильно «${it.a}»`}: ${TENSE_NAMES[it.k]} - ${use.ru}. Сигнал: ${it.sig}.`, `${q.ok ? '✓ Дұрыс' : `✗ Дұрысы «${it.a}»`}: ${TENSE_NAMES[it.k]} - ${use.kk}. Белгі: ${it.sig}.`),
+  };
+}
+
+// ---------- Двоичные числа ----------
+
+/** Деление на 2 с остатком до нуля: [[делимое, частное, остаток], ...]. */
+function binDivs(n) {
+  const rows = [];
+  for (let x = n; x > 0; x = Math.floor(x / 2)) rows.push([x, Math.floor(x / 2), x % 2]);
+  return rows;
+}
+/** «64 + 8 + 2 = 74». */
+function binParts(x) {
+  const parts = [];
+  for (let p = 7; p >= 0; p--) if ((x >> p) & 1) parts.push(2 ** p);
+  return `${parts.join(' + ') || 0} = ${x}`;
+}
+function binQuiz(st) {
+  const t = st.qn++ % 3;
+  const x = 5 + rnd(250);
+  const q = { t, x, val: 0, pick: -1, done: false, ok: false, opts: [] };
+  if (t > 0) {
+    const opts = new Set([x]);
+    // Похожие ошибки: соседний бит, ±1, перестановка цифр.
+    for (const d of shuffle([1, -1, 2, -2, 16, -16, 8, -8, 32, -32, 4, -4])) if (opts.size < 4 && x + d > 0 && x + d < 256) opts.add(x + d);
+    q.opts = [...opts].sort((a, b) => a - b);
+  }
+  return q;
+}
+function binDone(st, ok) {
+  st.q.done = true;
+  st.q.ok = ok;
+  st.score[1] += 1;
+  if (ok) st.score[0] += 1;
+}
+
+// ---------- Сортировки ----------
+
+const SORT_NAMES = [
+  { short: L('Bubble', 'Пузырёк', 'Көпіршік'), name: L('Bubble sort', 'Сортировка пузырьком', 'Көпіршікті сұрыптау'), o: 'O(n²)', idea: L('compare neighbours, swap if the left one is bigger', 'сравниваем соседей, меняем, если левый больше', 'көршілерді салыстырып, сол жағы үлкен болса ауыстырамыз') },
+  { short: L('Selection', 'Выбором', 'Таңдау'), name: L('Selection sort', 'Сортировка выбором', 'Таңдау арқылы сұрыптау'), o: 'O(n²)', idea: L('find the minimum of the rest and put it in place', 'находим минимум в остатке и ставим его на место', 'қалғандардың ең кішісін тауып, орнына қоямыз') },
+  { short: L('Insertion', 'Вставками', 'Кірістіру'), name: L('Insertion sort', 'Сортировка вставками', 'Кірістіру арқылы сұрыптау'), o: 'O(n²)', idea: L('take the next bar and slide it into the sorted part', 'берём следующий и вставляем в отсортированную часть', 'келесісін алып, сұрыпталған бөлікке кірістіреміз') },
+  { short: L('Quick', 'Быстрая', 'Жылдам'), name: L('Quick sort (pivot = last)', 'Быстрая сортировка (опорный - последний)', 'Жылдам сұрыптау (тірек - соңғысы)'), o: 'O(n log n)', idea: L('smaller than the pivot go left, bigger go right, then repeat', 'меньшие опорного - влево, большие - вправо, и так в каждой части', 'тіректен кішілер солға, үлкендер оңға, әр бөлікте қайталаймыз') },
+];
+
+function randomArr(n) {
+  return shuffle(Array.from({ length: n }, (_, i) => i + 1));
+}
+function nearlySorted(n) {
+  const a = Array.from({ length: n }, (_, i) => i + 1);
+  const i = rnd(n - 1);
+  [a[i], a[i + 1]] = [a[i + 1], a[i]];
+  const j = rnd(n - 1);
+  if (Math.abs(j - i) > 1) [a[j], a[j + 1]] = [a[j + 1], a[j]];
+  return a;
+}
+function sortInit(arr, alg) {
+  return { start: [...arr], alg, trace: sortTrace(arr, alg), pos: 0 };
+}
+
+/** Все шаги алгоритма: { arr, hl, kind, fin, pre, piv, range, cmp, sw, msg }. */
+function sortTrace(start, alg) {
+  const a = [...start];
+  const n = a.length;
+  const fin = [];
+  let cmp = 0;
+  let sw = 0;
+  const out = [];
+  const push = (o) => out.push({ arr: [...a], hl: [], kind: '', fin: [...fin], pre: 0, piv: -1, range: null, cmp, sw, ...o });
+  const swap = (i, j) => {
+    [a[i], a[j]] = [a[j], a[i]];
+    sw += 1;
+  };
+  push({ msg: L('Press "Step" or "▶ Auto". Orange - compared, pink - swapped, green - in its final place.', 'Нажимай «Шаг» или «▶ Авто». Оранжевые - сравниваем, розовые - меняем, зелёные - уже на своём месте.', '«Қадам» не «▶ Авто» бас. Қызғылт сары - салыстырамыз, қызғылт - ауыстырамыз, жасыл - өз орнында.') });
+  if (alg === 0) {
+    for (let i = 0; i < n - 1; i++) {
+      let swapped = false;
+      for (let j = 0; j < n - 1 - i; j++) {
+        cmp += 1;
+        const [x, y] = [a[j], a[j + 1]];
+        if (x > y) {
+          swap(j, j + 1);
+          swapped = true;
+          push({ hl: [j, j + 1], kind: 'swp', msg: L(`Pass ${i + 1}: ${x} > ${y} → swap them.`, `Проход ${i + 1}: ${x} > ${y} → меняем местами.`, `${i + 1}-өту: ${x} > ${y} → орындарын ауыстырамыз.`) });
+        } else push({ hl: [j, j + 1], kind: 'cmp', msg: L(`Pass ${i + 1}: ${x} < ${y} → leave them.`, `Проход ${i + 1}: ${x} < ${y} → оставляем.`, `${i + 1}-өту: ${x} < ${y} → қалдырамыз.`) });
+      }
+      fin.push(n - 1 - i);
+      if (!swapped) {
+        for (let k = 0; k < n; k++) if (!fin.includes(k)) fin.push(k);
+        push({ msg: L(`Pass ${i + 1} had no swaps - the array is already sorted, we can stop early.`, `В проходе ${i + 1} не было обменов - массив уже отсортирован, можно остановиться раньше.`, `${i + 1}-өтуде алмасу болмады - массив сұрыпталған, ертерек тоқтауға болады.`) });
+        break;
+      }
+      push({ msg: L(`After pass ${i + 1} the biggest of the rest, ${a[n - 1 - i]}, «bubbled up» to the end.`, `После прохода ${i + 1} самое большое из оставшихся, ${a[n - 1 - i]}, «всплыло» в конец.`, `${i + 1}-өтуден кейін қалғандардың ең үлкені, ${a[n - 1 - i]}, соңына «қалқып шықты».`) });
+    }
+  } else if (alg === 1) {
+    for (let i = 0; i < n - 1; i++) {
+      let m = i;
+      for (let j = i + 1; j < n; j++) {
+        cmp += 1;
+        const better = a[j] < a[m];
+        push({ hl: [m, j], kind: 'cmp', msg: L(`Looking for the minimum from position ${i}: ${a[j]} ${better ? '<' : '>'} ${a[m]}${better ? ` → new minimum ${a[j]}` : ''}.`, `Ищем минимум с позиции ${i}: ${a[j]} ${better ? '<' : '>'} ${a[m]}${better ? ` → новый минимум ${a[j]}` : ''}.`, `${i}-орыннан бастап ең кішісін іздейміз: ${a[j]} ${better ? '<' : '>'} ${a[m]}${better ? ` → жаңа минимум ${a[j]}` : ''}.`) });
+        if (better) m = j;
+      }
+      if (m !== i) {
+        const [x, y] = [a[i], a[m]];
+        swap(i, m);
+        fin.push(i);
+        push({ hl: [i, m], kind: 'swp', msg: L(`The minimum ${y} goes to position ${i} (swap with ${x}).`, `Минимум ${y} ставим на позицию ${i} (меняем с ${x}).`, `Минимум ${y}-ті ${i}-орынға қоямыз (${x}-пен ауыстырамыз).`) });
+      } else {
+        fin.push(i);
+        push({ msg: L(`${a[i]} is already the minimum - it stays at position ${i}.`, `${a[i]} уже минимум - остаётся на позиции ${i}.`, `${a[i]} - ең кішісі, ${i}-орында қалады.`) });
+      }
+    }
+    fin.push(n - 1);
+  } else if (alg === 2) {
+    for (let i = 1; i < n; i++) {
+      let j = i;
+      const key = a[i];
+      while (j > 0) {
+        cmp += 1;
+        if (a[j - 1] > a[j]) {
+          const x = a[j - 1];
+          swap(j - 1, j);
+          push({ hl: [j - 1, j], kind: 'swp', pre: i, msg: L(`Insert ${key}: ${x} > ${key} → move ${key} one step left.`, `Вставляем ${key}: ${x} > ${key} → сдвигаем ${key} на шаг влево.`, `${key}-ті кірістіреміз: ${x} > ${key} → ${key}-ті бір қадам солға жылжытамыз.`) });
+          j -= 1;
+        } else {
+          push({ hl: [j - 1, j], kind: 'cmp', pre: i, msg: L(`Insert ${key}: ${a[j - 1]} < ${key} → ${key} is in place among the first ${i + 1}.`, `Вставляем ${key}: ${a[j - 1]} < ${key} → ${key} на месте среди первых ${i + 1}.`, `${key}-ті кірістіреміз: ${a[j - 1]} < ${key} → ${key} алғашқы ${i + 1} ішінде орнында.`) });
+          break;
+        }
+      }
+    }
+    for (let k = 0; k < n; k++) fin.push(k);
+  } else {
+    const quick = (lo, hi) => {
+      if (lo > hi) return;
+      if (lo === hi) {
+        fin.push(lo);
+        return;
+      }
+      const pv = a[hi];
+      push({ piv: hi, range: [lo, hi], msg: L(`Part [${lo}…${hi}]: pivot = ${pv}. Smaller values go to the left of it.`, `Часть [${lo}…${hi}]: опорный = ${pv}. Меньшие него переносим влево.`, `[${lo}…${hi}] бөлігі: тірек = ${pv}. Одан кішілерді солға жылжытамыз.`) });
+      let i = lo;
+      for (let j = lo; j < hi; j++) {
+        cmp += 1;
+        if (a[j] < pv) {
+          if (i !== j) {
+            const [x, y] = [a[i], a[j]];
+            swap(i, j);
+            push({ hl: [i, j], kind: 'swp', piv: hi, range: [lo, hi], msg: L(`${y} < ${pv} → move it left (swap with ${x}).`, `${y} < ${pv} → переносим влево (меняем с ${x}).`, `${y} < ${pv} → солға жылжытамыз (${x}-пен ауыстырамыз).`) });
+          } else push({ hl: [j], kind: 'cmp', piv: hi, range: [lo, hi], msg: L(`${a[j]} < ${pv} → it is already on the left.`, `${a[j]} < ${pv} → уже слева.`, `${a[j]} < ${pv} → сол жақта тұр.`) });
+          i += 1;
+        } else push({ hl: [j], kind: 'cmp', piv: hi, range: [lo, hi], msg: L(`${a[j]} > ${pv} → stays on the right.`, `${a[j]} > ${pv} → остаётся справа.`, `${a[j]} > ${pv} → оң жақта қалады.`) });
+      }
+      if (i !== hi) swap(i, hi);
+      fin.push(i);
+      push({ hl: [i], kind: 'swp', range: [lo, hi], msg: L(`The pivot ${pv} takes its final place ${i}: all smaller are left, all bigger are right.`, `Опорный ${pv} встаёт на своё место ${i}: все меньшие слева, все большие справа.`, `Тірек ${pv} өз орнына (${i}) тұрады: кішілердің бәрі солда, үлкендер оңда.`) });
+      quick(lo, i - 1);
+      quick(i + 1, hi);
+    };
+    quick(0, n - 1);
+  }
+  for (let k = 0; k < n; k++) if (!fin.includes(k)) fin.push(k);
+  push({ msg: L('Sorted!', 'Отсортировано!', 'Сұрыпталды!') });
+  return out;
 }

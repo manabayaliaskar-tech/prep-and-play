@@ -16924,3 +16924,53 @@ body.welcoming {
     display: none;
   }
 }
+
+
+/* ---------- Анимации 2.0: история, география, информатика, английский (exh-*) ---------- */
+.ex-stage text.exh-f9 { font-size: 9px; }
+.ex-stage text.exh-f10 { font-size: 10px; }
+.ex-stage text.exh-f11 { font-size: 11px; }
+.ex-stage text.exh-f12 { font-size: 12px; }
+.ex-stage text.exh-f13 { font-size: 13px; }
+.ex-stage text.exh-f14 { font-size: 14px; }
+.ex-stage text.exh-f15 { font-size: 15px; }
+.ex-stage text.exh-f16 { font-size: 16px; }
+.ex-stage text.exh-f18 { font-size: 18px; font-weight: 900; }
+.ex-stage text.exh-f22 { font-size: 22px; font-weight: 900; }
+.ex-stage text.exh-mono { font-family: ui-monospace, Menlo, Consolas, monospace; white-space: pre; font-weight: 700; }
+.ex-stage text.exh-it { font-style: italic; }
+.ex-stage text.exh-w { fill: #fff; }
+.ex-stage tspan.tc { fill: currentColor; }
+.exh-card { fill: var(--card); stroke: var(--line-strong); stroke-width: 1; }
+.exh-box { fill: color-mix(in srgb, var(--ink) 5%, var(--card)); stroke: var(--line); stroke-width: 1; }
+.exh-hl { fill: color-mix(in srgb, var(--primary) 18%, transparent); }
+.exh-era { stroke: color-mix(in srgb, var(--ink) 25%, transparent); stroke-width: 1; stroke-dasharray: 2 3; }
+.exh-win { fill: color-mix(in srgb, var(--primary) 10%, transparent); stroke: var(--primary); stroke-width: 1.5; }
+.exh-ring { stroke: var(--card); stroke-width: 2; }
+.exh-num { fill: color-mix(in srgb, var(--ink) 10%, var(--card)); }
+
+/* Кнопки-«фишки» внутри картинки: нажимаются пальцем (data-drag). */
+.exh-chip { cursor: pointer; }
+.exh-chip rect { fill: color-mix(in srgb, var(--ink) 5%, var(--card)); stroke: var(--line-strong); stroke-width: 1.2; transition: fill 0.2s ease, stroke 0.2s ease; }
+.exh-chip:hover rect { stroke: var(--primary); }
+.exh-chip.on rect { fill: color-mix(in srgb, var(--primary) 22%, var(--card)); stroke: var(--primary); }
+.exh-chip.on2 rect { fill: var(--card); stroke: color-mix(in srgb, var(--ink) 30%, transparent); }
+.exh-chip.off { opacity: 0.4; }
+.exh-chip.off rect { stroke-dasharray: 3 3; }
+.exh-chip.ok rect { fill: color-mix(in srgb, var(--green) 28%, var(--card)); stroke: var(--green); }
+.exh-chip.bad rect { fill: color-mix(in srgb, var(--red) 22%, var(--card)); stroke: var(--red); }
+.exh-chip.ok .exh-num { fill: color-mix(in srgb, var(--green) 45%, var(--card)); }
+.exh-chip.bad .exh-num { fill: color-mix(in srgb, var(--red) 40%, var(--card)); }
+.exh-chip.on .exh-num { fill: color-mix(in srgb, var(--primary) 45%, var(--card)); }
+
+/* Плавное движение (столбики, кадры стека, переходы). */
+.exh-move { transition: transform 0.35s var(--ease-out); }
+.exh-fade { transition: opacity 0.3s ease; }
+.ex-sortbar rect.piv { fill: var(--accent); }
+.ex-sortbar rect.pre { fill: color-mix(in srgb, var(--green) 45%, var(--primary)); }
+.ex-sortbar rect.out { opacity: 0.3; }
+@media (prefers-reduced-motion: reduce) {
+  .exh-chip rect,
+  .exh-move,
+  .exh-fade { transition: none; }
+}

@@ -75,6 +75,7 @@ export const EXPLAINERS = [
   { id: 'pressure', subj: 'physics', icon: '🌊', topics: ['p.theory'] },
   { id: 'timeline-kz', subj: 'history', icon: '📜', topics: ['h.kz'] },
   { id: 'timeline-world', subj: 'history', icon: '🌍', topics: ['h.world'] },
+  { id: 'timeline-ru', subj: 'history', icon: '🏰', topics: ['h.ru', 'h.rut'] },
   { id: 'tenses', subj: 'english', icon: '⏳', topics: ['e.tenses'] },
 ];
 
