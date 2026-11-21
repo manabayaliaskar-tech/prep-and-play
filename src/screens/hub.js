@@ -4,6 +4,7 @@
 import { EXPLAINERS } from '../content/explainers.js';
 import { dueMistakes, getMistakes } from '../core/review.js';
 import { restRulesToday, rulesTileCount } from '../core/rules.js';
+import { storage } from '../core/storage.js';
 import { getPlan, readiness } from '../core/plan.js';
 import { maybeStartTour, tourDone } from '../ui/tour.js';
 import { getGoal, goalHref, regionExams, welcomeDone } from '../core/goal.js';
@@ -229,6 +230,35 @@ function todayStripHtml(p) {
 /** Сколько экзаменов на главной: цель, экзамены своей страны, международные. */
 const HOME_EXAMS = 6;
 
+/**
+ * Правая колонка главной на компьютере: прогресс дня, задания дня, друзья и инструменты учёбы.
+ * На телефоне и планшете скрыта - там то же самое есть в полосе «на сегодня».
+ */
+function railHtml(p, lvl, streak, xpToday) {
+  const goal = Math.min(xpToday, DAILY_GOAL);
+  // Список друзей храним в «friends» (src/core/friends.js); модуль не грузим ради одного числа.
+  const friendList = storage.get('friends', []);
+  const friends = Array.isArray(friendList) ? friendList.length : 0;
+  const link = (href, icon, title, desc) => `<a class="rail-link" href="#${href}"><span class="rail-ico" aria-hidden="true">${icon}</span><span><b>${title}</b><small>${desc}</small></span></a>`;
+  return `<aside class="hub-rail" aria-label="${t('rail.label')}">
+    <a class="rail-card rail-me" href="#/profile">
+      <span class="rail-ring" style="--p:${Math.round((goal / DAILY_GOAL) * 100)}">${mascot(moodOf(p).mascot, 'mascot-sm', undefined, { form: moodOf(p).form })}</span>
+      <span class="rail-me-text">
+        <b>${p.name ? esc(p.name) : t('home.level', { n: lvl.level })}</b>
+        <small>${p.name ? `${t('home.level', { n: lvl.level })} · ` : ''}${p.xp}/${p.xp - lvl.into + lvl.need} XP</small>
+        <span class="rail-row"><span class="rail-pill">${flameSvg(streak)} ${streak}</span><span class="rail-pill">🎯 ${goal}/${DAILY_GOAL}</span></span>
+      </span>
+    </a>
+    <div class="rail-card rail-quests">${questsCard(p)}</div>
+    <div class="rail-card rail-links">
+      ${link('/friends', '👋', t('fr.title'), friends ? t('rail.friendsN', { n: friends }) : t('rail.friendsCta'))}
+      ${link('/explain', '🎬', t('explain.title'), t('hub.explainDesc', { n: EXPLAINERS.length }))}
+      ${link('/sheets', '📄', t('sheet.indexTitle'), t('sheet.short'))}
+      ${link('/c/ielts/listening', '🎧', t('hub.listen'), t('hub.listenDesc'))}
+    </div>
+  </aside>`;
+}
+
 const isPinnedLabel = (id) => t(isPinned(id) ? 'pin.remove' : 'pin.add');
 
 export function hubScreen(app) {
@@ -258,6 +288,8 @@ export function hubScreen(app) {
     const olymp = courseById('olymp');
     app.innerHTML = `
       <section class="page home hub">
+       <div class="hub-layout">
+       <div class="hub-main">
         <div class="hero-card">
           <div class="hero-mascot prepi-stage">
             <button type="button" class="prepi-poke" aria-label="${t('prepi.poke')}">${mascot(moodOf(p).mascot, 'mascot-xl float', undefined, { form: moodOf(p).form })}</button>
@@ -333,6 +365,9 @@ export function hubScreen(app) {
           <p>${t('hub.about', { exams: exams.length, courses: COURSES.length })}</p>
           <p class="muted tiny">${t('cat.disclaimer')}</p>
         </div>
+       </div>
+       ${railHtml(p, lvl, streak, xpToday)}
+       </div>
       </section>`;
     app.querySelector('.prepi-stage .prepi-dress-btn')?.addEventListener('click', () => openWardrobe(render));
     bindPoke(app.querySelector('.prepi-poke'), () => {

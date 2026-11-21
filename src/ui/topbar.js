@@ -49,6 +49,9 @@ export function renderTopbar() {
   const group = groupOfPath(path);
   const item = (href, key, icon, active) =>
     `<a class="nav-item ${active ? 'is-active' : ''}" href="#${href}" ${active ? 'aria-current="page"' : ''}><span class="nav-icon" aria-hidden="true">${icon}</span><span class="nav-label">${t(key)}</span></a>`;
+  // Дополнительные пункты бокового меню: видны только на компьютере (на телефоне и планшете их нет в шапке).
+  const deskItem = (href, key, icon, active) =>
+    `<a class="nav-item nav-desk ${active ? 'is-active' : ''}" href="#${href}" ${active ? 'aria-current="page"' : ''}><span class="nav-icon" aria-hidden="true">${icon}</span><span class="nav-label">${t(key)}</span></a>`;
   el.innerHTML = `
     <div class="topbar-inner">
       <a class="logo" href="#/" aria-label="Prep&amp;Play">${LOGO}<span class="logo-text">Prep<span class="logo-amp">&amp;</span>Play</span></a>
@@ -60,6 +63,11 @@ export function renderTopbar() {
         ${item('/code', 'nav.code', '💻', group === 'code')}
         ${item('/profile', 'nav.profile', '👤', path.startsWith('/profile') || path.startsWith('/achievements'))}
         ${notesInNav() ? item('/saved', 'nav.notes', '🔖', path.startsWith('/saved')) : ''}
+        <span class="nav-desk-sep" aria-hidden="true"></span>
+        ${deskItem('/explain', 'explain.title', '🎬', path.startsWith('/explain'))}
+        ${deskItem('/sheets', 'sheet.indexTitle', '📄', path.startsWith('/sheet'))}
+        ${deskItem('/friends', 'fr.title', '👋', path.startsWith('/friends'))}
+        ${deskItem('/shop', 'shop.title', '🛍️', path.startsWith('/shop'))}
       </nav>
       <div class="top-stats">
         <span class="stat-chip streak ${streak ? 'is-on' : ''}" title="${t('top.streak')}${streakMultiplier(streak) > 1 ? ` · ×${streakMultiplier(streak)} XP` : ''}">${flameSvg(streak)} <b>${streak}</b></span>
