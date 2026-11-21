@@ -6,7 +6,7 @@ import { guessCurrency } from './pricing.js';
 
 /** Национальные экзамены по стране (страну узнаём по валюте часового пояса). */
 const LOCAL = {
-  KZT: ['ent'],
+  KZT: ['ent', 'nis', 'bil'],
   RUB: ['ege', 'oge'],
   BYN: ['ct'],
   UZS: ['dtm'],
@@ -17,7 +17,7 @@ const LOCAL = {
   MDL: ['bac'],
 };
 /** Международные экзамены - сразу после своих. */
-const WORLD = ['sat', 'ielts', 'toefl', 'hsk'];
+const WORLD = ['sat', 'ielts', 'toefl', 'cambridge', 'duolingo', 'act', 'hsk'];
 
 /** Валюта страны пользователя по часовому поясу и языку браузера. */
 export function userCurrency() {

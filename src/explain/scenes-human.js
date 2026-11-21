@@ -416,42 +416,91 @@ export const SCENES_HUMAN = {
 
   timezones: {
     title: L('Earth rotation and time zones', 'Вращение Земли и часовые пояса', 'Жердің айналуы және сағат белдеулері'),
-    intro: L('Seen from above the North Pole, Earth turns 360° in 24 hours - 15° per hour. That is why clocks in places 15° apart differ by about one hour.', 'Если смотреть с Северного полюса, Земля поворачивается на 360° за 24 часа - на 15° в час. Поэтому в местах, отстоящих на 15° по долготе, часы различаются примерно на час.', 'Солтүстік полюстен қарасақ, Жер 24 сағатта 360°-қа - сағатына 15°-қа бұрылады. Сондықтан бойлығы 15°-қа алшақ жерлерде сағаттар шамамен бір сағатқа өзгешеленеді.'),
-    sliders: [{ id: 'tt', label: L('time UTC', 'время UTC', 'UTC уақыты'), min: 0, max: 24, step: C, value: 9, show: hhmm }],
-    buttons: [L('▶ One day', '▶ Одни сутки', '▶ Бір тәулік')],
-    play: 'tt',
-    playDur: 8000,
-    playLinear: true,
-    draw(v) {
-      const cx = 85;
-      const cy = 110;
-      const r = 66;
-      const rot = (v.tt - 12) * 15;
-      const merid = Array.from({ length: 12 }, (_, i) => {
-        const a = ((i * 15 + rot) * Math.PI) / 180;
-        return `<line class="ex-grid" x1="${n1(cx - r * Math.cos(a))}" y1="${n1(cy + r * Math.sin(a))}" x2="${n1(cx + r * Math.cos(a))}" y2="${n1(cy - r * Math.sin(a))}"/>`;
+    intro: L('Earth turns 15° an hour, so local time changes by about an hour for every 15° of longitude. Pick two cities, run a day and cross the date line - then solve the quiz.', 'Земля поворачивается на 15° в час, поэтому местное время меняется примерно на час на каждые 15° долготы. Выбери два города, прокрути сутки, перейди линию перемены дат - и реши задание.', 'Жер сағатына 15°-қа бұрылады, сондықтан бойлықтың әр 15°-ында жергілікті уақыт шамамен бір сағатқа өзгереді. Екі қаланы таңда, тәулікті айналдыр, күн ауысу сызығынан өт - тапсырманы шеш.'),
+    sliders: [
+      { id: 'tt', label: L('time UTC', 'время UTC', 'UTC уақыты'), min: 0, max: 24, step: C, value: 9, show: hhmm, hidden: (v, st) => Boolean(st.q) },
+      { id: 'a', label: L('city 1', 'город 1', '1-қала'), min: 0, max: 13, value: 8, show: (x) => tx(TZ_CITIES[clamp(x, 0, 13)].n), hidden: (v, st) => Boolean(st.q) },
+      { id: 'b', label: L('city 2', 'город 2', '2-қала'), min: 0, max: 13, value: 11, show: (x) => tx(TZ_CITIES[clamp(x, 0, 13)].n), hidden: (v, st) => Boolean(st.q) },
+    ],
+    buttons: [L('▶ One day', '▶ Одни сутки', '▶ Бір тәулік'), L('Quiz', 'Задание', 'Тапсырма'), L('New task', 'Новое задание', 'Жаңа тапсырма')],
+    state: () => ({ q: null, score: [0, 0] }),
+    pressed: (i, v, st) => i === 1 && Boolean(st.q),
+    btnHidden: (i, v, st) => (i === 0 ? Boolean(st.q) : i === 2 ? !st.q : false),
+    onButton(i, st, v, api) {
+      if (i === 0) api.play('tt', { dur: 9000, linear: true });
+      else if (i === 1) st.q = st.q ? null : tzQuiz();
+      else st.q = tzQuiz();
+    },
+    onDrag(key, p, v, st) {
+      if (key[0] === 'o' && st.q && !st.q.done && tapOnce(st, key)) {
+        const q = st.q;
+        q.pick = Number(key.slice(1));
+        q.done = true;
+        q.ok = q.pick === q.ans;
+        st.score[1] += 1;
+        if (q.ok) st.score[0] += 1;
+      }
+    },
+    draw(v, step, st) {
+      if (st.q) return tzQuizDraw(st);
+      const A = TZ_CITIES[clamp(Math.round(v.a), 0, 13)];
+      const B = TZ_CITIES[clamp(Math.round(v.b), 0, 13)];
+      const cx = 72;
+      const cy = 90;
+      const r = 62;
+      // Угол точки долготы lon: солнечное время t + lon/15, полдень - справа (к Солнцу).
+      const ang = (lon) => ((v.tt + lon / 15 - 12) * 15 * Math.PI) / 180;
+      const pt = (lon, rr) => [cx + rr * Math.cos(ang(lon)), cy - rr * Math.sin(ang(lon))];
+      let s = `<circle class="ex-earth" cx="${cx}" cy="${cy}" r="${r}"/>`;
+      for (let lon = -165; lon <= 180; lon += 15) {
+        const [x, y] = pt(lon, r);
+        const cls = lon === 0 ? 'ex-stroke exc-b' : lon === 180 ? 'ex-stroke exc-r ex-dash' : 'ex-grid';
+        s += `<line class="${cls}" style="${lon % 180 === 0 ? 'stroke-width:1.6' : ''}" x1="${cx}" y1="${cy}" x2="${n1(x)}" y2="${n1(y)}"/>`;
+      }
+      s += `<path class="ex-night" d="M${cx} ${cy - r} A${r} ${r} 0 0 0 ${cx} ${cy + r} Z"/><circle class="ex-fill exc-m" cx="${cx}" cy="${cy}" r="3"/>`;
+      const [gx, gy] = pt(0, r + 9);
+      const [dx, dy] = pt(180, r + 9);
+      s += `<text class="exh-f9 tc exc-b" x="${n1(gx)}" y="${n1(gy + 3)}">0°</text><text class="exh-f9 tc exc-r" x="${n1(dx)}" y="${n1(dy + 3)}">180°</text>`;
+      s += TZ_CITIES.map((c) => {
+        const [x, y] = pt(c.lon, r - 8);
+        const sel = c === A || c === B;
+        return `<circle class="ex-fill ${c === A ? 'exc-o' : c === B ? 'exc-g' : 'exc-m'}" cx="${n1(x)}" cy="${n1(y)}" r="${sel ? 5.5 : 2.5}" style="opacity:${sel ? 1 : 0.7}"/>`;
       }).join('');
-      const pins = CITIES.map((c, i) => {
-        const a = ((v.tt + c.o - 12) * 15 * Math.PI) / 180;
-        return `<circle class="ex-city c${i}" cx="${n1(cx + (r - 8) * Math.cos(a))}" cy="${n1(cy - (r - 8) * Math.sin(a))}" r="5"/>`;
-      }).join('');
-      const list = CITIES.map((c, i) => {
-        const lt = (((v.tt + c.o) % 24) + 24) % 24;
-        const day = lt >= 6 && lt < 18;
-        return `<circle class="ex-city c${i}" cx="176" cy="${36 + i * 30}" r="5"/><text class="ex-tag" x="186" y="${40 + i * 30}">${tx(c.n)}</text><text class="ex-small ex-end" x="314" y="${40 + i * 30}">${hhmm(lt)}</text><text class="ex-tiny ex-start" x="186" y="${53 + i * 30}">UTC${c.o >= 0 ? '+' : '−'}${Math.abs(c.o)} · ${day ? u('day', 'день', 'күндіз') : u('night', 'ночь', 'түн')}</text>`;
-      }).join('');
+      s += `<g class="exc-y">${arrow(cx + r + 26, cy, cx + r + 6, cy, '', 3)}</g><text class="exh-f9 tc exc-y" x="${cx + r + 18}" y="${cy - 8}">${esc(u('Sun', 'Солнце', 'Күн'))}</text>`;
+      // Карточки городов.
+      const card = (c, y, cls) => {
+        const lt = v.tt + c.o;
+        const day = Math.floor(lt / 24);
+        const solar = (((v.tt + c.lon / 15) % 24) + 24) % 24;
+        const isDay = solar >= 6 && solar < 18;
+        return `<rect class="exh-card" x="166" y="${y}" width="148" height="56" rx="10"/><circle class="ex-fill ${cls}" cx="178" cy="${y + 14}" r="5"/>
+          <text class="exh-f11 ex-start" x="188" y="${y + 18}">${esc(tx(c.n))}</text><text class="exh-f9 ex-end tc exc-m" x="308" y="${y + 18}">UTC${tzOff(c.o)}</text>
+          <text class="exh-f22 ex-start" x="174" y="${y + 46}">${hhmm(lt)}</text><text class="exh-f10 ex-end tc ${isDay ? 'exc-o' : 'exc-b'}" x="308" y="${y + 36}">${esc(isDay ? u('day', 'день', 'күндіз') : u('night', 'ночь', 'түн'))}</text><text class="exh-f10 ex-end tc exc-m" x="308" y="${y + 49}">${esc(tx(TZ_DAYS[(day + 7) % 7]))}</text>`;
+      };
+      const diff = B.o - A.o;
+      s += card(A, 4, 'exc-o') + card(B, 66, 'exc-g');
+      s += `<text class="exh-f12 tc exc-p" x="240" y="140">${esc(`${u('difference', 'разница', 'айырма')}: ${diff >= 0 ? '+' : '−'}${tzHours(Math.abs(diff))}`)}</text><text class="exh-f9 tc exc-m" x="240" y="154">${esc(u('UTC day = Monday', 'по UTC сейчас понедельник', 'UTC бойынша дүйсенбі'))}</text>`;
+      // Полоса долгот: день и ночь, линия перемены дат.
+      const lx = (lon) => 10 + ((lon + 180) / 360) * 300;
+      for (let lon = -180; lon < 180; lon += 7.5) {
+        const solar = (((v.tt + (lon + 3.75) / 15) % 24) + 24) % 24;
+        s += `<rect class="ex-fill ${solar >= 6 && solar < 18 ? 'exc-y' : 'exc-b'}" x="${n1(lx(lon))}" y="172" width="${n1(300 / 48 + 0.3)}" height="16" style="opacity:${solar >= 6 && solar < 18 ? 0.35 : 0.3}"/>`;
+      }
+      s += `<line class="ex-stroke exc-b" style="stroke-width:1.5" x1="${lx(0)}" y1="168" x2="${lx(0)}" y2="192"/><line class="ex-stroke exc-r ex-dash" style="stroke-width:1.5" x1="${lx(180)}" y1="168" x2="${lx(180)}" y2="192"/><line class="ex-stroke exc-r ex-dash" style="stroke-width:1.5" x1="${lx(-180)}" y1="168" x2="${lx(-180)}" y2="192"/>`;
+      s += TZ_CITIES.map((c) => `<circle class="ex-fill ${c === A ? 'exc-o' : c === B ? 'exc-g' : 'exc-m'}" cx="${n1(lx(c.lon))}" cy="180" r="${c === A || c === B ? 4.5 : 2}"/>`).join('');
+      s += `<text class="exh-f9 tc exc-b" x="${lx(0)}" y="202">${esc(u('Greenwich 0°', 'Гринвич 0°', 'Гринвич 0°'))}</text><text class="exh-f9 ex-end tc exc-r" x="312" y="202">${esc(u('date line 180°', 'линия перемены дат', 'күн ауысу сызығы'))}</text><text class="exh-f9 ex-start tc exc-m" x="8" y="215">${esc(u('180° W', '180° з. д.', '180° б. б.'))}</text><text class="exh-f9 ex-end tc exc-m" x="312" y="215">${esc(u('180° E', '180° в. д.', '180° ш. б.'))}</text>`;
+      const tA = hhmm(v.tt + A.o);
+      const tB = hhmm(v.tt + B.o);
       return {
-        svg: `<circle class="ex-earth" cx="${cx}" cy="${cy}" r="${r}"/>${merid}<path class="ex-night" d="M${cx} ${cy - r} A${r} ${r} 0 0 0 ${cx} ${cy + r} Z"/>
-          <circle class="ex-fill exc-m" cx="${cx}" cy="${cy}" r="3"/>${pins}<g class="exc-y">${arrow(cx + r + 20, cy, cx + r + 5, cy, '', 3)}</g>${list}`,
+        svg: s,
         caption: L(
-          `Now ${hhmm(v.tt)} UTC: London ${hhmm(v.tt)}, Astana ${hhmm(v.tt + 5)}, Tokyo ${hhmm(v.tt + 9)}. Each hour Earth turns 15°, so the line of sunrise moves 15° west - and the local time shifts by one hour per 15° of longitude.`,
-          `Сейчас ${hhmm(v.tt)} UTC: в Лондоне ${hhmm(v.tt)}, в Астане ${hhmm(v.tt + 5)}, в Токио ${hhmm(v.tt + 9)}. За час Земля поворачивается на 15°, граница рассвета сдвигается на 15° к западу - и местное время меняется на час на каждые 15° долготы.`,
-          `Қазір UTC бойынша ${hhmm(v.tt)}: Лондонда ${hhmm(v.tt)}, Астанада ${hhmm(v.tt + 5)}, Токиода ${hhmm(v.tt + 9)}. Бір сағатта Жер 15°-қа бұрылады, таң шекарасы батысқа 15°-қа жылжиды - жергілікті уақыт бойлықтың әр 15°-ына бір сағатқа өзгереді.`,
+          `${hhmm(v.tt)} UTC: ${tx(A.n, 'en')} ${tA}, ${tx(B.n, 'en')} ${tB} (${diff >= 0 ? '+' : '−'}${Math.abs(diff)} h). East is ahead, west is behind; crossing the date line eastwards you go back one day. Times are standard (winter) time.`,
+          `${hhmm(v.tt)} UTC: ${tx(A.n, 'ru')} ${tA}, ${tx(B.n, 'ru')} ${tB} (${diff >= 0 ? '+' : '−'}${String(Math.abs(diff)).replace('.', ',')} ч). На востоке время больше, на западе меньше; при переходе линии перемены дат на восток дата уменьшается на сутки. Время стандартное (зимнее).`,
+          `${hhmm(v.tt)} UTC: ${tx(A.n, 'kk')} ${tA}, ${tx(B.n, 'kk')} ${tB} (${diff >= 0 ? '+' : '−'}${String(Math.abs(diff)).replace('.', ',')} сағ). Шығыста уақыт көп, батыста аз; күн ауысу сызығынан шығысқа өткенде күн бір тәулікке кемиді. Уақыт стандартты (қысқы).`,
         ),
       };
     },
   },
-
   binary: {
     title: L('Binary numbers: bits, bytes, hex', 'Двоичные числа: биты, байты, hex', 'Екілік сандар: бит, байт, hex'),
     intro: L('A computer keeps numbers in bits - lamps that are on (1) or off (0). Each bit is worth a power of two. Toggle bits, convert by dividing by 2, add in binary and test yourself.', 'Компьютер хранит числа в битах - лампочках, которые горят (1) или нет (0). Каждый бит стоит степень двойки. Переключай биты, переводи делением на 2, складывай в двоичной системе и проверь себя.', 'Компьютер сандарды биттерде сақтайды - жанып (1) не сөніп (0) тұрған шамдар. Әр бит екінің дәрежесіне тең. Биттерді ауыстыр, 2-ге бөліп аудар, екілік жүйеде қос және өзіңді тексер.'),
@@ -669,242 +718,534 @@ export const SCENES_HUMAN = {
     },
   },
   seasons: {
-    title: L('Seasons and day length', 'Времена года и длина дня', 'Жыл мезгілдері және күн ұзақтығы'),
-    intro: L('Earth’s axis is tilted by 23.4°. During the year first one hemisphere, then the other leans toward the Sun: the Sun rises higher, days get longer - summer comes.', 'Ось Земли наклонена на 23,4°. За год к Солнцу наклоняется то одно полушарие, то другое: Солнце поднимается выше, дни длиннее - наступает лето.', 'Жер осі 23,4°-қа көлбеген. Жыл бойы Күнге бірде бір жарты шар, бірде екіншісі еңкейеді: Күн биік көтеріліп, күн ұзарады - жаз келеді.'),
+    title: L('Seasons, day length and the noon Sun', 'Времена года, длина дня и полуденное Солнце', 'Жыл мезгілдері, күн ұзақтығы және түстегі Күн'),
+    intro: L('Earth’s axis is tilted by 23.4°, so during the year the Sun’s declination changes from +23.4° to −23.4°. Pick a latitude and a day: see the day length, the noon height h = 90° − |φ − δ| and the curve for the whole year.', 'Ось Земли наклонена на 23,4°, поэтому за год склонение Солнца меняется от +23,4° до −23,4°. Выбери широту и день: увидишь длину дня, высоту Солнца в полдень h = 90° − |φ − δ| и график на весь год.', 'Жер осі 23,4°-қа көлбеген, сондықтан жыл бойы Күннің ауытқуы +23,4°-тан −23,4°-қа дейін өзгереді. Ендік пен күнді таңда: күн ұзақтығын, түстегі биіктікті h = 90° − |φ − δ| және бүкіл жылдың графигін көресің.'),
     sliders: [
-      { id: 'd', label: L('day of year', 'день года', 'жыл күні'), min: 1, max: 365, step: C, value: 172 },
-      { id: 'lat', label: L('latitude, °N', 'широта, ° с. ш.', 'ендік, ° с. е.'), min: 0, max: 70, step: C, value: 43 },
+      { id: 'd', label: L('day of year', 'день года', 'жыл күні'), min: 1, max: 365, step: C, value: 172, show: (x) => seasonDate(x), hidden: (v, st) => Boolean(st.q) },
+      { id: 'lat', label: L('latitude φ (− south)', 'широта φ (− юг)', 'ендік φ (− оңтүстік)'), min: -90, max: 90, step: C, value: 43.2, show: (x) => `${x < 0 ? '−' : ''}${Math.abs(x)}°`, hidden: (v, st) => Boolean(st.q) },
     ],
-    buttons: [L('▶ One year', '▶ Один год', '▶ Бір жыл'), L('Almaty 43°', 'Алматы 43°', 'Алматы 43°'), L('Astana 51°', 'Астана 51°', 'Астана 51°')],
-    play: 'd',
-    playDur: 9000,
-    playLinear: true,
-    onButton: (i) => (i === 1 ? { lat: 43.2 } : i === 2 ? { lat: 51.2 } : undefined),
-    draw(v) {
-      const dec = 23.44 * Math.sin((2 * Math.PI * (284 + v.d)) / 365);
-      const phi = (v.lat * Math.PI) / 180;
-      const del = (dec * Math.PI) / 180;
-      const c = -Math.tan(phi) * Math.tan(del);
-      const day = c <= -1 ? 24 : c >= 1 ? 0 : (24 / Math.PI) * Math.acos(c);
-      const noon = 90 - Math.abs(v.lat - dec);
-      const MONTHS = u('Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec', 'янв фев мар апр май июн июл авг сен окт ноя дек', 'қаң ақп нау сәу мам мау шіл там қыр қаз қар жел').split(' ');
-      const mon = MONTHS[Math.min(11, Math.floor(((v.d - 1) / 365) * 12))];
-      const cx = 85;
-      const cy = 112;
-      const r = 58;
-      // Солнце справа: летом (склонение > 0) северный полюс наклонён к нему.
+    buttons: [L('▶ One year', '▶ Один год', '▶ Бір жыл'), L('Almaty', 'Алматы', 'Алматы'), L('Astana', 'Астана', 'Астана'), L('Arctic Circle', 'Полярный круг', 'Солтүстік полярлық шеңбер'), L('Quiz', 'Задание', 'Тапсырма'), L('New task', 'Новое задание', 'Жаңа тапсырма')],
+    state: () => ({ q: null, score: [0, 0] }),
+    pressed: (i, v, st) => i === 4 && Boolean(st.q),
+    btnHidden: (i, v, st) => (st.q ? i < 4 : i === 5),
+    onButton(i, st, v, api) {
+      if (i === 0) return api.play('d', { dur: 10000, linear: true });
+      if (i < 4) return { lat: [0, 43.2, 51.2, 66.6][i] };
+      if (i === 4) st.q = st.q ? null : seasonQuiz();
+      else st.q = seasonQuiz();
+      return undefined;
+    },
+    onDrag(key, p, v, st) {
+      if (key[0] === 'o' && st.q && !st.q.done && tapOnce(st, key)) {
+        const q = st.q;
+        q.pick = Number(key.slice(1));
+        q.done = true;
+        q.ok = q.pick === q.ans;
+        st.score[1] += 1;
+        if (q.ok) st.score[0] += 1;
+      }
+    },
+    draw(v, step, st) {
+      if (st.q) return seasonQuizDraw(st);
+      const dec = sunDec(v.d);
+      const lat = v.lat;
+      const day = dayLen(lat, dec);
+      const noon = 90 - Math.abs(lat - dec);
+      const sunH = clamp(noon, -90, 90);
+      // Земля с наклоном оси (Солнце справа).
+      const cx = 64;
+      const cy = 78;
+      const r = 50;
       const tilt = (dec * Math.PI) / 180;
       const axis = [Math.sin(tilt), -Math.cos(tilt)];
       const perp = [Math.cos(tilt), Math.sin(tilt)];
+      const phi = (lat * Math.PI) / 180;
       const lc = [cx + axis[0] * r * Math.sin(phi), cy + axis[1] * r * Math.sin(phi)];
       const half = r * Math.cos(phi);
-      const sunH = clamp(noon, 0, 90);
+      let s = `<circle class="ex-fill exc-y" cx="150" cy="${cy}" r="9"/><path class="ex-fill exc-b" style="opacity:.28" d="M${cx} ${cy - r} A${r} ${r} 0 0 0 ${cx} ${cy + r} Z"/>
+        <circle class="ex-stroke exc-b" style="fill:none;stroke-width:2" cx="${cx}" cy="${cy}" r="${r}"/>
+        <line class="ex-stroke exc-m ex-dash" style="stroke-width:1.5" x1="${n1(cx - axis[0] * 58)}" y1="${n1(cy - axis[1] * 58)}" x2="${n1(cx + axis[0] * 58)}" y2="${n1(cy + axis[1] * 58)}"/>
+        <line class="ex-grid" x1="${n1(cx - perp[0] * r)}" y1="${n1(cy - perp[1] * r)}" x2="${n1(cx + perp[0] * r)}" y2="${n1(cy + perp[1] * r)}"/>
+        <line class="ex-stroke exc-o" style="stroke-width:2.5" x1="${n1(lc[0] - perp[0] * half)}" y1="${n1(lc[1] - perp[1] * half)}" x2="${n1(lc[0] + perp[0] * half)}" y2="${n1(lc[1] + perp[1] * half)}"/><circle class="ex-fill exc-o" cx="${n1(lc[0] + perp[0] * half)}" cy="${n1(lc[1] + perp[1] * half)}" r="4"/>
+        ${[cy - 14, cy, cy + 14].map((y) => arrow(140, y, 122, y, 'exc-y', 1.6)).join('')}
+        <text class="exh-f10 ex-start" x="6" y="14">${esc(`${seasonDate(v.d)} · δ = ${fmt(dec, 1)}°`)}</text>`;
+      // Высота Солнца в полдень.
+      const hx = 176;
+      const hy = 92;
+      const sa = (clamp(sunH, 0, 90) * Math.PI) / 180;
+      s += `<line class="ex-axis" x1="${hx - 6}" y1="${hy}" x2="314" y2="${hy}"/><text class="exh-f9 ex-end tc exc-m" x="314" y="${hy + 11}">${esc(u('horizon', 'горизонт', 'көкжиек'))}</text>
+        <path class="ex-stroke exc-y" style="stroke-width:1.5" d="M${hx + 30} ${hy} A30 30 0 0 0 ${n1(hx + 30 * Math.cos(sa))} ${n1(hy - 30 * Math.sin(sa))}"/>
+        <line class="ex-stroke exc-y" style="stroke-width:1.5" x1="${hx}" y1="${hy}" x2="${n1(hx + 78 * Math.cos(sa) * 70 / 78)}" y2="${n1(hy - 70 * Math.sin(sa))}"/>
+        <circle class="ex-fill exc-y" cx="${n1(hx + 70 * Math.cos(sa))}" cy="${n1(hy - 70 * Math.sin(sa))}" r="${sunH > 0 ? 8 : 0}"/><circle class="ex-fill exc-p" cx="${hx}" cy="${hy}" r="3"/>
+        <text class="exh-f14 ex-start" x="${hx + 34}" y="${hy - 6}">h = ${fmt(sunH, 1)}°</text>
+        <text class="exh-f10 ex-end tc exc-m" x="314" y="118">${esc(`h = 90° − |${fmt(lat, 1)}° − (${fmt(dec, 1)}°)|`)}</text>`;
+      // График длины дня за год.
+      const gx = 30;
+      const gy = 140;
+      const gw = 280;
+      const gh = 60;
+      const X = (dd) => gx + ((dd - 1) / 364) * gw;
+      const Y = (h) => gy + gh - (h / 24) * gh;
+      let path = '';
+      for (let dd = 1; dd <= 365; dd += 4) path += `${path ? 'L' : 'M'}${n1(X(dd))} ${n1(Y(dayLen(lat, sunDec(dd))))} `;
+      s += `<rect class="exh-box" x="${gx}" y="${gy}" width="${gw}" height="${gh}" rx="4"/><line class="ex-grid" x1="${gx}" y1="${Y(12)}" x2="${gx + gw}" y2="${Y(12)}"/>
+        <text class="exh-f9 ex-end tc exc-m" x="${gx - 3}" y="${gy + 4}">24</text><text class="exh-f9 ex-end tc exc-m" x="${gx - 3}" y="${Y(12) + 3}">12</text><text class="exh-f9 ex-end tc exc-m" x="${gx - 3}" y="${gy + gh}">0</text>
+        <path class="ex-stroke exc-o" style="stroke-width:2" d="${path}"/>
+        <line class="ex-stroke exc-p" style="stroke-width:1.5" x1="${n1(X(v.d))}" y1="${gy}" x2="${n1(X(v.d))}" y2="${gy + gh}"/><circle class="ex-fill exc-p" cx="${n1(X(v.d))}" cy="${n1(Y(day))}" r="4"/>`;
+      const MON = u('J F M A M J J A S O N D', 'Я Ф М А М И И А С О Н Д', 'Қ А Н С М М Ш Т Қ Қ Қ Ж').split(' ');
+      s += MON.map((mn, i) => `<text class="exh-f9 tc exc-m" x="${n1(X(i * 30.4 + 15))}" y="${gy + gh + 11}">${mn}</text>`).join('');
+      s += `<text class="exh-f12 ex-start tc exc-o" x="${gx}" y="${gy - 6}">${esc(`${u('day length', 'длина дня', 'күн ұзақтығы')}: ${(day >= 24 ? '24:00' : hhmm(day))}`)}</text>`;
+      const polar = day >= 24 ? 1 : day <= 0 ? -1 : 0;
       return {
-        svg: `<circle class="ex-fill exc-y" cx="300" cy="112" r="14"/><path class="ex-fill exc-b" style="opacity:.25" d="M${cx} ${cy - r} A${r} ${r} 0 0 0 ${cx} ${cy + r} Z"/>
-          <circle class="ex-stroke exc-b" style="fill:none;stroke-width:2" cx="${cx}" cy="${cy}" r="${r}"/>
-          <line class="ex-stroke exc-m ex-dash" x1="${n1(cx - axis[0] * 75)}" y1="${n1(cy - axis[1] * 75)}" x2="${n1(cx + axis[0] * 75)}" y2="${n1(cy + axis[1] * 75)}"/>
-          <line class="ex-stroke exc-o" style="stroke-width:2.5" x1="${n1(lc[0] - perp[0] * half)}" y1="${n1(lc[1] - perp[1] * half)}" x2="${n1(lc[0] + perp[0] * half)}" y2="${n1(lc[1] + perp[1] * half)}"/><circle class="ex-fill exc-o" cx="${n1(lc[0] + perp[0] * half)}" cy="${n1(lc[1] + perp[1] * half)}" r="4"/>
-          <text class="ex-tag" x="8" y="18">${mon} · ${u('Sun declination', 'склонение Солнца', 'Күн ауытқуы')} ${fmt(dec, 1)}°</text>
-          <text class="ex-big" x="240" y="80">${hhmm(day)}</text><text class="ex-small" x="240" y="100">${u('day length', 'длина дня', 'күн ұзақтығы')}</text>
-          <text class="ex-tag" x="160" y="150">${u('noon Sun height', 'Солнце в полдень', 'түстегі Күн биіктігі')}: ${fmt(sunH, 1)}°</text>
-          <rect x="160" y="165" width="150" height="14" rx="7" class="ex-fill exc-m" style="opacity:.2"/><rect x="160" y="165" width="${n1((day / 24) * 150)}" height="14" rx="7" class="ex-fill exc-y"/>`,
+        svg: s,
         caption: L(
-          `At ${fmt(v.lat, 1)}° N in ${mon} the day lasts ${hhmm(day)} and the noon Sun rises ${fmt(sunH, 1)}° above the horizon. ${day >= 24 ? 'Polar day - the Sun does not set.' : day <= 0 ? 'Polar night - the Sun does not rise.' : 'Around 21 March and 23 September day equals night everywhere (equinoxes).'}`,
-          `На ${fmt(v.lat, 1)}° с. ш. в месяце «${mon}» день длится ${hhmm(day)}, а Солнце в полдень поднимается на ${fmt(sunH, 1)}° над горизонтом. ${day >= 24 ? 'Полярный день - Солнце не заходит.' : day <= 0 ? 'Полярная ночь - Солнце не восходит.' : 'Около 21 марта и 23 сентября день равен ночи везде (равноденствия).'}`,
-          `${fmt(v.lat, 1)}° с. е. «${mon}» айында күн ${hhmm(day)} созылады, ал түсте Күн көкжиектен ${fmt(sunH, 1)}°-қа көтеріледі. ${day >= 24 ? 'Полярлық күн - Күн батпайды.' : day <= 0 ? 'Полярлық түн - Күн шықпайды.' : 'Шамамен 21 наурыз бен 23 қыркүйекте күн мен түн барлық жерде тең (күн мен түннің теңелуі).'}`,
+          `${fmt(Math.abs(lat), 1)}° ${lat >= 0 ? 'N' : 'S'}, ${seasonDate(v.d)}: day ${(day >= 24 ? '24:00' : hhmm(day))}, noon Sun h = 90° − |φ − δ| = ${fmt(sunH, 1)}°. ${polar > 0 ? 'Polar day - the Sun does not set.' : polar < 0 ? 'Polar night - the Sun does not rise.' : 'On 21 March and 23 September day equals night everywhere; on 22 June the Sun is overhead at the Tropic of Cancer (23.4° N).'}`,
+          `${fmt(Math.abs(lat), 1)}° ${lat >= 0 ? 'с. ш.' : 'ю. ш.'}, ${seasonDate(v.d)}: день ${(day >= 24 ? '24:00' : hhmm(day))}, Солнце в полдень h = 90° − |φ − δ| = ${fmt(sunH, 1)}°. ${polar > 0 ? 'Полярный день - Солнце не заходит.' : polar < 0 ? 'Полярная ночь - Солнце не восходит.' : '21 марта и 23 сентября день равен ночи везде; 22 июня Солнце в зените над северным тропиком (23,4° с. ш.).'}`,
+          `${fmt(Math.abs(lat), 1)}° ${lat >= 0 ? 'с. е.' : 'о. е.'}, ${seasonDate(v.d)}: күн ${(day >= 24 ? '24:00' : hhmm(day))}, түстегі Күн h = 90° − |φ − δ| = ${fmt(sunH, 1)}°. ${polar > 0 ? 'Полярлық күн - Күн батпайды.' : polar < 0 ? 'Полярлық түн - Күн шықпайды.' : '21 наурыз бен 23 қыркүйекте күн мен түн барлық жерде тең; 22 маусымда Күн солтүстік тропик үстінде зенитте (23,4° с. е.).'}`,
         ),
       };
     },
   },
-
   mapscale: {
-    title: L('Map scale', 'Масштаб карты', 'Карта масштабы'),
-    intro: L('A scale 1 : 1 000 000 means 1 cm on the map is 1 000 000 cm = 10 km on the ground. Measure on the map, then multiply.', 'Масштаб 1 : 1 000 000 значит: 1 см на карте - это 1 000 000 см = 10 км на местности. Измерь на карте и умножь.', '1 : 1 000 000 масштабы: картадағы 1 см - жердегі 1 000 000 см = 10 км. Картадан өлше де, көбейт.'),
+    title: L('Map scale: measure Kazakhstan', 'Масштаб карты: измерь Казахстан', 'Карта масштабы: Қазақстанды өлше'),
+    intro: L('Scale 1 : 10 000 000 means 1 cm on the map is 10 000 000 cm = 100 km on the ground. Drag the pins to measure distances between cities, convert scales and solve problems.', 'Масштаб 1 : 10 000 000 значит: 1 см на карте - это 10 000 000 см = 100 км на местности. Перетаскивай метки, чтобы измерить расстояния между городами, переводи масштабы и решай задачи.', '1 : 10 000 000 масштабы: картадағы 1 см - жердегі 10 000 000 см = 100 км. Қалалар арасын өлшеу үшін белгілерді сүйре, масштабтарды аудар және есеп шығар.'),
     sliders: [
-      { id: 'k', label: L('1 cm = ... km', '1 см = ... км', '1 см = ... км'), min: 1, max: 100, step: C, value: 50 },
-      { id: 'cm', label: L('on the map, cm', 'на карте, см', 'картада, см'), min: 0.5, max: 25, step: C, value: 19.4 },
+      { id: 'sc', label: L('scale 1 :', 'масштаб 1 :', 'масштаб 1 :'), min: 0, max: 9, value: 8, show: (x) => MAP_SCALES[clamp(x, 0, 9)].toLocaleString('ru-RU'), hidden: (v, st) => st.mode !== 1 },
+      { id: 'cm', label: L('on the map, cm', 'на карте, см', 'картада, см'), min: 0.5, max: 20, step: 0.1, value: 4, hidden: (v, st) => st.mode !== 1 },
     ],
-    buttons: [L('Almaty - Astana', 'Алматы - Астана', 'Алматы - Астана'), L('Astana - Karaganda', 'Астана - Караганда', 'Астана - Қарағанды')],
-    onButton: (i, st, v) => [{ cm: clamp(970 / v.k, 0.5, 25) }, { cm: clamp(190 / v.k, 0.5, 25) }][i],
-    draw(v) {
-      const km = v.k * v.cm;
-      const scale = Math.round(v.k * 100000);
-      const unit = 12;
-      const len = clamp(v.cm * unit, 4, 300);
-      const ticks = Array.from({ length: Math.floor(v.cm) + 1 }, (_, i) => `<line class="ex-stroke exc-m" x1="${10 + i * unit}" y1="150" x2="${10 + i * unit}" y2="${i % 5 ? 156 : 162}"/>`).join('');
-      return {
-        svg: `<text class="ex-big" x="160" y="45">1 : ${scale.toLocaleString('ru-RU')}</text>
-          <circle class="ex-fill exc-r" cx="10" cy="110" r="6"/><circle class="ex-fill exc-r" cx="${n1(10 + len)}" cy="110" r="6"/>
-          <line class="ex-stroke exc-p ex-dash" style="stroke-width:2" x1="10" y1="110" x2="${n1(10 + len)}" y2="110"/>
-          <line class="ex-axis" x1="10" y1="150" x2="310" y2="150"/>${ticks}
-          <text class="ex-tag" x="8" y="90">${fmt(v.cm, 1)} ${u('cm', 'см', 'см')} × ${fmt(v.k, 1)} = ${fmt(km, 0)} ${u('km', 'км', 'км')}</text>`,
-        caption: L(
-          `Scale 1 : ${scale.toLocaleString('en-US')} - 1 cm on the map is ${fmt(v.k, 1)} km. ${fmt(v.cm, 1)} cm on the map are ${fmt(km, 0)} km on the ground. A bigger second number means a smaller-scale map: more area, fewer details.`,
-          `Масштаб 1 : ${scale.toLocaleString('ru-RU')} - в 1 см на карте ${fmt(v.k, 1)} км. ${fmt(v.cm, 1)} см на карте - это ${fmt(km, 0)} км на местности. Чем больше второе число, тем мельче масштаб: территории больше, деталей меньше.`,
-          `Масштаб 1 : ${scale.toLocaleString('ru-RU')} - картадағы 1 см-де ${fmt(v.k, 1)} км. Картадағы ${fmt(v.cm, 1)} см - жердегі ${fmt(km, 0)} км. Екінші сан неғұрлым үлкен болса, масштаб соғұрлым ұсақ: аумақ көп, бөлшек аз.`,
-        ),
-      };
-    },
-  },
-
-  gates: {
-    title: L('Logic gates: AND, OR, NOT, XOR', 'Логические элементы: И, ИЛИ, НЕ, исключающее ИЛИ', 'Логикалық элементтер: ЖӘНЕ, НЕМЕСЕ, ЕМЕС, XOR'),
-    intro: L('A gate takes inputs 0 or 1 and gives an output. AND gives 1 only if both inputs are 1; OR - if at least one; XOR - if they differ; NOT turns 1 into 0.', 'Логический элемент получает входы 0 или 1 и выдаёт выход. И даёт 1, только если оба входа 1; ИЛИ - если хотя бы один; исключающее ИЛИ - если они разные; НЕ превращает 1 в 0.', 'Логикалық элемент 0 не 1 кірістерін алып, шығыс береді. ЖӘНЕ екі кіріс те 1 болса ғана 1 береді; НЕМЕСЕ - ең болмаса біреуі; XOR - олар әртүрлі болса; ЕМЕС 1-ді 0-ге айналдырады.'),
-    sliders: [],
-    buttons: ['A', 'B', 'AND', 'OR', 'XOR', 'NOT A', 'NAND'],
-    state: () => ({ a: 1, b: 0, g: 0 }),
-    pressed: (i, v, st) => (i === 0 ? st.a === 1 : i === 1 ? st.b === 1 : i - 2 === st.g),
+    buttons: [L('Map', 'Карта', 'Карта'), L('Calculator', 'Расчёт', 'Есептеу'), L('Quiz', 'Задание', 'Тапсырма'), L('New task', 'Новое задание', 'Жаңа тапсырма')],
+    state: () => ({ mode: 0, pA: mapXY(MAP_CITIES[0]), pB: mapXY(MAP_CITIES[1]), q: null, qn: 0, score: [0, 0] }),
+    pressed: (i, v, st) => i < 3 && i === st.mode,
+    btnHidden: (i, v, st) => i === 3 && st.mode !== 2,
     onButton(i, st) {
-      if (i === 0) st.a ^= 1;
-      else if (i === 1) st.b ^= 1;
-      else st.g = i - 2;
+      if (i < 3) {
+        st.mode = i;
+        if (i === 2 && !st.q) st.q = mapQuiz(st);
+      } else st.q = mapQuiz(st);
+    },
+    onDrag(key, p, v, st) {
+      if (key === 'pA' || key === 'pB') {
+        let pt = [clamp(p.x, 8, 312), clamp(p.y, 40, 204)];
+        // Рядом с городом - метка «прилипает» к нему.
+        for (const c of MAP_CITIES) {
+          const q = mapXY(c);
+          if (Math.hypot(q[0] - pt[0], q[1] - pt[1]) < 9) pt = q;
+        }
+        st[key] = pt;
+      } else if (key[0] === 'o' && st.q && !st.q.done && tapOnce(st, key)) {
+        const q = st.q;
+        q.pick = Number(key.slice(1));
+        q.done = true;
+        q.ok = q.pick === q.ans;
+        st.score[1] += 1;
+        if (q.ok) st.score[0] += 1;
+      }
     },
     draw(v, step, st) {
-      const F = [(a, b) => a & b, (a, b) => a | b, (a, b) => a ^ b, (a) => 1 - a, (a, b) => 1 - (a & b)];
-      const NAMES = ['AND', 'OR', 'XOR', 'NOT', 'NAND'];
-      const out = F[st.g](st.a, st.b);
-      const rows = [
-        [0, 0],
-        [0, 1],
-        [1, 0],
-        [1, 1],
-      ];
-      const table = rows
-        .map(([a, b], i) => {
-          const hit = a === st.a && (st.g === 3 || b === st.b);
-          return `<text class="ex-small${hit ? ' exc-p' : ''}" x="230" y="${70 + i * 24}">${a}</text><text class="ex-small${hit ? ' exc-p' : ''}" x="260" y="${70 + i * 24}">${st.g === 3 ? '-' : b}</text><text class="ex-small${hit ? ' exc-p' : ''}" x="295" y="${70 + i * 24}">${F[st.g](a, b)}</text>`;
-        })
-        .join('');
+      if (st.mode === 2) return mapQuizDraw(st);
+      if (st.mode === 1) return mapCalc(v);
+      let s = `<path class="exh-kz" d="${mapOutline()}"/>`;
+      s += MAP_CITIES.map((c) => {
+        const [x, y] = mapXY(c);
+        return `<circle class="ex-fill exc-m" cx="${n1(x)}" cy="${n1(y)}" r="2.2"/><text class="exh-f9 tc exc-m${c.end ? ' ex-end' : ''}" x="${n1(x + (c.end ? 6 : 0))}" y="${n1(y + (c.up ? -5 : 11))}">${esc(tx(c.n))}</text>`;
+      }).join('');
+      const [ax, ay] = st.pA;
+      const [bx, by] = st.pB;
+      const d = Math.hypot(bx - ax, by - ay);
+      const cm = d / MAP_U;
+      const km = cm * 100;
+      // Линейка вдоль отрезка: деление каждый сантиметр.
+      const ux = (bx - ax) / (d || 1);
+      const uy = (by - ay) / (d || 1);
+      let ticks = '';
+      for (let k = 0; k <= Math.floor(cm); k++) {
+        const x = ax + ux * k * MAP_U;
+        const y = ay + uy * k * MAP_U;
+        const l = k % 5 ? 3 : 5;
+        ticks += `<line class="ex-stroke exc-p" style="stroke-width:1.2" x1="${n1(x - uy * l)}" y1="${n1(y + ux * l)}" x2="${n1(x + uy * l)}" y2="${n1(y - ux * l)}"/>`;
+      }
+      s += `<line class="ex-stroke exc-p" style="stroke-width:2" x1="${n1(ax)}" y1="${n1(ay)}" x2="${n1(bx)}" y2="${n1(by)}"/>${ticks}`;
+      const pin = (x, y, key, cls) => `<g class="exh-chip" data-drag="${key}" style="touch-action:none"><circle class="ex-fill ${cls}" cx="${n1(x)}" cy="${n1(y)}" r="7" style="opacity:.9"/><circle class="ex-hit" cx="${n1(x)}" cy="${n1(y)}" r="16"/></g>`;
+      s += pin(ax, ay, 'pA', 'exc-o') + pin(bx, by, 'pB', 'exc-g');
+      // Масштаб в трёх видах.
+      s += `<text class="exh-f12 ex-start" x="8" y="15">1 : 10 000 000</text><text class="exh-f11 ex-start tc exc-m" x="8" y="31">${esc(u('1 cm = 100 km', 'в 1 см 100 км', '1 см-де 100 км'))}</text>`;
+      s += [0, 1].map((k) => `<rect class="ex-fill ${k ? 'exc-m' : 'exc-p'}" x="${n1(196 + k * 5 * MAP_U)}" y="9" width="${n1(5 * MAP_U)}" height="6" style="opacity:${k ? 0.4 : 0.75}"/>`).join('') + [0, 1, 2].map((k) => `<text class="exh-f9 tc exc-m" x="${n1(196 + k * 5 * MAP_U)}" y="27">${k * 500}</text>`).join('') + `<text class="exh-f9 ex-start tc exc-m" x="${n1(200 + 10 * MAP_U)}" y="15">${esc(u('km', 'км', 'км'))}</text>`;
+      const ca = MAP_CITIES.find((c) => mapXY(c)[0] === ax && mapXY(c)[1] === ay);
+      const cb = MAP_CITIES.find((c) => mapXY(c)[0] === bx && mapXY(c)[1] === by);
+      const real = ca && cb ? Math.round(haversine(ca, cb) / 10) * 10 : null;
+      s += `<text class="exh-f12 ex-start tc exc-p" x="8" y="215">${esc(`${fmt(cm, 1)} ${u('cm', 'см', 'см')} × 100 = ${fmt(km, 0)} ${u('km', 'км', 'км')}`)}</text>${real ? `<text class="exh-f10 ex-end tc exc-m" x="312" y="215">${esc(`${u('globe', 'по глобусу', 'глобус бойынша')} ≈ ${real} ${u('km', 'км', 'км')}`)}</text>` : ''}`;
+      const names = ca && cb ? `${tx(ca.n)} - ${tx(cb.n)}: ` : '';
       return {
-        svg: `<circle class="ex-lamp${st.a ? ' on' : ''}" cx="30" cy="80" r="12"/><text class="ex-small" x="30" y="85">${st.a}</text>
-          ${st.g === 3 ? '' : `<circle class="ex-lamp${st.b ? ' on' : ''}" cx="30" cy="140" r="12"/><text class="ex-small" x="30" y="145">${st.b}</text>`}
-          <path class="ex-wire" d="M42 80 H90 M42 140 H90"/><rect x="90" y="70" width="60" height="80" rx="14" class="ex-fill exc-p" style="opacity:.85"/><text class="ex-small" x="120" y="115" style="fill:#fff">${NAMES[st.g]}</text>
-          <path class="ex-wire" d="M150 110 H175"/><circle class="ex-lamp${out ? ' on' : ''}" cx="190" cy="110" r="14"/><text class="ex-small" x="190" y="115">${out}</text>
-          <text class="ex-tiny" x="230" y="45">A</text><text class="ex-tiny" x="260" y="45">B</text><text class="ex-tiny" x="295" y="45">${u('out', 'выход', 'шығыс')}</text>${table}`,
+        svg: s,
         caption: L(
-          `${NAMES[st.g]}: A = ${st.a}${st.g === 3 ? '' : `, B = ${st.b}`} → ${out}. Tap A and B to switch inputs; the highlighted row of the truth table is the current case.`,
-          `${NAMES[st.g]}: A = ${st.a}${st.g === 3 ? '' : `, B = ${st.b}`} → ${out}. Нажимай A и B, чтобы менять входы; подсвеченная строка таблицы истинности - текущий случай.`,
-          `${NAMES[st.g]}: A = ${st.a}${st.g === 3 ? '' : `, B = ${st.b}`} → ${out}. Кірістерді ауыстыру үшін A мен B-ны бас; ақиқат кестесіндегі белгіленген жол - қазіргі жағдай.`,
+          `${names}${fmt(cm, 1)} cm on the map × 100 km = ${fmt(km, 0)} km.${real ? ` A straight line on the globe gives about ${real} km - a map always distorts a little.` : ' Drag the pins onto cities.'}`,
+          `${names}${fmt(cm, 1)} см на карте × 100 км = ${fmt(km, 0)} км.${real ? ` По прямой на глобусе - около ${real} км: карта всегда немного искажает.` : ' Перетащи метки на города.'}`,
+          `${names}картада ${fmt(cm, 1)} см × 100 км = ${fmt(km, 0)} км.${real ? ` Глобуста түзу бойынша шамамен ${real} км: карта әрқашан сәл бұрмалайды.` : ' Белгілерді қалаларға сүйре.'}`,
         ),
       };
     },
   },
-
-  download: {
-    title: L('Data size and transfer speed', 'Объём данных и скорость передачи', 'Деректер көлемі және беру жылдамдығы'),
-    intro: L('Speed is usually in megaBITS per second, files in megaBYTES. 1 byte = 8 bits, so a 100 Mbit/s line moves 12.5 MB each second.', 'Скорость обычно в мегаБИТАХ в секунду, а файлы - в мегаБАЙТАХ. 1 байт = 8 бит, поэтому линия 100 Мбит/с передаёт 12,5 МБ в секунду.', 'Жылдамдық әдетте секундына мегаБИТпен, ал файлдар мегаБАЙТпен. 1 байт = 8 бит, сондықтан 100 Мбит/с желі секундына 12,5 МБ береді.'),
+  gates: {
+    title: L('Logic gates and circuits', 'Логические элементы и схемы', 'Логикалық элементтер мен сұлбалар'),
+    intro: L('A gate turns input bits into an output bit. Try AND, OR, NOT, XOR, NAND, NOR with their truth tables, then a small circuit of two gates - and test yourself.', 'Логический элемент превращает входные биты в выходной. Попробуй И, ИЛИ, НЕ, исключающее ИЛИ, И-НЕ, ИЛИ-НЕ с таблицами истинности, затем небольшую схему из двух элементов - и проверь себя.', 'Логикалық элемент кіріс биттерін шығыс битке айналдырады. ЖӘНЕ, НЕМЕСЕ, ЕМЕС, XOR, ЖӘНЕ-ЕМЕС, НЕМЕСЕ-ЕМЕС элементтерін ақиқат кестелерімен көр, сосын екі элементті шағын сұлбаны - және өзіңді тексер.'),
     sliders: [
-      { id: 'size', label: L('file, MB', 'файл, МБ', 'файл, МБ'), min: 1, max: 4000, step: 1, value: 700 },
-      { id: 'sp', label: L('speed, Mbit/s', 'скорость, Мбит/с', 'жылдамдық, Мбит/с'), min: 1, max: 500, step: 1, value: 50 },
+      { id: 'g', label: L('gate', 'элемент', 'элемент'), min: 0, max: 5, value: 0, show: (x) => GATES[clamp(x, 0, 5)].id, hidden: (v, st) => st.mode !== 0 },
+      { id: 'c', label: L('circuit', 'схема', 'сұлба'), min: 0, max: 2, value: 0, show: (x) => `№${clamp(x, 0, 2) + 1}`, hidden: (v, st) => st.mode !== 1 },
     ],
-    buttons: [L('▶ Download', '▶ Скачать', '▶ Жүктеу')],
-    state: () => ({ p: 0, run: false }),
+    buttons: ['A', 'B', 'C', L('One gate', 'Один элемент', 'Бір элемент'), L('Circuit', 'Схема', 'Сұлба'), L('Quiz', 'Задание', 'Тапсырма'), L('New task', 'Новое задание', 'Жаңа тапсырма')],
+    state: () => ({ mode: 0, in: [1, 0, 1], q: null, qn: 0, score: [0, 0] }),
+    pressed: (i, v, st) => (i < 3 ? st.mode < 2 && st.in[i] === 1 : i < 6 ? i - 3 === st.mode : false),
+    btnHidden: (i, v, st) => (i < 2 ? st.mode === 2 : i === 2 ? st.mode !== 1 : i === 6 ? st.mode !== 2 : false),
     onButton(i, st) {
-      st.p = 0;
-      st.run = true;
+      if (i < 3) st.in[i] ^= 1;
+      else if (i < 6) {
+        st.mode = i - 3;
+        if (st.mode === 2 && !st.q) st.q = gateQuiz(st);
+      } else st.q = gateQuiz(st);
+    },
+    onDrag(key, p, v, st) {
+      if (!tapOnce(st, key)) return;
+      if (key.startsWith('in')) st.in[Number(key.slice(2))] ^= 1;
+      else if (key[0] === 'o' && st.q && !st.q.done) {
+        const q = st.q;
+        q.pick = Number(key.slice(1));
+        q.done = true;
+        q.ok = q.opts[q.pick] === q.ans;
+        st.score[1] += 1;
+        if (q.ok) st.score[0] += 1;
+      }
+    },
+    draw(v, step, st) {
+      const [A, B, Cc] = st.in;
+      const lamp = (x, y, b, key, label) => `<g class="exh-chip"${key ? ` data-drag="${key}"` : ''}><circle class="ex-lamp${b ? ' on' : ''}" cx="${x}" cy="${y}" r="12"/><text class="exh-f13" x="${x}" y="${y + 4.5}">${b}</text></g>${label ? `<text class="exh-f11 tc exc-m" x="${x}" y="${y - 16}">${label}</text>` : ''}`;
+      const wire = (d, b) => `<path class="exh-wire${b ? ' on' : ''}" d="${d}"/>`;
+      let s = '';
+      let cap;
+      if (st.mode === 0) {
+        const G = GATES[clamp(Math.round(v.g), 0, 5)];
+        const one = G.id === 'NOT';
+        const out = G.f(A, B);
+        s += lamp(28, 70, A, 'in0', 'A') + (one ? '' : lamp(28, 130, B, 'in1', 'B'));
+        s += wire(one ? 'M40 70 H70 V100 H96' : 'M40 70 H70 V88 H96', A) + (one ? '' : wire('M40 130 H70 V112 H96', B));
+        s += gateShape(G.id, 96, 76, 62, 48) + wire('M158 100 H196', out) + lamp(210, 100, out, '', u('out', 'выход', 'шығыс'));
+        s += `<text class="exh-f11 tc exc-p" x="127" y="142">${esc(tx(G.name))}</text>`;
+        // Таблица истинности.
+        const rows = one ? [[0], [1]] : [[0, 0], [0, 1], [1, 0], [1, 1]];
+        s += `<text class="exh-f10 tc exc-m" x="252" y="40">A</text>${one ? '' : '<text class="exh-f10 tc exc-m" x="274" y="40">B</text>'}<text class="exh-f10 tc exc-m" x="302" y="40">Y</text>`;
+        rows.forEach(([a, b], r) => {
+          const y = 60 + r * 22;
+          const hit = a === A && (one || b === B);
+          s += `${hit ? `<rect class="exh-hl" x="238" y="${y - 15}" width="78" height="21" rx="5"/>` : ''}<text class="exh-f13 exh-mono" x="252" y="${y}">${a}</text>${one ? '' : `<text class="exh-f13 exh-mono" x="274" y="${y}">${b}</text>`}<text class="exh-f13 exh-mono tc ${G.f(a, b ?? 0) ? 'exc-g' : 'exc-m'}" x="302" y="${y}">${G.f(a, b ?? 0)}</text>`;
+        });
+        s += `<text class="exh-f16" x="160" y="176">${esc(G.formula)}</text><text class="exh-f10 exh-mono tc exc-m" x="160" y="196">${esc(`Python: ${G.py}`)}</text><text class="exh-f10 exh-mono tc exc-m" x="160" y="211">${esc(`C++ / Java / JS: ${G.c}`)}</text>`;
+        cap = L(`${G.id}: A = ${A}${one ? '' : `, B = ${B}`} → ${out}. ${G.rule.en} Tap the inputs to switch them.`, `${tx(G.name)}: A = ${A}${one ? '' : `, B = ${B}`} → ${out}. ${G.rule.ru} Нажимай на входы, чтобы менять их.`, `${tx(G.name)}: A = ${A}${one ? '' : `, B = ${B}`} → ${out}. ${G.rule.kk} Кірістерді ауыстыру үшін оларды бас.`);
+      } else if (st.mode === 1) {
+        const ci = clamp(Math.round(v.c), 0, 2);
+        s += circuitSvg(ci, st.in, lamp, wire);
+        const K = CIRCUITS[ci];
+        const r = K.eval(A, B, Cc);
+        // Таблица истинности схемы по столбцам ABC.
+        s += `<text class="exh-f9 ex-start tc exc-m" x="4" y="184">ABC</text><text class="exh-f9 ex-start tc exc-m" x="4" y="204">Y</text>`;
+        for (let m = 0; m < 8; m++) {
+          const [a, b, c] = [(m >> 2) & 1, (m >> 1) & 1, m & 1];
+          const x = 52 + m * 34;
+          const hit = a === A && b === B && c === Cc;
+          const y = K.eval(a, b, c).y;
+          s += `${hit ? `<rect class="exh-hl" x="${x - 15}" y="172" width="30" height="40" rx="5"/>` : ''}<text class="exh-f11 exh-mono" x="${x}" y="184">${a}${b}${c}</text><text class="exh-f13 exh-mono tc ${y ? 'exc-g' : 'exc-m'}" x="${x}" y="205">${y}</text>`;
+        }
+        cap = L(`Y = ${K.f.replace('⊕', 'XOR')}. A = ${A}, B = ${B}, C = ${Cc}: ${r.steps.en} → Y = ${r.y}. The highlighted column of the table is this case; tap A, B, C.`, `Y = ${K.f.replace('⊕', 'XOR')}. A = ${A}, B = ${B}, C = ${Cc}: ${r.steps.ru} → Y = ${r.y}. Подсвечен этот столбец таблицы; нажимай A, B, C.`, `Y = ${K.f.replace('⊕', 'XOR')}. A = ${A}, B = ${B}, C = ${Cc}: ${r.steps.kk} → Y = ${r.y}. Кестенің осы бағаны белгіленген; A, B, C бас.`);
+      } else {
+        const q = st.q ?? gateQuiz(st);
+        st.q = q;
+        s += `<text class="exh-f13 ex-start" x="8" y="16">${esc(q.t === 0 ? u('Which gate has this table?', 'Какой элемент дал эту таблицу?', 'Бұл кесте қай элементтікі?') : u('What is the output?', 'Что на выходе?', 'Шығыста не болады?'))}</text><text class="exh-f12 ex-end tc exc-g" x="312" y="16">✓ ${st.score[0]} / ${st.score[1]}</text>`;
+        if (q.t === 0) {
+          const G = GATES[q.g];
+          [[0, 0], [0, 1], [1, 0], [1, 1]].forEach(([a, b], r) => {
+            const x = 52 + r * 72;
+            s += `<rect class="exh-box" x="${x - 30}" y="30" width="60" height="58" rx="8"/><text class="exh-f11 tc exc-m" x="${x}" y="48">A=${a} B=${b}</text><text class="exh-f22" x="${x}" y="78">${G.f(a, b)}</text>`;
+          });
+          q.opts.forEach((o, i) => {
+            const cls = q.done ? (o === q.ans ? 'ok' : i === q.pick ? 'bad' : '') : '';
+            s += chip(i % 2 ? 164 : 8, i < 2 ? 104 : 142, 148, 30, `${GATES[o].id} (${tx(GATES[o].name)})`, `o${i}`, cls, 12);
+          });
+          cap = !q.done ? L('Look at the outputs for all four input pairs and tap the gate.', 'Посмотри на выходы для всех четырёх пар входов и нажми на элемент.', 'Төрт кіріс жұбының шығыстарына қарап, элементті бас.') : L(`${q.ok ? '✓ Right' : '✗ No'}: it is ${G.id}. ${G.rule.en}`, `${q.ok ? '✓ Верно' : '✗ Нет'}: это ${tx(G.name)}. ${G.rule.ru}`, `${q.ok ? '✓ Дұрыс' : '✗ Жоқ'}: бұл ${tx(G.name)}. ${G.rule.kk}`);
+        } else {
+          s += `<g transform="translate(0,8)">${circuitSvg(q.c, q.in, lamp, wire, !q.done)}</g><text class="exh-f12 exh-mono ex-end tc exc-p" x="314" y="36">${esc(`Y = ${CIRCUITS[q.c].f}`)}</text>`;
+          q.opts.forEach((o, i) => {
+            const cls = q.done ? (o === q.ans ? 'ok' : i === q.pick ? 'bad' : '') : '';
+            s += chip(i ? 164 : 8, 178, 148, 32, `Y = ${o}`, `o${i}`, cls, 15);
+          });
+          const r = CIRCUITS[q.c].eval(...q.in);
+          cap = !q.done ? L(`Y = ${CIRCUITS[q.c].f.replace('⊕', 'XOR')}. Work out the output gate by gate.`, `Y = ${CIRCUITS[q.c].f.replace('⊕', 'XOR')}. Вычисли выход элемент за элементом.`, `Y = ${CIRCUITS[q.c].f.replace('⊕', 'XOR')}. Шығысты элемент бойынша есепте.`) : L(`${q.ok ? '✓ Right' : '✗ No'}: ${r.steps.en} → Y = ${r.y}.`, `${q.ok ? '✓ Верно' : '✗ Нет'}: ${r.steps.ru} → Y = ${r.y}.`, `${q.ok ? '✓ Дұрыс' : '✗ Жоқ'}: ${r.steps.kk} → Y = ${r.y}.`);
+        }
+      }
+      return { svg: s, caption: cap };
+    },
+  },
+  download: {
+    title: L('Information volume: files, pictures, sound, speed', 'Объём информации: файлы, картинки, звук, скорость', 'Ақпарат көлемі: файлдар, сурет, дыбыс, жылдамдық'),
+    intro: L('How big is a picture, a sound or a text, and how long does a file take to download? 1 byte = 8 bits, 1 KB = 1024 bytes, 1 MB = 1024 KB. Speed is in megaBITS per second.', 'Сколько весит картинка, звук или текст и сколько качается файл? 1 байт = 8 бит, 1 КБ = 1024 байта, 1 МБ = 1024 КБ. Скорость - в мегаБИТАХ в секунду.', 'Сурет, дыбыс не мәтін қанша орын алады, файл қанша уақытта жүктеледі? 1 байт = 8 бит, 1 КБ = 1024 байт, 1 МБ = 1024 КБ. Жылдамдық секундына мегаБИТпен.'),
+    sliders: [
+      { id: 'size', label: L('file, MB', 'файл, МБ', 'файл, МБ'), min: 1, max: 4000, value: 700, hidden: (v, st) => st.mode !== 0 },
+      { id: 'sp', label: L('speed, Mbit/s', 'скорость, Мбит/с', 'жылдамдық, Мбит/с'), min: 1, max: 1000, value: 50, hidden: (v, st) => st.mode !== 0 },
+      { id: 'w', label: L('width, px', 'ширина, пикс.', 'ені, пиксель'), min: 16, max: 1920, step: 16, value: 640, hidden: (v, st) => st.mode !== 1 },
+      { id: 'h', label: L('height, px', 'высота, пикс.', 'биіктігі, пиксель'), min: 16, max: 1080, step: 8, value: 480, hidden: (v, st) => st.mode !== 1 },
+      { id: 'bits', label: L('colour depth', 'глубина цвета', 'түс тереңдігі'), min: 0, max: 5, value: 5, show: (x) => `${DL_DEPTH[clamp(x, 0, 5)]} ${u('bit', 'бит', 'бит')}`, hidden: (v, st) => st.mode !== 1 },
+      { id: 'rate', label: L('sampling rate, kHz', 'частота, кГц', 'жиілік, кГц'), min: 0, max: 4, value: 3, show: (x) => fmt(DL_RATE[clamp(x, 0, 4)] / 1000, 2), hidden: (v, st) => st.mode !== 2 },
+      { id: 'abits', label: L('bit depth', 'разрядность', 'разрядтылық'), min: 0, max: 2, value: 1, show: (x) => `${[8, 16, 24][clamp(x, 0, 2)]} ${u('bit', 'бит', 'бит')}`, hidden: (v, st) => st.mode !== 2 },
+      { id: 'sec', label: L('time, s', 'время, с', 'уақыт, с'), min: 1, max: 300, value: 60, hidden: (v, st) => st.mode !== 2 },
+      { id: 'pages', label: L('pages', 'страниц', 'бет'), min: 1, max: 100, value: 10, hidden: (v, st) => st.mode !== 3 },
+      { id: 'cpp', label: L('characters per page', 'символов на странице', 'беттегі таңба'), min: 100, max: 4000, step: 100, value: 2000, hidden: (v, st) => st.mode !== 3 },
+      { id: 'enc', label: L('encoding', 'кодировка', 'кодтау'), min: 0, max: 1, value: 1, show: (x) => (x ? 'Unicode 16' : 'ASCII 8'), hidden: (v, st) => st.mode !== 3 },
+    ],
+    buttons: [L('Download', 'Скачивание', 'Жүктеу'), L('Picture', 'Картинка', 'Сурет'), L('Sound', 'Звук', 'Дыбыс'), L('Text', 'Текст', 'Мәтін'), L('Quiz', 'Задание', 'Тапсырма'), L('Stereo', 'Стерео', 'Стерео'), L('New task', 'Новое задание', 'Жаңа тапсырма')],
+    state: () => ({ mode: 0, p: 0, run: true, stereo: true, q: null, qn: 0, score: [0, 0] }),
+    pressed: (i, v, st) => (i < 5 ? i === st.mode : i === 5 ? st.stereo : false),
+    btnHidden: (i, v, st) => (i === 5 ? st.mode !== 2 : i === 6 ? st.mode !== 4 : false),
+    onButton(i, st) {
+      if (i < 5) {
+        st.mode = i;
+        if (i === 0) Object.assign(st, { p: 0, run: true });
+        if (i === 4 && !st.q) st.q = dlQuiz(st);
+      } else if (i === 5) st.stereo = !st.stereo;
+      else st.q = dlQuiz(st);
     },
     onSlide(key, v, st) {
-      st.p = 0;
-      st.run = false;
+      if (st.mode === 0) Object.assign(st, { p: 0, run: true });
+    },
+    onDrag(key, p, v, st) {
+      if (key[0] === 'o' && st.q && !st.q.done && tapOnce(st, key)) {
+        const q = st.q;
+        q.pick = Number(key.slice(1));
+        q.done = true;
+        q.ok = q.pick === q.ans;
+        st.score[1] += 1;
+        if (q.ok) st.score[0] += 1;
+      }
     },
     live(dt, v, st) {
-      if (!st.run) return;
+      if (!st.run || st.mode !== 0) return;
       st.p = Math.min(1, st.p + dt / 3);
       if (st.p >= 1) st.run = false;
     },
     draw(v, step, st) {
-      const t = (v.size * 8) / v.sp;
-      const mm = Math.floor(t / 60);
-      const ss = Math.round(t % 60);
-      return {
-        svg: `<text class="ex-big" x="160" y="55">t = ${fmt(v.size, 0)} · 8 / ${fmt(v.sp, 0)} ≈ ${mm ? `${mm} ${u('min', 'мин', 'мин')} ` : ''}${ss} ${u('s', 'с', 'с')}</text>
-          <rect x="20" y="100" width="280" height="22" rx="11" class="ex-fill exc-m" style="opacity:.2"/><rect x="20" y="100" width="${n1(280 * st.p)}" height="22" rx="11" class="ex-fill exc-g"/>
-          <text class="ex-tag" x="20" y="150">${fmt(v.size * st.p, 0)} / ${fmt(v.size, 0)} ${u('MB', 'МБ', 'МБ')}</text><text class="ex-tag" x="20" y="175">${fmt(v.sp / 8, 2)} ${u('MB per second', 'МБ в секунду', 'секундына МБ')}</text>`,
-        caption: L(
-          `${fmt(v.size, 0)} MB = ${fmt(v.size * 8, 0)} Mbit. At ${fmt(v.sp, 0)} Mbit/s that takes ${fmt(t, 1)} s. The usual trap: forgetting to multiply by 8.`,
-          `${fmt(v.size, 0)} МБ = ${fmt(v.size * 8, 0)} Мбит. При ${fmt(v.sp, 0)} Мбит/с это ${fmt(t, 1)} с. Частая ловушка - забыть умножить на 8.`,
-          `${fmt(v.size, 0)} МБ = ${fmt(v.size * 8, 0)} Мбит. ${fmt(v.sp, 0)} Мбит/с жылдамдықта бұл ${fmt(t, 1)} с. Жиі тұзақ - 8-ге көбейтуді ұмыту.`,
-        ),
-      };
+      if (st.mode === 4) return dlQuizDraw(st);
+      let s = '';
+      let bits;
+      let formula;
+      let cap;
+      if (st.mode === 0) {
+        const t = (v.size * 8) / v.sp;
+        s += `<text class="exh-f15" x="160" y="30">${esc(`t = ${fmt(v.size, 0)} ${u('MB', 'МБ', 'МБ')} · 8 / ${fmt(v.sp, 0)} ${u('Mbit/s', 'Мбит/с', 'Мбит/с')}`)}</text><text class="exh-f22 tc exc-p" x="160" y="62">${esc(dlTime(t))}</text>
+          <rect x="20" y="80" width="280" height="20" rx="10" class="ex-fill exc-m" style="opacity:.2"/><rect x="20" y="80" width="${n1(280 * st.p)}" height="20" rx="10" class="ex-fill exc-g"/>
+          <text class="exh-f11 ex-start" x="20" y="116">${esc(`${fmt(v.size * st.p, 0)} / ${fmt(v.size, 0)} ${u('MB', 'МБ', 'МБ')}`)}</text><text class="exh-f11 ex-end tc exc-m" x="300" y="116">${esc(`${fmt(v.sp / 8, 2)} ${u('MB/s', 'МБ/с', 'МБ/с')}`)}</text>`;
+        bits = v.size * 8 * 1024 * 1024;
+        formula = '';
+        cap = L(`${fmt(v.size, 0)} MB = ${fmt(v.size * 8, 0)} Mbit. At ${fmt(v.sp, 0)} Mbit/s that takes ${fmt(t, 1)} s (${dlTime(t)}). The usual trap: forgetting to multiply by 8. In such problems we usually take 1 MB = 8 Mbit.`, `${fmt(v.size, 0)} МБ = ${fmt(v.size * 8, 0)} Мбит. При ${fmt(v.sp, 0)} Мбит/с это ${fmt(t, 1)} с (${dlTime(t)}). Частая ловушка - забыть умножить на 8. В таких задачах обычно считают 1 МБ = 8 Мбит.`, `${fmt(v.size, 0)} МБ = ${fmt(v.size * 8, 0)} Мбит. ${fmt(v.sp, 0)} Мбит/с жылдамдықта бұл ${fmt(t, 1)} с (${dlTime(t)}). Жиі тұзақ - 8-ге көбейтуді ұмыту. Мұндай есептерде әдетте 1 МБ = 8 Мбит деп алынады.`);
+      } else if (st.mode === 1) {
+        const i = DL_DEPTH[clamp(Math.round(v.bits), 0, 5)];
+        bits = v.w * v.h * i;
+        formula = `I = ${v.w} · ${v.h} · ${i} ${u('bit', 'бит', 'бит')}`;
+        const pw = 120;
+        const ph = Math.max(12, (pw * v.h) / v.w);
+        const k = Math.min(1, 110 / ph);
+        s += `<rect class="exh-box" x="14" y="${n1(18 + (110 - ph * k) / 2)}" width="${n1(pw * k)}" height="${n1(ph * k)}" rx="2"/>`;
+        for (let gx = 1; gx < 8; gx++) s += `<line class="ex-grid" x1="${n1(14 + (gx * pw * k) / 8)}" y1="${n1(18 + (110 - ph * k) / 2)}" x2="${n1(14 + (gx * pw * k) / 8)}" y2="${n1(18 + (110 + ph * k) / 2)}"/>`;
+        s += `<text class="exh-f10 tc exc-m" x="${n1(14 + (pw * k) / 2)}" y="142">${v.w} × ${v.h}</text>`;
+        const colors = 2 ** i;
+        const sw = Math.min(16, colors);
+        for (let c = 0; c < sw; c++) s += `<rect x="${150 + (c % 8) * 20}" y="${24 + Math.floor(c / 8) * 20}" width="17" height="17" rx="3" style="fill:hsl(${Math.round((c * 360) / sw)} ${i === 1 ? 0 : 70}% ${i === 1 ? (c ? 15 : 95) : 55}%)"/>`;
+        s += `<text class="exh-f11 ex-start" x="150" y="76">${esc(`${u('colours', 'цветов', 'түс')}: N = 2^i = ${colors.toLocaleString('ru-RU').replace(/ /g, ' ')}`)}</text><text class="exh-f11 ex-start tc exc-m" x="150" y="94">${esc(`${u('pixels', 'пикселей', 'пиксель')}: ${(v.w * v.h).toLocaleString('ru-RU').replace(/ /g, ' ')}`)}</text>`;
+        cap = L(`I = width · height · i: ${v.w} · ${v.h} · ${i} = ${dlBits(bits)}. ${i} bits per pixel give 2^${i} = ${colors} colours.`, `I = ширина · высота · i: ${v.w} · ${v.h} · ${i} = ${dlBits(bits)}. ${i} бит на пиксель дают 2^${i} = ${colors} цветов.`, `I = ені · биіктігі · i: ${v.w} · ${v.h} · ${i} = ${dlBits(bits)}. Пиксельге ${i} бит 2^${i} = ${colors} түс береді.`);
+      } else if (st.mode === 2) {
+        const f = DL_RATE[clamp(Math.round(v.rate), 0, 4)];
+        const i = [8, 16, 24][clamp(Math.round(v.abits), 0, 2)];
+        const ch = st.stereo ? 2 : 1;
+        bits = f * i * ch * v.sec;
+        formula = `I = ${f} · ${i} · ${ch} · ${v.sec}`;
+        // Волна и отсчёты: чем выше частота, тем чаще точки.
+        let path = '';
+        for (let x = 0; x <= 280; x += 2) path += `${path ? 'L' : 'M'}${20 + x} ${n1(70 - 38 * Math.sin(x / 22) * Math.cos(x / 61))} `;
+        const step = [22, 14, 9, 6, 5][clamp(Math.round(v.rate), 0, 4)];
+        let dots = '';
+        for (let x = 0; x <= 280; x += step) {
+          const y = 70 - 38 * Math.sin(x / 22) * Math.cos(x / 61);
+          dots += `<line class="ex-stroke exc-b" style="stroke-width:1;opacity:.5" x1="${20 + x}" y1="70" x2="${20 + x}" y2="${n1(y)}"/><circle class="ex-fill exc-b" cx="${20 + x}" cy="${n1(y)}" r="2"/>`;
+        }
+        s += `<line class="ex-axis" x1="20" y1="70" x2="300" y2="70"/><path class="ex-stroke exc-o" style="stroke-width:1.5;opacity:.6" d="${path}"/>${dots}<text class="exh-f10 ex-start tc exc-m" x="20" y="124">${esc(`${u('samples per second', 'отсчётов в секунду', 'секундына өлшем')}: ${f} · ${u('levels', 'уровней', 'деңгей')}: 2^${i} · ${st.stereo ? u('stereo (2 channels)', 'стерео (2 канала)', 'стерео (2 арна)') : u('mono (1 channel)', 'моно (1 канал)', 'моно (1 арна)')}`)}</text>`;
+        cap = L(`I = f · i · k · t = ${f} Hz · ${i} bit · ${ch} · ${v.sec} s = ${dlBits(bits)}. Stereo doubles the size, so does doubling the sampling rate.`, `I = f · i · k · t = ${f} Гц · ${i} бит · ${ch} · ${v.sec} с = ${dlBits(bits)}. Стерео удваивает объём, как и удвоение частоты.`, `I = f · i · k · t = ${f} Гц · ${i} бит · ${ch} · ${v.sec} с = ${dlBits(bits)}. Стерео көлемді екі есе арттырады, жиілікті екі еселеу де солай.`);
+      } else {
+        const i = v.enc ? 16 : 8;
+        const K = v.pages * v.cpp;
+        bits = K * i;
+        formula = `I = ${v.pages} · ${v.cpp} · ${i} ${u('bit', 'бит', 'бит')}`;
+        for (let k = 0; k < Math.min(10, v.pages); k++) s += `<g transform="translate(${20 + k * 7},${24 + k * 3})"><rect class="exh-card" width="60" height="80" rx="3"/>${k === Math.min(10, v.pages) - 1 ? [0, 1, 2, 3, 4, 5, 6, 7].map((r) => `<line class="ex-grid" x1="8" y1="${12 + r * 8}" x2="${52 - (r % 3) * 6}" y2="${12 + r * 8}"/>`).join('') : ''}</g>`;
+        s += `<text class="exh-f11 ex-start" x="150" y="40">${esc(`${u('characters', 'символов', 'таңба')}: K = ${K.toLocaleString('ru-RU').replace(/ /g, ' ')}`)}</text><text class="exh-f11 ex-start tc exc-m" x="150" y="58">${esc(v.enc ? u('Unicode: 16 bits = 2 bytes per character', 'Unicode: 16 бит = 2 байта на символ', 'Unicode: таңбаға 16 бит = 2 байт') : u('ASCII: 8 bits = 1 byte per character', 'ASCII: 8 бит = 1 байт на символ', 'ASCII: таңбаға 8 бит = 1 байт'))}</text>`;
+        cap = L(`I = K · i = ${K} · ${i} bit = ${dlBits(bits)}. In Unicode the same text takes twice as much as in an 8-bit encoding.`, `I = K · i = ${K} · ${i} бит = ${dlBits(bits)}. В Unicode тот же текст занимает вдвое больше, чем в 8-битной кодировке.`, `I = K · i = ${K} · ${i} бит = ${dlBits(bits)}. Unicode-та сол мәтін 8 биттік кодтаудан екі есе көп орын алады.`);
+      }
+      // Лестница единиц.
+      const vals = [bits, bits / 8, bits / 8 / 1024, bits / 8 / 1024 ** 2, bits / 8 / 1024 ** 3];
+      const names = [u('bit', 'бит', 'бит'), u('byte', 'байт', 'байт'), u('KB', 'КБ', 'КБ'), u('MB', 'МБ', 'МБ'), u('GB', 'ГБ', 'ГБ')];
+      const best = vals.findIndex((x, k) => k === 4 || vals[k + 1] < 1);
+      if (formula) s += `<text class="exh-f12 exh-mono ex-start" x="8" y="${st.mode === 0 ? 140 : 152}">${esc(formula)}</text>`;
+      s += vals.map((x, k) => `<rect class="${k === best ? 'exh-hl' : 'exh-box'}" x="${6 + k * 62}" y="172" width="58" height="40" rx="7"/><text class="exh-f9 tc exc-m" x="${35 + k * 62}" y="185">${esc(names[k])}</text><text class="exh-f${x >= 1e7 ? 9 : 11} tc ${k === best ? 'exc-p' : ''}" x="${35 + k * 62}" y="203">${esc(dlNum(x))}</text>${k ? `<text class="exh-f9 tc exc-m" x="${4 + k * 62}" y="168">${k === 1 ? ':8' : ':1024'}</text>` : ''}`).join('');
+      return { svg: s, caption: cap };
     },
   },
-
   // ===== Программирование: код по шагам на Python, C++, JavaScript и Java =====
 
   divmod: {
     title: L('Integer division and remainder', 'Целочисленное деление и остаток', 'Бүтін бөлу және қалдық'),
-    intro: L('a // b (Python) or a / b with integers (C++, Java) gives how many whole groups of b fit into a; a % b is what is left over. In JavaScript a / b gives a fraction - use Math.floor.', 'a // b (Python) или a / b для целых (C++, Java) - сколько целых групп по b помещается в a; a % b - что осталось. В JavaScript a / b даёт дробь - нужен Math.floor.', 'a // b (Python) немесе бүтін сандар үшін a / b (C++, Java) - a-ға b-дан неше бүтін топ сыяды; a % b - қалғаны. JavaScript-те a / b бөлшек береді - Math.floor керек.'),
+    intro: L('a // b (Python) or a / b with integers (C++, Java) is how many whole groups of b fit into a; a % b is what is left. Use it for digits of a number, hours and minutes - and watch out for negative numbers!', 'a // b (Python) или a / b для целых (C++, Java) - сколько целых групп по b помещается в a; a % b - что осталось. Так получают цифры числа, часы и минуты - и осторожно с отрицательными числами!', 'a // b (Python) немесе бүтін сандар үшін a / b (C++, Java) - a-ға b-дан неше бүтін топ сыяды; a % b - қалғаны. Осылай санның цифрларын, сағат пен минутты табады - теріс сандардан сақ бол!'),
     sliders: [
-      { id: 'a', label: 'a', min: 0, max: 40, value: 17 },
-      { id: 'b', label: 'b', min: 1, max: 9, value: 5 },
+      { id: 'ex', label: L('example', 'пример', 'мысал'), min: 0, max: 3, value: 0, show: (x) => tx([L('groups', 'группы', 'топтар'), L('digits', 'цифры', 'цифрлар'), L('minutes', 'минуты', 'минуттар'), L('minus', 'минус', 'минус')][clamp(x, 0, 3)]), hidden: (v, st) => Boolean(st.q) },
+      { id: 'a', label: 'a', min: -20, max: 40, value: 17, hidden: (v, st) => Boolean(st.q) || ![0, 3].includes(Math.round(v.ex)) },
+      { id: 'b', label: 'b', min: 1, max: 9, value: 5, hidden: (v, st) => Boolean(st.q) || ![0, 3].includes(Math.round(v.ex)) },
+      { id: 'n', label: 'n', min: 0, max: 9999, value: 2024, hidden: (v, st) => Boolean(st.q) || Math.round(v.ex) !== 1 },
+      { id: 'm', label: L('minutes', 'минут', 'минут'), min: 0, max: 600, value: 135, hidden: (v, st) => Boolean(st.q) || Math.round(v.ex) !== 2 },
     ],
-    buttons: ['Python', 'C++', 'JavaScript', 'Java'],
-    state: () => ({ lang: 0 }),
-    pressed: (i, v, st) => i === st.lang,
+    buttons: ['Python', 'C++', 'JavaScript', 'Java', L('Quiz', 'Задание', 'Тапсырма'), L('New task', 'Новое задание', 'Жаңа тапсырма')],
+    state: () => ({ lang: 0, q: null, score: [0, 0] }),
+    pressed: (i, v, st) => (i < 4 ? i === st.lang : i === 4 && Boolean(st.q)),
+    btnHidden: (i, v, st) => i === 5 && !st.q,
     onButton(i, st) {
-      st.lang = i;
+      if (i < 4) {
+        st.lang = i;
+        if (st.q) st.q = dmQuiz(st);
+      } else if (i === 4) st.q = st.q ? null : dmQuiz(st);
+      else st.q = dmQuiz(st);
+    },
+    onDrag(key, p, v, st) {
+      if (key[0] === 'o' && st.q && !st.q.done && tapOnce(st, key)) {
+        const q = st.q;
+        q.pick = Number(key.slice(1));
+        q.done = true;
+        q.ok = q.pick === q.ans;
+        st.score[1] += 1;
+        if (q.ok) st.score[0] += 1;
+      }
     },
     draw(v, step, st) {
-      const a = Math.round(v.a);
-      const b = Math.round(v.b);
-      const q = Math.floor(a / b);
-      const r = a % b;
-      const code = [
-        [`q = ${a} // ${b}`, `r = ${a} % ${b}`],
-        [`int q = ${a} / ${b};`, `int r = ${a} % ${b};`],
-        [`let q = Math.floor(${a} / ${b});`, `let r = ${a} % ${b};`],
-        [`int q = ${a} / ${b};`, `int r = ${a} % ${b};`],
-      ][st.lang];
-      const dots = Array.from({ length: a }, (_, i) => {
-        const g = Math.floor(i / b);
-        const inGroup = g < q;
-        const x = 16 + (inGroup ? g * (b * 9 + 8) + (i % b) * 9 : q * (b * 9 + 8) + (i - q * b) * 9);
-        return `<circle cx="${n1(Math.min(x, 312))}" cy="${inGroup ? 120 : 150}" r="3.6" class="ex-fill ${inGroup ? 'exc-b' : 'exc-o'}"/>`;
-      }).join('');
-      return {
-        svg: `<rect x="8" y="12" width="304" height="52" rx="10" class="ex-fill exc-m" style="opacity:.12"/>${code.map((c, i) => `<text class="ex-tag" x="18" y="${34 + i * 20}" style="font-family:ui-monospace,Menlo,Consolas,monospace;white-space:pre">${c}</text>`).join('')}
-          ${dots}<text class="ex-big" x="160" y="200">q = ${q}, r = ${r}</text>`,
-        caption: L(
-          `${a} = ${b} · ${q} + ${r}: ${q} full groups of ${b} (blue) and ${r} left over (orange). Check: ${b} · ${q} + ${r} = ${a}. The remainder is always smaller than b.`,
-          `${a} = ${b} · ${q} + ${r}: ${q} полных групп по ${b} (синие) и ${r} в остатке (оранжевые). Проверка: ${b} · ${q} + ${r} = ${a}. Остаток всегда меньше b.`,
-          `${a} = ${b} · ${q} + ${r}: ${b}-тен ${q} толық топ (көк) және қалдықта ${r} (қызғылт сары). Тексеру: ${b} · ${q} + ${r} = ${a}. Қалдық әрқашан b-дан кіші.`,
-        ),
-      };
+      if (st.q) return dmQuizDraw(st);
+      const ex = clamp(Math.round(v.ex), 0, 3);
+      const lg = st.lang;
+      let s = '';
+      let cap;
+      if (ex === 0 || ex === 3) {
+        const a = Math.round(ex === 0 ? Math.max(0, v.a) : v.a);
+        const b = Math.round(v.b);
+        const [q, r] = dmCalc(a, b, lg);
+        s += codePanel(dmCode(lg, a, b), []);
+        if (ex === 0) {
+          const qq = Math.floor(a / b);
+          const dots = Array.from({ length: a }, (_, i) => {
+            const g = Math.floor(i / b);
+            const inG = g < qq;
+            const x = 16 + (inG ? g * (b * 8 + 8) + (i % b) * 8 : qq * (b * 8 + 8) + (i - qq * b) * 8);
+            return `<circle cx="${n1(Math.min(x, 312))}" cy="${inG ? 92 : 122}" r="3.4" class="ex-fill ${inG ? 'exc-b' : 'exc-o'}"/>`;
+          }).join('');
+          s += `${dots}<text class="exh-f10 ex-start tc exc-b" x="12" y="108">${esc(`${qq} ${u('groups of', 'групп по', 'топ, әрқайсысы')} ${b}`)}</text><text class="exh-f10 ex-start tc exc-o" x="12" y="140">${esc(`${u('left', 'остаток', 'қалдық')}: ${r}`)}</text>`;
+          s += `<text class="exh-f18" x="160" y="180">${a} = ${b} · ${q} + ${r}</text><text class="exh-f10 tc exc-m" x="160" y="200">${esc(u('the remainder is always less than b', 'остаток всегда меньше b', 'қалдық әрқашан b-дан кіші'))}</text>`;
+          cap = L(`${a} = ${b} · ${q} + ${r}: ${q} full groups of ${b} (blue) and ${r} left over (orange). Check: ${b} · ${q} + ${r} = ${a}.${lg === 2 ? ' In JavaScript a / b gives a fraction, so we use Math.floor.' : ''}`, `${a} = ${b} · ${q} + ${r}: полных групп по ${b} - ${q} (синие), в остатке ${r} (оранжевые). Проверка: ${b} · ${q} + ${r} = ${a}.${lg === 2 ? ' В JavaScript a / b даёт дробь, поэтому нужен Math.floor.' : ''}`, `${a} = ${b} · ${q} + ${r}: ${b}-тен ${q} толық топ (көк) және ${r} қалдық (қызғылт сары). Тексеру: ${b} · ${q} + ${r} = ${a}.${lg === 2 ? ' JavaScript-те a / b бөлшек береді, сондықтан Math.floor керек.' : ''}`);
+        } else {
+          const [pq, pr] = dmCalc(a, b, 0);
+          const [cq, cr] = dmCalc(a, b, 1);
+          const X = (x) => 160 + x * 7;
+          s += `<line class="ex-axis" x1="12" y1="110" x2="308" y2="110"/>`;
+          for (let x = -20; x <= 20; x += 5) s += `<line class="ex-axis" x1="${X(x)}" y1="106" x2="${X(x)}" y2="114"/><text class="exh-f9 tc exc-m" x="${X(x)}" y="125">${x}</text>`;
+          s += `<circle class="ex-fill exc-p" cx="${X(a)}" cy="110" r="5"/><text class="exh-f11 tc exc-p" x="${X(a)}" y="86">a = ${a}</text>`;
+          s += `<path class="ex-fill exc-g" d="M${X(pq * b)} 116 l-5 9 h10 Z"/><path class="ex-fill exc-o" d="M${X(cq * b)} 104 l-5 -9 h10 Z"/>`;
+          s += `<text class="exh-f12 ex-start tc exc-g" x="8" y="152">${esc(`Python: ${a} // ${b} = ${pq}, ${a} % ${b} = ${pr}`)}</text><text class="exh-f12 ex-start tc exc-o" x="8" y="172">${esc(`C++ / Java / JS: ${a} / ${b} → ${cq}, ${a} % ${b} = ${cr}`)}</text><text class="exh-f10 ex-start tc exc-m" x="8" y="192">${esc(u('Python rounds down (floor), C++/Java/JS toward zero', 'Python округляет вниз (floor), C++/Java/JS - к нулю', 'Python төмен (floor), C++/Java/JS нөлге қарай дөңгелектейді'))}</text>`;
+          cap = a < 0
+            ? L(`For a negative a the languages differ: Python ${a} // ${b} = ${pq} (rounds down) and the remainder ${pr} ≥ 0; C++, Java and JS give ${cq} (towards zero) and the remainder ${cr} has the sign of a. Both satisfy a = b · q + r.`, `Для отрицательного a языки расходятся: в Python ${a} // ${b} = ${pq} (округление вниз), а остаток ${pr} ≥ 0; в C++, Java и JS получится ${cq} (к нулю), а остаток ${cr} - со знаком a. Оба варианта дают a = b · q + r.`, `Теріс a үшін тілдер әртүрлі: Python-да ${a} // ${b} = ${pq} (төмен дөңгелектеу), қалдық ${pr} ≥ 0; C++, Java, JS-те ${cq} (нөлге қарай), қалдық ${cr} - a-ның таңбасымен. Екеуі де a = b · q + r береді.`)
+            : L(`For a ≥ 0 all languages agree: ${a} // ${b} = ${pq}, ${a} % ${b} = ${pr}. Move a below zero to see the difference.`, `Для a ≥ 0 все языки согласны: ${a} // ${b} = ${pq}, ${a} % ${b} = ${pr}. Сдвинь a ниже нуля, чтобы увидеть разницу.`, `a ≥ 0 болғанда барлық тіл келіседі: ${a} // ${b} = ${pq}, ${a} % ${b} = ${pr}. Айырманы көру үшін a-ны нөлден төмен жылжыт.`);
+        }
+      } else if (ex === 1) {
+        const n = Math.round(v.n);
+        s += codePanel(dmDigitsCode(lg, n), []);
+        const ds = [Math.floor(n / 1000), Math.floor(n / 100) % 10, Math.floor(n / 10) % 10, n % 10];
+        const nm = [u('thousands', 'тысячи', 'мыңдық'), u('hundreds', 'сотни', 'жүздік'), u('tens', 'десятки', 'ондық'), u('units', 'единицы', 'бірлік')];
+        ds.forEach((d, i) => (s += `<rect class="ex-fill ${['exc-k', 'exc-a', 'exc-b', 'exc-g'][i]}" x="${32 + i * 66}" y="112" width="58" height="46" rx="8" style="opacity:.3"/><text class="exh-f22" x="${61 + i * 66}" y="144">${d}</text><text class="exh-f9 tc exc-m" x="${61 + i * 66}" y="172">${esc(nm[i])}</text>`));
+        s += `<text class="exh-f11 tc exc-m" x="160" y="200">${esc(u('% 10 takes the last digit, // 10 drops it', '% 10 берёт последнюю цифру, // 10 её отбрасывает', '% 10 соңғы цифрды алады, // 10 оны алып тастайды'))}</text>`;
+        cap = L(`n = ${n}: units ${n} % 10 = ${ds[3]}, tens ${n} // 10 % 10 = ${ds[2]}, hundreds ${n} // 100 % 10 = ${ds[1]}, thousands ${n} // 1000 = ${ds[0]}.`, `n = ${n}: единицы ${n} % 10 = ${ds[3]}, десятки ${n} // 10 % 10 = ${ds[2]}, сотни ${n} // 100 % 10 = ${ds[1]}, тысячи ${n} // 1000 = ${ds[0]}.`, `n = ${n}: бірлік ${n} % 10 = ${ds[3]}, ондық ${n} // 10 % 10 = ${ds[2]}, жүздік ${n} // 100 % 10 = ${ds[1]}, мыңдық ${n} // 1000 = ${ds[0]}.`);
+      } else {
+        const m = Math.round(v.m);
+        const h = Math.floor(m / 60);
+        const mm = m % 60;
+        s += codePanel(dmTimeCode(lg, m), []);
+        for (let k = 0; k < 10; k++) {
+          const w = k < h ? 280 : k === h ? (mm / 60) * 280 : 0;
+          s += `<rect class="exh-box" x="20" y="${92 + k * 9}" width="280" height="7" rx="3"/>${w ? `<rect class="ex-fill ${k < h ? 'exc-b' : 'exc-o'}" x="20" y="${92 + k * 9}" width="${n1(w)}" height="7" rx="3"/>` : ''}`;
+        }
+        s += `<text class="exh-f18" x="160" y="208">${m} ${esc(u('min', 'мин', 'мин'))} = ${h} ${esc(u('h', 'ч', 'сағ'))} ${mm} ${esc(u('min', 'мин', 'мин'))} (${h}:${String(mm).padStart(2, '0')})</text>`;
+        cap = L(`Each row is one hour = 60 minutes. ${m} // 60 = ${h} full hours (blue), ${m} % 60 = ${mm} minutes left (orange).`, `Каждая строка - час = 60 минут. ${m} // 60 = ${h} полных часов (синие), ${m} % 60 = ${mm} минут в остатке (оранжевая).`, `Әр жол - бір сағат = 60 минут. ${m} // 60 = ${h} толық сағат (көк), ${m} % 60 = ${mm} минут қалдық (қызғылт сары).`);
+      }
+      return { svg: s, caption: cap };
     },
   },
 
   ifelse: {
     title: L('Conditions: if, else if, else', 'Условия: if, else if, else', 'Шарттар: if, else if, else'),
-    intro: L('Conditions are checked top to bottom. The first true one runs, the rest are skipped. else runs only if nothing above was true.', 'Условия проверяются сверху вниз. Выполняется первое верное, остальные пропускаются. else срабатывает, только если ничего выше не подошло.', 'Шарттар жоғарыдан төмен тексеріледі. Бірінші дұрысы орындалады, қалғандары өткізіледі. else жоғарыда ештеңе сәйкес келмесе ғана орындалады.'),
-    sliders: [{ id: 's', label: L('score', 'баллы', 'балл'), min: 0, max: 100, value: 72 }],
-    buttons: ['Python', 'C++', 'JavaScript', 'Java'],
-    state: () => ({ lang: 0 }),
-    pressed: (i, v, st) => i === st.lang,
+    intro: L('Conditions are checked top to bottom; the first true one runs and the rest are skipped. Three classic examples - grade, even/odd, leap year - in four languages, with every check shown.', 'Условия проверяются сверху вниз; срабатывает первое верное, остальные пропускаются. Три классических примера - оценка, чётность, високосный год - на четырёх языках, с каждой проверкой.', 'Шарттар жоғарыдан төмен тексеріледі; бірінші ақиқаты орындалады, қалғаны өткізіледі. Үш классикалық мысал - баға, жұп/тақ, кібісе жыл - төрт тілде, әр тексеруімен.'),
+    sliders: [
+      { id: 'ex', label: L('example', 'пример', 'мысал'), min: 0, max: 2, value: 0, show: (x) => tx([L('grade', 'оценка', 'баға'), L('parity', 'чётность', 'жұптық'), L('leap', 'високос', 'кібісе')][clamp(x, 0, 2)]), hidden: (v, st) => Boolean(st.q) },
+      { id: 's', label: L('score', 'баллы', 'балл'), min: 0, max: 100, value: 72, hidden: (v, st) => Boolean(st.q) || Math.round(v.ex) !== 0 },
+      { id: 'n', label: 'n', min: 0, max: 99, value: 7, hidden: (v, st) => Boolean(st.q) || Math.round(v.ex) !== 1 },
+      { id: 'y', label: L('year', 'год', 'жыл'), min: 1890, max: 2104, value: 2024, hidden: (v, st) => Boolean(st.q) || Math.round(v.ex) !== 2 },
+    ],
+    buttons: ['Python', 'C++', 'JavaScript', 'Java', L('Quiz', 'Задание', 'Тапсырма'), L('New task', 'Новое задание', 'Жаңа тапсырма')],
+    state: () => ({ lang: 0, q: null, score: [0, 0] }),
+    pressed: (i, v, st) => (i < 4 ? i === st.lang : i === 4 && Boolean(st.q)),
+    btnHidden: (i, v, st) => i === 5 && !st.q,
     onButton(i, st) {
-      st.lang = i;
+      if (i < 4) st.lang = i;
+      else if (i === 4) st.q = st.q ? null : ifQuiz();
+      else st.q = ifQuiz();
+    },
+    onDrag(key, p, v, st) {
+      if (key[0] === 'o' && st.q && !st.q.done && tapOnce(st, key)) {
+        const q = st.q;
+        q.pick = Number(key.slice(1));
+        q.done = true;
+        q.ok = q.opts[q.pick] === q.out;
+        st.score[1] += 1;
+        if (q.ok) st.score[0] += 1;
+      }
     },
     draw(v, step, st) {
-      const s = Math.round(v.s);
-      const branch = s >= 85 ? 0 : s >= 70 ? 1 : s >= 50 ? 2 : 3;
-      const py = [`if s >= 85:`, `    grade = 5`, `elif s >= 70:`, `    grade = 4`, `elif s >= 50:`, `    grade = 3`, `else:`, `    grade = 2`];
-      const cl = [`if (s >= 85) {`, `  grade = 5;`, `} else if (s >= 70) {`, `  grade = 4;`, `} else if (s >= 50) {`, `  grade = 3;`, `} else {`, `  grade = 2; }`];
-      const lines = st.lang ? cl : py;
-      const checked = (i) => Math.floor(i / 2) <= branch;
-      const rows = lines
-        .map((ln, i) => {
-          const hit = Math.floor(i / 2) === branch;
-          const cond = i % 2 === 0;
-          const mark = cond && checked(i) && i < 6 ? (hit ? '✓' : '✗') : '';
-          return `${hit ? `<rect x="8" y="${16 + i * 22}" width="250" height="20" rx="5" class="ex-fill exc-g" style="opacity:.2"/>` : ''}<text class="ex-tag" x="16" y="${31 + i * 22}" style="font-family:ui-monospace,Menlo,Consolas,monospace;white-space:pre;${checked(i) || hit ? '' : 'opacity:.45'}">${esc(ln)}</text><text class="ex-small" x="280" y="${31 + i * 22}" style="fill:var(--${mark === '✓' ? 'green' : 'red'})">${mark}</text>`;
-        })
-        .join('');
+      const ex = st.q ? st.q.ex : clamp(Math.round(v.ex), 0, 2);
+      const x = st.q ? st.q.x : Math.round([v.s, v.n, v.y][ex]);
+      const E = IF_EX[ex];
+      const res = E.eval(x);
+      const code = E.code(st.lang);
+      const done = !st.q || st.q.done;
+      let s = codePanel(code, done ? [res.branch * 2, res.branch * 2 + 1].filter((i) => i < code.length) : []);
+      // Отметки ✓ / ✗ у проверенных условий.
+      if (done)
+        res.checks.forEach((ok, i) => {
+          const lh = code.length > 5 ? 13 : 14;
+          s += `<text class="exh-f12 tc ${ok ? 'exc-g' : 'exc-r'}" x="304" y="${6 + 4 + i * 2 * lh + lh - 3}">${ok ? '✓' : '✗'}</text>`;
+        });
+      const top = code.length * (code.length > 5 ? 13 : 14) + 32;
+      if (st.q) {
+        const q = st.q;
+        s += `<text class="exh-f12 ex-start" x="8" y="${top + 4}">${esc(`${E.v} = ${x}. ${u('What is the output?', 'Что получится?', 'Не шығады?')}`)}</text><text class="exh-f12 ex-end tc exc-g" x="312" y="${top + 4}">✓ ${st.score[0]} / ${st.score[1]}</text>`;
+        q.opts.forEach((o, i) => {
+          const cls = q.done ? (o === q.out ? 'ok' : i === q.pick ? 'bad' : '') : '';
+          s += chip(8 + i * (304 / q.opts.length), top + 12, 304 / q.opts.length - 6, 28, o, `o${i}`, cls, 12);
+        });
+      } else {
+        res.lines.forEach((ln, i) => (s += `<text class="exh-f11 exh-mono ex-start tc ${ln.ok ? 'exc-g' : 'exc-r'}" x="8" y="${top + i * 15}">${esc(`${ln.t} → ${ln.ok ? 'True' : 'False'}`)}</text>`));
+        s += `<text class="exh-f14 ex-start tc exc-p" x="8" y="${Math.min(214, top + res.lines.length * 15 + 8)}">${esc(`→ ${res.out}`)}</text>`;
+      }
+      const caps = res.why;
       return {
-        svg: `${rows}<text class="ex-tag" x="16" y="210">s = ${s} → grade = ${[5, 4, 3, 2][branch]}</text>`,
-        caption: L(
-          `s = ${s}: ${branch ? `${branch} condition${branch > 1 ? 's were' : ' was'} false (✗), then ` : ''}${branch < 3 ? `"s >= ${[85, 70, 50][branch]}" is true` : 'nothing matched, so else runs'} → grade ${[5, 4, 3, 2][branch]}. Everything below is not even checked. Order matters: put s >= 50 first and a 95 would get a 3!`,
-          `s = ${s}: ${branch ? `${branch} ${branch > 1 ? 'условия оказались ложными' : 'условие оказалось ложным'} (✗), затем ` : ''}${branch < 3 ? `«s >= ${[85, 70, 50][branch]}» верно` : 'ничего не подошло, срабатывает else'} → оценка ${[5, 4, 3, 2][branch]}. Всё, что ниже, даже не проверяется. Порядок важен: поставь s >= 50 первым - и 95 баллов получат «3»!`,
-          `s = ${s}: ${branch ? `${branch} шарт жалған болды (✗), кейін ` : ''}${branch < 3 ? `«s >= ${[85, 70, 50][branch]}» дұрыс` : 'ештеңе сәйкес келмеді, else орындалады'} → баға ${[5, 4, 3, 2][branch]}. Төмендегілер тексерілмейді де. Рет маңызды: s >= 50-ні бірінші қойсаң, 95 балл «3» алады!`,
-        ),
+        svg: s,
+        caption: st.q && !st.q.done
+          ? L(`${E.v} = ${x}: go through the conditions from the top and tap the output.`, `${E.v} = ${x}: пройди условия сверху вниз и нажми, что получится.`, `${E.v} = ${x}: шарттарды жоғарыдан төмен өтіп, нәтижені бас.`)
+          : st.q
+            ? L(`${st.q.ok ? '✓ Right' : '✗ No'}: ${caps.en}`, `${st.q.ok ? '✓ Верно' : '✗ Нет'}: ${caps.ru}`, `${st.q.ok ? '✓ Дұрыс' : '✗ Жоқ'}: ${caps.kk}`)
+            : caps,
       };
     },
   },
@@ -1190,15 +1531,6 @@ export const SCENES_HUMAN = {
 };
 
 // Данные для сцен.
-
-const CITIES = [
-  { n: L('New York', 'Нью-Йорк', 'Нью-Йорк'), o: -5 },
-  { n: L('London', 'Лондон', 'Лондон'), o: 0 },
-  { n: L('Moscow', 'Москва', 'Мәскеу'), o: 3 },
-  { n: L('Astana', 'Астана', 'Астана'), o: 5 },
-  { n: L('Beijing', 'Пекин', 'Бейжің'), o: 8 },
-  { n: L('Tokyo', 'Токио', 'Токио'), o: 9 },
-];
 
 // ---------- Времена английского: формы, схемы, задания ----------
 
@@ -1907,4 +2239,569 @@ function arrCaption(st, op, i, c, x) {
     L(`Inserts ${x} at index ${c.idx}: everything from ${c.idx} on moves one step right - that takes time for long arrays.`, `Вставляет ${x} на индекс ${c.idx}: всё начиная с ${c.idx} сдвигается вправо - для длинных массивов это долго.`, `${x}-ті ${c.idx} индексіне кірістіреді: ${c.idx}-ден бастап бәрі оңға жылжиды - ұзын массивте бұл ұзақ.`),
   ][op];
   return neg ? L(base.en + neg.en, base.ru + neg.ru, base.kk + neg.kk) : base;
+}
+
+// ---------- Логические элементы ----------
+
+const GATES = [
+  { id: 'AND', name: L('AND', 'И', 'ЖӘНЕ'), f: (a, b) => a & b, formula: 'Y = A ∧ B', py: 'a and b', c: 'a && b', rule: L('It gives 1 only when both inputs are 1 (logical multiplication, conjunction).', 'Даёт 1, только если оба входа равны 1 (логическое умножение, конъюнкция).', 'Екі кіріс те 1 болғанда ғана 1 береді (логикалық көбейту, конъюнкция).') },
+  { id: 'OR', name: L('OR', 'ИЛИ', 'НЕМЕСЕ'), f: (a, b) => a | b, formula: 'Y = A ∨ B', py: 'a or b', c: 'a || b', rule: L('It gives 1 when at least one input is 1 (logical addition, disjunction).', 'Даёт 1, если хотя бы один вход равен 1 (логическое сложение, дизъюнкция).', 'Кем дегенде бір кіріс 1 болса, 1 береді (логикалық қосу, дизъюнкция).') },
+  { id: 'NOT', name: L('NOT', 'НЕ', 'ЕМЕС'), f: (a) => 1 - a, formula: 'Y = ¬A', py: 'not a', c: '!a', rule: L('It turns 1 into 0 and 0 into 1 (inversion, negation).', 'Превращает 1 в 0 и 0 в 1 (инверсия, отрицание).', '1-ді 0-ге, 0-ді 1-ге айналдырады (инверсия, терістеу).') },
+  { id: 'XOR', name: L('XOR', 'исключающее ИЛИ', 'XOR'), f: (a, b) => a ^ b, formula: 'Y = A ⊕ B', py: 'a != b   (a ^ b)', c: 'a != b   (a ^ b)', rule: L('It gives 1 when the inputs are different (exclusive OR).', 'Даёт 1, если входы разные (исключающее ИЛИ, строгая дизъюнкция).', 'Кірістер әртүрлі болса, 1 береді (қатаң дизъюнкция).') },
+  { id: 'NAND', name: L('NAND', 'И-НЕ', 'ЖӘНЕ-ЕМЕС'), f: (a, b) => 1 - (a & b), formula: 'Y = ¬(A ∧ B)', py: 'not (a and b)', c: '!(a && b)', rule: L('NOT AND: it gives 0 only when both inputs are 1 (Sheffer stroke). Any circuit can be built from NAND alone.', 'И-НЕ: даёт 0, только если оба входа равны 1 (штрих Шеффера). Из одних И-НЕ можно собрать любую схему.', 'ЖӘНЕ-ЕМЕС: екі кіріс те 1 болғанда ғана 0 береді (Шеффер штрихы). Тек ЖӘНЕ-ЕМЕС арқылы кез келген сұлбаны құрастыруға болады.') },
+  { id: 'NOR', name: L('NOR', 'ИЛИ-НЕ', 'НЕМЕСЕ-ЕМЕС'), f: (a, b) => 1 - (a | b), formula: 'Y = ¬(A ∨ B)', py: 'not (a or b)', c: '!(a || b)', rule: L('NOT OR: it gives 1 only when both inputs are 0 (Peirce arrow).', 'ИЛИ-НЕ: даёт 1, только если оба входа равны 0 (стрелка Пирса).', 'НЕМЕСЕ-ЕМЕС: екі кіріс те 0 болғанда ғана 1 береді (Пирс стрелкасы).') },
+];
+
+/** Значок элемента (как в учебниках): И - «D», ИЛИ - «щит», НЕ - треугольник с кружком. */
+function gateShape(id, x, y, w, h) {
+  const bub = ['NOT', 'NAND', 'NOR'].includes(id);
+  const ww = bub ? w - 8 : w;
+  let d;
+  if (id === 'AND' || id === 'NAND') d = `M${x} ${y} H${x + ww - h / 2} A${h / 2} ${h / 2} 0 0 1 ${x + ww - h / 2} ${y + h} H${x} Z`;
+  else if (id === 'NOT') d = `M${x} ${y} L${x + ww} ${y + h / 2} L${x} ${y + h} Z`;
+  else d = `M${x} ${y} Q${x + ww * 0.55} ${y} ${x + ww} ${y + h / 2} Q${x + ww * 0.55} ${y + h} ${x} ${y + h} Q${x + ww * 0.28} ${y + h / 2} ${x} ${y} Z`;
+  let s = `<path class="exh-gate" d="${d}"/>`;
+  if (id === 'XOR') s += `<path class="exh-gate" style="fill:none" d="M${x - 6} ${y} Q${x + ww * 0.28 - 6} ${y + h / 2} ${x - 6} ${y + h}"/>`;
+  if (bub) s += `<circle class="exh-gate" cx="${x + w - 4}" cy="${y + h / 2}" r="4"/>`;
+  s += `<text class="exh-f9 tc exc-m" x="${x + (id === 'NOT' ? ww * 0.35 : ww * 0.42)}" y="${y + h / 2 + 3}">${id}</text>`;
+  return s;
+}
+
+const CIRCUITS = [
+  {
+    f: '(A ∧ B) ∨ C',
+    eval: (a, b, c) => {
+      const g = a & b;
+      const y = g | c;
+      return { y, g: [g], steps: { en: `A AND B = ${g}; ${g} OR C = ${y}`, ru: `A И B = ${g}; ${g} ИЛИ C = ${y}`, kk: `A ЖӘНЕ B = ${g}; ${g} НЕМЕСЕ C = ${y}` } };
+    },
+  },
+  {
+    f: '¬A ∧ (B ∨ C)',
+    eval: (a, b, c) => {
+      const na = 1 - a;
+      const o = b | c;
+      const y = na & o;
+      return { y, g: [na, o], steps: { en: `NOT A = ${na}; B OR C = ${o}; ${na} AND ${o} = ${y}`, ru: `НЕ A = ${na}; B ИЛИ C = ${o}; ${na} И ${o} = ${y}`, kk: `ЕМЕС A = ${na}; B НЕМЕСЕ C = ${o}; ${na} ЖӘНЕ ${o} = ${y}` } };
+    },
+  },
+  {
+    f: '(A ⊕ B) ∧ ¬C',
+    eval: (a, b, c) => {
+      const x = a ^ b;
+      const nc = 1 - c;
+      const y = x & nc;
+      return { y, g: [x, nc], steps: { en: `A XOR B = ${x}; NOT C = ${nc}; ${x} AND ${nc} = ${y}`, ru: `A XOR B = ${x}; НЕ C = ${nc}; ${x} И ${nc} = ${y}`, kk: `A XOR B = ${x}; ЕМЕС C = ${nc}; ${x} ЖӘНЕ ${nc} = ${y}` } };
+    },
+  },
+];
+
+/** Схема из двух-трёх элементов с подсвеченными проводами. */
+function circuitSvg(ci, [A, B, C], lamp, wire, hide = false) {
+  const r = CIRCUITS[ci].eval(A, B, C);
+  // В задании промежуточные значения скрыты - их надо вычислить самому.
+  const val = (x, y, b) => (hide ? '' : `<text class="exh-f10 tc ${b ? 'exc-o' : 'exc-m'}" x="${x}" y="${y}">${b}</text>`);
+  const w0 = wire;
+  wire = (d, b) => w0(d, hide && !/^M40 /.test(d) ? 0 : b);
+  const k = (i) => (hide ? '' : `in${i}`);
+  let s = lamp(28, 50, A, k(0), 'A') + lamp(28, 100, B, k(1), 'B') + lamp(28, 150, C, k(2), 'C');
+  let oy;
+  if (ci === 0) {
+    s += wire('M40 50 H70 V63 H90', A) + wire('M40 100 H70 V87 H90', B) + wire('M140 75 H165 V100 H190', r.g[0]) + wire('M40 150 H165 V124 H190', C);
+    s += gateShape('AND', 90, 51, 50, 48) + gateShape('OR', 190, 88, 50, 48) + val(152, 70, r.g[0]);
+    oy = 112;
+  } else if (ci === 1) {
+    s += wire('M40 50 H70', A) + wire('M110 50 H165 V75 H190', r.g[0]) + wire('M40 100 H70 V113 H90', B) + wire('M40 150 H70 V137 H90', C) + wire('M140 125 H165 V99 H190', r.g[1]);
+    s += gateShape('NOT', 70, 36, 40, 28) + gateShape('OR', 90, 101, 50, 48) + gateShape('AND', 190, 63, 50, 48) + val(150, 45, r.g[0]) + val(152, 120, r.g[1]);
+    oy = 87;
+  } else {
+    s += wire('M40 50 H70 V63 H90', A) + wire('M40 100 H70 V87 H90', B) + wire('M140 75 H165 V100 H190', r.g[0]) + wire('M40 150 H90', C) + wire('M130 150 H165 V124 H190', r.g[1]);
+    s += gateShape('XOR', 90, 51, 50, 48) + gateShape('NOT', 90, 136, 40, 28) + gateShape('AND', 190, 88, 50, 48) + val(152, 70, r.g[0]) + val(150, 145, r.g[1]);
+    oy = 112;
+  }
+  s += wire(`M240 ${oy} H268`, hide ? 0 : r.y);
+  s += hide ? `<circle class="ex-lamp" cx="282" cy="${oy}" r="12"/><text class="exh-f13" x="282" y="${oy + 4.5}">?</text>` : lamp(282, oy, r.y, '', 'Y');
+  if (!hide) s += `<text class="exh-f12 exh-mono ex-end tc exc-p" x="314" y="18">${esc(`Y = ${CIRCUITS[ci].f}`)}</text>`;
+  return s;
+}
+
+function gateQuiz(st) {
+  const t = st.qn++ % 2;
+  if (t === 0) {
+    const g = pick([0, 1, 3, 4, 5]);
+    const opts = shuffle([g, ...shuffle([0, 1, 3, 4, 5].filter((x) => x !== g)).slice(0, 3)]);
+    return { t, g, ans: g, opts, pick: -1, done: false, ok: false };
+  }
+  const c = rnd(3);
+  const inp = [rnd(2), rnd(2), rnd(2)];
+  return { t, c, in: inp, ans: CIRCUITS[c].eval(...inp).y, opts: [0, 1], pick: -1, done: false, ok: false };
+}
+
+// ---------- Часовые пояса ----------
+
+/** Города: долгота и стандартный (зимний) пояс UTC. Казахстан с 1 марта 2024 г. - UTC+5. */
+const TZ_CITIES = [
+  { n: L('Los Angeles', 'Лос-Анджелес', 'Лос-Анджелес'), lon: -118, o: -8 },
+  { n: L('New York', 'Нью-Йорк', 'Нью-Йорк'), lon: -74, o: -5 },
+  { n: L('Rio de Janeiro', 'Рио-де-Жанейро', 'Рио-де-Жанейро'), lon: -43, o: -3 },
+  { n: L('London', 'Лондон', 'Лондон'), lon: 0, o: 0 },
+  { n: L('Paris', 'Париж', 'Париж'), lon: 2, o: 1 },
+  { n: L('Cairo', 'Каир', 'Каир'), lon: 31, o: 2 },
+  { n: L('Moscow', 'Москва', 'Мәскеу'), lon: 38, o: 3 },
+  { n: L('Dubai', 'Дубай', 'Дубай'), lon: 55, o: 4 },
+  { n: L('Astana', 'Астана', 'Астана'), lon: 71, o: 5 },
+  { n: L('Delhi', 'Дели', 'Дели'), lon: 77, o: 5.5 },
+  { n: L('Beijing', 'Пекин', 'Бейжің'), lon: 116, o: 8 },
+  { n: L('Tokyo', 'Токио', 'Токио'), lon: 140, o: 9 },
+  { n: L('Sydney', 'Сидней', 'Сидней'), lon: 151, o: 10 },
+  { n: L('Auckland', 'Окленд', 'Окленд'), lon: 175, o: 12 },
+];
+const TZ_DAYS = [L('Mon', 'пн', 'дс'), L('Tue', 'вт', 'сс'), L('Wed', 'ср', 'ср'), L('Thu', 'чт', 'бс'), L('Fri', 'пт', 'жм'), L('Sat', 'сб', 'сн'), L('Sun', 'вс', 'жс')];
+const tzOff = (o) => (o === 0 ? '' : `${o > 0 ? '+' : '−'}${hhmm(Math.abs(o)).replace(/^0/, '').replace(':00', '')}`);
+const tzHours = (h) => `${String(h).replace('.', getLang() === 'en' ? '.' : ',')} ${u('h', 'ч', 'сағ')}`;
+
+function tzQuiz() {
+  let a = rnd(14);
+  let b = rnd(14);
+  while (b === a || TZ_CITIES[a].o === TZ_CITIES[b].o) b = rnd(14);
+  const A = TZ_CITIES[a];
+  const B = TZ_CITIES[b];
+  const t = 6 + rnd(17); // местное время в городе A, понедельник
+  const right = t + B.o - A.o;
+  const cand = [right, t - (B.o - A.o), right + 1, right - 1, right + 24, right - 24];
+  const opts = [];
+  for (const x of cand) if (opts.length < 4 && !opts.some((y) => y === x)) opts.push(x);
+  const sh = shuffle(opts);
+  return { a, b, t, opts: sh, ans: sh.indexOf(right), pick: -1, done: false, ok: false };
+}
+/** «10:00, вт» - время и день недели (t - часы от начала понедельника). */
+const tzWhen = (t) => `${hhmm(t)}, ${tx(TZ_DAYS[((Math.floor(t / 24) % 7) + 7) % 7])}`;
+
+function tzQuizDraw(st) {
+  const q = st.q;
+  const A = TZ_CITIES[q.a];
+  const B = TZ_CITIES[q.b];
+  const d = B.o - A.o;
+  let s = `<text class="exh-f13 ex-start" x="8" y="16">${esc(u('What time is it there?', 'Который там час?', 'Онда сағат неше?'))}</text><text class="exh-f12 ex-end tc exc-g" x="312" y="16">✓ ${st.score[0]} / ${st.score[1]}</text>`;
+  s += `<rect class="exh-card" x="6" y="26" width="308" height="70" rx="10"/><text class="exh-f13" x="160" y="50">${esc(`${tx(A.n)} (UTC${tzOff(A.o)}): ${tzWhen(q.t)}`)}</text><text class="exh-f13" x="160" y="76">${esc(`${tx(B.n)} (UTC${tzOff(B.o)}): ?`)}</text>`;
+  q.opts.forEach((o, i) => {
+    const cls = q.done ? (i === q.ans ? 'ok' : i === q.pick ? 'bad' : '') : '';
+    s += chip(i % 2 ? 164 : 8, i < 2 ? 106 : 144, 148, 30, tzWhen(o), `o${i}`, cls, 14);
+  });
+  if (q.done) s += `<text class="exh-f12 tc exc-p" x="160" y="200">${esc(`${tzWhen(q.t)} ${d >= 0 ? '+' : '−'} ${tzHours(Math.abs(d))} = ${tzWhen(q.t + d)}`)}</text>`;
+  return {
+    svg: s,
+    caption: !q.done
+      ? L(`The difference of the zones is UTC${tzOff(B.o) || '+0'} minus UTC${tzOff(A.o) || '+0'}. Tap the time and day in ${tx(B.n, 'en')}.`, `Разница поясов: UTC${tzOff(B.o) || '+0'} минус UTC${tzOff(A.o) || '+0'}. Нажми время и день в городе ${tx(B.n, 'ru')}.`, `Белдеулер айырмасы: UTC${tzOff(B.o) || '+0'} алу UTC${tzOff(A.o) || '+0'}. ${tx(B.n, 'kk')} қаласындағы уақыт пен күнді бас.`)
+      : L(`${q.ok ? '✓ Right' : '✗ No'}: ${tx(B.n, 'en')} is ${d >= 0 ? 'ahead' : 'behind'} by ${Math.abs(d)} h, so ${tzWhen(q.t + d)}.`, `${q.ok ? '✓ Верно' : '✗ Нет'}: ${tx(B.n, 'ru')} ${d >= 0 ? 'впереди' : 'позади'} на ${String(Math.abs(d)).replace('.', ',')} ч, значит ${tzWhen(q.t + d)}.`, `${q.ok ? '✓ Дұрыс' : '✗ Жоқ'}: ${tx(B.n, 'kk')} ${String(Math.abs(d)).replace('.', ',')} сағ ${d >= 0 ? 'алда' : 'артта'}, демек ${tzWhen(q.t + d)}.`),
+  };
+}
+
+// ---------- Времена года ----------
+
+/** Склонение Солнца в день года d (приближённо). */
+const sunDec = (d) => 23.44 * Math.sin((2 * Math.PI * (284 + d)) / 365);
+/** Длина дня в часах на широте lat при склонении dec. */
+function dayLen(lat, dec) {
+  const c = -Math.tan((lat * Math.PI) / 180) * Math.tan((dec * Math.PI) / 180);
+  return c <= -1 ? 24 : c >= 1 ? 0 : (24 / Math.PI) * Math.acos(c);
+}
+/** «22 июн» по номеру дня года. */
+function seasonDate(d) {
+  const days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  let x = clamp(Math.round(d), 1, 365);
+  let m = 0;
+  while (x > days[m]) x -= days[m++];
+  const MON = u('Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec', 'янв фев мар апр мая июн июл авг сен окт ноя дек', 'қаң ақп нау сәу мам мау шіл там қыр қаз қар жел').split(' ');
+  return `${x} ${MON[m]}`;
+}
+
+const SEASON_DAYS = [
+  [L('21 March', '21 марта', '21 наурыз'), 0],
+  [L('22 June', '22 июня', '22 маусым'), 23.4],
+  [L('23 September', '23 сентября', '23 қыркүйек'), 0],
+  [L('22 December', '22 декабря', '22 желтоқсан'), -23.4],
+];
+const SEASON_PLACES = [
+  [L('the equator', 'экватор', 'экватор'), 0],
+  [L('Almaty', 'Алматы', 'Алматы'), 43],
+  [L('Astana', 'Астана', 'Астана'), 51],
+  [L('Moscow', 'Москва', 'Мәскеу'), 56],
+  [L('Cairo', 'Каир', 'Каир'), 30],
+  [L('the Tropic of Cancer', 'северный тропик', 'солтүстік тропик'), 23.4],
+  [L('the Arctic Circle', 'полярный круг', 'полярлық шеңбер'), 66.6],
+  [L('Petropavl', 'Петропавловск', 'Петропавл'), 55],
+];
+
+function seasonQuiz() {
+  const [dn, dec] = pick(SEASON_DAYS);
+  const [pn, lat] = pick(SEASON_PLACES);
+  const right = Math.round((90 - Math.abs(lat - dec)) * 10) / 10;
+  const cand = [right, Math.round((90 - lat) * 10) / 10, Math.round((90 - lat - dec) * 10) / 10, Math.round((90 - Math.abs(lat + dec)) * 10) / 10, Math.round((lat + 23.4) * 10) / 10, right + 10];
+  const opts = [];
+  for (const x of cand) if (opts.length < 4 && x >= 0 && x <= 90 && !opts.includes(x)) opts.push(x);
+  while (opts.length < 4) opts.push(Math.round((right + 5 * opts.length) % 90));
+  const sh = shuffle(opts);
+  return { dn, dec, pn, lat, right, opts: sh, ans: sh.indexOf(right), pick: -1, done: false, ok: false };
+}
+
+function seasonQuizDraw(st) {
+  const q = st.q;
+  let s = `<text class="exh-f13 ex-start" x="8" y="16">${esc(u('Height of the noon Sun', 'Высота Солнца в полдень', 'Түстегі Күн биіктігі'))}</text><text class="exh-f12 ex-end tc exc-g" x="312" y="16">✓ ${st.score[0]} / ${st.score[1]}</text>`;
+  s += `<rect class="exh-card" x="6" y="26" width="308" height="66" rx="10"/><text class="exh-f13" x="160" y="50">${esc(`${tx(q.dn)}, ${tx(q.pn)} (φ = ${fmt(q.lat, 1)}° ${u('N', 'с. ш.', 'с. е.')})`)}</text><text class="exh-f12 tc exc-m" x="160" y="74">${esc(`h = ?   ${u('Sun declination', 'склонение Солнца', 'Күн ауытқуы')} δ = ${fmt(q.dec, 1)}°`)}</text>`;
+  q.opts.forEach((o, i) => {
+    const cls = q.done ? (i === q.ans ? 'ok' : i === q.pick ? 'bad' : '') : '';
+    s += chip(i % 2 ? 164 : 8, i < 2 ? 102 : 140, 148, 30, `${fmt(o, 1)}°`, `o${i}`, cls, 15);
+  });
+  if (q.done) s += `<text class="exh-f13 tc exc-p" x="160" y="200">${esc(`h = 90° − |${fmt(q.lat, 1)}° − (${fmt(q.dec, 1)}°)| = ${fmt(q.right, 1)}°`)}</text>`;
+  return {
+    svg: s,
+    caption: !q.done
+      ? L('Use h = 90° − |φ − δ|: φ is the latitude, δ is the Sun’s declination on that day (+23.4° on 22 June, 0° at the equinoxes, −23.4° on 22 December).', 'Формула h = 90° − |φ − δ|: φ - широта, δ - склонение Солнца в этот день (+23,4° 22 июня, 0° в равноденствия, −23,4° 22 декабря).', 'h = 90° − |φ − δ| формуласы: φ - ендік, δ - сол күнгі Күн ауытқуы (22 маусымда +23,4°, күн теңелулерде 0°, 22 желтоқсанда −23,4°).')
+      : L(`${q.ok ? '✓ Right' : '✗ No'}: h = 90° − |${fmt(q.lat, 1)}° − (${fmt(q.dec, 1)}°)| = ${fmt(q.right, 1)}°.`, `${q.ok ? '✓ Верно' : '✗ Нет'}: h = 90° − |${fmt(q.lat, 1)}° − (${fmt(q.dec, 1)}°)| = ${fmt(q.right, 1)}°.`, `${q.ok ? '✓ Дұрыс' : '✗ Жоқ'}: h = 90° − |${fmt(q.lat, 1)}° − (${fmt(q.dec, 1)}°)| = ${fmt(q.right, 1)}°.`),
+  };
+}
+
+// ---------- Масштаб: схематичная карта Казахстана ----------
+
+const MAP_U = 9.6; // 1 см карты в единицах рисунка; масштаб рисунка 1 : 10 000 000
+const MAP_KPD = 111.32 / (100 / MAP_U); // единиц на градус широты
+const mapXY = (c) => [n1(12 + (c.lon - 46.5) * MAP_KPD * Math.cos((48 * Math.PI) / 180)), n1(40 + (55.5 - c.lat) * MAP_KPD)];
+const MAP_CITIES = [
+  { n: L('Astana', 'Астана', 'Астана'), lon: 71.45, lat: 51.17, up: true },
+  { n: L('Almaty', 'Алматы', 'Алматы'), lon: 76.95, lat: 43.25 },
+  { n: L('Shymkent', 'Шымкент', 'Шымкент'), lon: 69.6, lat: 42.32 },
+  { n: L('Karaganda', 'Караганда', 'Қарағанды'), lon: 73.1, lat: 49.8 },
+  { n: L('Aktobe', 'Актобе', 'Ақтөбе'), lon: 57.2, lat: 50.28 },
+  { n: L('Atyrau', 'Атырау', 'Атырау'), lon: 51.9, lat: 47.1 },
+  { n: L('Aktau', 'Актау', 'Ақтау'), lon: 51.2, lat: 43.65 },
+  { n: L('Oskemen', 'Усть-Каменогорск', 'Өскемен'), lon: 82.6, lat: 49.95, end: true, up: true },
+  { n: L('Pavlodar', 'Павлодар', 'Павлодар'), lon: 76.95, lat: 52.3, up: true },
+  { n: L('Kostanay', 'Костанай', 'Қостанай'), lon: 63.6, lat: 53.2, up: true },
+  { n: L('Oral', 'Уральск', 'Орал'), lon: 51.4, lat: 51.2, up: true },
+  { n: L('Kyzylorda', 'Кызылорда', 'Қызылорда'), lon: 65.5, lat: 44.85 },
+];
+/** Контур Казахстана (упрощённый, долгота/широта). */
+const KZ_OUTLINE = [
+  [48.9, 46.2], [47.4, 47.6], [46.5, 48.4], [46.7, 49.4], [47.3, 50.4], [48.8, 50.6], [49.8, 51.7], [52, 51.6], [54.5, 51], [55.7, 50.6], [57, 51.1], [58.5, 51], [60, 50.8], [61.4, 50.8], [61, 52.6], [61, 53.9], [62.5, 54], [65, 54.6], [68, 54.9], [69, 55.4], [70.8, 55.2], [71.2, 54.1], [73, 54.1], [73.5, 53.6], [76.2, 54.3], [78, 52.9], [80, 51.3], [83.5, 51], [85, 50], [87.3, 49.2], [85.5, 47.1], [83, 47.2], [82.3, 45.5], [80, 45], [80.4, 44], [80.3, 42.8], [79, 42.8], [77.5, 42.9], [75, 42.9], [73.5, 42.5], [71, 42.8], [70.4, 42.2], [69, 41.4], [68, 40.7], [66.5, 41.8], [66, 42.9], [64.5, 43.6], [62, 43.5], [61, 44.2], [58.5, 45.6], [56, 45], [56, 41.3], [54.5, 42], [52.7, 42.3], [51.3, 43.2], [51.2, 43.6], [50.3, 44.6], [51.5, 45], [53, 45.3], [53.3, 46.5], [52, 46.9], [51, 47], [49.5, 46.5],
+];
+const mapOutline = () => `M${KZ_OUTLINE.map(([lon, lat]) => mapXY({ lon, lat }).join(' ')).join(' L')} Z`;
+function haversine(a, b) {
+  const R = 6371;
+  const r = Math.PI / 180;
+  const h = Math.sin(((b.lat - a.lat) * r) / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(((b.lon - a.lon) * r) / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+const MAP_SCALES = [10000, 25000, 50000, 100000, 200000, 500000, 1000000, 2500000, 5000000, 10000000];
+const num = (x) => x.toLocaleString('ru-RU').replace(/ /g, ' ');
+/** «250 м» или «50 км» - сколько на местности в 1 см. */
+const perCm = (N) => (N >= 100000 ? `${num(N / 100000)} ${u('km', 'км', 'км')}` : `${num(N / 100)} ${u('m', 'м', 'м')}`);
+const groundTxt = (N, cm) => {
+  const m = (N * cm) / 100;
+  return m >= 1000 ? `${fmt(m / 1000, 2)} ${u('km', 'км', 'км')}` : `${fmt(m, 0)} ${u('m', 'м', 'м')}`;
+};
+
+function mapCalc(v) {
+  const N = MAP_SCALES[clamp(Math.round(v.sc), 0, 9)];
+  const cm = v.cm;
+  const unit = 14;
+  const len = Math.min(cm * unit, 300);
+  let s = `<text class="exh-f22" x="160" y="30">1 : ${num(N)}</text><text class="exh-f13 tc exc-m" x="160" y="52">${esc(`${u('named', 'именованный', 'атаулы')}: ${u('1 cm =', 'в 1 см', '1 см-де')} ${perCm(N)}`)}</text>`;
+  s += `<text class="exh-f11 tc exc-m" x="160" y="74">${esc(`1 ${u('cm', 'см', 'см')} = ${num(N)} ${u('cm', 'см', 'см')} = ${num(N / 100)} ${u('m', 'м', 'м')}${N >= 100000 ? ` = ${num(N / 100000)} ${u('km', 'км', 'км')}` : ''}`)}</text>`;
+  // Отрезок на карте и линейка в сантиметрах.
+  s += `<circle class="ex-fill exc-r" cx="10" cy="104" r="5"/><circle class="ex-fill exc-r" cx="${n1(10 + len)}" cy="104" r="5"/><line class="ex-stroke exc-p ex-dash" style="stroke-width:2" x1="10" y1="104" x2="${n1(10 + len)}" y2="104"/>`;
+  s += `<line class="ex-axis" x1="10" y1="122" x2="310" y2="122"/>`;
+  for (let k = 0; k <= 21 && k * unit <= 300; k++) s += `<line class="ex-axis" x1="${10 + k * unit}" y1="122" x2="${10 + k * unit}" y2="${k % 5 ? 127 : 131}"/>${k % 5 ? '' : `<text class="exh-f9 tc exc-m" x="${10 + k * unit}" y="141">${k}</text>`}`;
+  s += `<text class="exh-f9 ex-end tc exc-m" x="312" y="141">${esc(u('cm', 'см', 'см'))}</text>`;
+  // Линейный масштаб: 0 - 1 - 2 - 3 см с подписями расстояний.
+  // Линейный масштаб: 4 отрезка по 1 см (40 единиц), подписи в одних единицах.
+  const inKm = N * 4 >= 100000;
+  s += [0, 1, 2, 3].map((k) => `<rect class="ex-fill ${k % 2 ? 'exc-m' : 'exc-p'}" x="${60 + k * 40}" y="160" width="40" height="7" style="opacity:${k % 2 ? 0.35 : 0.7}"/>`).join('') + [0, 1, 2, 3, 4].map((k) => `<text class="exh-f9 tc exc-m" x="${60 + k * 40}" y="181">${esc(fmt(inKm ? (N * k) / 100000 : (N * k) / 100, 2))}</text>`).join('') + `<text class="exh-f9 ex-start tc exc-m" x="226" y="166">${esc(inKm ? u('km', 'км', 'км') : u('m', 'м', 'м'))}</text><text class="exh-f9 ex-end tc exc-m" x="54" y="167">${esc(u('linear', 'линейный', 'сызықтық'))}</text>`;
+  s += `<text class="exh-f15 tc exc-p" x="160" y="208">${esc(`${fmt(cm, 1)} ${u('cm', 'см', 'см')} × ${perCm(N)} = ${groundTxt(N, cm)}`)}</text>`;
+  return {
+    svg: s,
+    caption: L(
+      `Numeric scale 1 : ${num(N)} → named scale «1 cm = ${perCm(N)}» (drop two zeros to get metres, five zeros to get kilometres). ${fmt(cm, 1)} cm on the map = ${groundTxt(N, cm)} on the ground. The bigger the second number, the smaller the scale.`,
+      `Численный масштаб 1 : ${num(N)} → именованный «в 1 см ${perCm(N)}» (зачеркни два нуля - получишь метры, пять нулей - километры). ${fmt(cm, 1)} см на карте = ${groundTxt(N, cm)} на местности. Чем больше второе число, тем мельче масштаб.`,
+      `Сандық масштаб 1 : ${num(N)} → атаулы «1 см-де ${perCm(N)}» (екі нөлді өшірсең - метр, бес нөлді - километр). Картадағы ${fmt(cm, 1)} см = жердегі ${groundTxt(N, cm)}. Екінші сан неғұрлым үлкен болса, масштаб соғұрлым ұсақ.`,
+    ),
+  };
+}
+
+function mapQuiz(st) {
+  const t = st.qn++ % 3;
+  const N = pick([100000, 200000, 500000, 1000000, 2500000, 5000000, 10000000]);
+  const kmCm = N / 100000;
+  let ask;
+  let right;
+  let wrong;
+  let fmtO;
+  if (t === 0) {
+    const cm = pick([2, 3, 4, 5, 6, 7, 8, 1.5, 2.5]);
+    right = cm * kmCm;
+    wrong = [cm * kmCm * 10, cm * kmCm / 10, cm + kmCm];
+    ask = L(`Scale 1 : ${num(N)}. On the map it is ${String(cm)} cm. How far is it on the ground?`, `Масштаб 1 : ${num(N)}. На карте ${String(cm).replace('.', ',')} см. Сколько это на местности?`, `Масштаб 1 : ${num(N)}. Картада ${String(cm).replace('.', ',')} см. Жерде бұл қанша?`);
+    fmtO = (x) => `${fmt(x, 2)} ${u('km', 'км', 'км')}`;
+  } else if (t === 1) {
+    const cm = pick([2, 3, 4, 5, 6, 8]);
+    const km = cm * kmCm;
+    right = cm;
+    wrong = [km * kmCm, cm * 10, cm / 10];
+    ask = L(`Scale: 1 cm = ${fmt(kmCm, 2)} km. The distance is ${fmt(km, 2)} km. How long is it on the map?`, `Масштаб: в 1 см ${fmt(kmCm, 2)} км. Расстояние ${fmt(km, 2)} км. Сколько это на карте?`, `Масштаб: 1 см-де ${fmt(kmCm, 2)} км. Қашықтық ${fmt(km, 2)} км. Картада бұл қанша?`);
+    fmtO = (x) => `${fmt(x, 2)} ${u('cm', 'см', 'см')}`;
+  } else {
+    right = N;
+    wrong = [N * 10, N / 10, N * 100];
+    ask = L(`Named scale: 1 cm = ${perCm(N)}. Which numeric scale is it?`, `Именованный масштаб: в 1 см ${perCm(N)}. Какой это численный масштаб?`, `Атаулы масштаб: 1 см-де ${perCm(N)}. Бұл қандай сандық масштаб?`);
+    fmtO = (x) => `1 : ${num(x)}`;
+  }
+  const opts = shuffle([right, ...wrong.filter((x) => x !== right)].slice(0, 4));
+  return { t, N, ask, opts, ans: opts.indexOf(right), fmtO, pick: -1, done: false, ok: false };
+}
+
+function mapQuizDraw(st) {
+  const q = st.q;
+  let s = `<text class="exh-f13 ex-start" x="8" y="16">${esc(u('Scale problem', 'Задача на масштаб', 'Масштабқа есеп'))}</text><text class="exh-f12 ex-end tc exc-g" x="312" y="16">✓ ${st.score[0]} / ${st.score[1]}</text>`;
+  const tl = wrap(tx(q.ask), 44, 3);
+  s += `<rect class="exh-card" x="6" y="26" width="308" height="66" rx="10"/>${lines(tl, 160, 63 - (tl.length - 1) * 8, 16, 'exh-f12')}`;
+  q.opts.forEach((o, i) => {
+    const cls = q.done ? (i === q.ans ? 'ok' : i === q.pick ? 'bad' : '') : '';
+    s += chip(i % 2 ? 164 : 8, i < 2 ? 102 : 140, 148, 30, q.fmtO(o), `o${i}`, cls, 13);
+  });
+  const how = [
+    L(`1 cm = ${perCm(q.N)}, so multiply the centimetres by ${num(q.N / 100000)}.`, `В 1 см ${perCm(q.N)}, значит умножаем сантиметры на ${num(q.N / 100000)}.`, `1 см-де ${perCm(q.N)}, демек сантиметрді ${num(q.N / 100000)}-ге көбейтеміз.`),
+    L(`Divide the kilometres by ${num(q.N / 100000)} km per cm.`, `Делим километры на ${num(q.N / 100000)} км в 1 см.`, `Километрді 1 см-дегі ${num(q.N / 100000)} км-ге бөлеміз.`),
+    L(`${perCm(q.N)} = ${num(q.N)} cm, so the scale is 1 : ${num(q.N)}.`, `${perCm(q.N)} = ${num(q.N)} см, значит масштаб 1 : ${num(q.N)}.`, `${perCm(q.N)} = ${num(q.N)} см, демек масштаб 1 : ${num(q.N)}.`),
+  ][q.t];
+  if (q.done) s += lines(wrap(tx(how), 50, 2), 160, 196, 14, 'exh-f11 tc exc-p');
+  return {
+    svg: s,
+    caption: !q.done ? L(`${q.ask.en} Tap the answer.`, `${q.ask.ru} Нажми на ответ.`, `${q.ask.kk} Жауапты бас.`) : L(`${q.ok ? '✓ Right' : '✗ No'}: ${how.en}`, `${q.ok ? '✓ Верно' : '✗ Нет'}: ${how.ru}`, `${q.ok ? '✓ Дұрыс' : '✗ Жоқ'}: ${how.kk}`),
+  };
+}
+
+// ---------- Объём информации ----------
+
+const DL_DEPTH = [1, 2, 4, 8, 16, 24];
+const DL_RATE = [8000, 11025, 22050, 44100, 48000];
+/** Число для лестницы единиц: целое с пробелами или до 2 знаков. */
+const dlNum = (x) => (x >= 1000 ? Math.round(x).toLocaleString('ru-RU').replace(/ /g, ' ') : fmt(x, x >= 10 ? 1 : 2));
+/** «6 220 800 байт ≈ 5,93 МБ». */
+function dlBits(b) {
+  const B = b / 8;
+  const units = [[1024 ** 3, u('GB', 'ГБ', 'ГБ')], [1024 ** 2, u('MB', 'МБ', 'МБ')], [1024, u('KB', 'КБ', 'КБ')]];
+  const [k, nm] = units.find(([k]) => B >= k) ?? [1, u('bytes', 'байт', 'байт')];
+  return `${dlNum(b)} ${u('bits', 'бит', 'бит')} = ${dlNum(B)} ${u('bytes', 'байт', 'байт')}${k > 1 ? ` ≈ ${fmt(B / k, 2)} ${nm}` : ''}`;
+}
+/** «1 мин 52 с». */
+function dlTime(t) {
+  const h = Math.floor(t / 3600);
+  const m = Math.floor((t % 3600) / 60);
+  const s = Math.round(t % 60);
+  return [h ? `${h} ${u('h', 'ч', 'сағ')}` : '', m ? `${m} ${u('min', 'мин', 'мин')}` : '', `${s} ${u('s', 'с', 'с')}`].filter(Boolean).join(' ');
+}
+
+function dlQuiz(st) {
+  const t = st.qn++ % 3;
+  let ask;
+  let right;
+  let wrong;
+  let unit;
+  let how;
+  if (t === 0) {
+    const w = pick([32, 64, 128, 256]);
+    const h = pick([32, 64, 128]);
+    const i = pick([1, 2, 4, 8]);
+    right = (w * h * i) / 8 / 1024;
+    wrong = [right * 8, right / 2, (w * h * i) / 1024];
+    ask = L(`A picture ${w}×${h} pixels with ${2 ** i} colours. How many KB?`, `Картинка ${w}×${h} пикселей, ${2 ** i} цветов. Сколько это КБ?`, `${w}×${h} пиксельді, ${2 ** i} түсті сурет. Бұл қанша КБ?`);
+    unit = u('KB', 'КБ', 'КБ');
+    how = L(`${2 ** i} colours → i = ${i} bit; ${w}·${h}·${i} = ${w * h * i} bits = ${(w * h * i) / 8} bytes = ${fmt(right, 2)} KB.`, `${2 ** i} цветов → i = ${i} бит; ${w}·${h}·${i} = ${w * h * i} бит = ${(w * h * i) / 8} байт = ${fmt(right, 2)} КБ.`, `${2 ** i} түс → i = ${i} бит; ${w}·${h}·${i} = ${w * h * i} бит = ${(w * h * i) / 8} байт = ${fmt(right, 2)} КБ.`);
+  } else if (t === 1) {
+    const K = pick([512, 1024, 2048, 4096, 8192]);
+    const i = pick([8, 16]);
+    right = (K * i) / 8 / 1024;
+    wrong = [right * 8, i === 16 ? right / 2 : right * 2, (K * i) / 1024];
+    ask = L(`A text of ${K} characters, ${i === 16 ? 'Unicode (16 bits per character)' : '8 bits per character'}. How many KB?`, `Текст из ${K} символов, ${i === 16 ? 'Unicode (16 бит на символ)' : '8 бит на символ'}. Сколько это КБ?`, `${K} таңбалы мәтін, ${i === 16 ? 'Unicode (таңбаға 16 бит)' : 'таңбаға 8 бит'}. Бұл қанша КБ?`);
+    unit = u('KB', 'КБ', 'КБ');
+    how = L(`${K}·${i} = ${K * i} bits = ${(K * i) / 8} bytes = ${fmt(right, 2)} KB.`, `${K}·${i} = ${K * i} бит = ${(K * i) / 8} байт = ${fmt(right, 2)} КБ.`, `${K}·${i} = ${K * i} бит = ${(K * i) / 8} байт = ${fmt(right, 2)} КБ.`);
+  } else {
+    const sp = pick([10, 20, 40, 50, 100]);
+    const size = pick([5, 10, 25, 50, 100]);
+    right = (size * 8) / sp;
+    wrong = [size / sp, right * 8, (size * 1024) / sp];
+    ask = L(`A file of ${size} MB, speed ${sp} Mbit/s (take 1 MB = 8 Mbit). How many seconds?`, `Файл ${size} МБ, скорость ${sp} Мбит/с (считаем 1 МБ = 8 Мбит). Сколько секунд?`, `Файл ${size} МБ, жылдамдық ${sp} Мбит/с (1 МБ = 8 Мбит деп аламыз). Неше секунд?`);
+    unit = u('s', 'с', 'с');
+    how = L(`${size}·8 = ${size * 8} Mbit; ${size * 8} / ${sp} = ${fmt(right, 2)} s.`, `${size}·8 = ${size * 8} Мбит; ${size * 8} / ${sp} = ${fmt(right, 2)} с.`, `${size}·8 = ${size * 8} Мбит; ${size * 8} / ${sp} = ${fmt(right, 2)} с.`);
+  }
+  const opts = [right];
+  for (const x of wrong) if (opts.length < 4 && !opts.includes(x)) opts.push(x);
+  while (opts.length < 4) opts.push(right * (opts.length + 1));
+  const sh = shuffle(opts);
+  return { ask, how, unit, opts: sh, ans: sh.indexOf(right), pick: -1, done: false, ok: false };
+}
+
+function dlQuizDraw(st) {
+  const q = st.q;
+  let s = `<text class="exh-f13 ex-start" x="8" y="16">${esc(u('Count the volume', 'Посчитай объём', 'Көлемді есепте'))}</text><text class="exh-f12 ex-end tc exc-g" x="312" y="16">✓ ${st.score[0]} / ${st.score[1]}</text>`;
+  const tl = wrap(tx(q.ask), 42, 3);
+  s += `<rect class="exh-card" x="6" y="26" width="308" height="66" rx="10"/>${lines(tl, 160, 63 - (tl.length - 1) * 8, 16, 'exh-f12')}`;
+  q.opts.forEach((o, i) => {
+    const cls = q.done ? (i === q.ans ? 'ok' : i === q.pick ? 'bad' : '') : '';
+    s += chip(i % 2 ? 164 : 8, i < 2 ? 102 : 140, 148, 30, `${fmt(o, 2)} ${q.unit}`, `o${i}`, cls, 14);
+  });
+  if (q.done) s += lines(wrap(tx(q.how), 50, 2), 160, 194, 14, 'exh-f11 tc exc-p');
+  return {
+    svg: s,
+    caption: !q.done ? L(`${q.ask.en} Tap the answer.`, `${q.ask.ru} Нажми на ответ.`, `${q.ask.kk} Жауапты бас.`) : L(`${q.ok ? '✓ Right' : '✗ No'}: ${q.how.en}`, `${q.ok ? '✓ Верно' : '✗ Нет'}: ${q.how.ru}`, `${q.ok ? '✓ Дұрыс' : '✗ Жоқ'}: ${q.how.kk}`),
+  };
+}
+
+// ---------- Деление с остатком ----------
+
+/** Частное и остаток: Python (lang 0) округляет вниз, C++/JS/Java - к нулю. */
+function dmCalc(a, b, lang) {
+  const q = lang === 0 ? Math.floor(a / b) : Math.trunc(a / b);
+  return [q, a - b * q];
+}
+function dmCode(lg, a, b) {
+  const [q, r] = dmCalc(a, b, lg);
+  const neg = a < 0;
+  return [
+    [`q = ${a} // ${b}    # ${q}`, `r = ${a} % ${b}     # ${r}`],
+    [`int q = ${a} / ${b};    // ${q}`, `int r = ${a} % ${b};    // ${r}`],
+    [`let q = Math.${neg ? 'trunc' : 'floor'}(${a} / ${b});  // ${q}`, `let r = ${a} % ${b};  // ${r}`],
+    [`int q = ${a} / ${b};    // ${q}`, `int r = ${a} % ${b};    // ${r}`],
+  ][lg];
+}
+function dmDigitsCode(lg, n) {
+  return [
+    [`n = ${n}`, 'units = n % 10', 'tens = n // 10 % 10', 'hundreds = n // 100 % 10', 'thousands = n // 1000'],
+    [`int n = ${n};`, 'int units = n % 10;', 'int tens = n / 10 % 10;', 'int hundreds = n / 100 % 10;', 'int thousands = n / 1000;'],
+    [`let n = ${n};`, 'let units = n % 10;', 'let tens = Math.floor(n / 10) % 10;', 'let hundreds = Math.floor(n / 100) % 10;', 'let thousands = Math.floor(n / 1000);'],
+    [`int n = ${n};`, 'int units = n % 10;', 'int tens = n / 10 % 10;', 'int hundreds = n / 100 % 10;', 'int thousands = n / 1000;'],
+  ][lg];
+}
+function dmTimeCode(lg, m) {
+  return [
+    [`m = ${m}`, 'h = m // 60', 'mm = m % 60'],
+    [`int m = ${m};`, 'int h = m / 60;', 'int mm = m % 60;'],
+    [`let m = ${m};`, 'let h = Math.floor(m / 60);', 'let mm = m % 60;'],
+    [`int m = ${m};`, 'int h = m / 60;', 'int mm = m % 60;'],
+  ][lg];
+}
+
+function dmQuiz(st) {
+  const lg = st.lang;
+  const b = 2 + rnd(8);
+  const a = rnd(3) ? 5 + rnd(55) : -(1 + rnd(30));
+  const [q, r] = dmCalc(a, b, lg);
+  const [q2, r2] = dmCalc(a, b, lg ? 0 : 1);
+  const right = `${q} ${r}`;
+  const opts = [right];
+  for (const o of [`${q2} ${r2}`, `${r} ${q}`, `${q + 1} ${r}`, `${q} ${b - Math.abs(r)}`, `${q - 1} ${r + 1}`]) if (opts.length < 4 && !opts.includes(o)) opts.push(o);
+  const sh = shuffle(opts);
+  const code = [`print(${a} // ${b}, ${a} % ${b})`, `cout << ${a} / ${b} << " " << ${a} % ${b};`, `console.log(Math.trunc(${a} / ${b}), ${a} % ${b});`, `System.out.println(${a} / ${b} + " " + ${a} % ${b});`][lg];
+  return { a, b, q, r, code, opts: sh, ans: sh.indexOf(right), pick: -1, done: false, ok: false };
+}
+function dmQuizDraw(st) {
+  const q = st.q;
+  let s = `<text class="exh-f13 ex-start" x="8" y="16">${esc(u('What will it print?', 'Что выведет программа?', 'Бағдарлама не шығарады?'))}</text><text class="exh-f12 ex-end tc exc-g" x="312" y="16">✓ ${st.score[0]} / ${st.score[1]}</text>`;
+  s += codePanel([q.code], [], 26);
+  q.opts.forEach((o, i) => {
+    const cls = q.done ? (i === q.ans ? 'ok' : i === q.pick ? 'bad' : '') : '';
+    s += chip(i % 2 ? 164 : 8, i < 2 ? 66 : 104, 148, 30, o, `o${i}`, cls, 15);
+  });
+  if (q.done) s += `<text class="exh-f14" x="160" y="170">${q.a} = ${q.b} · (${q.q}) + ${q.r}</text>`;
+  const pyNote = st.lang === 0 && q.a < 0;
+  return {
+    svg: s,
+    caption: !q.done
+      ? L('Work out the quotient and the remainder in this language, then tap the output.', 'Найди частное и остаток по правилам этого языка и нажми, что будет выведено.', 'Осы тілдің ережесімен бөлінді мен қалдықты тауып, шығатынын бас.')
+      : L(`${q.ok ? '✓ Right' : '✗ No'}: ${q.q} and ${q.r}, because ${q.a} = ${q.b} · (${q.q}) + ${q.r}.${q.a < 0 ? (pyNote ? ' Python rounds down, so the remainder is not negative.' : ' C++, Java and JS round toward zero, so the remainder has the sign of a.') : ''}`, `${q.ok ? '✓ Верно' : '✗ Нет'}: ${q.q} и ${q.r}, потому что ${q.a} = ${q.b} · (${q.q}) + ${q.r}.${q.a < 0 ? (pyNote ? ' Python округляет вниз, поэтому остаток не отрицательный.' : ' C++, Java и JS округляют к нулю, поэтому остаток со знаком a.') : ''}`, `${q.ok ? '✓ Дұрыс' : '✗ Жоқ'}: ${q.q} және ${q.r}, себебі ${q.a} = ${q.b} · (${q.q}) + ${q.r}.${q.a < 0 ? (pyNote ? ' Python төмен дөңгелектейді, сондықтан қалдық теріс емес.' : ' C++, Java, JS нөлге қарай дөңгелектейді, сондықтан қалдық a-ның таңбасымен.') : ''}`),
+  };
+}
+
+// ---------- Условия ----------
+
+const ifPrint = (lg, w) => [`    print('${w}')`, `    cout << "${w}";`, `    console.log("${w}");`, `    System.out.println("${w}");`][lg];
+const IF_EX = [
+  {
+    v: 's',
+    code: (lg) => (lg ? ['if (s >= 85)', '    grade = 5;', 'else if (s >= 70)', '    grade = 4;', 'else if (s >= 50)', '    grade = 3;', 'else', '    grade = 2;'] : ['if s >= 85:', '    grade = 5', 'elif s >= 70:', '    grade = 4', 'elif s >= 50:', '    grade = 3', 'else:', '    grade = 2']),
+    opts: ['grade = 2', 'grade = 3', 'grade = 4', 'grade = 5'],
+    eval(s) {
+      const lim = [85, 70, 50];
+      const checks = [];
+      let branch = 3;
+      for (let i = 0; i < 3; i++) {
+        checks.push(s >= lim[i]);
+        if (s >= lim[i]) {
+          branch = i;
+          break;
+        }
+      }
+      const out = `grade = ${[5, 4, 3, 2][branch]}`;
+      const no = checks.filter((x) => !x).length;
+      return {
+        branch,
+        checks,
+        out,
+        lines: checks.map((ok, i) => ({ t: `${s} >= ${lim[i]}`, ok })),
+        why: L(`s = ${s}: ${no ? `${no} condition${no > 1 ? 's are' : ' is'} false (✗), then ` : ''}${branch < 3 ? `«s >= ${lim[branch]}» is true` : 'nothing is true, so else runs'} → ${out}. Everything below is not even checked. Order matters: put s >= 50 first and 95 points would get a 3!`, `s = ${s}: ${no ? `ложных условий: ${no} (✗), затем ` : ''}${branch < 3 ? `«s >= ${lim[branch]}» верно` : 'ничего не подошло, срабатывает else'} → ${out}. Ниже уже ничего не проверяется. Порядок важен: поставь s >= 50 первым - и 95 баллов получат «3»!`, `s = ${s}: ${no ? `жалған шарттар: ${no} (✗), сосын ` : ''}${branch < 3 ? `«s >= ${lim[branch]}» ақиқат` : 'ештеңе сәйкес келмеді, else орындалады'} → ${out}. Төмендегілер тексерілмейді де. Рет маңызды: s >= 50-ні бірінші қойсаң, 95 балл «3» алады!`),
+      };
+    },
+  },
+  {
+    v: 'n',
+    code: (lg) => (lg ? ['if (n % 2 == 0)', ifPrint(lg, 'even'), 'else', ifPrint(lg, 'odd')] : ['if n % 2 == 0:', ifPrint(0, 'even'), 'else:', ifPrint(0, 'odd')]),
+    opts: ['even', 'odd'],
+    eval(n) {
+      const ok = n % 2 === 0;
+      return {
+        branch: ok ? 0 : 1,
+        checks: [ok],
+        out: ok ? 'even' : 'odd',
+        lines: [{ t: `${n} % 2 = ${n % 2}; ${n % 2} == 0`, ok }],
+        why: L(`${n} % 2 = ${n % 2}, so the number is ${ok ? 'even' : 'odd'}. The remainder of division by 2 is the usual parity test.`, `${n} % 2 = ${n % 2}, значит число ${ok ? 'чётное (even)' : 'нечётное (odd)'}. Остаток от деления на 2 - обычная проверка на чётность.`, `${n} % 2 = ${n % 2}, демек сан ${ok ? 'жұп (even)' : 'тақ (odd)'}. 2-ге бөлгендегі қалдық - жұптықты әдеттегі тексеру.`),
+      };
+    },
+  },
+  {
+    v: 'y',
+    code: (lg) =>
+      lg
+        ? ['if (y % 400 == 0)', ifPrint(lg, 'leap'), 'else if (y % 100 == 0)', ifPrint(lg, 'not leap'), 'else if (y % 4 == 0)', ifPrint(lg, 'leap'), 'else', ifPrint(lg, 'not leap')]
+        : ['if y % 400 == 0:', ifPrint(0, 'leap'), 'elif y % 100 == 0:', ifPrint(0, 'not leap'), 'elif y % 4 == 0:', ifPrint(0, 'leap'), 'else:', ifPrint(0, 'not leap')],
+    opts: ['leap', 'not leap'],
+    eval(y) {
+      const d = [400, 100, 4];
+      const checks = [];
+      let branch = 3;
+      for (let i = 0; i < 3; i++) {
+        checks.push(y % d[i] === 0);
+        if (y % d[i] === 0) {
+          branch = i;
+          break;
+        }
+      }
+      const out = branch === 0 || branch === 2 ? 'leap' : 'not leap';
+      const leap = out === 'leap';
+      return {
+        branch,
+        checks,
+        out,
+        lines: checks.map((ok, i) => ({ t: `${y} % ${d[i]} = ${y % d[i]}`, ok })),
+        why: L(`${y} is ${leap ? 'a leap year (366 days)' : 'not a leap year (365 days)'}. Rule: divisible by 4, but years divisible by 100 are not leap unless divisible by 400 (2000 is leap, 1900 is not).`, `${y} - ${leap ? 'високосный год (366 дней)' : 'невисокосный год (365 дней)'}. Правило: делится на 4, но годы, кратные 100, не високосные, если не делятся на 400 (2000 - високосный, 1900 - нет).`, `${y} - ${leap ? 'кібісе жыл (366 күн)' : 'кібісе емес жыл (365 күн)'}. Ереже: 4-ке бөлінеді, бірақ 100-ге еселі жылдар 400-ге бөлінбесе кібісе емес (2000 - кібісе, 1900 - жоқ).`),
+      };
+    },
+  },
+];
+
+function ifQuiz() {
+  const ex = rnd(3);
+  const x = ex === 0 ? rnd(101) : ex === 1 ? rnd(100) : pick([1900, 2000, 1996, 2023, 2024, 2100, 1988, 2010, 2016, 1800 + 4 * rnd(75)]);
+  const E = IF_EX[ex];
+  return { ex, x, out: E.eval(x).out, opts: E.opts, pick: -1, done: false, ok: false };
 }

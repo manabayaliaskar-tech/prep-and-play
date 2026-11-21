@@ -33,8 +33,8 @@ test('каталог: у каждого курса есть название, о
   }
   // Экзамены всех стран СНГ, где есть единый экзамен, и три международных.
   for (const id of ['sat', 'ielts', 'toefl', 'hsk', 'ent', 'ege', 'oge', 'ct', 'dtm', 'ort', 'tj', 'dim', 'arm', 'bac']) assert.ok(courseById(id), id);
-  assert.equal(coursesIn('exams', 'intl').length, 4);
-  assert.equal(coursesIn('exams', 'cis').length, 10);
+  assert.equal(coursesIn('exams', 'intl').length, 23);
+  assert.equal(coursesIn('exams', 'cis').length, 12);
   assert.equal(courseById('math').tracks.length, 14, '11 классов и три уровня после школы');
   assert.deepEqual(courseById('english').tracks.map((t) => t.icon), ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']);
   assert.equal(courseById('olymp').tracks.length, 13);

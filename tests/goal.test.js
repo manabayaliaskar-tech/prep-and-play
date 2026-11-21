@@ -7,7 +7,7 @@ import { goalHref, regionExams } from '../src/core/goal.js';
 const ids = COURSES.filter((c) => c.group === 'exams').map((c) => c.id);
 
 test('экзамены по стране: свои, потом международные, потом остальные', () => {
-  assert.deepEqual(regionExams(ids, 'KZT', null).slice(0, 3), ['ent', 'sat', 'ielts']);
+  assert.deepEqual(regionExams(ids, 'KZT', null).slice(0, 5), ['ent', 'nis', 'bil', 'sat', 'ielts']);
   assert.deepEqual(regionExams(ids, 'RUB', null).slice(0, 3), ['ege', 'oge', 'sat']);
   assert.deepEqual(regionExams(ids, 'USD', null).slice(0, 2), ['sat', 'ielts']);
   assert.equal(regionExams(ids, 'KZT', 'toefl')[0], 'toefl', 'выбранная цель - первой');
