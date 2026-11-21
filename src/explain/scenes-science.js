@@ -664,6 +664,17 @@ const buoyTask = () => {
   return { type, rb: 7800, rl: 1000, F: pick([1.96, 2.94, 4.9, 7.84]) };
 };
 
+// Давление жидкости p = ρgh: глубина, сосуды разной формы, разные жидкости, задания.
+const presTask = () => {
+  if (Math.random() < 0.6) {
+    const [r] = pick([LIQUIDS[1], LIQUIDS[2], LIQUIDS[3]]);
+    const h = pick([5, 10, 15, 20, 30, 40, 50]);
+    return { type: 0, r, h, p: r * G * h };
+  }
+  const [r] = pick([LIQUIDS[0], LIQUIDS[1], LIQUIDS[3]]);
+  return { type: 1, r, h: 10, p: r * G * 10 };
+};
+
 export const SCENES_SCIENCE = {
   ohm: {
     title: L("Ohm's law: I = U / R", 'Закон Ома: I = U / R', 'Ом заңы: I = U / R'),
@@ -2181,11 +2192,13 @@ export const SCENES_SCIENCE = {
         ${tt(204, 76, `mg = ${fmt(mg, 2)} ${UN.N()}`, 'exs-t ex-start tc exc-r')}${tt(204, 92, `Fₐ = ${fmt(FA, 2)} ${UN.N()}`, 'exs-t ex-start tc exc-g')}${tt(204, 110, st.dyn ? `P = ${fmt(reading, 2)} ${UN.N()}` : floats ? `${u('under', 'под', 'астында')}: ${fmt(frac * 100, 0)}%` : u('sinks', 'тонет', 'батады'), `exs-t ex-start tc ${floats ? 'exc-g' : 'exc-r'}`)}`;
       const svg = `<rect class="exs-water" x="${tank[0]}" y="${n1(lvl)}" width="${tank[1]}" height="${n1(200 - lvl)}" style="opacity:${n1(0.6 + Math.min(0.4, v.rl / 20000))}"/>${ln(tank[0], lvl, tank[0] + tank[1], lvl, 'exc-b', 1.5)}${ln(tank[0], surf, tank[0] + 12, surf, 'exc-m ex-dash', 1)}<path class="ex-beaker" d="M${tank[0]} 40 V200 H${tank[0] + tank[1]} V40"/>
         ${dyn}${bodyR}${forces}${info}${tt(tank[0] + 4, 214, `V = ${fmt(v.V, 0)} ${u('cm³', 'см³', 'см³')}`, 'exs-s ex-start')}`;
-      let caption = st.dyn
+      let caption = st.dyn && floats
+        ? u(`In air the scale shows mg = ${fmt(mg, 2)} N. In the liquid Fₐ could reach ${fmt(FAfull, 2)} N - more than the weight, so the body floats up and the scale shows 0.`, `В воздухе динамометр показывает mg = ${fmt(mg, 2)} Н. В жидкости Fₐ могла бы достичь ${fmt(FAfull, 2)} Н - больше веса, поэтому тело всплывает и динамометр показывает 0.`, `Ауада динамометр mg = ${fmt(mg, 2)} Н көрсетеді. Сұйықта Fₐ ${fmt(FAfull, 2)} Н-ға жетер еді - салмақтан көп, сондықтан дене қалқып шығады, динамометр 0 көрсетеді.`)
+        : st.dyn
         ? u(
-            `In air the scale shows mg = ${fmt(mg, 2)} N. Fully in the liquid Fₐ = ρgV = ${fmt(v.rl, 0)} · 9.8 · ${fmt(Vm, 6)} = ${fmt(FAfull, 2)} N, so it shows ${fmt(mg, 2)} − ${fmt(FAfull, 2)} = ${fmt(reading, 2)} N.${floats ? ' The body is lighter than the liquid: it would float up.' : ''}`,
-            `В воздухе динамометр показывает mg = ${fmt(mg, 2)} Н. Целиком в жидкости Fₐ = ρgV = ${fmt(v.rl, 0)} · 9,8 · ${fmt(Vm, 6)} = ${fmt(FAfull, 2)} Н, поэтому он показывает ${fmt(mg, 2)} − ${fmt(FAfull, 2)} = ${fmt(reading, 2)} Н.${floats ? ' Тело легче жидкости: оно бы всплыло.' : ''}`,
-            `Ауада динамометр mg = ${fmt(mg, 2)} Н көрсетеді. Толық сұйықта Fₐ = ρgV = ${fmt(v.rl, 0)} · 9,8 · ${fmt(Vm, 6)} = ${fmt(FAfull, 2)} Н, сондықтан ${fmt(mg, 2)} − ${fmt(FAfull, 2)} = ${fmt(reading, 2)} Н көрсетеді.${floats ? ' Дене сұйықтан жеңіл: ол қалқып шығар еді.' : ''}`,
+            `In air the scale shows mg = ${fmt(mg, 2)} N. Fully in the liquid Fₐ = ρgV = ${fmt(v.rl, 0)} · 9.8 · ${fmt(Vm, 6)} = ${fmt(FAfull, 2)} N, so it shows ${fmt(mg, 2)} − ${fmt(FAfull, 2)} = ${fmt(reading, 2)} N.`,
+            `В воздухе динамометр показывает mg = ${fmt(mg, 2)} Н. Целиком в жидкости Fₐ = ρgV = ${fmt(v.rl, 0)} · 9,8 · ${fmt(Vm, 6)} = ${fmt(FAfull, 2)} Н, поэтому он показывает ${fmt(mg, 2)} − ${fmt(FAfull, 2)} = ${fmt(reading, 2)} Н.`,
+            `Ауада динамометр mg = ${fmt(mg, 2)} Н көрсетеді. Толық сұйықта Fₐ = ρgV = ${fmt(v.rl, 0)} · 9,8 · ${fmt(Vm, 6)} = ${fmt(FAfull, 2)} Н, сондықтан ${fmt(mg, 2)} − ${fmt(FAfull, 2)} = ${fmt(reading, 2)} Н көрсетеді.`,
           )
         : floats
           ? u(`ρ(body) < ρ(liquid): the body floats. It sinks until Fₐ = mg = ${fmt(mg, 2)} N; then the part under the surface is ρт/ρж = ${fmt(v.rb, 0)}/${fmt(v.rl, 0)} = ${fmt(frac * 100, 0)}% of its volume.`, `ρт < ρж: тело плавает. Оно погружается, пока Fₐ не станет равна mg = ${fmt(mg, 2)} Н; под водой тогда ρт/ρж = ${fmt(v.rb, 0)}/${fmt(v.rl, 0)} = ${fmt(frac * 100, 0)}% объёма.`, `ρд < ρс: дене қалқиды. Ол Fₐ = mg = ${fmt(mg, 2)} Н болғанша батады; сонда су астында көлемнің ρд/ρс = ${fmt(v.rb, 0)}/${fmt(v.rl, 0)} = ${fmt(frac * 100, 0)}%-ы болады.`)
@@ -2210,6 +2223,96 @@ export const SCENES_SCIENCE = {
         }
         caption = taskCap(goal, ok, u(`Now: Fₐ = ${fmt(FA, 2)} N, under: ${fmt(frac * 100, 0)}%.`, `Сейчас: Fₐ = ${fmt(FA, 2)} Н, под водой ${fmt(frac * 100, 0)}%.`, `Қазір: Fₐ = ${fmt(FA, 2)} Н, су астында ${fmt(frac * 100, 0)}%.`), done);
         return { svg: svg + taskBadge(ok, 316, 140), caption };
+      }
+      return { svg, caption };
+    },
+  },
+
+  pressure: {
+    title: L('Pressure in a liquid: p = ρgh', 'Давление в жидкости: p = ρgh', 'Сұйықтағы қысым: p = ρgh'),
+    intro: L('The deeper, the bigger the pressure. It acts equally in all directions and does not depend on the shape of the vessel.', 'Чем глубже, тем больше давление. Оно действует во все стороны одинаково и не зависит от формы сосуда.', 'Неғұрлым терең болса, қысым соғұрлым көп. Ол барлық бағытта бірдей әсер етеді және ыдыстың пішініне тәуелді емес.'),
+    sliders: [
+      { id: 'h', label: L('depth h, m', 'глубина h, м', 'тереңдік h, м'), min: 0, max: 100, step: 0.5, value: 10, hidden: (v, st) => st.m === 2 && st.task.type === 1 },
+      { id: 'r', label: L('density ρ, kg/m³', 'плотность ρ, кг/м³', 'тығыздық ρ, кг/м³'), min: 700, max: 13600, step: 10, value: 1000, hidden: (v, st) => st.m === 2 && st.task.type === 0 },
+    ],
+    buttons: [L('Depth', 'Глубина', 'Тереңдік'), L('Vessel shapes', 'Форма сосуда', 'Ыдыс пішіні'), L('Liquid ↻', 'Жидкость ↻', 'Сұйық ↻'), TASK],
+    state: () => ({ m: 0, l: 2, task: null }),
+    pressed: (i, v, st) => i === st.m || (i === 3 && st.m === 2),
+    btnHidden: (i, v, st) => i === 2 && st.m === 2,
+    onButton(i, st) {
+      if (i === 2) {
+        st.l = (st.l + 1) % LIQUIDS.length;
+        return { r: LIQUIDS[st.l][0] };
+      }
+      if (i < 2) {
+        st.m = i;
+        return null;
+      }
+      st.m = 2;
+      st.task = presTask();
+      return st.task.type === 0 ? { r: st.task.r, h: 0 } : { h: 10, r: 13600 };
+    },
+    draw(v, step, st) {
+      const p = v.r * G * v.h;
+      const pa = 101.3;
+      const tot = pa + p / 1000;
+      const lname = named(LIQUIDS, v.r) || `ρ = ${fmt(v.r, 0)}`;
+      const alpha = n1(0.18 + Math.min(0.5, v.r / 25000));
+      let svg;
+      if (st.m === 1) {
+        const lv = 60;
+        const bottom = 188;
+        const shapes = [
+          'M20 50 V188 H84 V50',
+          'M110 50 L130 188 H170 L190 50',
+          'M214 50 L234 120 V188 H282 V120 L302 50',
+        ];
+        const fill = [
+          `M21 ${lv} V187 H83 V${lv} Z`,
+          `M${n1(110 + (20 * (lv - 50)) / 138)} ${lv} L131 187 H169 L${n1(190 - (20 * (lv - 50)) / 138)} ${lv} Z`,
+          `M${n1(214 + (20 * (lv - 50)) / 70)} ${lv} L235 120 V187 H281 V120 L${n1(302 - (20 * (lv - 50)) / 70)} ${lv} Z`,
+        ];
+        svg = `${fill.map((d) => `<path class="ex-fill exc-b" style="opacity:${alpha}" d="${d}"/>`).join('')}${shapes.map((d) => `<path class="ex-beaker" d="${d}"/>`).join('')}
+          ${ln(6, lv, 316, lv, 'exc-b ex-dash', 1)}${[52, 150, 258].map((x) => `${arrow(x, 170, x, 186, 'exc-r', 2.5)}${tt(x, 204, `${fmt(p / 1000, 1)} ${UN.kPa()}`, 'exs-t tc exc-r')}`).join('')}
+          ${ln(310, lv, 310, bottom, 'exc-p', 1.2)}${tt(306, 130, `h = ${fmt(v.h, 1)} ${UN.m()}`, 'exs-s ex-end tc exc-p')}${tt(160, 30, `${lname}: p = ρgh = ${fmt(p / 1000, 1)} ${UN.kPa()} ${u('everywhere', 'везде', 'барлығында')}`, 'exs-t')}`;
+      } else {
+        // Глубина в масштабе до 100 м.
+        const y0 = 34;
+        const sy = (h) => y0 + h * 1.7;
+        const y = sy(v.h);
+        let marks = '';
+        for (let h = 10; h <= 100; h += 10) marks += `${ln(36, sy(h), 200, sy(h), 'exc-b ex-faint', 0.6)}${h % 20 ? '' : tt(14, sy(h) + 3, `${h}`, 'exs-s ex-start')}`;
+        const aw = Math.min(26, 10 + p / 40000);
+        const arrows4 = [0, 1, 2, 3].map((k) => {
+          const a = (k * Math.PI) / 2;
+          return arrow(150 + (12 + aw) * Math.cos(a), y + (12 + aw) * Math.sin(a), 150 + 11 * Math.cos(a), y + 11 * Math.sin(a), 'exc-r', 2);
+        }).join('');
+        svg = `<rect x="10" y="${y0}" width="${190}" height="${H - y0}" class="ex-fill exc-b" style="opacity:${alpha}"/>${ln(10, y0, 200, y0, 'exc-b', 2)}${tt(40, y0 - 6, u('surface, p₀ = 101.3 kPa', 'поверхность, p₀ = 101,3 кПа', 'бет, p₀ = 101,3 кПа'), 'exs-s ex-start')}
+          ${marks}${tt(12, 216, UN.m(), 'exs-s ex-start')}${ln(150, y0, 150, y, 'exc-p ex-dash', 1)}${tt(144, (y0 + y) / 2 + 4, v.h > 4 ? `h = ${fmt(v.h, 1)} ${UN.m()}` : '', 'exs-s ex-end tc exc-p')}
+          <circle class="ex-fill exc-o" cx="150" cy="${n1(y)}" r="9"/>${arrows4}
+          ${box(206, 34, 110, 110)}${tt(261, 52, `${lname}`, 'exs-t')}${tt(212, 72, `ρgh = ${fmt(p / 1000, 1)} ${UN.kPa()}`, 'exs-t ex-start tc exc-r')}${tt(212, 90, `+ p₀ = ${fmt(pa, 1)} ${UN.kPa()}`, 'exs-s ex-start')}${tt(212, 110, `p = ${fmt(tot, 1)} ${UN.kPa()}`, 'exs-t ex-start')}${tt(212, 128, `≈ ${fmt(tot / pa, 2)} ${u('atm', 'атм', 'атм')}`, 'exs-s ex-start')}`;
+      }
+      let caption =
+        st.m === 1
+          ? u(`The vessels have different shapes and hold different amounts of ${lname}, but the level h is the same - so the pressure on the bottom is the same: p = ρgh = ${fmt(p / 1000, 1)} kPa (the hydrostatic paradox).`, `В сосудах разной формы налито разное количество жидкости (${lname}), но уровень h одинаковый - значит и давление на дно одинаковое: p = ρgh = ${fmt(p / 1000, 1)} кПа (гидростатический парадокс).`, `Әр пішінді ыдыстарға әртүрлі мөлшерде сұйық (${lname}) құйылған, бірақ деңгейі h бірдей - демек түбіне қысым да бірдей: p = ρgh = ${fmt(p / 1000, 1)} кПа (гидростатикалық парадокс).`)
+          : u(`p = ρgh = ${fmt(v.r, 0)} · 9.8 · ${fmt(v.h, 1)} = ${fmt(p / 1000, 1)} kPa, plus the atmosphere on top: ${fmt(tot, 1)} kPa in total. In water every 10 m add about 1 atmosphere; the pressure pushes equally in all directions.`, `p = ρgh = ${fmt(v.r, 0)} · 9,8 · ${fmt(v.h, 1)} = ${fmt(p / 1000, 1)} кПа, и сверху давит атмосфера: всего ${fmt(tot, 1)} кПа. В воде каждые 10 м добавляют примерно 1 атмосферу; давление действует во все стороны одинаково.`, `p = ρgh = ${fmt(v.r, 0)} · 9,8 · ${fmt(v.h, 1)} = ${fmt(p / 1000, 1)} кПа, үстінен атмосфера басады: барлығы ${fmt(tot, 1)} кПа. Суда әр 10 м шамамен 1 атмосфера қосады; қысым барлық бағытта бірдей әсер етеді.`);
+      if (st.m === 2) {
+        const q = st.task;
+        let ok;
+        let goal;
+        let done;
+        const qn = named(LIQUIDS, q.r);
+        if (q.type === 0) {
+          ok = near(v.h, q.h, 0.3);
+          goal = u(`at what depth in ${qn} is the liquid pressure (without the atmosphere) ${fmt(q.p / 1000, 1)} kPa?`, `на какой глубине (${qn}) давление жидкости (без атмосферы) равно ${fmt(q.p / 1000, 1)} кПа?`, `қандай тереңдікте (${qn}) сұйық қысымы (атмосферасыз) ${fmt(q.p / 1000, 1)} кПа болады?`);
+          done = `h = p / (ρg) = ${fmt(q.p, 0)} / (${q.r} · 9,8) = ${q.h} ${UN.m()}.`;
+        } else {
+          ok = near(v.r, q.r, 10);
+          goal = u(`at a depth of 10 m the pressure is ${fmt(q.p / 1000, 1)} kPa. Which liquid is it? Choose ρ.`, `на глубине 10 м давление ${fmt(q.p / 1000, 1)} кПа. Что это за жидкость? Подбери ρ.`, `10 м тереңдікте қысым ${fmt(q.p / 1000, 1)} кПа. Бұл қандай сұйық? ρ-ны тап.`);
+          done = `ρ = p / (gh) = ${fmt(q.p, 0)} / 98 = ${q.r} ${u('kg/m³', 'кг/м³', 'кг/м³')} - ${qn}.`;
+        }
+        caption = taskCap(goal, ok, u(`Now ρgh = ${fmt(p / 1000, 1)} kPa.`, `Сейчас ρgh = ${fmt(p / 1000, 1)} кПа.`, `Қазір ρgh = ${fmt(p / 1000, 1)} кПа.`), done);
+        return { svg: svg + taskBadge(ok, 316, 162), caption };
       }
       return { svg, caption };
     },
@@ -2519,32 +2622,6 @@ export const SCENES_SCIENCE = {
           `Given ${fmt(v.Q, 0)} kJ to 1 kg of ice. Now: ${tx(names[ph])}, ${fmt(T(v.Q), 1)} °C. Melting takes 334 kJ, boiling away 2260 kJ - far more than warming water from 0 to 100 °C (420 kJ).`,
           `Подведено ${fmt(v.Q, 0)} кДж к 1 кг льда. Сейчас: ${tx(names[ph])}, ${fmt(T(v.Q), 1)} °C. На плавление уходит 334 кДж, на выкипание - 2260 кДж: гораздо больше, чем на нагрев воды от 0 до 100 °C (420 кДж).`,
           `1 кг мұзға ${fmt(v.Q, 0)} кДж берілді. Қазір: ${tx(names[ph])}, ${fmt(T(v.Q), 1)} °C. Балқуға 334 кДж, толық қайнап кетуге 2260 кДж кетеді: суды 0-ден 100 °C-қа дейін қыздырудан (420 кДж) әлдеқайда көп.`,
-        ),
-      };
-    },
-  },
-
-  pressure: {
-    title: L('Pressure in a liquid', 'Давление в жидкости', 'Сұйықтағы қысым'),
-    intro: L('The deeper, the higher the pressure: p = ρ g h. It does not depend on the shape of the vessel - only on depth and the liquid.', 'Чем глубже, тем больше давление: p = ρ g h. Оно не зависит от формы сосуда - только от глубины и жидкости.', 'Неғұрлым терең болса, қысым соғұрлым жоғары: p = ρ g h. Ол ыдыстың пішініне тәуелді емес - тек тереңдікке және сұйыққа.'),
-    sliders: [
-      { id: 'h', label: L('depth h, m', 'глубина h, м', 'тереңдік h, м'), min: 0, max: 100, step: C, value: 10 },
-      { id: 'r', label: L('density, kg/m³', 'плотность, кг/м³', 'тығыздық, кг/м³'), min: 700, max: 13600, step: 10, value: 1000 },
-    ],
-    buttons: [L('Water', 'Вода', 'Су'), L('Sea water', 'Морская вода', 'Теңіз суы'), L('Mercury', 'Ртуть', 'Сынап')],
-    onButton: (i) => [{ r: 1000 }, { r: 1030 }, { r: 13600 }][i],
-    draw(v) {
-      const p = v.r * 10 * v.h;
-      const y = 30 + (v.h / 100) * 160;
-      const atm = p / 101325;
-      return {
-        svg: `<rect x="20" y="30" width="180" height="170" class="ex-fill exc-b" style="opacity:${0.15 + Math.min(0.6, v.r / 25000)}"/><line class="ex-stroke exc-b" x1="20" y1="30" x2="200" y2="30"/>
-          <circle class="ex-fill exc-o" cx="110" cy="${n1(y)}" r="8"/>${[0, 1, 2, 3].map((k) => arrow(110 + 22 * Math.cos((k * Math.PI) / 2), y + 22 * Math.sin((k * Math.PI) / 2), 110 + 10 * Math.cos((k * Math.PI) / 2), y + 10 * Math.sin((k * Math.PI) / 2), 'exc-r', Math.min(4, 1 + atm / 3))).join('')}
-          <text class="ex-tag" x="210" y="60">p = ρgh</text><text class="ex-big" x="262" y="100">${fmt(p / 1000, 1)}</text><text class="ex-small" x="262" y="120">${u('kPa', 'кПа', 'кПа')}</text><text class="ex-tag" x="210" y="150">≈ ${fmt(atm, 2)} ${u('atm', 'атм', 'атм')}</text>`,
-        caption: L(
-          `p = ${fmt(v.r, 0)} · 10 · ${fmt(v.h, 1)} = ${fmt(p / 1000, 1)} kPa (plus the atmosphere on top). In water every 10 m adds about 1 atmosphere. The pressure pushes equally in all directions.`,
-          `p = ${fmt(v.r, 0)} · 10 · ${fmt(v.h, 1)} = ${fmt(p / 1000, 1)} кПа (плюс атмосферное сверху). В воде каждые 10 м добавляют примерно 1 атмосферу. Давление действует одинаково во все стороны.`,
-          `p = ${fmt(v.r, 0)} · 10 · ${fmt(v.h, 1)} = ${fmt(p / 1000, 1)} кПа (үстінен атмосфералық қысым қосылады). Суда әр 10 м шамамен 1 атмосфера қосады. Қысым барлық жаққа бірдей әсер етеді.`,
         ),
       };
     },

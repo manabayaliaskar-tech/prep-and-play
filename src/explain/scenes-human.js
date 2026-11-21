@@ -980,37 +980,65 @@ export const SCENES_HUMAN = {
     },
   },
   array: {
-    title: L('Arrays: indexes start at 0', 'Массивы: индексы с нуля', 'Массивтер: индекстер нөлден'),
-    intro: L('The first element has index 0, the last one index length − 1. Asking for index = length is an error. In Python a[-1] is the last element.', 'У первого элемента индекс 0, у последнего - длина − 1. Обращение к индексу, равному длине, - ошибка. В Python a[-1] - последний элемент.', 'Бірінші элементтің индексі 0, соңғысының - ұзындық − 1. Ұзындыққа тең индекске жүгіну - қате. Python-да a[-1] - соңғы элемент.'),
-    sliders: [{ id: 'i', label: 'i', min: -3, max: 7, value: 2 }],
-    buttons: [L('append', 'добавить', 'қосу'), L('remove last', 'удалить последний', 'соңғысын жою'), 'Python', 'C++', 'JavaScript', 'Java'],
-    state: () => ({ arr: [7, 3, 9, 4, 6], lang: 0 }),
+    title: L('Arrays and lists: indexes start at 0', 'Массивы и списки: индексы с нуля', 'Массивтер мен тізімдер: индекстер нөлден'),
+    intro: L('Read and change elements by index, add, remove and insert, find the maximum with a loop. See what each language does when the index is out of range.', 'Читай и меняй элементы по индексу, добавляй, удаляй и вставляй, ищи максимум циклом. Посмотри, что делает каждый язык, если индекс выходит за границы.', 'Элементтерді индекс бойынша оқы және өзгерт, қос, өшір, кірістір, циклмен ең үлкенін тап. Индекс шектен шыққанда әр тіл не істейтінін көр.'),
+    sliders: [
+      { id: 'op', label: L('operation', 'операция', 'амал'), min: 0, max: 5, value: 0, show: (x) => ['a[i]', 'a[i] = x', 'append', 'pop', 'insert', 'max'][clamp(x, 0, 5)] },
+      { id: 'i', label: 'i', min: -4, max: 8, value: 2, hidden: (v) => ![0, 1, 4].includes(Math.round(v.op)) },
+    ],
+    buttons: [L('Run', 'Выполнить', 'Орындау'), RESET, 'Python', 'C++', 'JavaScript', 'Java'],
+    state: () => ({ arr: arrStart(), id: 5, lang: 0, last: null, mk: -1 }),
     pressed: (i, v, st) => i >= 2 && i - 2 === st.lang,
-    onButton(i, st) {
-      if (i === 0 && st.arr.length < 8) st.arr.push([5, 8, 2, 1, 0][st.arr.length % 5]);
-      else if (i === 1 && st.arr.length > 1) st.arr.pop();
-      else if (i >= 2) st.lang = i - 2;
+    onSlide(key, v, st) {
+      st.last = null;
+      st.mk = -1;
+    },
+    onButton(i, st, v) {
+      if (i === 1) Object.assign(st, { arr: arrStart(), id: 5, last: null, mk: -1 });
+      else if (i >= 2) {
+        st.lang = i - 2;
+        st.last = null;
+      } else arrRun(st, Math.round(v.op), Math.round(v.i));
     },
     draw(v, step, st) {
+      const op = clamp(Math.round(v.op), 0, 5);
       const i = Math.round(v.i);
+      const L0 = st.lang;
       const n = st.arr.length;
-      const neg = st.lang === 0 && i < 0 && -i <= n;
-      const idx = neg ? n + i : i;
-      const ok = idx >= 0 && idx < n && (i >= 0 || st.lang === 0);
-      const access = [`a[${i}]`, `a[${i}]`, `a[${i}]`, `a[${i}]`][st.lang];
-      const len = ['len(a)', 'a.size()', 'a.length', 'a.length'][st.lang];
-      const err = ['IndexError', st.lang === 1 ? 'undefined behaviour' : '', 'undefined', 'ArrayIndexOutOfBoundsException'][st.lang];
-      const boxes = st.arr.map((x, k) => `<rect x="${20 + k * 36}" y="80" width="32" height="40" rx="6" class="ex-fill ${ok && k === idx ? 'exc-p' : 'exc-b'}" style="opacity:${ok && k === idx ? 0.9 : 0.35}"/><text class="ex-small" x="${36 + k * 36}" y="106">${x}</text><text class="ex-tiny" x="${36 + k * 36}" y="140">${k}</text>${st.lang === 0 ? `<text class="ex-tiny exc-m" x="${36 + k * 36}" y="156">${k - n}</text>` : ''}`).join('');
-      return {
-        svg: `${boxes}<text class="ex-tag" x="12" y="30" style="font-family:ui-monospace,Menlo,Consolas,monospace;white-space:pre">${len} = ${n} · ${access} → ${ok ? st.arr[idx] : err || 'error'}</text>
-          ${ok ? `<path class="ex-fill exc-p" d="M${36 + idx * 36} 72 l-7 -12 h14 Z"/>` : `<text class="ex-small exc-r" x="160" y="190">${u('out of range', 'выход за границы', 'шекарадан шығу')}</text>`}`,
-        caption: ok
-          ? L(`${access} = ${st.arr[idx]}. Indexes go from 0 to ${n - 1} - there are ${n} elements, but the last index is ${n - 1}.${neg ? ` Python counts negative indexes from the end: ${i} means ${idx}.` : ''}`, `${access} = ${st.arr[idx]}. Индексы от 0 до ${n - 1}: элементов ${n}, а последний индекс ${n - 1}.${neg ? ` Python считает отрицательные индексы с конца: ${i} - это ${idx}.` : ''}`, `${access} = ${st.arr[idx]}. Индекстер 0-ден ${n - 1}-ге дейін: элемент ${n}, ал соңғы индекс ${n - 1}.${neg ? ` Python теріс индекстерді соңынан санайды: ${i} - бұл ${idx}.` : ''}`)
-          : L(`${access} does not exist: valid indexes are 0…${n - 1}. ${st.lang === 0 ? 'Python raises IndexError.' : st.lang === 2 ? 'JavaScript quietly returns undefined.' : st.lang === 3 ? 'Java throws an exception.' : 'C++ reads foreign memory - a dangerous bug.'}`, `${access} не существует: допустимые индексы 0…${n - 1}. ${st.lang === 0 ? 'Python выдаст IndexError.' : st.lang === 2 ? 'JavaScript молча вернёт undefined.' : st.lang === 3 ? 'Java выбросит исключение.' : 'C++ прочитает чужую память - опасная ошибка.'}`, `${access} жоқ: рұқсат етілген индекстер 0…${n - 1}. ${st.lang === 0 ? 'Python IndexError береді.' : st.lang === 2 ? 'JavaScript үнсіз undefined қайтарады.' : st.lang === 3 ? 'Java ерекше жағдай лақтырады.' : 'C++ бөтен жадты оқиды - қауіпті қате.'}`),
-      };
+      const x = arrNext(st);
+      const code = arrCode(op, L0, i, x);
+      const chk = arrCheck(op, L0, i, n);
+      let s = codePanel(code, op === 5 ? (st.mk < 0 ? [] : [st.mk === 0 ? 1 : 3]) : [1]);
+      const y0 = code.length * (code.length > 5 ? 13 : 14) + 34;
+      const slot = Math.min(36, 300 / Math.max(n, 1));
+      const X = (k) => 10 + k * slot;
+      const hl = op === 5 ? (st.mk < 0 ? -9 : Math.max(0, st.mk - 1)) : chk.idx;
+      // Ячейки в порядке id: при вставке и удалении они плавно сдвигаются.
+      const cells = st.arr.map((c, k) => ({ ...c, k })).sort((a, b) => a.id - b.id);
+      s += cells
+        .map(({ val, k, id }) => {
+          const on = k === hl && (op === 5 || chk.ok);
+          const fresh = st.last && st.last.id === id;
+          return `<g class="exh-move" style="transform:translate(${n1(X(k))}px,0)"><rect class="ex-fill ${on ? 'exc-p' : fresh ? 'exc-g' : 'exc-b'}" x="0" y="${y0}" width="${n1(slot - 4)}" height="36" rx="6" style="opacity:${on ? 0.9 : fresh ? 0.7 : 0.3}"/><text class="exh-f14${on ? ' exh-w' : ''}" x="${n1((slot - 4) / 2)}" y="${y0 + 23}">${val}</text><text class="exh-f10 tc exc-m" x="${n1((slot - 4) / 2)}" y="${y0 + 50}">${k}</text>${L0 === 0 ? `<text class="exh-f9 tc exc-a" x="${n1((slot - 4) / 2)}" y="${y0 + 62}">${k - n}</text>` : ''}</g>`;
+        })
+        .join('');
+      if ([0, 1, 4].includes(op)) {
+        const xi = chk.idx >= 0 && chk.idx <= n ? X(Math.min(chk.idx, n)) + (slot - 4) / 2 : chk.idx < 0 ? 6 : X(n) + 6;
+        s += `<path class="ex-fill ${chk.ok ? 'exc-p' : 'exc-r'}" d="M${n1(clamp(xi, 6, 314))} ${y0 - 3} l-6 -9 h12 Z"/>`;
+      }
+      const lenTxt = ['len(a)', 'a.size()', 'a.length', 'a.size()'][L0];
+      s += `<text class="exh-f12 exh-mono ex-start" x="8" y="${y0 + 84}">${esc(`${lenTxt} = ${n}`)}</text>`;
+      if (op === 5 && st.mk >= 0) s += `<text class="exh-f12 exh-mono ex-end tc exc-p" x="312" y="${y0 + 84}">${esc(`m = ${st.maxv}`)}</text>`;
+      else if (!chk.ok) s += `<text class="exh-f12 ex-end tc exc-r" x="312" y="${y0 + 84}">${esc(chk.err)}</text>`;
+      else if (op === 0) s += `<text class="exh-f12 exh-mono ex-end tc exc-p" x="312" y="${y0 + 84}">${esc(`→ ${st.arr[chk.idx].val}`)}</text>`;
+      // Шпаргалка: та же операция на всех четырёх языках.
+      if (op < 5)
+        ['Py', 'C++', 'JS', 'Java'].forEach((nm, j) => {
+          s += `<text class="exh-f10 ex-start tc ${j === L0 ? 'exc-p' : 'exc-m'}" x="8" y="${y0 + 104 + j * 13}">${nm}</text><text class="exh-f10 exh-mono ex-start${j === L0 ? ' tc exc-p' : ''}" x="44" y="${y0 + 104 + j * 13}">${esc(arrCode(op, j, i, x)[1])}</text>`;
+        });
+      return { svg: s, caption: arrCaption(st, op, i, chk, x) };
     },
   },
-
   recursion: {
     title: L('Recursion and the call stack', 'Рекурсия и стек вызовов', 'Рекурсия және шақырулар стегі'),
     intro: L('A recursive function calls itself with a smaller argument. Every call waits on the stack until the smaller one returns; the base case stops the chain. Four examples in four languages - guess the answer first!', 'Рекурсивная функция вызывает саму себя с меньшим аргументом. Каждый вызов ждёт в стеке, пока вернётся меньший; базовый случай останавливает цепочку. Четыре примера на четырёх языках - сначала угадай ответ!', 'Рекурсивті функция өзін кішірек аргументпен шақырады. Әр шақыру кішісі қайтқанша стекте күтеді; базалық жағдай тізбекті тоқтатады. Төрт тілдегі төрт мысал - алдымен жауапты тап!'),
@@ -1773,4 +1801,110 @@ function recTrace(v) {
   snap('main', L(`Result: ${E.f}(${arg}) = ${res}. Calls: ${calls}, the deepest stack: ${depth}. Without a base case the stack would overflow.`, `Результат: ${E.f}(${arg}) = ${res}. Вызовов: ${calls}, наибольшая глубина стека: ${depth}. Без базового случая стек бы переполнился.`, `Нәтиже: ${E.f}(${arg}) = ${res}. Шақыру: ${calls}, стектің ең үлкен тереңдігі: ${depth}. Базалық жағдайсыз стек толып кетер еді.`));
   const opts = [...new Set([res, res + 1, res - 1, res * 2, res + 2, Math.max(0, res - 2)].filter((x) => x >= 0))].slice(0, 4).sort((a, b) => a - b);
   return { E, arg, steps, res, depth, opts };
+}
+
+// ---------- Массивы ----------
+
+const arrStart = () => [7, 3, 9, 4, 6].map((val, id) => ({ id, val }));
+const arrNext = (st) => [8, 1, 5, 2, 10, 12, 11][st.id % 7];
+
+function arrCode(op, lang, i, x) {
+  const head = [`# a: list`, '// a: vector<int>', '// a: Array', '// a: ArrayList<Integer>'][lang];
+  const one = [
+    [`v = a[${i}]`, `int v = a[${i}];`, `let v = a[${i}];`, `int v = a.get(${i});`],
+    [`a[${i}] = ${x}`, `a[${i}] = ${x};`, `a[${i}] = ${x};`, `a.set(${i}, ${x});`],
+    [`a.append(${x})`, `a.push_back(${x});`, `a.push(${x});`, `a.add(${x});`],
+    ['a.pop()', 'a.pop_back();', 'a.pop();', 'a.remove(a.size() - 1);'],
+    [`a.insert(${i}, ${x})`, `a.insert(a.begin() + ${i}, ${x});`, `a.splice(${i}, 0, ${x});`, `a.add(${i}, ${x});`],
+  ];
+  if (op < 5) return [head, one[op][lang]];
+  return [
+    head,
+    ...[
+      ['m = a[0]', 'for x in a:', '    if x > m:', '        m = x'],
+      ['int m = a[0];', 'for (int x : a)', '    if (x > m) m = x;'],
+      ['let m = a[0];', 'for (const x of a)', '    if (x > m) m = x;'],
+      ['int m = a.get(0);', 'for (int x : a)', '    if (x > m) m = x;'],
+    ][lang],
+  ];
+}
+
+/** Можно ли выполнить операцию: { ok, idx, err }. */
+function arrCheck(op, lang, i, n) {
+  const ERR = ['IndexError', u('undefined behaviour', 'неопределённое поведение', 'анықталмаған әрекет'), 'undefined', 'IndexOutOfBoundsException'];
+  if (op === 0 || op === 1) {
+    if (lang === 0 && i < 0 && -i <= n) return { ok: true, idx: n + i };
+    if (i >= 0 && i < n) return { ok: true, idx: i };
+    return { ok: false, idx: i < 0 ? -1 : i, err: lang === 2 && op === 1 ? u('holes in the array', 'дыры в массиве', 'массивте бос орындар') : ERR[lang] };
+  }
+  if (op === 3) return n ? { ok: true, idx: n - 1 } : { ok: false, idx: -1, err: ERR[lang] };
+  if (op === 4) {
+    if (lang === 0 || lang === 2) return { ok: true, idx: i < 0 ? Math.max(0, n + i) : Math.min(i, n) };
+    return i >= 0 && i <= n ? { ok: true, idx: i } : { ok: false, idx: i < 0 ? -1 : i, err: ERR[lang] };
+  }
+  return { ok: n < 9 || op !== 2, idx: n, err: '' };
+}
+
+function arrRun(st, op, i) {
+  const n = st.arr.length;
+  const c = arrCheck(op, st.lang, i, n);
+  if (op === 5) {
+    if (st.mk < 0 || st.mk >= n) {
+      st.mk = 0;
+      st.maxv = st.arr[0].val;
+    } else {
+      st.maxv = Math.max(st.maxv, st.arr[st.mk].val);
+      st.mk += 1;
+    }
+    return;
+  }
+  if (!c.ok) return;
+  const x = arrNext(st);
+  if (op === 1) {
+    st.arr[c.idx] = { id: st.id++, val: x };
+    st.last = st.arr[c.idx];
+  } else if (op === 2 && n < 9) {
+    st.last = { id: st.id++, val: x };
+    st.arr.push(st.last);
+  } else if (op === 3 && n > 1) {
+    st.arr.pop();
+    st.last = null;
+  } else if (op === 4 && n < 9) {
+    st.last = { id: st.id++, val: x };
+    st.arr.splice(c.idx, 0, st.last);
+  }
+}
+
+function arrCaption(st, op, i, c, x) {
+  const n = st.arr.length;
+  const lang = st.lang;
+  const range = `0…${n - 1}`;
+  if (op === 5) {
+    if (st.mk < 0) return L('Press "Run" to go through the array step by step and find the maximum.', 'Нажимай «Выполнить», чтобы пройти массив по шагам и найти максимум.', 'Массивті қадаммен өтіп, ең үлкенін табу үшін «Орындау» бас.');
+    if (st.mk === 0) return L(`Start: m = a[0] = ${st.maxv}.`, `Начало: m = a[0] = ${st.maxv}.`, `Басы: m = a[0] = ${st.maxv}.`);
+    const xv = st.arr[st.mk - 1].val;
+    const done = st.mk >= n;
+    return L(`x = ${xv}: ${xv === st.maxv ? `${xv} is the biggest so far` : `${xv} ≤ ${st.maxv}`}. m = ${st.maxv}.${done ? ` Done: the maximum is ${st.maxv} after ${n} comparisons.` : ''}`, `x = ${xv}: ${xv === st.maxv ? `${xv} - пока самое большое` : `${xv} ≤ ${st.maxv}`}. m = ${st.maxv}.${done ? ` Готово: максимум ${st.maxv}, просмотрено ${n} элементов.` : ''}`, `x = ${xv}: ${xv === st.maxv ? `${xv} - әзірге ең үлкені` : `${xv} ≤ ${st.maxv}`}. m = ${st.maxv}.${done ? ` Дайын: ең үлкені ${st.maxv}, ${n} элемент қаралды.` : ''}`);
+  }
+  if (!c.ok) {
+    const why = [
+      L(`Python raises IndexError: valid indexes are ${range} or −${n}…−1 from the end.`, `Python выдаст IndexError: допустимы индексы ${range} или −${n}…−1 с конца.`, `Python IndexError береді: рұқсат етілген индекстер ${range} немесе соңынан −${n}…−1.`),
+      L(`C++ does not check a[i]: reading outside ${range} is undefined behaviour (a.at(i) would throw out_of_range).`, `C++ не проверяет a[i]: выход за ${range} - неопределённое поведение (a.at(i) выбросил бы out_of_range).`, `C++ a[i]-ді тексермейді: ${range} шегінен шығу - анықталмаған әрекет (a.at(i) out_of_range лақтырар еді).`),
+      op === 1
+        ? L(`JavaScript would silently grow the array and leave empty slots - a hidden bug. Valid indexes: ${range}.`, `JavaScript молча растянет массив и оставит пустые ячейки - скрытая ошибка. Допустимые индексы: ${range}.`, `JavaScript массивті үнсіз ұзартып, бос ұяшықтар қалдырады - жасырын қате. Рұқсат етілген индекстер: ${range}.`)
+        : L(`JavaScript quietly returns undefined. Valid indexes: ${range}; a.at(-1) gives the last one.`, `JavaScript молча вернёт undefined. Допустимые индексы: ${range}; a.at(-1) даёт последний.`, `JavaScript үнсіз undefined қайтарады. Рұқсат етілген индекстер: ${range}; a.at(-1) соңғысын береді.`),
+      L(`Java throws IndexOutOfBoundsException: valid indexes are ${range}${op === 4 ? ` (for add(i, x) - 0…${n})` : ''}.`, `Java выбросит IndexOutOfBoundsException: допустимые индексы ${range}${op === 4 ? ` (для add(i, x) - 0…${n})` : ''}.`, `Java IndexOutOfBoundsException лақтырады: рұқсат етілген индекстер ${range}${op === 4 ? ` (add(i, x) үшін - 0…${n})` : ''}.`),
+    ][lang];
+    return why;
+  }
+  const v = st.arr[c.idx]?.val;
+  const neg = lang === 0 && i < 0 ? L(` Negative ${i} counts from the end: ${i} → ${c.idx}.`, ` Отрицательный ${i} считается с конца: ${i} → ${c.idx}.`, ` Теріс ${i} соңынан саналады: ${i} → ${c.idx}.`) : null;
+  const base = [
+    L(`a[${i}] = ${v}. There are ${n} elements, so the indexes are ${range} - the last index is n − 1.`, `a[${i}] = ${v}. Элементов ${n}, поэтому индексы ${range} - последний индекс n − 1.`, `a[${i}] = ${v}. Элемент ${n}, сондықтан индекстер ${range} - соңғы индекс n − 1.`),
+    L(`Press "Run": element ${c.idx} (now ${v}) becomes ${x}. The length does not change.`, `Нажми «Выполнить»: элемент ${c.idx} (сейчас ${v}) станет ${x}. Длина не меняется.`, `«Орындау» бас: ${c.idx}-элемент (қазір ${v}) ${x} болады. Ұзындық өзгермейді.`),
+    L(`Adds ${x} to the end: the length becomes ${n + 1}, the new element gets index ${n}.${n >= 9 ? ' (The picture holds 9 elements.)' : ''}`, `Добавляет ${x} в конец: длина станет ${n + 1}, новый элемент получит индекс ${n}.${n >= 9 ? ' (На картинке помещается 9 элементов.)' : ''}`, `${x}-ті соңына қосады: ұзындық ${n + 1} болады, жаңа элемент ${n} индексін алады.${n >= 9 ? ' (Суретке 9 элемент сыяды.)' : ''}`),
+    L(`Removes the last element (${v}, index ${n - 1}). Python's pop() also returns it.`, `Удаляет последний элемент (${v}, индекс ${n - 1}). В Python pop() ещё и возвращает его.`, `Соңғы элементті (${v}, индекс ${n - 1}) өшіреді. Python-да pop() оны қайтарады да.`),
+    L(`Inserts ${x} at index ${c.idx}: everything from ${c.idx} on moves one step right - that takes time for long arrays.`, `Вставляет ${x} на индекс ${c.idx}: всё начиная с ${c.idx} сдвигается вправо - для длинных массивов это долго.`, `${x}-ті ${c.idx} индексіне кірістіреді: ${c.idx}-ден бастап бәрі оңға жылжиды - ұзын массивте бұл ұзақ.`),
+  ][op];
+  return neg ? L(base.en + neg.en, base.ru + neg.ru, base.kk + neg.kk) : base;
 }
