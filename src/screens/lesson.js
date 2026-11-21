@@ -4,6 +4,7 @@
 
 import { lessonFor } from '../content/lessons/index.js';
 import { explainerFor } from '../content/explainers.js';
+import { LESSON_LISTENING } from '../content/lessons/listening.js';
 import { skillName } from '../content/labels.js';
 import { t, tx } from '../core/i18n.js';
 import { storage } from '../core/storage.js';
@@ -39,6 +40,7 @@ export function lessonHtml(topic, { withAnim = true } = {}) {
       <p class="lesson-rule">${esc(tx(les.rule))}</p>
       ${les.points?.length ? `<ul class="lesson-points">${les.points.map((p) => `<li>${esc(tx(p))}</li>`).join('')}</ul>` : ''}
       ${anim ? `<div class="lesson-anim-box" data-anim="${anim}"><button type="button" class="btn btn-soft lesson-anim-open">🎬 ${t('lesson.anim')}</button></div>` : ''}
+      ${withAnim && LESSON_LISTENING[topic] ? `<div class="lesson-listen-box" data-topic="${topic}"><button type="button" class="btn btn-soft lesson-listen-open">🎧 ${t('lesson.listen')}</button></div>` : ''}
       <div class="lesson-example">
         <h3>${t('lesson.example')}</h3>
         <p class="lesson-q">${esc(tx(les.example.q))}</p>
@@ -67,6 +69,44 @@ export function bindLesson(root) {
       box.classList.add('is-open');
       mountScene(mount, id);
       box.insertAdjacentHTML('beforeend', `<a class="lesson-anim-full" href="#/explain/${id}">⤢ ${t('lesson.animFull')}</a>`);
+    }),
+  );
+  // Диалог по теме урока английского: плеер, стенограмма и 2 вопроса на понимание.
+  root.querySelectorAll('.lesson-listen-open').forEach((btn) =>
+    btn.addEventListener('click', async () => {
+      const box = btn.closest('.lesson-listen-box');
+      const data = LESSON_LISTENING[box.dataset.topic];
+      btn.disabled = true;
+      const { bindListen, listenHtml, transcriptHtml } = await import('../ui/listen.js');
+      const q = { listen: { id: `lesson:${box.dataset.topic}`, title: data.title, lang: 'en', speakers: { A: 'f', B: 'm' }, lines: data.lines } };
+      box.classList.add('is-open');
+      box.innerHTML = `${listenHtml(q)}${transcriptHtml(q)}
+        ${data.questions
+          .map(
+            (x, qi) => `<div class="lesson-check listen-check" data-qi="${qi}"><p class="lesson-q">${esc(tx(x.q))}</p>
+          <div class="lesson-options">${x.options.map((o, i) => `<button type="button" class="lesson-opt" data-i="${i}">${esc(tx(o))}</button>`).join('')}</div>
+          <p class="lesson-why" hidden></p></div>`,
+          )
+          .join('')}`;
+      const stop = bindListen(box, q);
+      window.addEventListener('hashchange', stop, { once: true });
+      box.querySelectorAll('.listen-check').forEach((card) => {
+        const x = data.questions[Number(card.dataset.qi)];
+        const why = card.querySelector('.lesson-why');
+        card.querySelectorAll('.lesson-opt').forEach((b) =>
+          b.addEventListener('click', () => {
+            const ok = Number(b.dataset.i) === x.answer;
+            card.querySelectorAll('.lesson-opt').forEach((y) => {
+              y.disabled = true;
+              if (Number(y.dataset.i) === x.answer) y.classList.add('is-right');
+            });
+            if (!ok) b.classList.add('is-wrong');
+            why.hidden = false;
+            why.className = `lesson-why ${ok ? 'good' : 'bad'}`;
+            why.innerHTML = `<b>${ok ? t('lesson.right') : t('lesson.wrong')}</b> ${esc(tx(x.why))}`;
+          }),
+        );
+      });
     }),
   );
   root.querySelectorAll('.lesson').forEach((box) => {

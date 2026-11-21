@@ -1012,57 +1012,67 @@ export const SCENES_HUMAN = {
   },
 
   recursion: {
-    title: L('Functions and the call stack', 'Функции и стек вызовов', 'Функциялар және шақырулар стегі'),
-    intro: L('When a function calls itself, each call waits on a stack until the smaller call returns. fact(n) = n · fact(n − 1), and fact(1) = 1 stops the chain.', 'Когда функция вызывает саму себя, каждый вызов ждёт в стеке, пока вернётся меньший. fact(n) = n · fact(n − 1), а fact(1) = 1 останавливает цепочку.', 'Функция өзін-өзі шақырғанда, әр шақыру кішісі қайтқанша стекте күтеді. fact(n) = n · fact(n − 1), ал fact(1) = 1 тізбекті тоқтатады.'),
-    sliders: [{ id: 'n', label: 'n', min: 1, max: 6, value: 4 }],
-    buttons: [L('Next step', 'Следующий шаг', 'Келесі қадам'), L('▶ Run', '▶ Запустить', '▶ Іске қосу'), 'Python', 'C++', 'JavaScript', 'Java'],
-    state: () => ({ k: 0, lang: 0 }),
+    title: L('Recursion and the call stack', 'Рекурсия и стек вызовов', 'Рекурсия және шақырулар стегі'),
+    intro: L('A recursive function calls itself with a smaller argument. Every call waits on the stack until the smaller one returns; the base case stops the chain. Four examples in four languages - guess the answer first!', 'Рекурсивная функция вызывает саму себя с меньшим аргументом. Каждый вызов ждёт в стеке, пока вернётся меньший; базовый случай останавливает цепочку. Четыре примера на четырёх языках - сначала угадай ответ!', 'Рекурсивті функция өзін кішірек аргументпен шақырады. Әр шақыру кішісі қайтқанша стекте күтеді; базалық жағдай тізбекті тоқтатады. Төрт тілдегі төрт мысал - алдымен жауапты тап!'),
+    sliders: [
+      { id: 'ex', label: L('example', 'пример', 'мысал'), min: 0, max: 3, value: 0, show: (x) => REC_EX[clamp(x, 0, 3)].f },
+      { id: 'n', label: 'n', min: 1, max: 7, value: 4 },
+    ],
+    buttons: [L('Step', 'Шаг', 'Қадам'), L('▶ Run', '▶ Запустить', '▶ Іске қосу'), 'Python', 'C++', 'JavaScript', 'Java'],
+    state: () => ({ k: 0, lang: 0, guess: null }),
     pressed: (i, v, st) => i >= 2 && i - 2 === st.lang,
     onSlide(key, v, st) {
       st.k = 0;
+      st.guess = null;
     },
     onButton(i, st, v, api) {
-      const total = 2 * Math.round(v.n);
-      if (i === 0) st.k = st.k >= total ? 0 : st.k + 1;
-      else if (i === 1) {
-        st.k = 0;
-        api.run(() => ++st.k < total, 650);
+      const tr = recTrace(v);
+      if (i === 0) {
+        api.stop();
+        st.k = st.k >= tr.steps.length - 1 ? 0 : st.k + 1;
+      } else if (i === 1) {
+        if (st.k >= tr.steps.length - 1) st.k = 0;
+        api.run(() => ++st.k < tr.steps.length - 1, tr.steps.length > 40 ? 300 : 560);
       } else st.lang = i - 2;
     },
+    onDrag(key, p, v, st) {
+      if (key[0] === 'g' && st.guess === null && tapOnce(st, key)) st.guess = Number(key.slice(1));
+    },
     draw(v, step, st) {
-      const n = Math.round(v.n);
-      const k = st.k;
-      const f = (x) => (x <= 1 ? 1 : x * f(x - 1));
-      const depth = k <= n ? k : 2 * n - k;
-      const returning = k > n;
-      const code = [
-        ['def fact(n):', '    if n == 1: return 1', '    return n * fact(n - 1)'],
-        ['int fact(int n) {', '  if (n == 1) return 1;', '  return n * fact(n - 1); }'],
-        ['function fact(n) {', '  if (n === 1) return 1;', '  return n * fact(n - 1); }'],
-        ['static int fact(int n) {', '  if (n == 1) return 1;', '  return n * fact(n - 1); }'],
-      ][st.lang];
-      const frames = Array.from({ length: depth }, (_, i) => {
-        const arg = n - i;
-        const top = i === depth - 1;
-        const ret = returning && top ? ` → ${f(arg)}` : '';
-        return `<rect x="190" y="${190 - (i + 1) * 26}" width="122" height="22" rx="6" class="ex-fill ${top ? 'exc-p' : 'exc-b'}" style="opacity:${top ? 0.9 : 0.4}"/><text class="ex-tiny" x="251" y="${205 - (i + 1) * 26}" style="${top ? 'fill:#fff' : ''}">fact(${arg})${ret}</text>`;
-      }).join('');
+      const tr = recTrace(v);
+      const k = clamp(st.k, 0, tr.steps.length - 1);
+      const S = tr.steps[k];
+      const E = tr.E;
+      const code = E.code[st.lang](tr.arg);
+      const map = st.lang ? { head: [0], base: [1], rec: [2], main: [4] } : { head: [0], base: [1, 2], rec: [3], main: [4] };
+      let s = codePanel(code, map[S.line]);
+      // Стек: кадры снизу вверх.
+      const n = S.stack.length;
+      const fh = Math.min(20, 112 / Math.max(1, tr.depth));
+      s += `<text class="exh-f9 tc exc-m" x="232" y="212">${esc(u('call stack ↑', 'стек вызовов ↑', 'шақырулар стегі ↑'))}</text><line class="ex-axis" x1="150" y1="203" x2="314" y2="203"/>`;
+      S.stack.forEach((fr, i) => {
+        const y = 201 - (i + 1) * fh;
+        const top = i === n - 1;
+        const txt = `${E.f}(${fr.x}) = ${fr.ret !== null ? `${fr.ret} ✓` : E.expr(fr.x, fr.r)}`;
+        s += `<g class="exh-fade"><rect class="ex-fill ${top ? 'exc-p' : 'exc-b'}" x="152" y="${n1(y)}" width="160" height="${n1(fh - 2)}" rx="5" style="opacity:${top ? 0.9 : 0.3}"/><text class="exh-f${fh < 16 ? 9 : 11} exh-mono${top ? ' exh-w' : ''}" x="232" y="${n1(y + fh / 2 + 3)}">${esc(txt)}</text></g>`;
+      });
+      // Слева: угадай ответ, счётчики.
+      const end = k >= tr.steps.length - 1;
+      s += `<text class="exh-f11 ex-start" x="8" y="106">${esc(`${u('calls', 'вызовов', 'шақыру')}: ${S.calls}`)}</text><text class="exh-f11 ex-start" x="8" y="122">${esc(`${u('depth', 'глубина', 'тереңдік')}: ${n}`)}</text>`;
+      if (k === 0 && st.guess === null) {
+        s += `<text class="exh-f10 ex-start" x="8" y="144">${esc(`${u('Guess', 'Угадай', 'Тап')}: ${E.f}(${tr.arg}) = ?`)}</text>`;
+        tr.opts.forEach((o, i) => (s += chip(8 + (i % 2) * 70, 152 + Math.floor(i / 2) * 29, 64, 24, String(o), `g${o}`, '', 12)));
+      } else if (st.guess !== null) {
+        const ok = st.guess === tr.res;
+        s += `<text class="exh-f11 ex-start tc ${end ? (ok ? 'exc-g' : 'exc-r') : 'exc-m'}" x="8" y="144">${esc(`${u('guess', 'догадка', 'болжам')}: ${st.guess}${end ? (ok ? ' ✓' : ' ✗') : ''}`)}</text>`;
+      }
+      if (end) s += `<text class="exh-f16 ex-start tc exc-g" x="8" y="${st.guess !== null ? 172 : 160}">${esc(`${E.f}(${tr.arg}) = ${tr.res}`)}</text>`;
       return {
-        svg: `<rect x="6" y="10" width="178" height="72" rx="10" class="ex-fill exc-m" style="opacity:.12"/>${code.map((c, i) => `<text class="ex-tiny ex-start" x="12" y="${30 + i * 20}" style="font-family:ui-monospace,Menlo,Consolas,monospace;white-space:pre;text-anchor:start">${esc(c)}</text>`).join('')}
-          ${frames}<line class="ex-axis" x1="186" y1="192" x2="316" y2="192"/><text class="ex-tiny" x="251" y="208">${u('stack', 'стек', 'стек')}</text>
-          <text class="ex-big" x="90" y="150">${k >= 2 * n ? `${n}! = ${f(n)}` : ''}</text>`,
-        caption:
-          k === 0
-            ? L(`Press "Next step" to call fact(${n}).`, `Нажми «Следующий шаг», чтобы вызвать fact(${n}).`, `fact(${n}) шақыру үшін «Келесі қадам» бас.`)
-            : returning
-              ? L(`Returning: each call multiplies and gives its result to the one below. ${k >= 2 * n ? `fact(${n}) = ${f(n)}.` : ''}`, `Возврат: каждый вызов умножает и отдаёт результат вызову ниже. ${k >= 2 * n ? `fact(${n}) = ${f(n)}.` : ''}`, `Қайту: әр шақыру көбейтіп, нәтижесін төмендегіге береді. ${k >= 2 * n ? `fact(${n}) = ${f(n)}.` : ''}`)
-              : L(`fact(${n - k + 1}) is waiting${n - k + 1 > 1 ? ` for fact(${n - k})` : ' - it is the base case and returns 1'}. ${depth} call${depth > 1 ? 's are' : ' is'} on the stack. Without the base case the stack would overflow.`, `fact(${n - k + 1}) ждёт${n - k + 1 > 1 ? ` fact(${n - k})` : ' - это базовый случай, он возвращает 1'}. В стеке вызовов: ${depth}. Без базового случая стек бы переполнился.`, `fact(${n - k + 1}) күтеді${n - k + 1 > 1 ? ` fact(${n - k})` : ' - бұл базалық жағдай, ол 1 қайтарады'}. Стекте ${depth} шақыру. Базалық жағдайсыз стек толып кетер еді.`),
+        svg: s,
+        caption: k === 0 ? L(`${tx(E.hint)} Guess the result, then press "Step".`, `${tx(E.hint)} Угадай результат и нажимай «Шаг».`, `${tx(E.hint)} Нәтижені тап та, «Қадам» бас.`) : S.note,
       };
     },
   },
-
-  // ===== История и английский: ленты времени и времена глаголов =====
-
   'timeline-kz': timelineScene({
     title: L('Timeline: history of Kazakhstan', 'Лента времени: история Казахстана', 'Уақыт таспасы: Қазақстан тарихы'),
     intro: L('About 120 key events from the Botai culture to our days. Zoom in, filter by topic, tap the line - and test yourself in the quiz.', 'Около 120 ключевых событий от Ботая до наших дней. Приближай, фильтруй по темам, нажимай на ленту - и проверь себя в задании.', 'Ботайдан бүгінге дейінгі 120-ға жуық негізгі оқиға. Жақындат, тақырып бойынша сүз, таспаны бас - тапсырмада өзіңді тексер.'),
@@ -1659,4 +1669,108 @@ function loopTrace(v) {
 }
 function loopGuessOpts(p) {
   return [...new Set([p - 1, p, p + 1, p + 2].map((x) => Math.max(0, x)))].sort((a, b) => a - b);
+}
+
+// ---------- Рекурсия ----------
+
+/** Четыре примера: f - имя, arg(n) - аргумент, base(x) - значение базы или null, kids(x) - вызовы, comb - результат. */
+const REC_EX = [
+  {
+    f: 'fact',
+    arg: (n) => n,
+    base: (x) => (x === 1 ? 1 : null),
+    kids: (x) => [x - 1],
+    comb: (x, r) => x * r[0],
+    expr: (x, r) => `${x} · ${r[0] ?? '?'}`,
+    hint: L('fact(n) = n · fact(n − 1), and fact(1) = 1 is the base case.', 'fact(n) = n · fact(n − 1), а fact(1) = 1 - базовый случай.', 'fact(n) = n · fact(n − 1), ал fact(1) = 1 - базалық жағдай.'),
+    code: [
+      (a) => ['def fact(n):', '    if n == 1:', '        return 1', '    return n * fact(n - 1)', `print(fact(${a}))`],
+      (a) => ['int fact(int n) {', '    if (n == 1) return 1;', '    return n * fact(n - 1);', '}', `cout << fact(${a});`],
+      (a) => ['function fact(n) {', '    if (n === 1) return 1;', '    return n * fact(n - 1);', '}', `console.log(fact(${a}));`],
+      (a) => ['static int fact(int n) {', '    if (n == 1) return 1;', '    return n * fact(n - 1);', '}', `System.out.println(fact(${a}));`],
+    ],
+  },
+  {
+    f: 'sd',
+    arg: (n) => [5, 47, 815, 2024, 39071, 123456, 987654][n - 1],
+    base: (x) => (x < 10 ? x : null),
+    kids: (x) => [Math.floor(x / 10)],
+    comb: (x, r) => (x % 10) + r[0],
+    expr: (x, r) => `${x % 10} + ${r[0] ?? '?'}`,
+    hint: L('sd(n) is the sum of digits: the last digit n % 10 plus sd of the rest; a one-digit number is the base case.', 'sd(n) - сумма цифр: последняя цифра n % 10 плюс sd от остальных; однозначное число - базовый случай.', 'sd(n) - цифрлар қосындысы: соңғы цифр n % 10 қосу қалғандарының sd-і; бір таңбалы сан - базалық жағдай.'),
+    code: [
+      (a) => ['def sd(n):', '    if n < 10:', '        return n', '    return n % 10 + sd(n // 10)', `print(sd(${a}))`],
+      (a) => ['int sd(int n) {', '    if (n < 10) return n;', '    return n % 10 + sd(n / 10);', '}', `cout << sd(${a});`],
+      (a) => ['function sd(n) {', '    if (n < 10) return n;', '    return n % 10 + sd(Math.floor(n / 10));', '}', `console.log(sd(${a}));`],
+      (a) => ['static int sd(int n) {', '    if (n < 10) return n;', '    return n % 10 + sd(n / 10);', '}', `System.out.println(sd(${a}));`],
+    ],
+  },
+  {
+    f: 'pw',
+    arg: (n) => n,
+    base: (x) => (x === 0 ? 1 : null),
+    kids: (x) => [x - 1],
+    comb: (x, r) => 2 * r[0],
+    expr: (x, r) => `2 · ${r[0] ?? '?'}`,
+    hint: L('pw(n) = 2ⁿ = 2 · pw(n − 1), and pw(0) = 1.', 'pw(n) = 2ⁿ = 2 · pw(n − 1), а pw(0) = 1.', 'pw(n) = 2ⁿ = 2 · pw(n − 1), ал pw(0) = 1.'),
+    code: [
+      (a) => ['def pw(n):', '    if n == 0:', '        return 1', '    return 2 * pw(n - 1)', `print(pw(${a}))`],
+      (a) => ['int pw(int n) {', '    if (n == 0) return 1;', '    return 2 * pw(n - 1);', '}', `cout << pw(${a});`],
+      (a) => ['function pw(n) {', '    if (n === 0) return 1;', '    return 2 * pw(n - 1);', '}', `console.log(pw(${a}));`],
+      (a) => ['static int pw(int n) {', '    if (n == 0) return 1;', '    return 2 * pw(n - 1);', '}', `System.out.println(pw(${a}));`],
+    ],
+  },
+  {
+    f: 'fib',
+    arg: (n) => Math.min(n, 6),
+    base: (x) => (x <= 1 ? x : null),
+    kids: (x) => [x - 1, x - 2],
+    comb: (x, r) => r[0] + r[1],
+    expr: (x, r) => `${r[0] ?? '?'} + ${r[1] ?? '?'}`,
+    hint: L('fib(n) = fib(n − 1) + fib(n − 2): two calls each time, so the number of calls grows very fast (n is at most 6 here).', 'fib(n) = fib(n − 1) + fib(n − 2): каждый раз два вызова, поэтому число вызовов растёт очень быстро (здесь n не больше 6).', 'fib(n) = fib(n − 1) + fib(n − 2): әр жолы екі шақыру, сондықтан шақырулар саны өте тез өседі (мұнда n 6-дан аспайды).'),
+    code: [
+      (a) => ['def fib(n):', '    if n <= 1:', '        return n', '    return fib(n - 1) + fib(n - 2)', `print(fib(${a}))`],
+      (a) => ['int fib(int n) {', '    if (n <= 1) return n;', '    return fib(n - 1) + fib(n - 2);', '}', `cout << fib(${a});`],
+      (a) => ['function fib(n) {', '    if (n <= 1) return n;', '    return fib(n - 1) + fib(n - 2);', '}', `console.log(fib(${a}));`],
+      (a) => ['static int fib(int n) {', '    if (n <= 1) return n;', '    return fib(n - 1) + fib(n - 2);', '}', `System.out.println(fib(${a}));`],
+    ],
+  },
+];
+
+/** Шаги рекурсии: снимки стека { line, stack, calls, note }. */
+function recTrace(v) {
+  const E = REC_EX[clamp(Math.round(v.ex), 0, 3)];
+  const arg = E.arg(clamp(Math.round(v.n), 1, 7));
+  const steps = [];
+  const stack = [];
+  let calls = 0;
+  let depth = 0;
+  const snap = (line, note) => steps.push({ line, note, calls, stack: stack.map((f) => ({ ...f, r: [...f.r] })) });
+  snap('main', L(`Call ${E.f}(${arg}).`, `Вызываем ${E.f}(${arg}).`, `${E.f}(${arg}) шақырамыз.`));
+  const call = (x) => {
+    calls += 1;
+    stack.push({ x, r: [], ret: null });
+    depth = Math.max(depth, stack.length);
+    const top = stack.at(-1);
+    snap('head', L(`Call ${E.f}(${x}): a new frame on the stack (depth ${stack.length}).`, `Вызов ${E.f}(${x}): новый кадр в стеке (глубина ${stack.length}).`, `${E.f}(${x}) шақыру: стекте жаңа кадр (тереңдік ${stack.length}).`));
+    let val = E.base(x);
+    if (val !== null) {
+      top.ret = val;
+      snap('base', L(`Base case: ${E.f}(${x}) = ${val} at once, no more calls. Now the frames return one by one.`, `Базовый случай: ${E.f}(${x}) = ${val} сразу, без новых вызовов. Теперь кадры возвращаются по одному.`, `Базалық жағдай: ${E.f}(${x}) = ${val} бірден, жаңа шақырусыз. Енді кадрлар бір-бірлеп қайтады.`));
+    } else {
+      for (const kx of E.kids(x)) {
+        snap('rec', L(`${E.f}(${x}) = ${E.expr(x, top.r)}: it needs ${E.f}(${kx}) and waits.`, `${E.f}(${x}) = ${E.expr(x, top.r)}: нужен ${E.f}(${kx}), ждём.`, `${E.f}(${x}) = ${E.expr(x, top.r)}: ${E.f}(${kx}) керек, күтеміз.`));
+        top.r.push(call(kx));
+      }
+      val = E.comb(x, top.r);
+      top.ret = val;
+      snap('rec', L(`${E.f}(${x}) = ${E.expr(x, top.r)} = ${val} - return it to the caller.`, `${E.f}(${x}) = ${E.expr(x, top.r)} = ${val} - возвращаем вызвавшему.`, `${E.f}(${x}) = ${E.expr(x, top.r)} = ${val} - шақырған жерге қайтарамыз.`));
+    }
+    stack.pop();
+    return val;
+  };
+  const res = call(arg);
+  snap('main', L(`Result: ${E.f}(${arg}) = ${res}. Calls: ${calls}, the deepest stack: ${depth}. Without a base case the stack would overflow.`, `Результат: ${E.f}(${arg}) = ${res}. Вызовов: ${calls}, наибольшая глубина стека: ${depth}. Без базового случая стек бы переполнился.`, `Нәтиже: ${E.f}(${arg}) = ${res}. Шақыру: ${calls}, стектің ең үлкен тереңдігі: ${depth}. Базалық жағдайсыз стек толып кетер еді.`));
+  const opts = [...new Set([res, res + 1, res - 1, res * 2, res + 2, Math.max(0, res - 2)].filter((x) => x >= 0))].slice(0, 4).sort((a, b) => a - b);
+  return { E, arg, steps, res, depth, opts };
 }

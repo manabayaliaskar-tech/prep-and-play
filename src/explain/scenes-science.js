@@ -615,6 +615,55 @@ const pendTask = (g) => {
   return { T: 2, l: (g * 4) / (4 * Math.PI * Math.PI) };
 };
 
+// Пружина: закон Гука и график F(x), колебания T = 2π√(m/k), соединение пружин, задания.
+const springTask = () => {
+  if (Math.random() < 0.5) {
+    const k = pick([98, 196, 245, 490]);
+    const m = pick([0.5, 1, 1.5, 2, 2.5, 3]);
+    return { type: 0, k, m, x: ((m * G) / k) * 100 };
+  }
+  const [m, T] = pick([[1, 0.5], [2, 1], [0.5, 0.5], [2, 0.5], [1, 1]]);
+  return { type: 1, m, T, k: (4 * Math.PI * Math.PI * m) / (T * T) };
+};
+/** Пружина-зигзаг от (x, y1) до (x, y2). */
+const coil = (x, y1, y2, w = 16, n = 12, cls = 'exc-m') => {
+  let d = `M${x} ${n1(y1)} L${x} ${n1(y1 + 6)}`;
+  const len = y2 - y1 - 12;
+  for (let i = 0; i < n; i++) d += ` L${n1(x + (i % 2 ? -w / 2 : w / 2))} ${n1(y1 + 6 + (len * (i + 0.5)) / n)}`;
+  d += ` L${x} ${n1(y2 - 6)} L${x} ${n1(y2)}`;
+  return `<path class="ex-stroke ${cls}" style="stroke-width:1.8" d="${d}"/>`;
+};
+
+// Архимедова сила: плавание тел, динамометр в жидкости, разные тела и жидкости, задания.
+const BODIES = [
+  [240, L('cork', 'пробка', 'тоз')],
+  [500, L('pine', 'сосна', 'қарағай')],
+  [900, L('ice', 'лёд', 'мұз')],
+  [1800, L('brick', 'кирпич', 'кірпіш')],
+  [2700, L('aluminium', 'алюминий', 'алюминий')],
+  [7800, L('iron', 'железо', 'темір')],
+];
+const LIQUIDS = [
+  [710, L('petrol', 'бензин', 'бензин')],
+  [800, L('kerosene', 'керосин', 'керосин')],
+  [1000, L('water', 'вода', 'су')],
+  [1030, L('sea water', 'морская вода', 'теңіз суы')],
+  [13600, L('mercury', 'ртуть', 'сынап')],
+];
+const named = (list, r) => {
+  const it = list.find(([k]) => Math.abs(k - r) < 6);
+  return it ? tx(it[1]) : '';
+};
+const buoyTask = () => {
+  const type = ri(0, 2);
+  if (type === 0) {
+    const [rb, frac] = pick([[600, 0.75], [400, 0.5], [500, 0.5], [900, 0.9], [720, 0.9]]);
+    return { type, rb, frac, rl: rb / frac, V: 500 };
+  }
+  if (type === 1) return { type, rl: 1000, frac: pick([0.25, 0.4, 0.6, 0.8]), V: 500 };
+  return { type, rb: 7800, rl: 1000, F: pick([1.96, 2.94, 4.9, 7.84]) };
+};
+
 export const SCENES_SCIENCE = {
   ohm: {
     title: L("Ohm's law: I = U / R", 'Закон Ома: I = U / R', 'Ом заңы: I = U / R'),
@@ -1971,6 +2020,200 @@ export const SCENES_SCIENCE = {
       return { svg, caption };
     },
   },
+
+  spring: {
+    title: L("Hooke's law and a spring pendulum", 'Закон Гука и пружинный маятник', 'Гук заңы және серіппелі маятник'),
+    intro: L('The elastic force is F = k·x. A load on a spring oscillates with period T = 2π√(m/k).', 'Сила упругости F = k·x. Груз на пружине колеблется с периодом T = 2π√(m/k).', 'Серпімділік күші F = k·x. Серіппедегі жүк T = 2π√(m/k) периодымен тербеледі.'),
+    sliders: [
+      { id: 'm', label: L('mass m, kg', 'масса m, кг', 'масса m, кг'), min: 0.1, max: 5, step: 0.05, value: 2, hidden: (v, st) => st.m === 3 && st.task.type === 1 },
+      { id: 'k', label: L('stiffness k, N/m', 'жёсткость k, Н/м', 'қатаңдық k, Н/м'), min: 50, max: 500, step: 1, value: 200, hidden: (v, st) => st.m === 3 && st.task.type === 0 },
+    ],
+    buttons: [L("Hooke's law", 'Закон Гука', 'Гук заңы'), L('Oscillations', 'Колебания', 'Тербелістер'), L('Two springs', 'Две пружины', 'Екі серіппе'), TASK],
+    state: () => ({ m: 0, time: 0, task: null }),
+    pressed: (i, v, st) => i === st.m,
+    onButton(i, st) {
+      st.m = i;
+      st.time = 0;
+      if (i < 3) return null;
+      st.task = springTask();
+      return st.task.type === 0 ? { k: st.task.k, m: 0.1 } : { m: st.task.m, k: 50 };
+    },
+    live(dt, v, st) {
+      st.time += dt;
+    },
+    draw(v, step, st) {
+      const task = st.m === 3 ? st.task : null;
+      const mode = task ? task.type : st.m;
+      const F = v.m * G;
+      const x = F / v.k;
+      const T = 2 * Math.PI * Math.sqrt(v.m / v.k);
+      const sc = 1.2; // px на см
+      const top = 14;
+      const rest = 46;
+      const bw = 26 + v.m * 4;
+      const bh = 14 + v.m * 2.4;
+      const load = (cx, y, cls = 'exc-o') => `<rect class="ex-fill ${cls}" x="${n1(cx - bw / 2)}" y="${n1(y)}" width="${n1(bw)}" height="${n1(bh)}" rx="4"/>${tt(cx, y + bh / 2 + 4, `${fmt(v.m, 2)} ${UN.kg()}`, 'exs-s exs-on')}`;
+      let svg;
+      if (mode === 0) {
+        const y2 = top + rest + x * 100 * sc;
+        const fl = Math.min(44, F * 1.2, 206 - (y2 + bh / 2));
+        let ruler = '';
+        for (let c = 0; c <= 100; c += 10) ruler += `${ln(124, top + rest + c * sc, c % 20 ? 129 : 132, top + rest + c * sc, 'exc-m', 1)}${c % 20 ? '' : tt(120, top + rest + c * sc + 3, String(c), 'exs-s ex-end')}`;
+        const gx = (xc) => 168 + xc * 1.3;
+        const gy = (f) => 186 - f * 3.1;
+        const xe = Math.min(100, (50 / v.k) * 100);
+        svg = `${ln(20, top, 100, top, 'exc-m', 3)}${coil(60, top, y2)}${load(60, y2)}${ln(124, top + rest, 124, top + rest + 100 * sc, 'exc-m', 1)}${ruler}${tt(128, top + rest - 6, `x, ${UN.cm()}`, 'exs-s')}
+          ${x > 0.002 ? varrow(66 + bw / 2, y2 + bh / 2, 66 + bw / 2, y2 + bh / 2 - fl, 'exc-g', `F${u('el', 'упр', 'серп')}`, 2, 12, 0) + varrow(54 - bw / 2, y2 + bh / 2, 54 - bw / 2, y2 + bh / 2 + fl, 'exc-b', 'mg', 2, -10, 4) : '<g/>'}
+          ${ln(gx(0), gy(0), 314, gy(0), 'exc-m', 1.2)}${ln(gx(0), gy(0), gx(0), 20, 'exc-m', 1.2)}${tt(316, 212, `x, ${UN.cm()}`, 'exs-s ex-end')}${tt(gx(0) + 4, 20, `F, ${UN.N()}`, 'exs-s ex-start')}
+          ${[0, 50, 100].map((c) => tt(gx(c), 198, String(c), 'exs-s')).join('')}${[0, 25, 50].map((f) => tt(gx(0) - 4, gy(f) + 3, String(f), 'exs-s ex-end')).join('')}
+          <path class="ex-fill exc-p" style="opacity:.18" d="M${gx(0)} ${gy(0)} L${n1(gx(Math.min(x * 100, 100)))} ${gy(0)} L${n1(gx(Math.min(x * 100, 100)))} ${n1(gy(v.k * Math.min(x, 1)))} Z"/>
+          ${ln(gx(0), gy(0), gx(xe), gy((v.k * xe) / 100), 'exc-p', 2.5)}${x <= 1 ? `<circle class="ex-dot" cx="${n1(gx(x * 100))}" cy="${n1(gy(F))}" r="5"/>` : '<g/>'}
+          ${box(180, 128, 132, 46)}${tt(246, 143, `x = F/k = ${fmt(x * 100, 1)} ${UN.cm()}`, 'exs-t')}${tt(246, 157, `F = mg = ${fmt(F, 1)} ${UN.N()}`, 'exs-s')}${tt(246, 169, `E = kx²/2 = ${fmt((v.k * x * x) / 2, 2)} ${UN.J()}`, 'exs-s')}`;
+      } else if (mode === 1) {
+        const A = 22;
+        const w = (2 * Math.PI) / T;
+        const off = A * Math.cos(w * st.time);
+        const y2 = top + 70 + off;
+        let trace = '';
+        for (let i = 0; i <= 80; i++) {
+          const tt2 = st.time - (80 - i) * 0.03;
+          trace += `${i ? 'L' : 'M'}${n1(120 + i * 2.4)} ${n1(top + 70 + bh / 2 + A * Math.cos(w * tt2))} `;
+        }
+        svg = `${ln(20, top, 100, top, 'exc-m', 3)}${coil(60, top, y2)}${load(60, y2)}${ln(40, top + 70 + bh / 2, 316, top + 70 + bh / 2, 'exc-m ex-dash', 1)}
+          <path class="ex-stroke exc-p" style="stroke-width:2" d="${trace}"/>${ln(100, top + 70 + bh / 2 + off, 312, top + 70 + bh / 2 + off, 'exc-o ex-faint', 1)}
+          ${tt(312, 196, `t, ${UN.s()}`, 'exs-s ex-end')}
+          ${box(120, 150, 192, 48)}${tt(216, 167, `T = 2π√(m/k) = ${fmt(T, 2)} ${UN.s()}`, 'exs-t')}${tt(216, 183, `ν = 1/T = ${fmt(1 / T, 2)} ${UN.Hz()} · ${u('t', 't', 't')} = ${fmt(st.time, 1)} ${UN.s()}`, 'exs-s')}`;
+      } else {
+        const col = (cx, kk, lab, two) => {
+          const xx = F / kk;
+          const y2 = top + rest + Math.min(xx * 100 * sc, 130);
+          const springs = two === 'ser' ? `${coil(cx, top, (top + y2) / 2, 14, 8)}${coil(cx, (top + y2) / 2, y2, 14, 8)}` : two === 'par' ? `${coil(cx - 10, top, y2, 12)}${coil(cx + 10, top, y2, 12)}${ln(cx - 14, y2, cx + 14, y2, 'exc-m', 2)}` : coil(cx, top, y2);
+          return `${ln(cx - 36, top, cx + 36, top, 'exc-m', 3)}${springs}${load(cx, y2)}${tt(cx, 192, lab, 'exs-t')}${tt(cx, 206, `x = ${fmt(xx * 100, 1)} ${UN.cm()}`, 'exs-s tc exc-p')}`;
+        };
+        svg = `${col(55, v.k, `k = ${fmt(v.k, 0)}`, '')}${col(160, v.k / 2, `${u('series', 'посл.', 'тізб.')}: k/2`, 'ser')}${col(265, v.k * 2, `${u('parallel', 'парал.', 'парал.')}: 2k`, 'par')}`;
+      }
+      let caption = [
+        u(`F = mg = ${fmt(v.m, 2)} · 9.8 = ${fmt(F, 1)} N, x = F / k = ${fmt(F, 1)} / ${fmt(v.k, 0)} = ${fmt(x, 3)} m = ${fmt(x * 100, 1)} cm. The graph F(x) is a straight line with slope k; the shaded area is the elastic energy kx²/2.`, `F = mg = ${fmt(v.m, 2)} · 9,8 = ${fmt(F, 1)} Н, x = F / k = ${fmt(F, 1)} / ${fmt(v.k, 0)} = ${fmt(x, 3)} м = ${fmt(x * 100, 1)} см. График F(x) - прямая с наклоном k, площадь под ней - энергия пружины kx²/2.`, `F = mg = ${fmt(v.m, 2)} · 9,8 = ${fmt(F, 1)} Н, x = F / k = ${fmt(F, 1)} / ${fmt(v.k, 0)} = ${fmt(x, 3)} м = ${fmt(x * 100, 1)} см. F(x) графигі - көлбеулігі k түзу, астындағы аудан - серіппе энергиясы kx²/2.`),
+        u(`T = 2π√(m/k) = 2π√(${fmt(v.m, 2)} / ${fmt(v.k, 0)}) = ${fmt(T, 2)} s. A heavier load swings slower, a stiffer spring - faster. Gravity does not change T: on the Moon it would be the same.`, `T = 2π√(m/k) = 2π√(${fmt(v.m, 2)} / ${fmt(v.k, 0)}) = ${fmt(T, 2)} с. Тяжелее груз - колебания медленнее, жёстче пружина - быстрее. От g период не зависит: на Луне он был бы тем же.`, `T = 2π√(m/k) = 2π√(${fmt(v.m, 2)} / ${fmt(v.k, 0)}) = ${fmt(T, 2)} с. Жүк ауыр болса - тербеліс баяу, серіппе қатаң болса - жылдам. Период g-ге тәуелді емес: Айда да сондай болар еді.`),
+        u(`Two equal springs in series stretch twice as much (k = k/2), in parallel - half as much (k = 2k). Load ${fmt(F, 1)} N.`, `Две одинаковые пружины последовательно растягиваются вдвое сильнее (k общ = k/2), параллельно - вдвое слабее (k общ = 2k). Нагрузка ${fmt(F, 1)} Н.`, `Екі бірдей серіппе тізбектей екі есе көп созылады (k жалпы = k/2), параллель - екі есе аз (k жалпы = 2k). Жүктеме ${fmt(F, 1)} Н.`),
+      ][mode];
+      if (task) {
+        let ok;
+        let goal;
+        let done;
+        if (task.type === 0) {
+          ok = near(v.m, task.m, 0.03);
+          goal = u(`k = ${task.k} N/m. Hang a load that stretches the spring by ${fmt(task.x, 1)} cm.`, `k = ${task.k} Н/м. Подвесь груз, который растянет пружину на ${fmt(task.x, 1)} см.`, `k = ${task.k} Н/м. Серіппені ${fmt(task.x, 1)} см-ге созатын жүк ілу керек.`);
+          done = `m = kx / g = ${task.k} · ${fmt(task.x / 100, 3)} / 9,8 = ${fmt(task.m, 2)} ${UN.kg()}.`;
+        } else {
+          ok = near(T, task.T, 0.01);
+          goal = u(`the load is ${task.m} kg. Choose k so that the period is ${fmt(task.T, 1)} s.`, `груз ${task.m} кг. Подбери k, чтобы период был ${fmt(task.T, 1)} с.`, `жүк ${task.m} кг. Период ${fmt(task.T, 1)} с болатындай k-ны тап.`);
+          done = `k = 4π²m / T² = 39,48 · ${task.m} / ${fmt(task.T * task.T, 2)} ≈ ${fmt(task.k, 0)} ${u('N/m', 'Н/м', 'Н/м')}.`;
+        }
+        caption = taskCap(goal, ok, u(`Now x = ${fmt(x * 100, 1)} cm, T = ${fmt(T, 2)} s.`, `Сейчас x = ${fmt(x * 100, 1)} см, T = ${fmt(T, 2)} с.`, `Қазір x = ${fmt(x * 100, 1)} см, T = ${fmt(T, 2)} с.`), done);
+        return { svg: svg + taskBadge(ok, 316, 214), caption };
+      }
+      return { svg, caption };
+    },
+  },
+
+  buoyancy: {
+    title: L("Archimedes' force: float or sink", 'Сила Архимеда: утонет или всплывёт', 'Архимед күші: батады ма, қалқиды ма'),
+    intro: L('A liquid pushes a body up with Fₐ = ρ(liquid)·g·V(submerged). It floats if it is less dense than the liquid.', 'Жидкость выталкивает тело силой Fₐ = ρж·g·Vпогр. Тело плавает, если его плотность меньше плотности жидкости.', 'Сұйық денені Fₐ = ρс·g·Vбат күшімен ығыстырады. Дененің тығыздығы сұйықтан аз болса, ол қалқиды.'),
+    sliders: [
+      { id: 'rb', label: L('body density, kg/m³', 'плотность тела, кг/м³', 'дене тығыздығы, кг/м³'), min: 100, max: 8000, step: 10, value: 500, hidden: (v, st) => st.m === 1 && st.task.type !== 1 },
+      { id: 'rl', label: L('liquid density, kg/m³', 'плотность жидкости, кг/м³', 'сұйық тығыздығы, кг/м³'), min: 700, max: 13600, step: 10, value: 1000, hidden: (v, st) => st.m === 1 && st.task.type !== 0 },
+      { id: 'V', label: L('volume V, cm³', 'объём V, см³', 'көлем V, см³'), min: 100, max: 1000, step: 10, value: 500, hidden: (v, st) => st.m === 1 && st.task.type !== 2 },
+    ],
+    buttons: [L('Body ↻', 'Тело ↻', 'Дене ↻'), L('Liquid ↻', 'Жидкость ↻', 'Сұйық ↻'), L('Spring scale', 'Динамометр', 'Динамометр'), TASK, FREE],
+    state: () => ({ b: 1, l: 2, dyn: false, m: 0, task: null }),
+    pressed: (i, v, st) => (i === 2 && st.dyn) || (i === 3 && st.m === 1),
+    btnHidden: (i, v, st) => (i === 4 ? st.m !== 1 : st.m === 1 && i < 3),
+    onButton(i, st) {
+      if (i === 0) {
+        st.b = (st.b + 1) % BODIES.length;
+        return { rb: BODIES[st.b][0] };
+      }
+      if (i === 1) {
+        st.l = (st.l + 1) % LIQUIDS.length;
+        return { rl: LIQUIDS[st.l][0] };
+      }
+      if (i === 2) st.dyn = !st.dyn;
+      else if (i === 4) st.m = 0;
+      else {
+        st.m = 1;
+        st.task = buoyTask();
+        const q = st.task;
+        st.dyn = q.type === 2;
+        return q.type === 0 ? { rb: q.rb, rl: 1300, V: q.V } : q.type === 1 ? { rl: 1000, rb: 100, V: q.V } : { rb: 7800, rl: 1000, V: 100 };
+      }
+      return null;
+    },
+    draw(v, step, st) {
+      const Vm = v.V / 1e6;
+      const mg = v.rb * Vm * G;
+      const floats = v.rb < v.rl;
+      const frac = floats ? v.rb / v.rl : 1;
+      const FA = v.rl * G * Vm * frac;
+      const FAfull = v.rl * G * Vm;
+      const side = 30 + Math.cbrt(v.V) * 3;
+      const surf = 92;
+      const tank = [14, 176];
+      // Уровень жидкости поднимается на объём погружённой части.
+      const rise = (Vm * frac * 1e6) / 1000 * 3;
+      const lvl = surf - rise;
+            let top;
+      if (st.dyn) top = Math.max(lvl + 6, 120 - side / 2);
+      else top = floats ? lvl - side * (1 - frac) : 196 - side;
+      const cx = 102;
+      const bodyR = `<rect class="ex-fill exc-o" style="opacity:.9" x="${n1(cx - side / 2)}" y="${n1(top)}" width="${n1(side)}" height="${n1(side)}" rx="4"/>`;
+      const k = 40 / Math.max(mg, FAfull, 0.5);
+      const forces = `<circle class="ex-fill" style="color:var(--ink)" cx="${cx}" cy="${n1(top + side / 2)}" r="2.5"/>${varrow(cx - 5, top + side / 2, cx - 5, top + side / 2 + mg * k + 2, 'exc-r', 'mg', 2.5, -14, 0)}${varrow(cx + 5, top + side / 2, cx + 5, top + side / 2 - FA * k - 2, 'exc-g', 'Fₐ', 2.5, 13, 8)}`;
+      let dyn = '<g/>';
+      let reading = 0;
+      if (st.dyn) {
+        reading = Math.max(0, mg - FAfull);
+        dyn = `${ln(cx, 6, cx, 18, 'exc-m', 2)}<rect class="exs-panel" x="${cx - 12}" y="18" width="24" height="44" rx="5"/>${ln(cx, 62, cx, top, 'exc-m', 1.5)}${tt(cx - 18, 34, `${fmt(reading, 2)} ${UN.N()}`, 'exs-t ex-end tc exc-p')}${tt(cx - 18, 48, `${u('in air', 'в воздухе', 'ауада')} ${fmt(mg, 2)}`, 'exs-s ex-end')}<rect class="ex-fill exc-p" x="${cx - 4}" y="22" width="8" height="${n1(4 + 34 * clamp(reading / Math.max(mg, 0.01), 0, 1))}" rx="2"/>`;
+      }
+      const bn = named(BODIES, v.rb);
+      const lnm = named(LIQUIDS, v.rl);
+      const info = `${box(196, 4, 120, 120)}${tt(204, 18, `${u('ρb', 'ρт', 'ρд')} = ${fmt(v.rb, 0)}`, 'exs-t ex-start tc exc-o')}${tt(204, 30, bn || u('body', 'тело', 'дене'), 'exs-s ex-start')}${tt(204, 46, `${u('ρl', 'ρж', 'ρс')} = ${fmt(v.rl, 0)}`, 'exs-t ex-start tc exc-b')}${tt(204, 58, lnm || u('liquid', 'жидкость', 'сұйық'), 'exs-s ex-start')}
+        ${tt(204, 76, `mg = ${fmt(mg, 2)} ${UN.N()}`, 'exs-t ex-start tc exc-r')}${tt(204, 92, `Fₐ = ${fmt(FA, 2)} ${UN.N()}`, 'exs-t ex-start tc exc-g')}${tt(204, 110, st.dyn ? `P = ${fmt(reading, 2)} ${UN.N()}` : floats ? `${u('under', 'под', 'астында')}: ${fmt(frac * 100, 0)}%` : u('sinks', 'тонет', 'батады'), `exs-t ex-start tc ${floats ? 'exc-g' : 'exc-r'}`)}`;
+      const svg = `<rect class="exs-water" x="${tank[0]}" y="${n1(lvl)}" width="${tank[1]}" height="${n1(200 - lvl)}" style="opacity:${n1(0.6 + Math.min(0.4, v.rl / 20000))}"/>${ln(tank[0], lvl, tank[0] + tank[1], lvl, 'exc-b', 1.5)}${ln(tank[0], surf, tank[0] + 12, surf, 'exc-m ex-dash', 1)}<path class="ex-beaker" d="M${tank[0]} 40 V200 H${tank[0] + tank[1]} V40"/>
+        ${dyn}${bodyR}${forces}${info}${tt(tank[0] + 4, 214, `V = ${fmt(v.V, 0)} ${u('cm³', 'см³', 'см³')}`, 'exs-s ex-start')}`;
+      let caption = st.dyn
+        ? u(
+            `In air the scale shows mg = ${fmt(mg, 2)} N. Fully in the liquid Fₐ = ρgV = ${fmt(v.rl, 0)} · 9.8 · ${fmt(Vm, 6)} = ${fmt(FAfull, 2)} N, so it shows ${fmt(mg, 2)} − ${fmt(FAfull, 2)} = ${fmt(reading, 2)} N.${floats ? ' The body is lighter than the liquid: it would float up.' : ''}`,
+            `В воздухе динамометр показывает mg = ${fmt(mg, 2)} Н. Целиком в жидкости Fₐ = ρgV = ${fmt(v.rl, 0)} · 9,8 · ${fmt(Vm, 6)} = ${fmt(FAfull, 2)} Н, поэтому он показывает ${fmt(mg, 2)} − ${fmt(FAfull, 2)} = ${fmt(reading, 2)} Н.${floats ? ' Тело легче жидкости: оно бы всплыло.' : ''}`,
+            `Ауада динамометр mg = ${fmt(mg, 2)} Н көрсетеді. Толық сұйықта Fₐ = ρgV = ${fmt(v.rl, 0)} · 9,8 · ${fmt(Vm, 6)} = ${fmt(FAfull, 2)} Н, сондықтан ${fmt(mg, 2)} − ${fmt(FAfull, 2)} = ${fmt(reading, 2)} Н көрсетеді.${floats ? ' Дене сұйықтан жеңіл: ол қалқып шығар еді.' : ''}`,
+          )
+        : floats
+          ? u(`ρ(body) < ρ(liquid): the body floats. It sinks until Fₐ = mg = ${fmt(mg, 2)} N; then the part under the surface is ρт/ρж = ${fmt(v.rb, 0)}/${fmt(v.rl, 0)} = ${fmt(frac * 100, 0)}% of its volume.`, `ρт < ρж: тело плавает. Оно погружается, пока Fₐ не станет равна mg = ${fmt(mg, 2)} Н; под водой тогда ρт/ρж = ${fmt(v.rb, 0)}/${fmt(v.rl, 0)} = ${fmt(frac * 100, 0)}% объёма.`, `ρд < ρс: дене қалқиды. Ол Fₐ = mg = ${fmt(mg, 2)} Н болғанша батады; сонда су астында көлемнің ρд/ρс = ${fmt(v.rb, 0)}/${fmt(v.rl, 0)} = ${fmt(frac * 100, 0)}%-ы болады.`)
+          : u(`ρ(body) > ρ(liquid): even fully under the surface Fₐ = ${fmt(FA, 2)} N < mg = ${fmt(mg, 2)} N - the body sinks. In mercury (13600) even iron floats!`, `ρт > ρж: даже целиком в жидкости Fₐ = ${fmt(FA, 2)} Н < mg = ${fmt(mg, 2)} Н - тело тонет. В ртути (13600) плавает даже железо!`, `ρд > ρс: толық батса да Fₐ = ${fmt(FA, 2)} Н < mg = ${fmt(mg, 2)} Н - дене батады. Сынапта (13600) тіпті темір қалқиды!`);
+      if (st.m === 1) {
+        const q = st.task;
+        let ok;
+        let goal;
+        let done;
+        if (q.type === 0) {
+          ok = floats && near(frac, q.frac, 0.006);
+          goal = u(`a body of ${q.rb} kg/m³ must float with ${fmt(q.frac * 100, 0)}% of its volume under the surface. Choose the liquid density.`, `тело ${q.rb} кг/м³ должно плавать, погрузившись на ${fmt(q.frac * 100, 0)}% объёма. Подбери плотность жидкости.`, `${q.rb} кг/м³ дене көлемінің ${fmt(q.frac * 100, 0)}%-ына батып қалқуы керек. Сұйық тығыздығын тап.`);
+          done = `ρж = ρт / ${fmt(q.frac, 2)} = ${fmt(q.rl, 0)} ${u('kg/m³', 'кг/м³', 'кг/м³')}${named(LIQUIDS, q.rl) ? ` (${named(LIQUIDS, q.rl)})` : ''}.`;
+        } else if (q.type === 1) {
+          ok = floats && near(frac, q.frac, 0.006);
+          goal = u(`in water, make the body float with ${fmt(q.frac * 100, 0)}% of its volume under water. Choose its density.`, `в воде тело должно плавать, погрузившись на ${fmt(q.frac * 100, 0)}%. Подбери его плотность.`, `суда дене ${fmt(q.frac * 100, 0)}%-ына батып қалқуы керек. Оның тығыздығын тап.`);
+          done = `ρт = ${fmt(q.frac, 2)} · 1000 = ${fmt(q.frac * 1000, 0)} ${u('kg/m³', 'кг/м³', 'кг/м³')}.`;
+        } else {
+          ok = near(FAfull, q.F, 0.03);
+          goal = u(`an iron body hangs in water. Choose its volume so that the water pushes it up with ${fmt(q.F, 2)} N.`, `железное тело висит в воде. Подбери объём, чтобы вода выталкивала его с силой ${fmt(q.F, 2)} Н.`, `темір дене суда ілулі тұр. Су оны ${fmt(q.F, 2)} Н күшпен ығыстыратындай көлемін тап.`);
+          done = `V = Fₐ / (ρg) = ${fmt(q.F, 2)} / 9800 = ${fmt((q.F / 9800) * 1e6, 0)} ${u('cm³', 'см³', 'см³')}.`;
+        }
+        caption = taskCap(goal, ok, u(`Now: Fₐ = ${fmt(FA, 2)} N, under: ${fmt(frac * 100, 0)}%.`, `Сейчас: Fₐ = ${fmt(FA, 2)} Н, под водой ${fmt(frac * 100, 0)}%.`, `Қазір: Fₐ = ${fmt(FA, 2)} Н, су астында ${fmt(frac * 100, 0)}%.`), done);
+        return { svg: svg + taskBadge(ok, 316, 140), caption };
+      }
+      return { svg, caption };
+    },
+  },
   'sine-wave': {
     title: L('Waves: amplitude, frequency, phase', 'Волна: амплитуда, частота, фаза', 'Толқын: амплитуда, жиілік, фаза'),
     intro: L('y = A·sin(2π·f·t + φ). A is the height of the crest, f is how many waves fit in one second, φ shifts the wave sideways.', 'y = A·sin(2π·f·t + φ). A - высота гребня, f - сколько волн умещается за секунду, φ сдвигает волну вбок.', 'y = A·sin(2π·f·t + φ). A - толқын жотасының биіктігі, f - бір секундта неше толқын сыяды, φ толқынды бүйірге ығыстырады.'),
@@ -2223,58 +2466,6 @@ export const SCENES_SCIENCE = {
   },
 
   // ===== Физика: Архимед, пружина, цепи, преломление, плавление, давление =====
-
-  buoyancy: {
-    title: L("Archimedes' principle: float or sink", 'Закон Архимеда: утонет или всплывёт', 'Архимед заңы: батады ма, қалқиды ма'),
-    intro: L('A liquid pushes up with a force equal to the weight of the liquid displaced. If the body is less dense than the liquid, it floats with part of it above the surface.', 'Жидкость выталкивает тело с силой, равной весу вытесненной жидкости. Если тело легче (менее плотное), чем жидкость, оно плавает, частично выступая над водой.', 'Сұйық денені ығыстырылған сұйықтың салмағына тең күшпен итереді. Дене сұйықтан жеңіл (тығыздығы аз) болса, бір бөлігі судан шығып, қалқиды.'),
-    sliders: [
-      { id: 'rb', label: L('body density, kg/m³', 'плотность тела, кг/м³', 'дене тығыздығы, кг/м³'), min: 100, max: 3000, step: 10, value: 600 },
-      { id: 'rl', label: L('liquid density, kg/m³', 'плотность жидкости, кг/м³', 'сұйық тығыздығы, кг/м³'), min: 700, max: 1300, step: 10, value: 1000 },
-    ],
-    buttons: [L('Wood', 'Дерево', 'Ағаш'), L('Ice', 'Лёд', 'Мұз'), L('Iron', 'Железо', 'Темір'), L('Sea water', 'Морская вода', 'Теңіз суы')],
-    onButton: (i) => [{ rb: 600 }, { rb: 900 }, { rb: 2700 }, { rl: 1030 }][i],
-    draw(v) {
-      const k = v.rb / v.rl;
-      const side = 60;
-      const surf = 90;
-      const floats = k < 1;
-      const sub = floats ? k * side : side;
-      const top = floats ? surf - (side - sub) : 196 - side;
-      return {
-        svg: `<rect x="20" y="${surf}" width="280" height="110" class="ex-fill exc-b" style="opacity:.25"/><line class="ex-stroke exc-b" x1="20" y1="${surf}" x2="300" y2="${surf}"/>
-          <rect x="130" y="${n1(top)}" width="${side}" height="${side}" rx="6" class="ex-fill exc-o" style="opacity:.85"/>
-          ${arrow(160, n1(top + side / 2), 160, n1(top + side / 2 + 40), 'exc-r', 2.5)}${arrow(178, n1(top + side), 178, n1(top + side - (floats ? 40 : 40 / k)), 'exc-g', 2.5)}
-          <text class="ex-tag" x="8" y="20">ρ ${u('body', 'тела', 'дене')} / ρ ${u('liquid', 'жидк.', 'сұйық')} = ${fmt(k)}</text>
-          <text class="ex-tag" x="8" y="42">${floats ? `${u('under water', 'под водой', 'су астында')}: ${Math.round(k * 100)}%` : u('sinks', 'тонет', 'батады')}</text>`,
-        caption: floats
-          ? L(`The body is ${fmt(k)} times as dense as the liquid, so it floats with ${Math.round(k * 100)}% of its volume under the surface: then the buoyant force (green) equals gravity (red).`, `Плотность тела в ${fmt(k)} раза от плотности жидкости, поэтому оно плавает, погрузившись на ${Math.round(k * 100)}% объёма: тогда сила Архимеда (зелёная) равна силе тяжести (красная).`, `Дене тығыздығы сұйық тығыздығының ${fmt(k)} бөлігі, сондықтан ол көлемінің ${Math.round(k * 100)}%-ына батып, қалқиды: сонда Архимед күші (жасыл) ауырлық күшіне (қызыл) тең.`)
-          : L(`The body is denser than the liquid (${fmt(k)} times), so even fully under water the buoyant force is smaller than gravity - it sinks.`, `Тело плотнее жидкости (в ${fmt(k)} раза), поэтому даже полностью под водой сила Архимеда меньше силы тяжести - оно тонет.`, `Дене сұйықтан тығызырақ (${fmt(k)} есе), сондықтан толық батса да Архимед күші ауырлық күшінен аз - ол батады.`),
-      };
-    },
-  },
-
-  spring: {
-    title: L("Hooke's law: a spring", 'Закон Гука: пружина', 'Гук заңы: серіппе'),
-    intro: L('The spring stretches in proportion to the force: F = k · x. A stiffer spring (bigger k) stretches less under the same load.', 'Пружина растягивается пропорционально силе: F = k · x. Чем жёстче пружина (больше k), тем меньше она растянется под тем же грузом.', 'Серіппе күшке пропорционал созылады: F = k · x. Серіппе неғұрлым қатаң (k үлкен) болса, сол жүкпен соғұрлым аз созылады.'),
-    sliders: [
-      { id: 'm', label: L('mass, kg', 'масса, кг', 'масса, кг'), min: 0, max: 5, step: C, value: 2 },
-      { id: 'k', label: L('k, N/m', 'k, Н/м', 'k, Н/м'), min: 50, max: 500, step: 1, value: 200 },
-    ],
-    buttons: [L('m × 2', 'm × 2', 'm × 2'), L('k × 2', 'k × 2', 'k × 2'), RESET],
-    onButton: (i, st, v) => [{ m: clamp(v.m * 2, 0, 5) }, { k: clamp(v.k * 2, 50, 500) }, { m: 2, k: 200 }][i],
-    draw(v) {
-      const F = v.m * 10;
-      const x = F / v.k;
-      const len = 50 + x * 300;
-      const coils = Array.from({ length: 12 }, (_, i) => `${i % 2 ? 'L130' : 'L190'} ${n1(30 + (len * (i + 1)) / 13)}`).join(' ');
-      return {
-        svg: `<line class="ex-axis" x1="100" y1="30" x2="220" y2="30"/><path class="ex-stroke exc-m" style="fill:none;stroke-width:2" d="M160 30 ${coils} L160 ${n1(30 + len)}"/>
-          <rect x="135" y="${n1(30 + len)}" width="50" height="${n1(20 + v.m * 5)}" rx="5" class="ex-fill exc-o"/><text class="ex-small" x="160" y="${n1(46 + len)}" style="fill:#fff">${fmt(v.m, 1)} ${u('kg', 'кг', 'кг')}</text>
-          <text class="ex-tag" x="200" y="80">F = mg = ${fmt(F, 1)} ${u('N', 'Н', 'Н')}</text><text class="ex-tag" x="200" y="104">x = F / k</text><text class="ex-big" x="250" y="140">${fmt(x * 100, 1)} ${u('cm', 'см', 'см')}</text>`,
-        caption: L(`x = F / k = ${fmt(F, 1)} N ÷ ${fmt(v.k, 0)} N/m = ${fmt(x, 3)} m = ${fmt(x * 100, 1)} cm. Double the mass - the stretch doubles; double k - it halves.`, `x = F / k = ${fmt(F, 1)} Н ÷ ${fmt(v.k, 0)} Н/м = ${fmt(x, 3)} м = ${fmt(x * 100, 1)} см. Удвой массу - растяжение удвоится; удвой k - уменьшится вдвое.`, `x = F / k = ${fmt(F, 1)} Н ÷ ${fmt(v.k, 0)} Н/м = ${fmt(x, 3)} м = ${fmt(x * 100, 1)} см. Массаны екі есе арттыр - созылу екі есе артады; k-ны екі есе арттыр - екі есе азаяды.`),
-      };
-    },
-  },
 
   melting: {
     title: L('Heating ice: melting and boiling', 'Нагревание льда: плавление и кипение', 'Мұзды қыздыру: балқу және қайнау'),

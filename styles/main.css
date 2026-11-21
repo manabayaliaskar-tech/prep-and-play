@@ -15849,7 +15849,8 @@ button.ts-tile { font: inherit; text-align: left; cursor: pointer; width: 100%; 
 .lesson-why { margin: 10px 0 0; line-height: 1.45; }
 .lesson-why.good b { color: var(--green-d); }
 .lesson-why.bad b { color: var(--red-d); }
-.lesson-anim-box { margin: 12px 0; }
+.lesson-anim-box, .lesson-listen-box { margin: 12px 0; }
+.lesson-listen-box.is-open { display: grid; gap: 10px; }
 .lesson-anim-box .ex-card { margin: 0; }
 .lesson-anim-full { display: inline-block; margin-top: 6px; font-size: 14px; font-weight: 700; }
 .lesson-nav { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 18px; }
