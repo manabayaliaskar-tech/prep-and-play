@@ -38,8 +38,25 @@ function detect() {
   return detectLang(globalThis.navigator?.language ?? '', zone);
 }
 
-let lang = storage.get('lang', null) ?? detect();
+/** Язык из адреса: страницы для поисковиков ведут в игру по ссылке вида /?lang=kk. */
+export function langFromSearch(search = '') {
+  const value = new URLSearchParams(search).get('lang');
+  return value && STRINGS[value] ? value : null;
+}
+
+const fromUrl = langFromSearch(globalThis.location?.search ?? '');
+let lang = fromUrl ?? storage.get('lang', null) ?? detect();
 if (!STRINGS[lang]) lang = 'ru';
+if (fromUrl) {
+  storage.set('lang', fromUrl);
+  // Убираем ?lang из адреса, чтобы он не мешал ссылкам и закладкам.
+  try {
+    const { pathname, hash } = globalThis.location;
+    globalThis.history?.replaceState(globalThis.history.state, '', pathname + hash);
+  } catch {
+    // Без истории браузера просто оставляем адрес как есть.
+  }
+}
 const listeners = new Set();
 
 export function getLang() {

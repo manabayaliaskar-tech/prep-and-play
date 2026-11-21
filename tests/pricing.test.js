@@ -15,7 +15,7 @@ import {
   roundNice,
   savedCents,
 } from '../src/core/pricing.js';
-import { detectLang } from '../src/core/i18n.js';
+import { detectLang, langFromSearch } from '../src/core/i18n.js';
 import { loadRates, pickRates } from '../src/core/rates.js';
 
 const NBSP = ' ';
@@ -167,4 +167,11 @@ test('курсы валют: сбой загрузки не ломает стр�
   } finally {
     globalThis.fetch = original;
   }
+});
+
+test('язык из адреса страницы: ?lang=kk', () => {
+  assert.equal(langFromSearch('?lang=kk'), 'kk');
+  assert.equal(langFromSearch('?lang=en&x=1'), 'en');
+  assert.equal(langFromSearch('?lang=de'), null);
+  assert.equal(langFromSearch(''), null);
 });
