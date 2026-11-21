@@ -178,6 +178,7 @@ export function detectiveRoute(app) {
         { icon: '⭐', label: t('det.points'), value: st.score },
         { icon: '🏆', label: t('mode.record'), value: p.records.detective },
       ],
+      share: isRecord ? { title: t('det.title'), big: String(st.score), note: t('share.points'), badge: t('share.record') } : null,
       actions: [
         { label: `↻ ${t('res.again')}`, onClick: () => navigate('/detective'), primary: true },
         { label: `🏠 ${t('res.home')}`, href: '/sat' },

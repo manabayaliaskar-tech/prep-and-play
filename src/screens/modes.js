@@ -105,6 +105,7 @@ export function survivalRoute(app) {
             subtitle: t('survival.score', { n: run.correct }),
             xp: run.xp,
             stats: [...baseStats(run), { icon: '🏆', label: t('mode.record'), value: p.records.survival }],
+            share: isRecord ? { title: `${t('survival.title')} · SAT`, big: String(run.correct), note: t('share.correct'), badge: t('share.record') } : null,
             log: run.log,
             actions: [
               { label: `↻ ${t('res.again')}`, onClick: () => navigate('/survival'), primary: true },
@@ -149,6 +150,7 @@ export function blitzRoute(app) {
             subtitle: t('blitz.score', { n: run.correct, s: BLITZ_SECONDS }),
             xp: run.xp,
             stats: [...baseStats(run), { icon: '🏆', label: t('mode.record'), value: p.records.blitz }],
+            share: isRecord ? { title: `${t('blitz.title')} · SAT`, big: String(run.correct), note: t('blitz.score', { n: run.correct, s: BLITZ_SECONDS }), badge: t('share.record') } : null,
             log: run.log,
             actions: [
               { label: `↻ ${t('res.again')}`, onClick: () => navigate('/blitz'), primary: true },

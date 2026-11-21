@@ -1,4 +1,5 @@
 // Экскурсия по главной: Препи перелетает от раздела к разделу, подсвечивает его и рассказывает, что там.
+// Короткая - 7 шагов: только главное, остальное человек найдёт сам.
 // Включается сама при первом заходе на главную; пройти заново можно из профиля.
 // Если раздела на странице нет (например, нет плана), шаг пропускается.
 
@@ -11,14 +12,9 @@ export const TOUR_STEPS = [
   { id: 'hello', sel: null, mood: 'win' },
   { id: 'stats', sel: '.top-stats' },
   { id: 'hero', sel: '.hero-card' },
-  { id: 'quiz', sel: '.quiz-hero' },
-  { id: 'life', sel: '.life-row' },
-  { id: 'learn', sel: '.learn-row' },
-  { id: 'plan', sel: '.ts-plan' },
-  { id: 'quests', sel: '.ts-quests' },
+  { id: 'quests', sel: '.today-strip' },
   { id: 'courses', sel: '.hub .block' },
   { id: 'nav', sel: '.nav' },
-  { id: 'look', sel: '.theme-btn' },
   { id: 'bye', sel: null, mood: 'win' },
 ];
 

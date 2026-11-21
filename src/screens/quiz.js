@@ -171,6 +171,7 @@ export function quizRoute(app, params = {}) {
           stars: starsFor(run.correct, QUIZ_COUNT),
           xp: run.xp,
           stats: [...baseStats(run), ...(custom ? [] : [{ icon: '🏆', label: t('quiz.bestHere'), value: `${getProfile().records.quiz[level]}/${QUIZ_COUNT}` }])],
+          share: isRecord && run.correct >= 7 ? { title: `${t('quiz.mode.classic')} · ${level}/10`, big: String(run.correct), small: `/${QUIZ_COUNT}`, note: t('share.correct'), badge: t('share.record') } : null,
           extraHtml: extra,
           log: run.log,
           actions: [
@@ -205,6 +206,7 @@ export function quizRoute(app, params = {}) {
           subtitle: t('quiz.blitzResult', { c: run.correct, n: run.answered }),
           xp: run.xp,
           stats: [...baseStats(run), { icon: '🏆', label: t('quiz.record'), value: records().quizBlitz }],
+          share: isRecord ? { title: t('quiz.mode.blitz'), big: String(run.correct), note: t('quiz.blitzResult', { c: run.correct, n: run.answered }), badge: t('share.record') } : null,
           extraHtml: extra,
           log: run.log,
           actions: [
@@ -237,6 +239,7 @@ export function quizRoute(app, params = {}) {
           subtitle: t('quiz.survivalResult', { c: run.correct, level: survivalLevel(run.answered, start) }),
           xp: run.xp,
           stats: [...baseStats(run), { icon: '🏆', label: t('quiz.record'), value: records().quizSurvival }],
+          share: isRecord ? { title: t('quiz.mode.survival'), big: String(run.correct), note: t('share.correct'), badge: t('share.record') } : null,
           extraHtml: extra,
           log: run.log,
           actions: [

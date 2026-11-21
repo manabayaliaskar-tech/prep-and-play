@@ -37,7 +37,8 @@ function saveSession(s) {
   storage.set(SESSION, { access_token: s.access_token, refresh_token: s.refresh_token, expires_at, user: { id: s.user?.id, email: s.user?.email } });
 }
 
-async function request(path, { method = 'GET', body, auth = false, headers = {}, keepalive = false } = {}) {
+/** Запрос к Supabase REST (auth: true - с токеном входа). У ошибки есть status и code. */
+export async function request(path, { method = 'GET', body, auth = false, headers = {}, keepalive = false } = {}) {
   const h = { apikey: KEY, 'Content-Type': 'application/json', ...headers };
   if (auth) {
     const token = await accessToken();

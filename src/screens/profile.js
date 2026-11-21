@@ -31,6 +31,7 @@ import { mascot } from '../ui/mascot.js';
 import { esc } from '../ui/dom.js';
 import { storage } from '../core/storage.js';
 import { accountCardHtml, bindAccount } from '../ui/account.js';
+import { MAX_FRIENDS, getFriends } from '../core/friends.js';
 import { openModal, toast } from '../ui/overlay.js';
 import { themePickerHtml } from '../ui/theme-picker.js';
 import { courseBadge } from './hub.js';
@@ -398,6 +399,13 @@ export function profileScreen(app) {
         </div>
 
         ${accountCardHtml()}
+
+        <a class="panel friends-link" href="#/friends">
+          <span class="acc-icon">👋</span>
+          <span class="friends-link-text"><b>${t('fr.title')}</b><small class="muted">${t('fr.cardSub')}</small></span>
+          <span class="friends-link-n" aria-label="${t('fr.count', { n: getFriends().length, m: MAX_FRIENDS })}">${getFriends().length}</span>
+          <span class="friends-link-go" aria-hidden="true">→</span>
+        </a>
 
         <a class="profile-room" href="#/shop/room" aria-label="${t('profile.room')}">
           ${roomScene(getRoom(p), mascot('happy', 'mascot-stage float'), { compact: true })}

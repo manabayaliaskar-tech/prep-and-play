@@ -3,8 +3,10 @@
 
 import { EXPLAINERS } from '../content/explainers.js';
 import { dueMistakes, getMistakes } from '../core/review.js';
+import { restRulesToday, rulesTileCount } from '../core/rules.js';
 import { getPlan, readiness } from '../core/plan.js';
-import { maybeStartTour } from '../ui/tour.js';
+import { maybeStartTour, tourDone } from '../ui/tour.js';
+import { getGoal, goalHref, regionExams, welcomeDone } from '../core/goal.js';
 import { bindQuizHost, quizHostHtml } from '../ui/quiz-host.js';
 import { COURSES, GROUPS, courseById, courseHref, courseStars, coursesIn, trackById, trackHref, trackRecord } from '../catalog/index.js';
 import { dayKey, msUntilMidnight } from '../core/dates.js';
@@ -73,8 +75,8 @@ export function courseCard(course) {
 /** Плитки уровней: номер или название и звёзды за лучший результат. */
 export function levelChips(course, { limit = 0, cls = '', named = false } = {}) {
   // Равные ряды без «хвоста»: столько колонок, чтобы последний ряд не был почти пустым.
-  // limit — показать только первые уровни, а остальные спрятать за плашкой «+N →» (ведёт на страницу курса).
-  // named — с коротким названием уровня (для компьютера): не больше 3 рядов.
+  // limit - показать только первые уровни, а остальные спрятать за плашкой «+N →» (ведёт на страницу курса).
+  // named - с коротким названием уровня (для компьютера): не больше 3 рядов.
   const all = course.tracks;
   const shown = limit && all.length > limit ? all.slice(0, limit) : all;
   const rest = all.length - shown.length;
@@ -175,8 +177,8 @@ export async function startInstall() {
 }
 
 /**
- * «На сегодня» — одна строка компактных плиток вместо четырёх карточек: продолжить, план дня, ошибки, план экзамена.
- * Лишние плитки прячутся сами (нет ошибок — нет плитки; план составлен — показывается готовность).
+ * «На сегодня» - одна строка компактных плиток вместо четырёх карточек: продолжить, план дня, ошибки, план экзамена.
+ * Лишние плитки прячутся сами (нет ошибок - нет плитки; план составлен - показывается готовность).
  */
 function todayStripHtml(p) {
   const tiles = [];
@@ -193,12 +195,21 @@ function todayStripHtml(p) {
       } else href = '';
     }
     if (href) tiles.push(`<a class="ts-tile ts-continue" href="${href}"><span class="ts-icon">▶</span><span class="ts-text"><small>${t('hub.continue')}</small><b>${esc(name)}</b></span></a>`);
+  } else if (courseById(getGoal())) {
+    // Ещё не занимался, но выбрал цель - первая плитка ведёт в первый урок.
+    const goal = courseById(getGoal());
+    tiles.push(`<a class="ts-tile ts-continue" href="#${goalHref(goal)}"><span class="ts-icon">▶</span><span class="ts-text"><small>${t('welcome.start')}</small><b>${esc(tx(goal.name))}</b></span></a>`);
   }
   const quests = questState(p, dayKey());
   const qDone = quests.filter((q) => q.done).length;
   const next = quests.find((q) => !q.done);
   const rings = quests.map((q) => `<i class="${q.done ? 'on' : ''}" style="--p:${Math.round((q.value / q.quest.goal) * 100)}"></i>`).join('');
   tiles.push(`<button type="button" class="ts-tile ts-quests ${next ? '' : 'is-done'}" aria-expanded="false"><span class="ts-icon">${next ? '🎁' : '🎉'}</span><span class="ts-text"><small>${t('quest.title')} ${qDone}/${quests.length} <span class="ts-rings" aria-hidden="true">${rings}</span></small><b>${next ? `${esc(t(`quest.${next.quest.id}`, { n: next.quest.goal }))} · ${next.value}/${next.quest.goal}` : t('quest.allDone')}</b></span><span class="ts-caret" aria-hidden="true">▾</span></button>`);
+  // Повторить правила: только когда есть что повторять; крестик - отложить до завтра.
+  const rules = rulesTileCount();
+  if (rules) {
+    tiles.push(`<div class="ts-wrap"><a class="ts-tile ts-rules has-badge" href="#/rules"><span class="ts-icon">📘</span><span class="ts-text"><small>${t('rules.tile')}</small><b>${t('rules.tileN', { n: rules })}</b></span><span class="ts-badge">${rules}</span></a><button type="button" class="ts-later" aria-label="${t('rules.later')}" title="${t('rules.later')}">×</button></div>`);
+  }
   const mistakes = getMistakes();
   if (mistakes.length) {
     const due = dueMistakes(dayKey()).length;
@@ -215,7 +226,8 @@ function todayStripHtml(p) {
         <div class="ts-pop" hidden>${questsCard(p)}<a class="ts-pop-link" href="#/today">🧭 ${t('strip.today')} →</a></div>`;
 }
 
-const HOME_EXAMS = ['sat', 'ent', 'ege', 'ielts', 'toefl', 'oge'];
+/** Сколько экзаменов на главной: цель, экзамены своей страны, международные. */
+const HOME_EXAMS = 6;
 
 const isPinnedLabel = (id) => t(isPinned(id) ? 'pin.remove' : 'pin.add');
 
@@ -292,7 +304,7 @@ export function hubScreen(app) {
 
         <section class="block">
           ${head(group('exams'), `${t('hub.allExams')} (${exams.length})`)}
-          <div class="course-grid">${HOME_EXAMS.map((id) => courseCard(courseById(id))).join('')}</div>
+          <div class="course-grid">${regionExams(exams.map((c) => c.id)).slice(0, HOME_EXAMS).map((id) => courseCard(courseById(id))).join('')}</div>
         </section>
 
         <section class="block">
@@ -329,10 +341,16 @@ export function hubScreen(app) {
     });
     bindLife(app, render);
     bindQuizHost(app);
-    maybeStartTour();
+    // Первый заход: сначала «К чему готовишься?», экскурсия - потом.
+    if (!welcomeDone() && !tourDone() && !(p.xp > 0)) import('../ui/welcome.js').then((m) => m.needsWelcome() && m.openWelcome());
+    else maybeStartTour();
     app.querySelector('.install-go')?.addEventListener('click', startInstall);
     app.querySelector('.install-close')?.addEventListener('click', () => {
       dismissInstall();
+      render();
+    });
+    app.querySelector('.ts-later')?.addEventListener('click', () => {
+      restRulesToday();
       render();
     });
     const qBtn = app.querySelector('.ts-quests');

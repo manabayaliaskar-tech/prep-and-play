@@ -3,7 +3,7 @@
 
 import { confetti } from '../core/confetti.js';
 import { t, tx } from '../core/i18n.js';
-import { addXp, checkAchievements, currentStreak, getProfile, recordAnswer, saveProfile, todayStats } from '../core/profile.js';
+import { addXp, checkAchievements, currentStreak, getProfile, levelInfo, recordAnswer, saveProfile, todayStats } from '../core/profile.js';
 import { flameSvg, streakMultiplier } from '../core/economy.js';
 import { answerSpeech, sayButton, stopSpeech } from '../core/voice.js';
 import { transcriptHtml } from '../ui/listen.js';
@@ -12,6 +12,7 @@ import { sfx, vibrate } from '../core/sound.js';
 import { checkAnswer } from '../engine/answer.js';
 import { applyAnswer, createRun } from '../engine/session.js';
 import { addMistake } from '../core/review.js';
+import { noteRuleMistake } from '../core/rules.js';
 import { getPaceMode, paceFor, recordSpeed, runSpeed, setPaceMode } from '../core/pace.js';
 import { isSaved, savedItem, setNote, toggleSaved } from '../core/saved.js';
 import { esc, formatTime } from '../ui/dom.js';
@@ -66,6 +67,8 @@ export function runSession(app, config) {
   // Заголовок может быть функцией - тогда он переводится заново при смене языка.
   const titleText = () => (typeof title === 'function' ? title() : title);
   const run = createRun({ lives, bossHp: boss ? 100 : null });
+  // Уровень игрока на старте: если за игру он вырос, на экране итогов можно им поделиться.
+  const startLevel = levelInfo(getProfile().xp).level;
   const state = {
     index: 0,
     q: null,
@@ -376,6 +379,8 @@ export function runSession(app, config) {
     const move = onAnswer ? onAnswer(q, correct) : null;
     // Ошибка попадает в «Работу над ошибками» (в самом повторе расписание ведёт экран повтора).
     if (!correct && !review) addMistake(q);
+    // Правило темы встаёт в очередь «Повторить правила» (если у темы есть урок).
+    if (!correct && lessonFor(q.skill)) noteRuleMistake(q.skill);
     // Множитель за серию: на экран и в итог идёт то, что начислено на самом деле.
     const gained = addXp(result.xp);
     run.xp += gained - result.xp;
@@ -530,7 +535,9 @@ export function runSession(app, config) {
     stopPace();
     document.body.classList.remove('in-session');
     if (!catalog) getProfile().last = { course: 'sat' };
-    state.build = onFinish(run, { reason });
+    const built = onFinish(run, { reason });
+    const level = levelInfo(getProfile().xp).level;
+    state.build = typeof built === 'function' && level > startLevel ? () => ({ levelUp: level, ...built() }) : built;
     checkAchievements();
     saveProfile();
     renderResults(app, state.build);

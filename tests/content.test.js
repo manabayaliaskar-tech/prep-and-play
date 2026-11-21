@@ -200,7 +200,7 @@ test('переводы: каждый ключ интерфейса есть на
     ...['wall', 'floor', 'window', 'seat', 'desk', 'shelf', 'plant', 'lamp', 'rug', 'poster', 'toy'].map((x) => `room.slot.${x}`),
     ...[1, 2, 3, 4, 5, 6, 7, 8].map((i) => `poke.${i}`),
     ...['d.answer', 'd.correct', 'd.xp', 'd.goal', 'd.quiz', 'd.daily', 'd.explain', 'w.answer', 'w.correct', 'w.quiz', 'w.streak', 'w.xp', 'w.mock', 'w.box', 'w.buy'].map((q) => `pq.${q}`),
-    ...['hello', 'stats', 'hero', 'today', 'quiz', 'life', 'learn', 'plan', 'quests', 'courses', 'nav', 'look', 'bye'].flatMap((id) => [`tour.${id}.title`, `tour.${id}.text`]),
+    ...['hello', 'stats', 'hero', 'quests', 'courses', 'nav', 'bye'].flatMap((id) => [`tour.${id}.title`, `tour.${id}.text`]),
   ];
   for (const key of [...used, ...dynamic]) {
     for (const l of LANGS) assert.ok(STRINGS[l][key], `нет перевода «${key}» (${l})`);

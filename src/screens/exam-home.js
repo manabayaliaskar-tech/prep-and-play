@@ -301,6 +301,7 @@ export function examLevelRoute(app, { exam, track: trackId, n: nRaw }) {
           title: isBoss ? (won ? t('res.bossWin', { name: tx(boss.name) }) : t('res.bossLose', { name: tx(boss.name) })) : stars >= 2 ? t('pr.great') : t('pr.done'),
           subtitle: isBoss ? (won ? t('pr.bossBeaten') : t('res.bossTip')) : t('pr.result', { c: run.correct, n: LEVEL_Q }),
           ...(isBoss ? {} : { stars }),
+          share: stars === 3 ? { title: `${tx(course.name)} · ${tx(track.name)}`, stars: 3, note: t('map.level', { n }), badge: t('share.stars') } : null,
           xp: run.xp,
           stats: baseStats(run),
           log: run.log,
@@ -406,6 +407,7 @@ export function examSurvivalRoute(app, { exam }) {
             subtitle: t('survival.score', { n: run.correct }),
             xp: run.xp,
             stats: [...baseStats(run), { icon: '🏆', label: t('mode.record'), value: best }],
+            share: isRecord ? { title: `${t('survival.title')} · ${tx(course.name)}`, big: String(run.correct), note: t('share.correct'), badge: t('share.record') } : null,
             log: run.log,
             actions: [
               { label: `↻ ${t('res.again')}`, onClick: () => navigate(again), primary: true },
@@ -442,6 +444,7 @@ export function examBlitzRoute(app, { exam }) {
             subtitle: t('blitz.score', { n: run.correct, s: BLITZ_S }),
             xp: run.xp,
             stats: [...baseStats(run), { icon: '🏆', label: t('mode.record'), value: best }],
+            share: isRecord ? { title: `${t('blitz.title')} · ${tx(course.name)}`, big: String(run.correct), note: t('blitz.score', { n: run.correct, s: BLITZ_S }), badge: t('share.record') } : null,
             log: run.log,
             actions: [
               { label: `↻ ${t('res.again')}`, onClick: () => navigate(again), primary: true },

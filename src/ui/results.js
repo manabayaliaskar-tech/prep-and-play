@@ -58,12 +58,37 @@ export function bindReview(root, log) {
   );
 }
 
+const SHARE_ICON = '<svg class="share-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+/** Чем делиться: свой результат экрана или, если его нет, новый уровень игрока. */
+function shareData(data) {
+  if (data.share) return data.share;
+  if (data.levelUp) return { title: t('toast.levelUp'), big: String(data.levelUp), note: t('share.levelNote'), text: t('share.text', { r: t('home.level', { n: data.levelUp }) }) };
+  return null;
+}
+
+/** Модуль картинки грузится только по нажатию (наведение заранее подгружает его). */
+function bindShare(btn, share) {
+  const load = () => import('./share.js');
+  btn.addEventListener('pointerenter', load, { once: true });
+  btn.addEventListener('click', async () => {
+    btn.classList.add('is-busy');
+    try {
+      await (await load()).shareResult(share);
+    } finally {
+      btn.classList.remove('is-busy');
+    }
+  });
+}
+
 /**
  * build() возвращает данные экрана:
- * { mood, title, subtitle, stars, stats: [{ icon, label, value }], xp, actions: [{ label, href | onClick, primary }], extraHtml, log }
+ * { mood, title, subtitle, stars, stats: [{ icon, label, value }], xp, actions: [{ label, href | onClick, primary }], extraHtml, log,
+ *   share: { title, big, small, note, badge, stars } - кнопка «Поделиться» (см. ui/share.js), levelUp - новый уровень игрока }
  */
 export function renderResults(app, build) {
   const data = build();
+  const share = shareData(data);
   const mascotMood = data.mood === 'win' ? 'win' : data.mood === 'lose' ? 'sad' : 'happy';
   app.innerHTML = `
     <section class="results page">
@@ -85,11 +110,13 @@ export function renderResults(app, build) {
           )
           .join('')}
       </div>
+      ${share ? `<div class="result-share"><button type="button" class="btn btn-soft share-btn">${SHARE_ICON}<span>${t('share.btn')}</span></button></div>` : ''}
       ${data.log?.some((e) => e.helped) ? marksHtml(data.log) : ''}
       ${data.log ? reviewHtml(data.log, { onlyWrong: data.reviewOnlyWrong ?? true }) : ''}
     </section>`;
   app.querySelectorAll('[data-res-action]').forEach((b) => b.addEventListener('click', () => data.actions[Number(b.dataset.resAction)].onClick?.()));
   if (data.log) bindReview(app, data.log);
+  if (share) bindShare(app.querySelector('.share-btn'), share);
   animateResults(app, data);
   data.afterRender?.(app);
 }

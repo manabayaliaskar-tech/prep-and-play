@@ -366,6 +366,12 @@ export function examRoute(app) {
         subtitle: t('exam.doneSub', { c: correct, n: log.length }),
         xp,
         extraHtml: scoreCard,
+        share: {
+          title: t('exam.title'),
+          big: String(total ?? scores[st.plan[0]]),
+          small: total !== null ? '/1600' : '/800',
+          note: st.plan.map((s) => `${tx(SECTIONS[s].name)} ${scores[s]}`).join(' · '),
+        },
         log,
         actions: [
           { label: `🎯 ${t('exam.trainWeak')}`, href: '/weak', primary: true },

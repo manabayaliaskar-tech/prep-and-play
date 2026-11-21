@@ -155,6 +155,7 @@ export function levelRoute(app, { zone: zoneId, n: nRaw, skipLesson = false }) {
         title: stars >= 1 ? t('res.levelDone') : t('res.levelFail'),
         subtitle: stars >= 1 ? (n < LEVELS_PER_ZONE ? t('res.nextUnlocked') : t('res.bossUnlocked')) : t('res.needThree'),
         stars,
+        share: stars === 3 ? { title: `${tx(DOMAINS[zone.domain].name)} · SAT`, stars: 3, note: t('map.level', { n }), badge: t('share.stars') } : null,
         xp: run.xp,
         stats: baseStats(run),
         log: run.log,

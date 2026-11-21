@@ -25,7 +25,8 @@ import { installFxDefs } from './ui/fx-defs.js';
 import { seasonName, seasonRoute } from './screens/season.js';
 import { seasonId, themeOf } from './core/season.js';
 import { bindLangSwitches, renderTopbar } from './ui/topbar.js';
-import { firstSync, startCloud, takeSessionFromUrl } from './core/cloud.js';
+import { firstSync, isSignedIn, onCloud, startCloud, takeSessionFromUrl } from './core/cloud.js';
+import { onStorageSet, storage } from './core/storage.js';
 import { askConflict } from './ui/account.js';
 
 // Экраны грузятся по требованию: главная открывается сразу, а код заданий, магазина и т. д. приходит,
@@ -97,8 +98,12 @@ const examPathRoute = lazy(load_examHome, 'examPathRoute');
 const examSurvivalRoute = lazy(load_examHome, 'examSurvivalRoute');
 const examTheoryRoute = lazy(load_examHome, 'examTheoryRoute');
 
+const load_rules = () => import('./screens/rules.js');
+const rulesRoute = lazy(load_rules, 'rulesRoute');
 const load_privacy = () => import('./screens/privacy.js');
 const privacyRoute = lazy(load_privacy, 'privacyRoute');
+const load_friends = () => import('./screens/friends.js');
+const friendsRoute = lazy(load_friends, 'friendsRoute');
 const load_sheets = () => import('./screens/sheets.js');
 const sheetsRoute = lazy(load_sheets, 'sheetsRoute');
 const sheetRoute = lazy(load_sheets, 'sheetRoute');
@@ -114,6 +119,7 @@ route('/quiz', () => quizRoute(app));
 route('/quiz/:mode', (params) => quizRoute(app, params));
 route('/quiz/subject/:pool', (params) => quizRoute(app, { subject: params.pool }));
 route('/mistakes', () => mistakesRoute(app));
+route('/rules', () => rulesRoute(app));
 route('/plan', () => planRoute(app));
 route('/report', () => reportRoute(app));
 route('/cards/:lang', (params) => cardsRoute(app, params));
@@ -159,6 +165,8 @@ route('/sheet/:course', (params) => sheetRoute(app, params));
 route('/sheet/:course/:track', (params) => sheetRoute(app, params));
 route('/explain/:id', (params) => explainRoute(app, params));
 route('/premium', () => premiumScreen(app));
+route('/friends', () => friendsRoute(app));
+route('/friends/:code', (params) => friendsRoute(app, params));
 
 on('profile', () => {
   // Ежедневные задания: за каждое выполненное - опыт и уведомление (один раз).
@@ -253,6 +261,14 @@ startMotion(app);
 // Вход по ссылке из письма: сохраняем вход и делаем первую синхронизацию (как при входе по коду).
 const linkedIn = takeSessionFromUrl();
 startCloud({ skipStartSync: linkedIn });
+// Рейтинг друзей: свою строку обновляем после входа и когда меняется опыт или имя.
+// Модуль грузится, только если человек вошёл и уже получил код друга.
+const syncFriends = () => {
+  if (isSignedIn() && storage.get('friendCode', null)) import('./core/friends.js').then((m) => m.schedulePublish()).catch(() => {});
+};
+onStorageSet((key) => (key === 'profile' || key === 'outfit') && syncFriends());
+onCloud(syncFriends);
+syncFriends();
 startRouter();
 if (linkedIn)
   firstSync()

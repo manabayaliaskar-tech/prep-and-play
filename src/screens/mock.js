@@ -265,6 +265,13 @@ export function mockRoute(app, { exam: examId }) {
             )
             .join('')}
         </div>`,
+      share: {
+        title: `${tx(course.name)} · ${t('share.mock')}`,
+        big: formatScore(res),
+        small: res.unit === 'percent' ? '' : `/${res.max}`,
+        note: short ? t('mock.short') : t('mock.full'),
+        badge: record ? t('share.record') : null,
+      },
       log: logs,
       actions: [
         { label: `↻ ${t('mock.again')}`, href: mockHref(course), primary: true },

@@ -95,6 +95,7 @@ export function trackRoute(app, { course: courseId, track: trackId }) {
           title: reason === 'time' ? t('pr.timeUp') : test ? t('pr.testDone') : stars >= 2 ? t('pr.great') : t('pr.done'),
           subtitle: t('pr.result', { c: run.correct, n: count }),
           stars,
+          share: stars === 3 ? { title: `${tx(course.name)} · ${tx(track.name)}`, stars: 3, note: t('pr.result', { c: run.correct, n: count }), badge: t('share.stars') } : null,
           xp: run.xp,
           stats: baseStats(run),
           log: run.log,

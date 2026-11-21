@@ -2,7 +2,7 @@
 
 import { L } from '../pools/gen.js';
 
-export const PRIVACY_UPDATED = '2026-11-19';
+export const PRIVACY_UPDATED = '2026-11-21';
 export const SUPPORT_EMAIL = 'support@prepplay.app';
 
 export const PRIVACY = [
@@ -43,6 +43,11 @@ export const PRIVACY = [
         'With an account: your email (to send the sign-in link or code) and a copy of the same progress data.',
         'С аккаунтом: твоя почта (чтобы присылать ссылку или код для входа) и копия тех же данных прогресса.',
         'Аккаунтпен: поштаң (кіру сілтемесін не кодын жіберу үшін) және сол прогресс деректерінің көшірмесі.',
+      ),
+      L(
+        'If you use Friends: your chosen name, Prepi’s look, weekly XP, streak and level are visible to people who have your friend code. Your email is never shown. You can remove yourself from the leaderboard on the Friends page.',
+        'Если пользуешься «Друзьями»: выбранное имя, вид Препи, опыт за неделю, серия и уровень видны тем, у кого есть твой код друга. Почта не показывается никогда. Убрать себя из рейтинга можно на странице «Друзья».',
+        'Егер «Достар» бөлімін қолдансаң: таңдаған есімің, Препидің түрі, апталық тәжірибе, серия және деңгей сенің дос кодың бар адамдарға көрінеді. Пошта ешқашан көрсетілмейді. Өзіңді рейтингтен «Достар» бетінде алып тастауға болады.',
       ),
       L(
         'Error reports you send from a task: the task number, the subject, the interface language and your message.',

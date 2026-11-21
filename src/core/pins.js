@@ -6,7 +6,7 @@ import { getProfile } from './profile.js';
 
 export const HOME_LIMIT = 4;
 /** Что показываем, если пользователь ничего не закрепил и ещё нигде не занимался. */
-const DEFAULTS = { daily: ['math', 'english'], code: ['python'] };
+const DEFAULTS = { daily: ['math', 'english', 'physics', 'chemistry'], code: ['python'] };
 
 export function getPins() {
   const pins = storage.get('pins', []);
