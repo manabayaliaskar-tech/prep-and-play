@@ -2,12 +2,15 @@
 // У каждой сцены несколько режимов (вкладки), примеры (кнопка «Ещё ↻») и режим «Задание»:
 // сцена загадывает цель, проверяет ползунки или перетаскивание и показывает ✓ или подсказку.
 
-import { getLang, t, tx } from '../core/i18n.js';
+import { t, tx } from '../core/i18n.js';
 import { L } from '../pools/gen.js';
 import { esc } from '../ui/dom.js';
-import { W, H, C, SVGNS, reduced, clamp, lerp, ease, n1, fmt, term, coef, lineEq, u, hhmm, arrow, plot, axes, slider, morph, AGAIN, RESET, PROGRESS } from './kit.js';
+import { W, H, clamp, lerp, ease, n1, fmt, term, coef, u, arrow, plot, RESET } from './kit.js';
 
 // ---------- Общие помощники сцен ----------
+
+/** Строки интерфейса (в сценах t занято временем). */
+const ui = { h: () => t('explain.h'), gap: () => t('explain.gap'), slope: () => t('explain.slope') };
 
 const MORE = L('Another ↻', 'Ещё ↻', 'Тағы ↻');
 const TASK = L('Task', 'Задание', 'Тапсырма');
@@ -197,1161 +200,6 @@ function check(st, ok) {
 /** Подпись задания: условие и ✓ или подсказка. */
 const taskCap = (st, ok, ask, hint) =>
   J(ask, ok ? L(`✓ Correct! Solved: ${st.score}. "Another ↻" - a new task.`, `✓ Верно! Решено: ${st.score}. «Ещё ↻» - новое задание.`, `✓ Дұрыс! Шешілді: ${st.score}. «Тағы ↻» - жаңа тапсырма.`) : hint);
-
-const OLD = {
-  balance: {
-    title: L('Equations as a balance', 'Уравнение - это весы', 'Теңдеу - таразы'),
-    intro: L(
-      'An equation is a balance: whatever you do to one pan, do to the other, and it stays level.',
-      'Уравнение - это весы в равновесии. Что делаешь с одной чашей, то же делай с другой - и весы не перекосятся.',
-      'Теңдеу - тепе-теңдіктегі таразы. Бір табақпен не істесең, екіншісімен де соны істе - таразы қисаймайды.',
-    ),
-    sliders: [
-      { id: 'a', label: 'a', min: 1, max: 4, value: 3 },
-      { id: 'x', label: 'x', min: 1, max: 5, value: 2 },
-      { id: 'b', label: 'b', min: 0, max: 6, value: 4 },
-    ],
-    buttons: [L('Remove b from both pans', 'Убрать b с обеих чаш', 'Екі табақтан b-ны алу'), L('Divide both pans by a', 'Разделить обе чаши на a', 'Екі табақты a-ға бөлу'), AGAIN],
-    draw(v, step, st, f) {
-      const { a, x, b } = v;
-      const c = a * x + b;
-      // Какие коробки на каких чашах на каждом шаге; между шагами - плавный переход.
-      const stage = (s) => {
-        const left = s >= 2 ? ['x0'] : [...Array.from({ length: a }, (_, i) => `x${i}`), ...(s >= 1 ? [] : Array.from({ length: b }, (_, i) => `w${i}`))];
-        const rightN = s >= 2 ? x : s >= 1 ? c - b : c;
-        const pos = new Map();
-        const put = (ids, cx) => {
-          const per = ids.length > 15 ? 7 : Math.min(5, Math.max(1, ids.length));
-          ids.forEach((id, i) => pos.set(id, [cx - per * 9.5 + (i % per) * 19, 120 - 19 - Math.floor(i / per) * 19]));
-        };
-        put(left, 85);
-        put(Array.from({ length: rightN }, (_, i) => `r${i}`), 235);
-        return pos;
-      };
-      const s0 = clamp(Math.floor(f), 0, 2);
-      const s1 = Math.min(2, s0 + 1);
-      const k = clamp(f - s0, 0, 1);
-      const A = stage(s0);
-      const B = stage(s1);
-      const ids = [...Array.from({ length: a }, (_, i) => `x${i}`), ...Array.from({ length: b }, (_, i) => `w${i}`), ...Array.from({ length: c }, (_, i) => `r${i}`)];
-      const boxes = ids
-        .map((id, i) => {
-          const p = A.get(id);
-          const q = B.get(id);
-          if (!p && !q) return '';
-          let xy;
-          let op = 1;
-          if (p && q) xy = [lerp(p[0], q[0], k), lerp(p[1], q[1], k)];
-          else if (p) {
-            xy = [p[0], p[1] - 18 * k];
-            op = 1 - k;
-          } else {
-            xy = [q[0], q[1] - 18 * (1 - k)];
-            op = k;
-          }
-          if (op < 0.02) return '';
-          const isX = id[0] === 'x';
-          return `<g transform="translate(${n1(xy[0])} ${n1(xy[1])})" opacity="${n1(op * 100) / 100}" data-key="${id}"><g class="${isX ? 'ex-x' : 'ex-w'}" style="--i:${i % 12}"><rect width="17" height="17" rx="4"/><text x="8.5" y="12.5">${isX ? 'x' : '1'}</text></g></g>`;
-        })
-        .join('');
-      const se = clamp(Math.round(f), 0, 2);
-      const eq = [`${a === 1 ? '' : a}x + ${b} = ${c}`, `${a === 1 ? '' : a}x = ${c - b}`, `x = ${x}`][se];
-      return {
-        svg: `<line class="ex-axis" x1="160" y1="128" x2="160" y2="196"/><path class="ex-base" d="M130 200 L190 200 L160 180 Z"/>
-          <g class="ex-beam"><line x1="40" y1="124" x2="280" y2="124"/><path class="ex-pan" d="M35 124 Q85 150 135 124"/><path class="ex-pan" d="M185 124 Q235 150 285 124"/></g>${boxes}
-          <text class="ex-big" x="160" y="30">${eq}</text>`,
-        caption: [
-          L(`On the left: ${a} boxes x and ${b} weights. On the right: ${c} weights. The scale is level.`, `Слева: ${a} коробки x и ${b} гирь. Справа: ${c} гирь. Весы в равновесии.`, `Сол жақта: ${a} x қорапшасы және ${b} гір. Оң жақта: ${c} гір. Таразы тең.`),
-          L(`We removed ${b} weights from both pans - still level: ${a}x = ${c - b}.`, `Убрали по ${b} гирь с обеих чаш - равновесие осталось: ${a}x = ${c - b}.`, `Екі табақтан ${b} гірден алдық - тепе-теңдік сақталды: ${a}x = ${c - b}.`),
-          L(`Split each pan into ${a} equal parts: one box x weighs ${x}.`, `Делим каждую чашу на ${a} равные части: одна коробка x весит ${x}.`, `Әр табақты ${a} тең бөлікке бөлеміз: бір x қорапшасы ${x} тартады.`),
-        ][step],
-      };
-    },
-  },
-
-  fractions: {
-    title: L('What a fraction is', 'Что такое дробь', 'Бөлшек дегеніміз не'),
-    intro: L('The denominator says into how many equal parts the whole is cut; the numerator says how many parts we take.', 'Знаменатель показывает, на сколько равных частей разрезали целое, числитель - сколько частей взяли.', 'Бөлім бүтінді неше тең бөлікке бөлгенін, алым - неше бөлік алғанын көрсетеді.'),
-    sliders: [
-      { id: 'n', label: L('numerator', 'числитель', 'алым'), min: 0, max: 12, value: 3 },
-      { id: 'd', label: L('denominator', 'знаменатель', 'бөлім'), min: 2, max: 12, value: 4 },
-    ],
-    clamp(v) {
-      v.n = Math.min(v.n, v.d);
-    },
-    buttons: [L('Multiply top and bottom by 2', 'Умножить числитель и знаменатель на 2', 'Алым мен бөлімді 2-ге көбейту'), AGAIN],
-    draw(v, step, st, f) {
-      const d0 = v.d;
-      const n0 = Math.min(v.n, d0);
-      const k = clamp(f, 0, 1);
-      const split = k > 0.999;
-      const m = split ? 2 : 1;
-      const d = d0 * m;
-      const n = n0 * m;
-      const cx = 95;
-      const cy = 112;
-      const r = 78;
-      const slices = Array.from({ length: d }, (_, i) => {
-        const a0 = (i / d) * Math.PI * 2 - Math.PI / 2;
-        const a1 = ((i + 1) / d) * Math.PI * 2 - Math.PI / 2;
-        const large = a1 - a0 > Math.PI ? 1 : 0;
-        const p = `M${cx} ${cy} L${n1(cx + r * Math.cos(a0))} ${n1(cy + r * Math.sin(a0))} A${r} ${r} 0 ${large} 1 ${n1(cx + r * Math.cos(a1))} ${n1(cy + r * Math.sin(a1))} Z`;
-        return `<path class="ex-slice ${i < n ? 'on' : ''}" style="--i:${i}" d="${p}"/>`;
-      }).join('');
-      const bar = Array.from({ length: d }, (_, i) => `<rect class="ex-slice ${i < n ? 'on' : ''}" style="--i:${i}" x="${n1(195 + (i * 110) / d)}" y="150" width="${n1(110 / d - 1)}" height="26" rx="3"/>`).join('');
-      // Пока идёт переход - «нож» разрезает каждую часть пополам.
-      const cuts =
-        !split && k > 0
-          ? Array.from({ length: d0 }, (_, i) => {
-              const am = ((i + 0.5) / d0) * Math.PI * 2 - Math.PI / 2;
-              const bx = 195 + ((i + 0.5) * 110) / d0 - 0.5;
-              return `<line class="ex-cut" x1="${cx}" y1="${cy}" x2="${n1(cx + r * k * Math.cos(am))}" y2="${n1(cy + r * k * Math.sin(am))}"/><line class="ex-cut" x1="${n1(bx)}" y1="150" x2="${n1(bx)}" y2="${n1(150 + 26 * k)}"/>`;
-            }).join('')
-          : '';
-      const shown = k >= 0.5 ? 2 : 1;
-      const nn = n0 * shown;
-      const dd = d0 * shown;
-      return {
-        svg: `${slices}${bar}<g>${cuts}</g>
-          <text class="ex-big" x="250" y="70">${nn}/${dd}</text>
-          <text class="ex-small" x="250" y="100">= ${fmt(nn / dd, 3)}</text>
-          <text class="ex-small" x="250" y="126">= ${fmt((nn / dd) * 100, 1)}%</text>`,
-        caption:
-          step === 0
-            ? L(`The whole is cut into ${d0} equal parts and ${n0} are shaded: ${n0}/${d0}.`, `Целое разрезали на ${d0} равных частей и закрасили ${n0}: это ${n0}/${d0}.`, `Бүтінді ${d0} тең бөлікке бөліп, ${n0}-ін бояды: бұл ${n0}/${d0}.`)
-            : L(`Each part was cut in two: ${n0 * 2}/${d0 * 2} is the same amount as ${n0}/${d0}. That is why fractions can be simplified.`, `Каждую часть разрезали пополам: ${n0 * 2}/${d0 * 2} - то же количество, что ${n0}/${d0}. Поэтому дроби можно сокращать.`, `Әр бөлікті екіге бөлдік: ${n0 * 2}/${d0 * 2} - ${n0}/${d0}-пен бірдей мөлшер. Сондықтан бөлшекті қысқартуға болады.`),
-      };
-    },
-  },
-
-  percent: {
-    title: L('Percent: one hundredth', 'Процент - это сотая часть', 'Пайыз - жүзден бір бөлік'),
-    intro: L('Imagine the number cut into 100 equal cells. p% is p of those cells.', 'Представь, что число разрезали на 100 равных клеточек. p% - это p таких клеточек.', 'Санды 100 тең торкөзге бөлді деп елестет. p% - осындай p торкөз.'),
-    sliders: [
-      { id: 'p', label: 'p, %', min: 0, max: 100, step: C, value: 25 },
-      { id: 'N', label: 'N', min: 10, max: 2000, value: 400 },
-    ],
-    buttons: [L('p = 50%: a half', 'p = 50% - половина', 'p = 50% - жартысы'), L('p = 12.5%: an eighth', 'p = 12,5% - восьмая', 'p = 12,5% - сегізден бір')],
-    onButton: (i) => [{ p: 50 }, { p: 12.5 }][i],
-    draw(v) {
-      const full = Math.floor(v.p + 1e-9);
-      const part = v.p - full;
-      const cells = Array.from({ length: 100 }, (_, i) => `<rect class="ex-cell ${i < full ? 'on' : ''}" style="--i:${i}" x="${12 + (i % 10) * 18}" y="${18 + Math.floor(i / 10) * 18}" width="16" height="16" rx="3"/>`).join('');
-      const pi = Math.min(full, 99);
-      const partial = `<rect class="ex-part" x="${12 + (pi % 10) * 18}" y="${18 + Math.floor(pi / 10) * 18}" width="${full < 100 ? n1(16 * part) : 0}" height="16" rx="2"/>`;
-      const one = v.N / 100;
-      const val = (v.N * v.p) / 100;
-      return {
-        svg: `${cells}${partial}<text class="ex-small" x="262" y="60">1% = ${fmt(one)}</text><text class="ex-big" x="262" y="100">${fmt(v.p)}%</text><text class="ex-small" x="262" y="130">= ${fmt(val)}</text>`,
-        caption: L(`One cell is 1% of ${v.N}, that is ${v.N} ÷ 100 = ${fmt(one)}. ${fmt(v.p)} cells: ${fmt(one)} × ${fmt(v.p)} = ${fmt(val)}.`, `Одна клетка - 1% от ${v.N}, то есть ${v.N} ÷ 100 = ${fmt(one)}. ${fmt(v.p)} клеток: ${fmt(one)} × ${fmt(v.p)} = ${fmt(val)}.`, `Бір торкөз - ${v.N}-нің 1%-ы, яғни ${v.N} ÷ 100 = ${fmt(one)}. ${fmt(v.p)} торкөз: ${fmt(one)} × ${fmt(v.p)} = ${fmt(val)}.`),
-      };
-    },
-  },
-
-  pythagoras: {
-    title: L('The Pythagorean theorem', 'Теорема Пифагора', 'Пифагор теоремасы'),
-    intro: L('Build a square on each side of a right triangle: the two small squares together have exactly the area of the big one.', 'Построим квадрат на каждой стороне прямоугольного треугольника: два маленьких квадрата вместе равны по площади большому.', 'Тікбұрышты үшбұрыштың әр қабырғасына шаршы саламыз: екі кіші шаршының ауданы бірге үлкенінікіне тең.'),
-    sliders: [
-      { id: 'a', label: 'a', min: 1, max: 6, step: C, value: 3 },
-      { id: 'b', label: 'b', min: 1, max: 6, step: C, value: 4 },
-    ],
-    buttons: [L('3, 4, 5', '3, 4, 5', '3, 4, 5'), L('Isosceles: a = b', 'Равнобедренный: a = b', 'Теңбүйірлі: a = b')],
-    onButton: (i, st, v) => [{ a: 3, b: 4 }, { b: v.a }][i],
-    draw(v) {
-      const s = 16;
-      const A = [120, 150];
-      const B = [120 + v.b * s, 150];
-      const Cp = [120, 150 - v.a * s];
-      const a2 = v.a * v.a;
-      const b2 = v.b * v.b;
-      const c2 = a2 + b2;
-      const c = Math.sqrt(c2);
-      const sq = (p, q, cls, i) => {
-        const dx = q[0] - p[0];
-        const dy = q[1] - p[1];
-        return `<path class="ex-sq ${cls}" style="--i:${i}" d="M${n1(p[0])} ${n1(p[1])} L${n1(q[0])} ${n1(q[1])} L${n1(q[0] + dy)} ${n1(q[1] - dx)} L${n1(p[0] + dy)} ${n1(p[1] - dx)} Z"/>`;
-      };
-      const exact = Math.abs(c - Math.round(c)) < 0.005;
-      return {
-        svg: `<g transform="translate(-10 22) scale(0.82)">${sq(A, Cp, 'sq-a', 0)}${sq(B, A, 'sq-b', 1)}${sq(Cp, B, 'sq-c', 2)}<path class="ex-tri" d="M${A} L${n1(B[0])} ${B[1]} L${Cp[0]} ${n1(Cp[1])} Z"/></g>
-          <text class="ex-small" x="250" y="60">a² = ${fmt(a2)}</text><text class="ex-small" x="250" y="86">b² = ${fmt(b2)}</text><text class="ex-big" x="250" y="122">c² = ${fmt(c2)}</text><text class="ex-small" x="250" y="150">c ${exact ? '=' : '≈'} ${fmt(c)}</text>`,
-        caption: L(`${fmt(v.a)}² + ${fmt(v.b)}² = ${fmt(a2)} + ${fmt(b2)} = ${fmt(c2)}, so the hypotenuse is √${fmt(c2)} ${exact ? '=' : '≈'} ${fmt(c)}. Try a = 3, b = 4 for a whole number.`, `${fmt(v.a)}² + ${fmt(v.b)}² = ${fmt(a2)} + ${fmt(b2)} = ${fmt(c2)}, значит гипотенуза √${fmt(c2)} ${exact ? '=' : '≈'} ${fmt(c)}. Попробуй a = 3, b = 4 - получится целое число.`, `${fmt(v.a)}² + ${fmt(v.b)}² = ${fmt(a2)} + ${fmt(b2)} = ${fmt(c2)}, демек гипотенуза √${fmt(c2)} ${exact ? '=' : '≈'} ${fmt(c)}. a = 3, b = 4 етіп көр - бүтін сан шығады.`),
-      };
-    },
-  },
-
-  angles: {
-    title: L('Angles of a triangle add up to 180°', 'Сумма углов треугольника - 180°', 'Үшбұрыш бұрыштарының қосындысы - 180°'),
-    intro: L('Tear off the three corners of any triangle and put them together: they always form a straight line.', 'Оторви три угла любого треугольника и сложи их вместе - всегда получится развёрнутый угол.', 'Кез келген үшбұрыштың үш бұрышын жыртып, бірге қос - әрқашан жазыңқы бұрыш шығады.'),
-    sliders: [
-      { id: 'A', label: 'A°', min: 20, max: 120, step: C, value: 60 },
-      { id: 'B', label: 'B°', min: 20, max: 120, step: C, value: 50 },
-    ],
-    clamp(v) {
-      if (v.A + v.B > 160) v.B = 160 - v.A;
-    },
-    buttons: [L('Put the corners together', 'Сложить углы вместе', 'Бұрыштарды бірге қосу'), AGAIN],
-    draw(v, step, st, f) {
-      const { A, B } = v;
-      const Cc = 180 - A - B;
-      const rad = (d) => (d * Math.PI) / 180;
-      const P = [40, 150];
-      const Q = [200, 150];
-      const ta = Math.tan(rad(A));
-      const tb = Math.tan(rad(B));
-      const x = (160 * tb) / (ta + tb);
-      const R = [40 + x, 150 - x * ta];
-      const k = clamp(f, 0, 1);
-      const wedge = (from, to, cls) => {
-        const r = 26;
-        const cx = lerp(from[0], 260, k);
-        const cy = lerp(from[1], 190, k);
-        const st0 = lerp(from[2], to, k);
-        const a0 = rad(st0);
-        const a1 = rad(st0 + from[3]);
-        return `<path class="ex-wedge ${cls}" d="M${n1(cx)} ${n1(cy)} L${n1(cx + r * Math.cos(a0))} ${n1(cy - r * Math.sin(a0))} A${r} ${r} 0 0 0 ${n1(cx + r * Math.cos(a1))} ${n1(cy - r * Math.sin(a1))} Z"/>`;
-      };
-      return {
-        svg: `<path class="ex-tri" d="M${P} L${Q} L${n1(R[0])} ${n1(R[1])} Z"/><line class="ex-axis" x1="210" y1="190" x2="310" y2="190" opacity="${n1(k * 10) / 10}"/>
-          <g>${wedge([P[0], P[1], 0, A], 0, 'w-a')}${wedge([R[0], R[1], 180 + A, Cc], A, 'w-c')}${wedge([Q[0], Q[1], 180 - B, B], A + Cc, 'w-b')}</g>
-          <text class="ex-small" x="${P[0] - 8}" y="${P[1] + 18}">A = ${fmt(A)}°</text><text class="ex-small" x="${Q[0] + 4}" y="${Q[1] + 18}">B = ${fmt(B)}°</text><text class="ex-small" x="${n1(R[0])}" y="${n1(R[1] - 10)}">C = ${fmt(Cc)}°</text>`,
-        caption:
-          step >= 1
-            ? L(`${fmt(A)}° + ${fmt(Cc)}° + ${fmt(B)}° = 180°: together the three angles make a straight line.`, `${fmt(A)}° + ${fmt(Cc)}° + ${fmt(B)}° = 180°: три угла вместе образуют развёрнутый угол - прямую линию.`, `${fmt(A)}° + ${fmt(Cc)}° + ${fmt(B)}° = 180°: үш бұрыш бірге жазыңқы бұрыш - түзу сызық құрайды.`)
-            : L(`Change A and B: C always equals 180° − A − B = ${fmt(Cc)}°.`, `Меняй A и B: угол C всегда равен 180° − A − B = ${fmt(Cc)}°.`, `A мен B-ны өзгерт: C бұрышы әрқашан 180° − A − B = ${fmt(Cc)}°.`),
-      };
-    },
-  },
-
-  parabola: {
-    title: L('The parabola y = ax² + bx + c', 'Парабола y = ax² + bx + c', 'Парабола y = ax² + bx + c'),
-    intro: L('a sets the direction and width, c moves the graph up and down, b shifts the vertex sideways. The discriminant tells how many times the graph crosses the x-axis.', 'a задаёт направление ветвей и ширину, c поднимает и опускает график, b сдвигает вершину вбок. Дискриминант показывает, сколько раз график пересекает ось x.', 'a тармақтардың бағыты мен енін, c графикті жоғары-төмен жылжытады, b төбені бүйірге ығыстырады. Дискриминант график x осін неше рет қиятынын көрсетеді.'),
-    sliders: [
-      { id: 'a', label: 'a', min: -3, max: 3, step: C, value: 1 },
-      { id: 'b', label: 'b', min: -6, max: 6, step: C, value: -2 },
-      { id: 'c', label: 'c', min: -6, max: 6, step: C, value: -3 },
-    ],
-    buttons: [L('a → −a: flip', 'a → −a: перевернуть', 'a → −a: аудару'), L('D = 0: touch the axis', 'D = 0: касание оси', 'D = 0: оске жанасу')],
-    onButton(i, st, v) {
-      if (i === 0) return { a: -v.a };
-      const a = Math.abs(v.a) < 0.05 ? 1 : v.a;
-      return { a, c: clamp((v.b * v.b) / (4 * a), -6, 6) };
-    },
-    draw(v) {
-      const { a, b, c } = v;
-      const sx = (x) => 160 + x * 22;
-      const sy = (y) => 110 - y * 11;
-      const path = plot((x) => a * x * x + b * x + c, -7.3, 7.3, sx, sy, 150);
-      const grid = Array.from({ length: 15 }, (_, i) => `<line class="ex-grid" x1="${sx(i - 7)}" y1="0" x2="${sx(i - 7)}" y2="${H}"/>`).join('');
-      const base = `${grid}<line class="ex-axis" x1="0" y1="${sy(0)}" x2="${W}" y2="${sy(0)}"/><line class="ex-axis" x1="${sx(0)}" y1="0" x2="${sx(0)}" y2="${H}"/><path class="ex-curve" d="${path}"/>`;
-      if (Math.abs(a) < 0.005) {
-        const root = Math.abs(b) > 0.005 ? -c / b : null;
-        return {
-          svg: `${base}${root !== null ? `<circle class="ex-dot dot-root" cx="${n1(sx(root))}" cy="${sy(0)}" r="5"/>` : ''}<text class="ex-tag" x="8" y="18">a = 0</text>`,
-          caption: L(`a = 0: no x² term, so this is a straight line ${lineEq(b, c)}, not a parabola.${root !== null ? ` It crosses the axis at x = ${fmt(root)}.` : ''}`, `a = 0: нет слагаемого x², это уже не парабола, а прямая ${lineEq(b, c)}.${root !== null ? ` Она пересекает ось в x = ${fmt(root)}.` : ''}`, `a = 0: x² қосылғышы жоқ, бұл парабола емес, ${lineEq(b, c)} түзуі.${root !== null ? ` Ол осьті x = ${fmt(root)} нүктесінде қияды.` : ''}`),
-        };
-      }
-      const D = b * b - 4 * a * c;
-      const one = Math.abs(D) < 0.005;
-      const xv = -b / (2 * a);
-      const yv = a * xv * xv + b * xv + c;
-      const roots = one ? [xv] : D < 0 ? [] : [(-b - Math.sqrt(D)) / (2 * a), (-b + Math.sqrt(D)) / (2 * a)].sort((p, q) => p - q);
-      const kind = (two, single, none) => (one ? single : D > 0 ? two : none);
-      return {
-        svg: `${base}${roots.map((r) => `<circle class="ex-dot dot-root" cx="${n1(sx(r))}" cy="${sy(0)}" r="5"/>`).join('')}<circle class="ex-dot" cx="${n1(sx(xv))}" cy="${n1(clamp(sy(yv), -20, 240))}" r="5"/>
-          <text class="ex-tag" x="8" y="18">D = ${fmt(one ? 0 : D)}</text>`,
-        caption: L(
-          `D = b² − 4ac = ${fmt(one ? 0 : D)}: ${kind('two roots', 'one root', 'no real roots')}. Vertex at x = −b/(2a) = ${fmt(xv)}.${roots.length ? ` Roots: ${roots.map((r) => fmt(r)).join('; ')}.` : ''}`,
-          `D = b² − 4ac = ${fmt(one ? 0 : D)}: ${kind('два корня', 'один корень', 'корней нет')}. Вершина в x = −b/(2a) = ${fmt(xv)}.${roots.length ? ` Корни: ${roots.map((r) => fmt(r)).join('; ')}.` : ''}`,
-          `D = b² − 4ac = ${fmt(one ? 0 : D)}: ${kind('екі түбір', 'бір түбір', 'түбір жоқ')}. Төбесі x = −b/(2a) = ${fmt(xv)}.${roots.length ? ` Түбірлер: ${roots.map((r) => fmt(r)).join('; ')}.` : ''}`,
-        ),
-      };
-    },
-  },
-
-  'unit-circle': {
-    title: L('Sine and cosine on the unit circle', 'Синус и косинус на единичной окружности', 'Бірлік шеңбердегі синус пен косинус'),
-    intro: L('A point moves around a circle of radius 1. Its x-coordinate is the cosine of the angle, its y-coordinate is the sine.', 'Точка движется по окружности радиуса 1. Её координата x - косинус угла, координата y - синус.', 'Нүкте радиусы 1 шеңбер бойымен қозғалады. Оның x координатасы - бұрыштың косинусы, y координатасы - синусы.'),
-    sliders: [{ id: 'deg', label: L('angle, °', 'угол, °', 'бұрыш, °'), min: 0, max: 360, step: C, value: 30 }],
-    buttons: [L('▶ Rotate', '▶ Крутить', '▶ Айналдыру')],
-    play: 'deg',
-    playDur: 4000,
-    draw(v) {
-      const r = 70;
-      const cx = 90;
-      const cy = 110;
-      const a = (v.deg * Math.PI) / 180;
-      const px = cx + r * Math.cos(a);
-      const py = cy - r * Math.sin(a);
-      const wave = plot((d) => cy - r * Math.sin((d * Math.PI) / 180), 0, v.deg, (d) => 180 + (d / 360) * 130, (y) => y, Math.max(2, Math.ceil(v.deg / 3)));
-      return {
-        svg: `<circle class="ex-ring" cx="${cx}" cy="${cy}" r="${r}"/><line class="ex-axis" x1="10" y1="${cy}" x2="315" y2="${cy}"/><line class="ex-axis" x1="${cx}" y1="25" x2="${cx}" y2="195"/>
-          <line class="ex-cos" x1="${cx}" y1="${cy}" x2="${n1(px)}" y2="${cy}"/><line class="ex-sin" x1="${n1(px)}" y1="${cy}" x2="${n1(px)}" y2="${n1(py)}"/><line class="ex-rad" x1="${cx}" y1="${cy}" x2="${n1(px)}" y2="${n1(py)}"/>
-          <circle class="ex-dot" cx="${n1(px)}" cy="${n1(py)}" r="6"/><path class="ex-curve thin" d="${wave}"/><line class="ex-axis" x1="180" y1="25" x2="180" y2="195"/>
-          <text class="ex-tag t-cos" x="12" y="20">cos = ${fmt(Math.cos(a))}</text><text class="ex-tag t-sin" x="12" y="210">sin = ${fmt(Math.sin(a))}</text>`,
-        caption: L(`Angle ${fmt(v.deg)}°: cos = ${fmt(Math.cos(a))} (green, along x), sin = ${fmt(Math.sin(a))} (pink, along y). On the right, the sine traced as a wave.`, `Угол ${fmt(v.deg)}°: cos = ${fmt(Math.cos(a))} (зелёный отрезок по x), sin = ${fmt(Math.sin(a))} (розовый по y). Справа - синус, нарисованный как волна.`, `Бұрыш ${fmt(v.deg)}°: cos = ${fmt(Math.cos(a))} (x бойынша жасыл кесінді), sin = ${fmt(Math.sin(a))} (y бойынша қызғылт). Оң жақта - толқын түріндегі синус.`),
-      };
-    },
-  },
-
-  derivative: {
-    title: L('The derivative is the slope of the tangent', 'Производная - наклон касательной', 'Туынды - жанаманың көлбеулігі'),
-    intro: L('Take a secant through two close points of the graph and bring them together: the secant turns into the tangent, and its slope is the derivative.', 'Проведём секущую через две близкие точки графика и будем сближать их: секущая превратится в касательную, а её наклон - это производная.', 'График екі жақын нүктесі арқылы қиюшы жүргізіп, оларды жақындатайық: қиюшы жанамаға айналады, ал оның көлбеулігі - туынды.'),
-    sliders: [
-      { id: 'x0', label: 'x₀', min: -2, max: 2, step: C, value: 0.5 },
-      { id: 'h', label: 'h', min: 0, max: 2, step: C, value: 1.5 },
-    ],
-    buttons: [L('▶ h → 0', '▶ h → 0', '▶ h → 0')],
-    play: 'h',
-    playReverse: true,
-    draw(v) {
-      const fn = (x) => (x * x * x) / 3 - x;
-      const df = (x) => x * x - 1;
-      const sx = (x) => 160 + x * 55;
-      const sy = (y) => 110 - y * 55;
-      const path = plot(fn, -2.6, 2.6, sx, sy, 110);
-      const x0 = v.x0;
-      const x1 = x0 + v.h;
-      const k = v.h > 0.001 ? (fn(x1) - fn(x0)) / v.h : df(x0);
-      const line = (m) => `M${sx(-3)} ${n1(sy(fn(x0) + m * (-3 - x0)))} L${sx(3)} ${n1(sy(fn(x0) + m * (3 - x0)))}`;
-      return {
-        svg: `<line class="ex-axis" x1="0" y1="${sy(0)}" x2="${W}" y2="${sy(0)}"/><line class="ex-axis" x1="${sx(0)}" y1="0" x2="${sx(0)}" y2="${H}"/>
-          <path class="ex-curve" d="${path}"/><path class="ex-tan" d="${line(df(x0))}"/><path class="ex-sec" d="${line(k)}" opacity="${v.h > 0.001 ? 1 : 0}"/><circle class="ex-dot dot-root" cx="${n1(sx(x1))}" cy="${n1(sy(fn(x1)))}" r="${v.h > 0.001 ? 5 : 0}"/><circle class="ex-dot" cx="${n1(sx(x0))}" cy="${n1(sy(fn(x0)))}" r="6"/>
-          <text class="ex-tag" x="8" y="18">f(x) = x³/3 − x</text><text class="ex-tag t-sin" x="8" y="210">${t('explain.slope')}: ${fmt(k)}</text>`,
-        caption: L(`Secant slope (f(x₀+h) − f(x₀)) / h = ${fmt(k)}. As h → 0 it approaches f′(x₀) = x₀² − 1 = ${fmt(df(x0))}.`, `Наклон секущей (f(x₀+h) − f(x₀)) / h = ${fmt(k)}. При h → 0 он стремится к f′(x₀) = x₀² − 1 = ${fmt(df(x0))}.`, `Қиюшының көлбеулігі (f(x₀+h) − f(x₀)) / h = ${fmt(k)}. h → 0 болғанда ол f′(x₀) = x₀² − 1 = ${fmt(df(x0))} мәніне ұмтылады.`),
-      };
-    },
-  },
-
-  probability: {
-    title: L('Probability and the law of large numbers', 'Вероятность и закон больших чисел', 'Ықтималдық және үлкен сандар заңы'),
-    intro: L('Roll a die many times. Each face has probability 1/6 ≈ 16.7%, and the more rolls, the closer the frequencies get to it.', 'Бросай кубик много раз. У каждой грани вероятность 1/6 ≈ 16,7%, и чем больше бросков, тем ближе к ней частоты.', 'Ойын сүйегін көп рет лақтыр. Әр жақтың ықтималдығы 1/6 ≈ 16,7%, лақтыру көбейген сайын жиіліктер соған жақындайды.'),
-    sliders: [],
-    buttons: [L('Roll 1', 'Бросить 1', '1 лақтыру'), L('Roll 10', 'Бросить 10', '10 лақтыру'), L('Roll 100', 'Бросить 100', '100 лақтыру'), L('Reset', 'Сбросить', 'Тазалау')],
-    state: () => ({ counts: [0, 0, 0, 0, 0, 0], last: null }),
-    onButton(i, st) {
-      if (i === 3) {
-        st.counts = [0, 0, 0, 0, 0, 0];
-        st.last = null;
-        return;
-      }
-      const n = [1, 10, 100][i];
-      for (let k = 0; k < n; k++) {
-        const f = Math.floor(Math.random() * 6);
-        st.counts[f] += 1;
-        st.last = f + 1;
-      }
-    },
-    draw(v, step, st) {
-      const total = st.counts.reduce((s, x) => s + x, 0);
-      const bars = st.counts
-        .map((cnt, i) => {
-          const share = total ? cnt / total : 0;
-          const h = share * 300;
-          return `<rect class="ex-bar" x="${30 + i * 46}" y="${n1(180 - h)}" width="34" height="${n1(h)}" rx="4"/><text class="ex-small" x="${47 + i * 46}" y="198">${i + 1}</text><text class="ex-tiny" x="${47 + i * 46}" y="${n1(174 - h)}">${total ? Math.round(share * 100) : 0}%</text>`;
-        })
-        .join('');
-      const ideal = 180 - 300 / 6;
-      return {
-        svg: `<line class="ex-axis" x1="20" y1="180" x2="310" y2="180"/>${bars}<line class="ex-ideal" x1="20" y1="${ideal}" x2="310" y2="${ideal}"/><text class="ex-tag" x="210" y="${ideal - 6}">1/6 ≈ ${fmt(100 / 6, 1)}%</text>
-          ${st.last ? `<text class="ex-die" x="285" y="40" data-key="${total}">${'⚀⚁⚂⚃⚄⚅'[st.last - 1]}</text>` : '<g/>'}<text class="ex-tag" x="8" y="18">N = ${total}</text>`,
-        caption: total
-          ? L(`After ${total} rolls the bars are ${total < 60 ? 'still uneven - chance plays a big role' : 'getting close to the dashed line at 1/6'}.`, `После ${total} бросков столбики ${total < 60 ? 'ещё неровные - случай играет большую роль' : 'приближаются к пунктиру на уровне 1/6'}.`, `${total} лақтырудан кейін бағаналар ${total < 60 ? 'әлі тегіс емес - кездейсоқтықтың рөлі үлкен' : '1/6 деңгейіндегі пунктирге жақындап келеді'}.`)
-          : L('Press a button to roll.', 'Нажми кнопку, чтобы бросить кубик.', 'Ойын сүйегін лақтыру үшін батырманы бас.'),
-      };
-    },
-  },
-
-  motion: {
-    title: L('Moving towards each other', 'Движение навстречу', 'Қарсы қозғалыс'),
-    intro: L('When two objects move towards each other, the distance between them shrinks by v₁ + v₂ every hour (the closing speed).', 'Когда два объекта движутся навстречу, расстояние между ними каждый час уменьшается на v₁ + v₂ - это скорость сближения.', 'Екі нысан қарама-қарсы қозғалғанда, олардың арасындағы қашықтық әр сағат сайын v₁ + v₂-ге азаяды - бұл жақындасу жылдамдығы.'),
-    sliders: [
-      { id: 'S', label: L('S, km', 'S, км', 'S, км'), min: 60, max: 300, step: C, value: 240 },
-      { id: 'v1', label: L('v₁, km/h', 'v₁, км/ч', 'v₁, км/сағ'), min: 20, max: 100, step: C, value: 60 },
-      { id: 'v2', label: L('v₂, km/h', 'v₂, км/ч', 'v₂, км/сағ'), min: 20, max: 100, step: C, value: 80 },
-      { id: 'tt', label: PROGRESS, min: 0, max: 100, step: C, value: 0 },
-    ],
-    buttons: [L('▶ Go', '▶ Поехали', '▶ Жүрдік')],
-    play: 'tt',
-    playLinear: true,
-    playDur: 3000,
-    draw(v) {
-      const vs = v.v1 + v.v2;
-      const tMeet = v.S / vs;
-      const time = (v.tt / 100) * tMeet;
-      const x1 = 30 + ((v.v1 * time) / v.S) * 260;
-      const x2 = 290 - ((v.v2 * time) / v.S) * 260;
-      const gap = Math.max(0, v.S - vs * time);
-      const km = u('km', 'км', 'км');
-      return {
-        svg: `<line class="ex-road" x1="20" y1="120" x2="300" y2="120"/><text class="ex-small" x="30" y="150">A</text><text class="ex-small" x="290" y="150">B</text>
-          <text class="ex-car" x="${n1(x1)}" y="114">🚗</text><text class="ex-car flip" x="${n1(x2)}" y="114">🚙</text>
-          <text class="ex-tag" x="8" y="20">t = ${fmt(time)} ${t('explain.h')}</text><text class="ex-tag" x="8" y="42">${t('explain.gap')}: ${fmt(gap, 1)} ${km}</text>
-          <text class="ex-small" x="160" y="190">t = S / (v₁ + v₂) = ${fmt(v.S)} / ${fmt(vs)} = ${fmt(tMeet)} ${t('explain.h')}</text>`,
-        caption: L(`Closing speed ${fmt(v.v1)} + ${fmt(v.v2)} = ${fmt(vs)} km/h. ${fmt(v.S)} km ÷ ${fmt(vs)} km/h = ${fmt(tMeet)} h until they meet.`, `Скорость сближения ${fmt(v.v1)} + ${fmt(v.v2)} = ${fmt(vs)} км/ч. ${fmt(v.S)} км ÷ ${fmt(vs)} км/ч = ${fmt(tMeet)} ч до встречи.`, `Жақындасу жылдамдығы ${fmt(v.v1)} + ${fmt(v.v2)} = ${fmt(vs)} км/сағ. Кездескенге дейін ${fmt(v.S)} км ÷ ${fmt(vs)} км/сағ = ${fmt(tMeet)} сағ.`),
-      };
-    },
-  },
-
-  // ---------- Новые анимации ----------
-
-  linear: {
-    title: L('Linear function y = kx + b', 'Линейная функция y = kx + b', 'Сызықтық функция y = kx + b'),
-    intro: L('k is the slope: how much y changes when x grows by 1. b is the point where the line crosses the y-axis.', 'k - угловой коэффициент: на сколько меняется y, когда x увеличивается на 1. b - точка, где прямая пересекает ось y.', 'k - бұрыштық коэффициент: x бірге артқанда y қаншаға өзгереді. b - түзудің y осін қиятын нүктесі.'),
-    sliders: [
-      { id: 'k', label: 'k', min: -3, max: 3, step: C, value: 0.5 },
-      { id: 'b', label: 'b', min: -4, max: 4, step: C, value: 1 },
-    ],
-    buttons: [L('k × 2', 'k × 2', 'k × 2'), L('k → −k', 'k → −k', 'k → −k'), RESET],
-    onButton: (i, st, v) => [{ k: clamp(v.k * 2, -3, 3) }, { k: -v.k }, { k: 0.5, b: 1 }][i],
-    draw(v) {
-      const { k, b } = v;
-      const sx = (x) => 160 + x * 20;
-      const sy = (y) => 110 - y * 20;
-      const y1 = k + b;
-      const flat = fmt(k) === '0';
-      const root = flat ? null : -b / k;
-      return {
-        svg: `${axes(sx, sy, [-8, 8], [-5, 5])}<path class="ex-curve" d="M${sx(-9)} ${n1(sy(-9 * k + b))} L${sx(9)} ${n1(sy(9 * k + b))}"/>
-          <g class="exc-o"><path class="ex-stroke ex-dash" d="M${sx(0)} ${n1(sy(b))} H${sx(1)} V${n1(sy(b + k))}"/></g>
-          <text class="ex-tag tc exc-o" x="${sx(1) + 6}" y="${n1((sy(b) + sy(b + k)) / 2 + 4)}">${fmt(k)}</text>
-          <circle class="ex-dot" cx="${sx(0)}" cy="${n1(sy(b))}" r="6"/><circle class="ex-dot dot-root" cx="${sx(1)}" cy="${n1(sy(y1))}" r="4"/>
-          ${root !== null && Math.abs(root) < 8 ? `<circle class="ex-dot dot-root" cx="${n1(sx(root))}" cy="${sy(0)}" r="5"/>` : '<g/>'}
-          <text class="ex-tag" x="8" y="18">${lineEq(k, b)}</text>`,
-        caption: flat
-          ? L(`k = 0: the line is horizontal, y is always ${fmt(b)}. b = ${fmt(b)} is where it crosses the y-axis.`, `k = 0: прямая горизонтальна, y всегда равен ${fmt(b)}. b = ${fmt(b)} - точка пересечения с осью y.`, `k = 0: түзу көлденең, y әрқашан ${fmt(b)}. b = ${fmt(b)} - y осімен қиылысу нүктесі.`)
-          : L(`k = ${fmt(k)}: when x grows by 1, y ${k > 0 ? 'grows' : 'falls'} by ${fmt(Math.abs(k))} (orange step). b = ${fmt(b)}: the line crosses the y-axis at (0; ${fmt(b)}). It crosses the x-axis at x = −b/k = ${fmt(root)}.`, `k = ${fmt(k)}: когда x растёт на 1, y ${k > 0 ? 'растёт' : 'уменьшается'} на ${fmt(Math.abs(k))} (оранжевая ступенька). b = ${fmt(b)}: прямая пересекает ось y в точке (0; ${fmt(b)}). Ось x - в точке x = −b/k = ${fmt(root)}.`, `k = ${fmt(k)}: x бірге артқанда y ${fmt(Math.abs(k))}-ге ${k > 0 ? 'артады' : 'кемиді'} (қызғылт сары баспалдақ). b = ${fmt(b)}: түзу y осін (0; ${fmt(b)}) нүктесінде қияды. x осін - x = −b/k = ${fmt(root)} нүктесінде.`),
-      };
-    },
-  },
-
-  exponential: {
-    title: L('Exponential vs linear growth', 'Показательный рост против линейного', 'Көрсеткіштік өсу мен сызықтық өсу'),
-    intro: L('Linear growth adds the same amount every step; exponential growth multiplies by the same number. Sooner or later the exponent always wins.', 'Линейный рост каждый шаг прибавляет одно и то же, показательный - умножает на одно и то же число. Рано или поздно показательный рост всегда обгоняет.', 'Сызықтық өсу әр қадамда бірдей шама қосады, көрсеткіштік өсу бірдей санға көбейтеді. Ерте ме, кеш пе көрсеткіштік өсу әрқашан озады.'),
-    sliders: [
-      { id: 'a', label: L('multiply by a', 'умножать на a', 'a-ға көбейту'), min: 1.1, max: 3, step: C, value: 1.5 },
-      { id: 'd', label: L('add d', 'прибавлять d', 'd қосу'), min: 0.5, max: 5, step: C, value: 3 },
-      { id: 'n', label: L('steps n', 'шагов n', 'қадам n'), min: 0, max: 10, step: C, value: 4 },
-    ],
-    buttons: [L('▶ Grow', '▶ Расти', '▶ Өсу')],
-    play: 'n',
-    playDur: 4000,
-    playLinear: true,
-    draw(v) {
-      const lin = (n) => 1 + v.d * n;
-      const ex = (n) => v.a ** n;
-      const ymax = Math.max(lin(v.n), ex(v.n), 5) * 1.15;
-      const sx = (n) => 30 + n * 27;
-      const sy = (y) => 196 - (y / ymax) * 170;
-      const g = (n) => ex(n) - lin(n);
-      let cross = 0;
-      if (Math.log(v.a) < v.d) {
-        let lo = 1e-6;
-        let hi = 1;
-        while (g(hi) < 0 && hi < 1e4) hi *= 2;
-        for (let i = 0; i < 60; i++) {
-          const mid = (lo + hi) / 2;
-          if (g(mid) < 0) lo = mid;
-          else hi = mid;
-        }
-        cross = hi;
-      }
-      const ahead = ex(v.n) > lin(v.n);
-      return {
-        svg: `<line class="ex-axis" x1="30" y1="196" x2="310" y2="196"/><line class="ex-axis" x1="30" y1="14" x2="30" y2="196"/>
-          ${Array.from({ length: 11 }, (_, i) => `<text class="ex-tiny" x="${sx(i)}" y="210">${i}</text>`).join('')}<text class="ex-tiny" x="16" y="${n1(sy(ymax / 1.15))}">${fmt(ymax / 1.15, 0)}</text>
-          ${cross > 0 && cross <= v.n ? `<line class="ex-grid" x1="${n1(sx(cross))}" y1="14" x2="${n1(sx(cross))}" y2="196" style="stroke-dasharray:4 4"/>` : '<g/>'}
-          <g class="exc-o"><path class="ex-stroke" d="${plot(lin, 0, v.n, sx, sy, 60)}"/><circle class="ex-fill" cx="${n1(sx(v.n))}" cy="${n1(sy(lin(v.n)))}" r="5"/></g>
-          <g class="exc-p"><path class="ex-stroke" d="${plot(ex, 0, v.n, sx, sy, 80)}"/><circle class="ex-fill" cx="${n1(sx(v.n))}" cy="${n1(sy(ex(v.n)))}" r="5"/></g>
-          <text class="ex-tag tc exc-o" x="40" y="22">1 + ${fmt(v.d)}·n = ${fmt(lin(v.n))}</text><text class="ex-tag tc exc-p" x="40" y="40">${fmt(v.a)}ⁿ = ${fmt(ex(v.n))}</text>`,
-        caption: L(
-          `After ${fmt(v.n)} steps: linear 1 + ${fmt(v.d)}·n = ${fmt(lin(v.n))}, exponential ${fmt(v.a)}ⁿ = ${fmt(ex(v.n))}. ${cross > 0 ? `The exponential overtakes at n ≈ ${fmt(cross)}${ahead ? ' - and then runs away.' : '.'}` : 'Here the exponential is ahead from the very start.'}`,
-          `Через ${fmt(v.n)} шагов: линейный рост 1 + ${fmt(v.d)}·n = ${fmt(lin(v.n))}, показательный ${fmt(v.a)}ⁿ = ${fmt(ex(v.n))}. ${cross > 0 ? `Показательный обгоняет при n ≈ ${fmt(cross)}${ahead ? ' - и дальше улетает вверх.' : '.'}` : 'Здесь показательный рост впереди с самого начала.'}`,
-          `${fmt(v.n)} қадамнан кейін: сызықтық өсу 1 + ${fmt(v.d)}·n = ${fmt(lin(v.n))}, көрсеткіштік ${fmt(v.a)}ⁿ = ${fmt(ex(v.n))}. ${cross > 0 ? `Көрсеткіштік өсу n ≈ ${fmt(cross)} кезінде озады${ahead ? ' - содан кейін жоғары ұшып кетеді.' : '.'}` : 'Мұнда көрсеткіштік өсу басынан алда.'}`,
-        ),
-      };
-    },
-  },
-
-  logarithm: {
-    title: L('The logarithm undoes a power', 'Логарифм - обратный к степени', 'Логарифм - дәрежеге кері амал'),
-    intro: L('log_b(x) answers the question: to what power must b be raised to get x? Its graph is the mirror image of y = bˣ in the line y = x.', 'log_b(x) отвечает на вопрос: в какую степень нужно возвести b, чтобы получить x? Его график - зеркальное отражение y = bˣ относительно прямой y = x.', 'log_b(x) сұраққа жауап береді: x шығу үшін b-ны қандай дәрежеге шығару керек? Оның графигі y = bˣ графигінің y = x түзуіне қатысты айнадағы бейнесі.'),
-    sliders: [
-      { id: 'b', label: L('base b', 'основание b', 'негіз b'), min: 1.2, max: 4, step: C, value: 2 },
-      { id: 'x', label: 'x', min: 0.1, max: 16, step: C, value: 8 },
-    ],
-    buttons: [L('x = 1', 'x = 1', 'x = 1'), L('x = b', 'x = b', 'x = b'), L('x = b²', 'x = b²', 'x = b²')],
-    onButton: (i, st, v) => ({ x: clamp([1, v.b, v.b * v.b][i], 0.1, 16) }),
-    draw(v) {
-      const { b, x } = v;
-      const y = Math.log(x) / Math.log(b);
-      const sx = (X) => 30 + X * 10;
-      const sy = (Y) => 170 - Y * 10;
-      const lg = plot((X) => Math.log(X) / Math.log(b), 0.02, 29, sx, sy, 160);
-      const pw = plot((X) => b ** X, -3, Math.log(22) / Math.log(b), sx, sy, 100);
-      const P = [sx(x), sy(y)];
-      const Q = [sx(y), sy(x)];
-      return {
-        svg: `${axes(sx, sy, [-3, 29], [-5, 17])}<line class="ex-ideal" x1="${sx(-3)}" y1="${sy(-3)}" x2="${sx(20)}" y2="${sy(20)}" style="opacity:.5"/>
-          <path class="ex-curve thin" d="${pw}"/><path class="ex-curve" d="${lg}"/>
-          <g class="exc-m"><line class="ex-stroke ex-dash" style="stroke-width:1.5" x1="${n1(P[0])}" y1="${n1(P[1])}" x2="${n1(Q[0])}" y2="${n1(Q[1])}"/><line class="ex-stroke ex-dash" style="stroke-width:1.5" x1="${n1(P[0])}" y1="${n1(P[1])}" x2="${n1(P[0])}" y2="${sy(0)}"/><line class="ex-stroke ex-dash" style="stroke-width:1.5" x1="${n1(P[0])}" y1="${n1(P[1])}" x2="${sx(0)}" y2="${n1(P[1])}"/></g>
-          <circle class="ex-dot" cx="${n1(P[0])}" cy="${n1(clamp(P[1], -10, 230))}" r="6"/><circle class="ex-dot dot-root" cx="${n1(clamp(Q[0], -10, 330))}" cy="${n1(Q[1])}" r="5"/>
-          <text class="ex-tag tc exc-p" x="200" y="150">y = log_${fmt(b)}(x)</text><text class="ex-tag t-sin" x="60" y="20">y = ${fmt(b)}ˣ</text>
-          <text class="ex-tag" x="200" y="20">log_${fmt(b)}(${fmt(x)}) = ${fmt(y)}</text>`,
-        caption: L(
-          `log_${fmt(b)}(${fmt(x)}) = ${fmt(y)}, because ${fmt(b)}^${fmt(y)} ≈ ${fmt(x)}. ${x < 1 ? 'For x < 1 the logarithm is negative.' : Math.abs(x - 1) < 0.005 ? 'log of 1 is always 0: b⁰ = 1.' : 'The orange dot on y = bˣ is the same pair of numbers swapped.'}`,
-          `log_${fmt(b)}(${fmt(x)}) = ${fmt(y)}, потому что ${fmt(b)}^${fmt(y)} ≈ ${fmt(x)}. ${x < 1 ? 'При x < 1 логарифм отрицательный.' : Math.abs(x - 1) < 0.005 ? 'Логарифм единицы всегда 0: b⁰ = 1.' : 'Оранжевая точка на y = bˣ - та же пара чисел, только переставленная.'}`,
-          `log_${fmt(b)}(${fmt(x)}) = ${fmt(y)}, себебі ${fmt(b)}^${fmt(y)} ≈ ${fmt(x)}. ${x < 1 ? 'x < 1 болғанда логарифм теріс.' : Math.abs(x - 1) < 0.005 ? 'Бірдің логарифмі әрқашан 0: b⁰ = 1.' : 'y = bˣ бойындағы қызғылт сары нүкте - орындары ауысқан сол сандар жұбы.'}`,
-        ),
-      };
-    },
-  },
-
-  'circle-area': {
-    title: L('Why the area of a circle is πr²', 'Почему площадь круга - πr²', 'Неліктен дөңгелектің ауданы πr²'),
-    intro: L('Cut the circle into thin rings and straighten each one. The rings line up into a triangle with base 2πr (the circumference) and height r.', 'Разрежем круг на тонкие кольца и распрямим каждое. Кольца сложатся в треугольник с основанием 2πr (длина окружности) и высотой r.', 'Дөңгелекті жұқа сақиналарға бөліп, әрқайсысын түзейік. Сақиналар табаны 2πr (шеңбер ұзындығы), биіктігі r үшбұрыш құрайды.'),
-    sliders: [
-      { id: 'r', label: 'r', min: 1, max: 5, step: C, value: 3 },
-      { id: 'k', label: L('unroll', 'развернуть', 'жазу'), min: 0, max: 1, step: C, value: 0 },
-    ],
-    buttons: [L('Unroll into a triangle', 'Развернуть в треугольник', 'Үшбұрышқа жазу'), L('Roll back', 'Свернуть обратно', 'Қайта орау')],
-    onButton: (i) => ({ k: i === 0 ? 1 : 0, $dur: 1400 }),
-    draw(v) {
-      const { r, k } = v;
-      const s = 9;
-      const cx = 160;
-      const cy = 95;
-      const base = 200;
-      const N = 10;
-      const M = 36;
-      const rings = Array.from({ length: N }, (_, j) => {
-        const rho = (r * (j + 0.5)) / N;
-        let d = '';
-        for (let i = 0; i <= M; i++) {
-          const q = i / M - 0.5;
-          const th = 2 * Math.PI * q;
-          const X = lerp(cx + rho * s * Math.sin(th), cx + 2 * Math.PI * rho * s * q, k);
-          const Y = lerp(cy + rho * s * Math.cos(th), base - (r - rho) * s - (r * s) / N / 2, k);
-          d += `${i ? 'L' : 'M'}${n1(X)} ${n1(Y)} `;
-        }
-        return `<path class="ex-ring2${j % 2 ? ' alt' : ''}" style="stroke-width:${n1((r * s) / N + 0.4)}" d="${d}"/>`;
-      }).join('');
-      const S = Math.PI * r * r;
-      const lab = clamp(k * 2 - 1, 0, 1);
-      return {
-        svg: `${rings}<line class="ex-rad" x1="${cx}" y1="${cy}" x2="${n1(cx + r * s)}" y2="${cy}" opacity="${n1((1 - k) * 10) / 10}"/>
-          <g opacity="${n1(lab * 10) / 10}"><text class="ex-small" x="${cx}" y="${base + 15}">2πr = ${fmt(2 * Math.PI * r)}</text><g class="exc-o"><line class="ex-stroke ex-dash" style="stroke-width:1.5" x1="${n1(cx + Math.PI * r * s + 8)}" y1="${base}" x2="${n1(cx + Math.PI * r * s + 8)}" y2="${n1(base - r * s)}"/></g><text class="ex-tag tc exc-o" x="${n1(cx + Math.PI * r * s + 12)}" y="${n1(base - (r * s) / 2 + 4)}">r</text></g>
-          <text class="ex-tag" x="8" y="18">S = πr² = ${fmt(S)}</text>`,
-        caption:
-          k < 0.5
-            ? L(`A circle of radius ${fmt(r)} is made of thin rings. Unroll them: the longest ring is the circumference 2πr = ${fmt(2 * Math.PI * r)}.`, `Круг радиуса ${fmt(r)} состоит из тонких колец. Развернём их: самое длинное кольцо - это длина окружности 2πr = ${fmt(2 * Math.PI * r)}.`, `Радиусы ${fmt(r)} дөңгелек жұқа сақиналардан тұрады. Оларды жазайық: ең ұзын сақина - шеңбер ұзындығы 2πr = ${fmt(2 * Math.PI * r)}.`)
-            : L(`The rings became a triangle: base 2πr = ${fmt(2 * Math.PI * r)}, height r = ${fmt(r)}. Its area is ½ · 2πr · r = πr² = ${fmt(S)}.`, `Кольца превратились в треугольник: основание 2πr = ${fmt(2 * Math.PI * r)}, высота r = ${fmt(r)}. Его площадь ½ · 2πr · r = πr² = ${fmt(S)}.`, `Сақиналар үшбұрышқа айналды: табаны 2πr = ${fmt(2 * Math.PI * r)}, биіктігі r = ${fmt(r)}. Ауданы ½ · 2πr · r = πr² = ${fmt(S)}.`),
-      };
-    },
-  },
-
-  vectors: {
-    title: L('Adding vectors', 'Сложение векторов', 'Векторларды қосу'),
-    intro: L('To add two vectors, put the start of the second at the end of the first. The sum goes from the start of the first to the end of the second; coordinates simply add up.', 'Чтобы сложить векторы, приставим начало второго к концу первого. Сумма идёт из начала первого в конец второго, а координаты просто складываются.', 'Векторларды қосу үшін екіншісінің басын біріншісінің соңына қоямыз. Қосынды біріншісінің басынан екіншісінің соңына барады, ал координаталар жай ғана қосылады.'),
-    sliders: [
-      { id: 'bx', label: 'b: x', min: -4, max: 4, step: C, value: 1 },
-      { id: 'by', label: 'b: y', min: -4, max: 4, step: C, value: 2.5 },
-    ],
-    buttons: [L('Move b to the end of a', 'Перенести b в конец a', 'b-ны a-ның соңына көшіру'), L('Parallelogram: b + a', 'Параллелограмм: b + a', 'Параллелограмм: b + a'), AGAIN],
-    draw(v, step, st, f) {
-      const ax = 3;
-      const ay = 1;
-      const { bx, by } = v;
-      const P = (x, y) => [120 + x * 20, 130 - y * 20];
-      const k1 = clamp(f, 0, 1);
-      const k2 = clamp(f - 1, 0, 1);
-      const O = P(0, 0);
-      const A = P(ax, ay);
-      const Bs = P(ax * k1, ay * k1);
-      const Be = P(ax * k1 + bx, ay * k1 + by);
-      const S = P(ax + bx, ay + by);
-      const Bo = P(bx, by);
-      const sx = Math.hypot(ax + bx, ay + by);
-      return {
-        svg: `${axes((x) => 120 + x * 20, (y) => 130 - y * 20, [-6, 10], [-5, 7])}
-          <g opacity="${n1(k2 * 10) / 10}">${arrow(O[0], O[1], Bo[0], Bo[1], 'exc-b ex-faint', 2)}${arrow(Bo[0], Bo[1], S[0], S[1], 'exc-p ex-faint', 2)}</g>
-          ${arrow(O[0], O[1], A[0], A[1], 'exc-p')}${arrow(Bs[0], Bs[1], Be[0], Be[1], 'exc-b')}
-          <g opacity="${n1(k1 * 10) / 10}">${arrow(O[0], O[1], S[0], S[1], 'exc-o', 3)}</g>
-          <text class="ex-tag tc exc-p" x="${n1((O[0] + A[0]) / 2)}" y="${n1((O[1] + A[1]) / 2 + 16)}">a</text><text class="ex-tag tc exc-b" x="${n1((Bs[0] + Be[0]) / 2 + 6)}" y="${n1((Bs[1] + Be[1]) / 2)}">b</text>
-          <text class="ex-tag tc exc-p" x="8" y="18">a = (3; 1)</text><text class="ex-tag tc exc-b" x="8" y="36">b = (${fmt(bx)}; ${fmt(by)})</text><text class="ex-tag tc exc-o" x="8" y="54" opacity="${n1(k1 * 10) / 10}">a + b = (${fmt(ax + bx)}; ${fmt(ay + by)})</text>`,
-        caption: [
-          L(`a = (3; 1), b = (${fmt(bx)}; ${fmt(by)}). To add them, move b so that it starts where a ends.`, `a = (3; 1), b = (${fmt(bx)}; ${fmt(by)}). Чтобы сложить, перенесём b так, чтобы он начинался в конце a.`, `a = (3; 1), b = (${fmt(bx)}; ${fmt(by)}). Қосу үшін b-ны a-ның соңынан басталатындай көшіреміз.`),
-          L(`a + b goes from the start of a to the end of b: (3 + ${fmt(bx)}; 1 + ${fmt(by)}) = (${fmt(ax + bx)}; ${fmt(ay + by)}), length ${fmt(sx)}.`, `a + b идёт из начала a в конец b: (3 + ${fmt(bx)}; 1 + ${fmt(by)}) = (${fmt(ax + bx)}; ${fmt(ay + by)}), длина ${fmt(sx)}.`, `a + b a-ның басынан b-ның соңына барады: (3 + ${fmt(bx)}; 1 + ${fmt(by)}) = (${fmt(ax + bx)}; ${fmt(ay + by)}), ұзындығы ${fmt(sx)}.`),
-          L(`Going along b first and then a ends in the same point: a + b = b + a. The sum is the diagonal of the parallelogram.`, `Если идти сначала по b, потом по a, придём в ту же точку: a + b = b + a. Сумма - диагональ параллелограмма.`, `Алдымен b, содан кейін a бойымен жүрсек, сол нүктеге келеміз: a + b = b + a. Қосынды - параллелограмның диагоналы.`),
-        ][step],
-      };
-    },
-  },
-
-  systems: {
-    title: L('A system of equations is two lines', 'Система уравнений - это две прямые', 'Теңдеулер жүйесі - екі түзу'),
-    intro: L('Each linear equation is a line. The solution of the system is the point that lies on both lines - where they cross.', 'Каждое линейное уравнение - прямая. Решение системы - точка, которая лежит на обеих прямых, то есть их пересечение.', 'Әр сызықтық теңдеу - түзу. Жүйенің шешімі - екі түзуде де жатқан нүкте, яғни олардың қиылысуы.'),
-    sliders: [
-      { id: 'k1', label: 'k₁', min: -3, max: 3, step: C, value: 1 },
-      { id: 'b1', label: 'b₁', min: -4, max: 4, step: C, value: -1 },
-      { id: 'k2', label: 'k₂', min: -3, max: 3, step: C, value: -0.5 },
-    ],
-    buttons: [L('Make them parallel', 'Сделать параллельными', 'Параллель ету'), L('Make them the same line', 'Совместить прямые', 'Түзулерді беттестіру'), RESET],
-    onButton: (i, st, v) => [{ k2: v.k1 }, { k2: v.k1, b1: 2 }, { k1: 1, b1: -1, k2: -0.5 }][i],
-    draw(v) {
-      const { k1, b1, k2 } = v;
-      const b2 = 2;
-      const sx = (x) => 160 + x * 20;
-      const sy = (y) => 110 - y * 20;
-      const par = Math.abs(k1 - k2) < 0.005;
-      const same = par && Math.abs(b1 - b2) < 0.005;
-      const X = par ? 0 : (b2 - b1) / (k1 - k2);
-      const Y = k1 * X + b1;
-      const line = (k, b, cls) => `<g class="${cls}"><path class="ex-stroke" d="M${sx(-9)} ${n1(sy(-9 * k + b))} L${sx(9)} ${n1(sy(9 * k + b))}"/></g>`;
-      const vis = !par && Math.abs(X) < 8 && Math.abs(Y) < 6;
-      return {
-        svg: `${axes(sx, sy, [-8, 8], [-5, 5])}${line(k2, b2, 'exc-b')}${line(k1, b1, 'exc-p')}
-          ${vis ? `<g class="exc-m"><line class="ex-stroke ex-dash" style="stroke-width:1.2" x1="${n1(sx(X))}" y1="${n1(sy(Y))}" x2="${n1(sx(X))}" y2="${sy(0)}"/><line class="ex-stroke ex-dash" style="stroke-width:1.2" x1="${n1(sx(X))}" y1="${n1(sy(Y))}" x2="${sx(0)}" y2="${n1(sy(Y))}"/></g><circle class="ex-dot dot-root" cx="${n1(sx(X))}" cy="${n1(sy(Y))}" r="6"/>` : '<g/><g/>'}
-          <text class="ex-tag tc exc-p" x="8" y="18">${lineEq(k1, b1)}</text><text class="ex-tag tc exc-b" x="8" y="36">${lineEq(k2, b2)}</text>`,
-        caption: same
-          ? L('The lines coincide: every point of the line is a solution - infinitely many solutions.', 'Прямые совпали: каждая точка прямой - решение. Решений бесконечно много.', 'Түзулер беттесті: түзудің әр нүктесі - шешім. Шешімдер шексіз көп.')
-          : par
-            ? L(`k₁ = k₂ = ${fmt(k1)}: the lines are parallel and never meet - the system has no solutions.`, `k₁ = k₂ = ${fmt(k1)}: прямые параллельны и не пересекаются - у системы нет решений.`, `k₁ = k₂ = ${fmt(k1)}: түзулер параллель, қиылыспайды - жүйенің шешімі жоқ.`)
-            : L(`Equate the right sides: ${fmt(k1)}x${term(b1)} = ${fmt(k2)}x + 2 → x = (2 − b₁)/(k₁ − k₂) = ${fmt(X)}, y = ${fmt(Y)}. Solution: (${fmt(X)}; ${fmt(Y)}).`, `Приравняем правые части: ${fmt(k1)}x${term(b1)} = ${fmt(k2)}x + 2 → x = (2 − b₁)/(k₁ − k₂) = ${fmt(X)}, y = ${fmt(Y)}. Решение: (${fmt(X)}; ${fmt(Y)}).`, `Оң жақтарын теңестіреміз: ${fmt(k1)}x${term(b1)} = ${fmt(k2)}x + 2 → x = (2 − b₁)/(k₁ − k₂) = ${fmt(X)}, y = ${fmt(Y)}. Шешімі: (${fmt(X)}; ${fmt(Y)}).`),
-      };
-    },
-  },
-
-  progression: {
-    title: L('Arithmetic and geometric progressions', 'Арифметическая и геометрическая прогрессии', 'Арифметикалық және геометриялық прогрессиялар'),
-    intro: L('An arithmetic progression adds the same number d each time; a geometric one multiplies by the same number q.', 'Арифметическая прогрессия каждый раз прибавляет одно и то же число d, геометрическая - умножает на одно и то же число q.', 'Арифметикалық прогрессия әр жолы бірдей d санын қосады, геометриялық - бірдей q санына көбейтеді.'),
-    sliders: [
-      { id: 'a1', label: 'a₁ = b₁', min: 0.5, max: 5, step: C, value: 1 },
-      { id: 'd', label: 'd', min: 0, max: 3, step: C, value: 1 },
-      { id: 'q', label: 'q', min: 0.5, max: 2, step: C, value: 1.5 },
-    ],
-    buttons: [L('q = 2: doubling', 'q = 2: удвоение', 'q = 2: екі еселену'), L('d = 0 and q = 1', 'd = 0 и q = 1', 'd = 0 және q = 1')],
-    onButton: (i) => [{ q: 2 }, { d: 0, q: 1 }][i],
-    draw(v) {
-      const { a1, d, q } = v;
-      const ar = Array.from({ length: 8 }, (_, i) => a1 + i * d);
-      const ge = Array.from({ length: 8 }, (_, i) => a1 * q ** i);
-      const top = Math.max(...ar, ...ge);
-      const h = (x) => (x / top) * 140;
-      const bars = ar
-        .map((x, i) => `<rect class="ex-pbar exc-o" x="${22 + i * 37}" y="${n1(186 - h(x))}" width="15" height="${n1(h(x))}" rx="3"/><rect class="ex-pbar exc-p" x="${38 + i * 37}" y="${n1(186 - h(ge[i]))}" width="15" height="${n1(h(ge[i]))}" rx="3"/><text class="ex-tiny" x="${37 + i * 37}" y="200">${i + 1}</text>`)
-        .join('');
-      const S8 = ((ar[0] + ar[7]) * 8) / 2;
-      return {
-        svg: `<line class="ex-axis" x1="16" y1="186" x2="314" y2="186"/>${bars}
-          <text class="ex-tag tc exc-o" x="8" y="18">aₙ = a₁ + (n − 1)d: a₈ = ${fmt(ar[7])}</text><text class="ex-tag tc exc-p" x="8" y="36">bₙ = b₁·qⁿ⁻¹: b₈ = ${fmt(ge[7])}</text>`,
-        caption: L(
-          `Arithmetic (orange): +${fmt(d)} each time, a₈ = ${fmt(a1)} + 7·${fmt(d)} = ${fmt(ar[7])}, sum S₈ = (a₁ + a₈)·8/2 = ${fmt(S8)}. Geometric (purple): ×${fmt(q)} each time, b₈ = ${fmt(a1)}·${fmt(q)}⁷ = ${fmt(ge[7])}.${q < 1 ? ' With q < 1 the terms shrink.' : ''}`,
-          `Арифметическая (оранжевая): каждый раз +${fmt(d)}, a₈ = ${fmt(a1)} + 7·${fmt(d)} = ${fmt(ar[7])}, сумма S₈ = (a₁ + a₈)·8/2 = ${fmt(S8)}. Геометрическая (фиолетовая): каждый раз ×${fmt(q)}, b₈ = ${fmt(a1)}·${fmt(q)}⁷ = ${fmt(ge[7])}.${q < 1 ? ' При q < 1 члены уменьшаются.' : ''}`,
-          `Арифметикалық (қызғылт сары): әр жолы +${fmt(d)}, a₈ = ${fmt(a1)} + 7·${fmt(d)} = ${fmt(ar[7])}, қосынды S₈ = (a₁ + a₈)·8/2 = ${fmt(S8)}. Геометриялық (күлгін): әр жолы ×${fmt(q)}, b₈ = ${fmt(a1)}·${fmt(q)}⁷ = ${fmt(ge[7])}.${q < 1 ? ' q < 1 болғанда мүшелер кемиді.' : ''}`,
-        ),
-      };
-    },
-  },
-
-  'mean-median': {
-    title: L('Mean and median', 'Среднее и медиана', 'Орта мән және медиана'),
-    intro: L('Drag the dots. The mean is the balance point of all values; the median is the middle value after sorting. One outlier pulls the mean, but hardly moves the median.', 'Перетаскивай точки. Среднее - точка равновесия всех значений, медиана - значение посередине после сортировки. Один выброс тянет среднее, а медиана почти не двигается.', 'Нүктелерді сүйре. Орта мән - барлық мәндердің тепе-теңдік нүктесі, медиана - сұрыптаудан кейінгі ортадағы мән. Бір шығыңқы мән орта мәнді тартады, ал медиана әрең қозғалады.'),
-    values: { p0: 2, p1: 3, p2: 4, p3: 4.5, p4: 6, p5: 7 },
-    sliders: [{ id: 'p6', label: L('last value', 'последнее значение', 'соңғы мән'), min: 0, max: 20, step: C, value: 8.5 }],
-    buttons: [L('Add an outlier', 'Добавить выброс', 'Шығыңқы мән қосу'), RESET],
-    onButton: (i) => [{ p6: 19.5 }, { p0: 2, p1: 3, p2: 4, p3: 4.5, p4: 6, p5: 7, p6: 8.5 }][i],
-    onDrag(key, p, v) {
-      v[key] = Math.round(clamp((p.x - 20) / 14, 0, 20) * 100) / 100;
-    },
-    draw(v) {
-      const ks = ['p0', 'p1', 'p2', 'p3', 'p4', 'p5', 'p6'];
-      const xs = ks.map((k) => v[k]);
-      const sorted = [...xs].sort((a, b) => a - b);
-      const sum = xs.reduce((s, x) => s + x, 0);
-      const mean = sum / 7;
-      const med = sorted[3];
-      const sx = (x) => 20 + x * 14;
-      const dots = ks
-        .map((k, i) => {
-          const y = 66 + i * 12;
-          return `<line class="ex-grid" x1="${n1(sx(v[k]))}" y1="${y}" x2="${n1(sx(v[k]))}" y2="160"/><circle class="ex-dot" cx="${n1(sx(v[k]))}" cy="${y}" r="6"/><circle class="ex-hit" data-drag="${k}" cx="${n1(sx(v[k]))}" cy="${y}" r="12"/>`;
-        })
-        .join('');
-      const chips = sorted.map((x, i) => `<rect class="ex-chip${i === 3 ? ' mid' : ''}" x="${16 + i * 42}" y="10" width="38" height="22" rx="7"/><text class="ex-tiny ex-chipt" x="${35 + i * 42}" y="25">${fmt(x, 1)}</text>`).join('');
-      return {
-        svg: `${chips}<line class="ex-axis" x1="20" y1="160" x2="300" y2="160"/>${[0, 5, 10, 15, 20].map((x) => `<text class="ex-tiny" x="${sx(x)}" y="174">${x}</text>`).join('')}${dots}
-          <path class="ex-fill exc-o" d="M${n1(sx(mean))} 162 l-9 16 h18 Z"/><text class="ex-tag tc exc-o" x="${n1(clamp(sx(mean) + 12, 0, 250))}" y="194">x̄ = ${fmt(mean)}</text>
-          <g class="exc-g"><line class="ex-stroke" style="stroke-width:3" x1="${n1(sx(med))}" y1="44" x2="${n1(sx(med))}" y2="160"/></g><text class="ex-tag tc exc-g" x="${n1(clamp(sx(med) + 6, 0, 250))}" y="52">Me = ${fmt(med)}</text>`,
-        caption: L(
-          `Mean = sum ÷ 7 = ${fmt(sum)} ÷ 7 = ${fmt(mean)} (the balance point, orange). Median = the 4th of 7 sorted values = ${fmt(med)} (green).${Math.abs(mean - med) > 1.5 ? ' They differ a lot - a far-away value drags the mean, not the median.' : ''}`,
-          `Среднее = сумма ÷ 7 = ${fmt(sum)} ÷ 7 = ${fmt(mean)} (точка равновесия, оранжевая). Медиана = 4-е из 7 упорядоченных значений = ${fmt(med)} (зелёная).${Math.abs(mean - med) > 1.5 ? ' Они сильно разошлись: далёкое значение тянет среднее, но не медиану.' : ''}`,
-          `Орта мән = қосынды ÷ 7 = ${fmt(sum)} ÷ 7 = ${fmt(mean)} (тепе-теңдік нүктесі, қызғылт сары). Медиана = реттелген 7 мәннің 4-сі = ${fmt(med)} (жасыл).${Math.abs(mean - med) > 1.5 ? ' Олар қатты алшақтады: алыс мән орта мәнді тартады, медиананы емес.' : ''}`,
-        ),
-      };
-    },
-  },
-
-  integral: {
-    title: L('The integral as a sum of rectangles', 'Интеграл - сумма прямоугольников', 'Интеграл - тіктөртбұрыштар қосындысы'),
-    intro: L('Cover the area under the graph with thin rectangles and add up their areas. The more rectangles, the closer the sum is to the exact area - the integral.', 'Закроем площадь под графиком тонкими прямоугольниками и сложим их площади. Чем больше прямоугольников, тем ближе сумма к точной площади - интегралу.', 'График астындағы ауданды жұқа тіктөртбұрыштармен жауып, аудандарын қосайық. Тіктөртбұрыштар неғұрлым көп болса, қосынды нақты ауданға - интегралға соғұрлым жақын.'),
-    sliders: [
-      { id: 'b', label: 'b', min: 0.5, max: 3, step: C, value: 2 },
-      { id: 'n', label: 'n', min: 1, max: 40, value: 4 },
-    ],
-    buttons: [L('▶ n → 40', '▶ n → 40', '▶ n → 40')],
-    play: 'n',
-    playDur: 3000,
-    draw(v) {
-      const n = Math.round(v.n);
-      const { b } = v;
-      const sx = (x) => 30 + x * 90;
-      const sy = (y) => 196 - y * 19;
-      const dx = b / n;
-      let sum = 0;
-      const rects = Array.from({ length: n }, (_, i) => {
-        const x = i * dx;
-        const h = x * x;
-        sum += h * dx;
-        return `<rect class="ex-rect" x="${n1(sx(x))}" y="${n1(sy(h))}" width="${n1(dx * 90)}" height="${n1(h * 19)}"/>`;
-      }).join('');
-      const exact = (b * b * b) / 3;
-      const area = `M${sx(0)} ${sy(0)} ${plot((x) => x * x, 0, b, sx, sy, 60).replace(/^M/, 'L')} L${n1(sx(b))} ${sy(0)} Z`;
-      return {
-        svg: `<path class="ex-area" d="${area}"/>${rects}<line class="ex-axis" x1="20" y1="196" x2="312" y2="196"/><line class="ex-axis" x1="30" y1="10" x2="30" y2="206"/>
-          <path class="ex-curve" d="${plot((x) => x * x, 0, 3.1, sx, sy, 80)}"/><line class="ex-ideal" x1="${n1(sx(b))}" y1="${n1(sy(b * b))}" x2="${n1(sx(b))}" y2="196"/><text class="ex-tiny" x="${n1(sx(b))}" y="210">b</text>
-          <text class="ex-tag" x="40" y="22">Σ = ${fmt(sum, 3)}</text><text class="ex-tag tc exc-p" x="40" y="40">∫₀ᵇ x² dx = b³/3 = ${fmt(exact, 3)}</text>`,
-        caption: L(
-          `${n} rectangles of width Δx = b/n = ${fmt(dx, 3)}: their total area is ${fmt(sum, 3)}. The exact area under y = x² from 0 to ${fmt(b)} is b³/3 = ${fmt(exact, 3)}, the error is ${fmt(exact - sum, 3)}. More rectangles - smaller error: the integral is the limit of these sums.`,
-          `${n} прямоугольников шириной Δx = b/n = ${fmt(dx, 3)}: их общая площадь ${fmt(sum, 3)}. Точная площадь под y = x² от 0 до ${fmt(b)} - b³/3 = ${fmt(exact, 3)}, ошибка ${fmt(exact - sum, 3)}. Больше прямоугольников - меньше ошибка: интеграл - это предел таких сумм.`,
-          `Ені Δx = b/n = ${fmt(dx, 3)} болатын ${n} тіктөртбұрыш: жалпы ауданы ${fmt(sum, 3)}. y = x² астындағы 0-ден ${fmt(b)}-ге дейінгі нақты аудан b³/3 = ${fmt(exact, 3)}, қателік ${fmt(exact - sum, 3)}. Тіктөртбұрыш көп болса - қателік аз: интеграл - осындай қосындылардың шегі.`,
-        ),
-      };
-    },
-  },
-
-  inequality: {
-    title: L('Inequalities on the number line', 'Неравенства на числовой прямой', 'Сан түзуіндегі теңсіздіктер'),
-    intro: L('Solve ax > b like an equation, but when you divide by a negative number the sign flips. The answer is a ray on the number line.', 'Неравенство ax > b решаем как уравнение, но при делении на отрицательное число знак меняется. Ответ - луч на числовой прямой.', 'ax > b теңсіздігін теңдеу сияқты шешеміз, бірақ теріс санға бөлгенде таңба өзгереді. Жауап - сан түзуіндегі сәуле.'),
-    sliders: [
-      { id: 'a', label: 'a', min: -5, max: 5, step: C, value: -2 },
-      { id: 'b', label: 'b', min: -10, max: 10, step: C, value: 4 },
-    ],
-    buttons: ['>', '≥', '<', '≤'],
-    state: () => ({ s: 0 }),
-    pressed: (i, v, st) => i === st.s,
-    onButton(i, st) {
-      st.s = i;
-    },
-    draw(v, step, st) {
-      const S = ['>', '≥', '<', '≤'];
-      const flip = { '>': '<', '≥': '≤', '<': '>', '≤': '≥' };
-      const a = Math.abs(v.a) < 0.05 ? 0 : v.a;
-      const sign = S[st.s];
-      const sx = (x) => 160 + x * 13;
-      if (a === 0) {
-        const ok = { '>': 0 > v.b, '≥': 0 >= v.b, '<': 0 < v.b, '≤': 0 <= v.b }[sign];
-        return {
-          svg: `<line class="ex-axis" x1="10" y1="120" x2="310" y2="120"/>${ok ? `<line class="ex-stroke exc-p" style="stroke-width:5" x1="10" y1="120" x2="310" y2="120"/>` : ''}<text class="ex-big" x="160" y="60">0 · x ${sign} ${fmt(v.b)}</text>`,
-          caption: L(ok ? 'With a = 0 the inequality is true for every x.' : 'With a = 0 the inequality is never true - no solutions.', ok ? 'При a = 0 неравенство верно при любом x.' : 'При a = 0 неравенство неверно ни при каком x - решений нет.', ok ? 'a = 0 болғанда теңсіздік кез келген x үшін дұрыс.' : 'a = 0 болғанда теңсіздік ешбір x үшін дұрыс емес - шешім жоқ.'),
-        };
-      }
-      const r = v.b / a;
-      const s2 = a < 0 ? flip[sign] : sign;
-      const right = s2 === '>' || s2 === '≥';
-      const closed = s2 === '≥' || s2 === '≤';
-      const X = clamp(sx(r), 10, 310);
-      return {
-        svg: `<text class="ex-big" x="160" y="45">${fmt(a)}x ${sign} ${fmt(v.b)}</text><text class="ex-tag" x="160" y="72" style="text-anchor:middle">x ${s2} ${fmt(r)}</text>
-          <line class="ex-axis" x1="10" y1="130" x2="310" y2="130"/>${[-10, -5, 0, 5, 10].map((t) => `<line class="ex-stroke exc-m" x1="${sx(t)}" y1="125" x2="${sx(t)}" y2="135"/><text class="ex-tiny" x="${sx(t)}" y="150">${t}</text>`).join('')}
-          <line class="ex-stroke exc-p" style="stroke-width:5" x1="${n1(X)}" y1="130" x2="${right ? 310 : 10}" y2="130"/>
-          <circle cx="${n1(X)}" cy="130" r="6" class="${closed ? 'ex-fill exc-p' : 'ex-stroke exc-p'}" style="${closed ? '' : 'fill:var(--surface);stroke-width:2.5'}"/>`,
-        caption: L(
-          `Divide both sides by ${fmt(a)}: x ${s2} ${fmt(r)}.${a < 0 ? ' a is negative, so the sign flipped!' : ''} ${closed ? 'The point is filled - it belongs to the answer.' : 'The point is empty - it is not included.'}`,
-          `Делим обе части на ${fmt(a)}: x ${s2} ${fmt(r)}.${a < 0 ? ' a отрицательное, поэтому знак перевернулся!' : ''} ${closed ? 'Точка закрашена - она входит в ответ.' : 'Точка пустая - она не входит в ответ.'}`,
-          `Екі жағын ${fmt(a)}-ге бөлеміз: x ${s2} ${fmt(r)}.${a < 0 ? ' a теріс, сондықтан таңба аударылды!' : ''} ${closed ? 'Нүкте боялған - ол жауапқа кіреді.' : 'Нүкте бос - ол жауапқа кірмейді.'}`,
-        ),
-      };
-    },
-  },
-
-  combinatorics: {
-    title: L('Arrangements and combinations', 'Размещения и сочетания', 'Орналастырулар мен терулер'),
-    intro: L('How many ways to pick k of n? If order matters (podium places) - arrangements n!/(n−k)!. If not (a team) - combinations: divide by k! more.', 'Сколькими способами выбрать k из n? Если порядок важен (места на пьедестале) - размещения n!/(n−k)!. Если нет (команда) - сочетания: делим ещё на k!.', 'n-нен k-ны неше тәсілмен таңдауға болады? Рет маңызды болса (тұғырдағы орындар) - орналастыру n!/(n−k)!. Маңызды болмаса (команда) - теру: тағы k!-ға бөлеміз.'),
-    sliders: [
-      { id: 'n', label: 'n', min: 1, max: 10, value: 5 },
-      { id: 'k', label: 'k', min: 0, max: 10, value: 3 },
-    ],
-    buttons: [L('Order matters', 'Порядок важен', 'Рет маңызды'), L('Order does not matter', 'Порядок не важен', 'Рет маңызды емес')],
-    state: () => ({ ord: 0 }),
-    pressed: (i, v, st) => i === st.ord,
-    onButton(i, st) {
-      st.ord = i;
-    },
-    draw(v, step, st) {
-      const n = Math.round(v.n);
-      const k = Math.min(Math.round(v.k), n);
-      const f = (x) => (x <= 1 ? 1 : x * f(x - 1));
-      const A = f(n) / f(n - k);
-      const Cn = A / f(k);
-      const res = st.ord ? Cn : A;
-      const people = Array.from({ length: n }, (_, i) => `<circle class="ex-fill ${i < k ? 'exc-p' : 'exc-m'}" style="opacity:${i < k ? 1 : 0.35}" cx="${30 + i * 29}" cy="80" r="11"/><text class="ex-tiny" x="${30 + i * 29}" y="84" style="fill:#fff">${i + 1}</text>`).join('');
-      const slots = st.ord ? '' : '';
-      return {
-        svg: `${people}${slots}<text class="ex-big" x="160" y="150">${st.ord ? `C(${n}, ${k})` : `A(${n}, ${k})`} = ${res}</text>
-          <text class="ex-tag" x="160" y="180" style="text-anchor:middle">${st.ord ? `${n}! / (${k}! · ${n - k}!)` : `${n}! / ${n - k}!${k ? ` = ${Array.from({ length: k }, (_, i) => n - i).join(' · ')}` : ''}`}</text>`,
-        caption: st.ord
-          ? L(`Choosing a team of ${k} from ${n}: ${Cn} ways. Each team can be ordered in ${k}! = ${f(k)} ways, so C = A / k! = ${A} / ${f(k)} = ${Cn}.`, `Выбрать команду из ${k} человек среди ${n}: ${Cn} способов. Каждую команду можно упорядочить ${k}! = ${f(k)} способами, поэтому C = A / k! = ${A} / ${f(k)} = ${Cn}.`, `${n} адамнан ${k} адамдық команда таңдау: ${Cn} тәсіл. Әр команданы ${k}! = ${f(k)} тәсілмен реттеуге болады, сондықтан C = A / k! = ${A} / ${f(k)} = ${Cn}.`)
-          : L(`Places 1st, 2nd, … for ${k} of ${n}: the first place has ${n} options, the next ${n - 1}, … - in total ${A}.`, `Места 1-е, 2-е, … для ${k} из ${n}: на первое место ${n} вариантов, на следующее ${n - 1}, … - всего ${A}.`, `${n} адамнан ${k} адамға 1-, 2-, … орындар: бірінші орынға ${n} нұсқа, келесіге ${n - 1}, … - барлығы ${A}.`),
-      };
-    },
-  },
-
-  volume: {
-    title: L('Volume of prisms, cylinders and cones', 'Объём призмы, цилиндра и конуса', 'Призма, цилиндр және конус көлемі'),
-    intro: L('Volume of a prism or cylinder = base area × height. A cone or pyramid with the same base and height holds exactly one third of that.', 'Объём призмы или цилиндра = площадь основания × высота. Конус или пирамида с тем же основанием и высотой вмещают ровно треть этого.', 'Призма немесе цилиндр көлемі = табан ауданы × биіктік. Табаны мен биіктігі бірдей конус не пирамида оның дәл үштен бірін сыйғызады.'),
-    sliders: [
-      { id: 'r', label: 'r', min: 1, max: 5, step: C, value: 3 },
-      { id: 'h', label: 'h', min: 1, max: 8, step: C, value: 5 },
-    ],
-    buttons: [L('Cylinder', 'Цилиндр', 'Цилиндр'), L('Cone', 'Конус', 'Конус')],
-    state: () => ({ k: 0 }),
-    pressed: (i, v, st) => i === st.k,
-    onButton(i, st) {
-      st.k = i;
-    },
-    draw(v, step, st) {
-      const s = 14;
-      const R = v.r * s;
-      const Hh = v.h * s * 0.9;
-      const cx = 95;
-      const base = 195;
-      const top = base - Hh;
-      const ry = R * 0.3;
-      const Sb = Math.PI * v.r * v.r;
-      const Vc = Sb * v.h;
-      const Vv = st.k ? Vc / 3 : Vc;
-      const shape = st.k
-        ? `<path class="ex-fill exc-o" style="opacity:.55" d="M${n1(cx - R)} ${base} L${cx} ${n1(top)} L${n1(cx + R)} ${base} Z"/>`
-        : `<path class="ex-fill exc-b" style="opacity:.45" d="M${n1(cx - R)} ${n1(top)} V${base} A${n1(R)} ${n1(ry)} 0 0 0 ${n1(cx + R)} ${base} V${n1(top)} Z"/><ellipse class="ex-fill exc-b" style="opacity:.7" cx="${cx}" cy="${n1(top)}" rx="${n1(R)}" ry="${n1(ry)}"/>`;
-      return {
-        svg: `${shape}<ellipse class="ex-stroke exc-m" style="fill:none" cx="${cx}" cy="${base}" rx="${n1(R)}" ry="${n1(ry)}"/>
-          <line class="ex-stroke exc-k ex-dash" x1="${cx}" y1="${base}" x2="${cx}" y2="${n1(top)}"/><line class="ex-stroke exc-p" x1="${cx}" y1="${base}" x2="${n1(cx + R)}" y2="${base}"/>
-          <text class="ex-tag" x="200" y="60">S = πr² = ${fmt(Sb, 1)}</text>
-          <text class="ex-tag" x="200" y="84">V = ${st.k ? '⅓ · ' : ''}S · h</text>
-          <text class="ex-big" x="250" y="125">V = ${fmt(Vv, 1)}</text>`,
-        caption: st.k
-          ? L(`Cone: V = ⅓ πr²h = ⅓ · ${fmt(Sb, 1)} · ${fmt(v.h)} = ${fmt(Vv, 1)}. Three such cones fill a cylinder of the same size.`, `Конус: V = ⅓ πr²h = ⅓ · ${fmt(Sb, 1)} · ${fmt(v.h)} = ${fmt(Vv, 1)}. Три таких конуса заполняют цилиндр того же размера.`, `Конус: V = ⅓ πr²h = ⅓ · ${fmt(Sb, 1)} · ${fmt(v.h)} = ${fmt(Vv, 1)}. Осындай үш конус сол өлшемдегі цилиндрді толтырады.`)
-          : L(`Cylinder: V = πr²h = ${fmt(Sb, 1)} · ${fmt(v.h)} = ${fmt(Vv, 1)}. Double r and the volume grows 4 times; double h - only 2 times.`, `Цилиндр: V = πr²h = ${fmt(Sb, 1)} · ${fmt(v.h)} = ${fmt(Vv, 1)}. Увеличь r вдвое - объём вырастет в 4 раза; h вдвое - только в 2 раза.`, `Цилиндр: V = πr²h = ${fmt(Sb, 1)} · ${fmt(v.h)} = ${fmt(Vv, 1)}. r-ді екі есе арттырсаң - көлем 4 есе өседі; h-ты екі есе - тек 2 есе.`),
-      };
-    },
-  },
-
-  complex: {
-    title: L('Complex numbers on the plane', 'Комплексные числа на плоскости', 'Жазықтықтағы комплекс сандар'),
-    intro: L('z = a + bi is a point (a; b). Its length is |z| = √(a² + b²). Multiplying by i turns the point 90° counterclockwise.', 'z = a + bi - это точка (a; b). Её длина |z| = √(a² + b²). Умножение на i поворачивает точку на 90° против часовой стрелки.', 'z = a + bi - (a; b) нүктесі. Оның ұзындығы |z| = √(a² + b²). i-ге көбейту нүктені сағат тіліне қарсы 90°-қа бұрады.'),
-    sliders: [
-      { id: 'a', label: 'a', min: -4, max: 4, step: C, value: 3 },
-      { id: 'b', label: 'b', min: -4, max: 4, step: C, value: 2 },
-    ],
-    buttons: [L('× i', '× i', '× i'), L('conjugate', 'сопряжённое', 'түйіндес'), L('z²', 'z²', 'z²')],
-    onButton: (i, st, v) => [{ a: -v.b, b: v.a }, { b: -v.b }, { a: clamp(v.a * v.a - v.b * v.b, -4, 4), b: clamp(2 * v.a * v.b, -4, 4) }][i],
-    draw(v) {
-      const sx = (x) => 160 + x * 24;
-      const sy = (y) => 110 - y * 24;
-      const mod = Math.hypot(v.a, v.b);
-      const arg = (Math.atan2(v.b, v.a) * 180) / Math.PI;
-      return {
-        svg: `${axes(sx, sy, [-6, 6], [-4, 4])}<text class="ex-tiny" x="305" y="${sy(0) - 6}">Re</text><text class="ex-tiny" x="${sx(0) + 12}" y="12">Im</text>
-          ${arrow(sx(0), sy(0), sx(v.a), sy(v.b), 'exc-p', 2.5)}<circle class="ex-fill exc-p" cx="${n1(sx(v.a))}" cy="${n1(sy(v.b))}" r="4"/>
-          <line class="ex-stroke exc-m ex-dash" x1="${n1(sx(v.a))}" y1="${n1(sy(v.b))}" x2="${n1(sx(v.a))}" y2="${sy(0)}"/>
-          <text class="ex-tag" x="8" y="18">z = ${fmt(v.a)}${term(v.b)}i</text><text class="ex-tag" x="8" y="38">|z| = ${fmt(mod)} · arg ≈ ${fmt(arg, 0)}°</text>`,
-        caption: L(
-          `z = ${fmt(v.a)}${term(v.b)}i lies at (${fmt(v.a)}; ${fmt(v.b)}), its length |z| = √(${fmt(v.a)}² + ${fmt(v.b)}²) = ${fmt(mod)}. Press × i: the arrow turns 90°, the length stays. i² = −1 - two turns of 90° point the other way.`,
-          `z = ${fmt(v.a)}${term(v.b)}i - точка (${fmt(v.a)}; ${fmt(v.b)}), длина |z| = √(${fmt(v.a)}² + ${fmt(v.b)}²) = ${fmt(mod)}. Нажми × i: стрелка повернётся на 90°, длина не изменится. i² = −1 - два поворота на 90° смотрят в обратную сторону.`,
-          `z = ${fmt(v.a)}${term(v.b)}i - (${fmt(v.a)}; ${fmt(v.b)}) нүктесі, ұзындығы |z| = √(${fmt(v.a)}² + ${fmt(v.b)}²) = ${fmt(mod)}. × i бас: нұсқар 90°-қа бұрылады, ұзындық өзгермейді. i² = −1 - 90°-тық екі бұрылыс кері жаққа қарайды.`,
-        ),
-      };
-    },
-  },
-
-  limit: {
-    title: L('Limit of a sequence', 'Предел последовательности', 'Тізбектің шегі'),
-    intro: L('A sequence has a limit L if its terms get as close to L as you like when n grows. (1 + 1/n)ⁿ slowly approaches the number e ≈ 2.718.', 'Последовательность имеет предел L, если её члены становятся сколь угодно близки к L при росте n. (1 + 1/n)ⁿ медленно приближается к числу e ≈ 2,718.', 'n өскенде мүшелері L-ге қалағанша жақындаса, тізбектің шегі L болады. (1 + 1/n)ⁿ e ≈ 2,718 санына баяу жақындайды.'),
-    sliders: [{ id: 'n', label: 'n', min: 1, max: 60, value: 10 }],
-    buttons: ['(1 + 1/n)ⁿ → e', '1/n → 0', '(n + 1)/n → 1'],
-    state: () => ({ k: 0 }),
-    pressed: (i, v, st) => i === st.k,
-    onButton(i, st) {
-      st.k = i;
-    },
-    draw(v, step, st) {
-      const F = [(n) => (1 + 1 / n) ** n, (n) => 1 / n, (n) => (n + 1) / n];
-      const LIM = [Math.E, 0, 1];
-      const top = [3, 1.1, 2.1][st.k];
-      const bot = [1.8, 0, 0.9][st.k];
-      const N = Math.round(v.n);
-      const sx = (n) => 20 + (n / 60) * 290;
-      const sy = (y) => 190 - ((y - bot) / (top - bot)) * 170;
-      const dots = Array.from({ length: N }, (_, i) => `<circle class="ex-fill exc-p" cx="${n1(sx(i + 1))}" cy="${n1(sy(F[st.k](i + 1)))}" r="${i === N - 1 ? 5 : 2.6}"/>`).join('');
-      const val = F[st.k](N);
-      return {
-        svg: `<line class="ex-axis" x1="20" y1="190" x2="310" y2="190"/><line class="ex-stroke exc-o ex-dash" x1="20" y1="${n1(sy(LIM[st.k]))}" x2="310" y2="${n1(sy(LIM[st.k]))}"/>${dots}
-          <text class="ex-tag" x="200" y="${n1(sy(LIM[st.k]) - 8)}">L = ${fmt(LIM[st.k], 3)}</text>
-          <text class="ex-tag" x="24" y="20">a(${N}) = ${fmt(val, 4)} · |a − L| = ${fmt(Math.abs(val - LIM[st.k]), 4)}</text>`,
-        caption: L(
-          `At n = ${N} the term is ${fmt(val, 4)}, only ${fmt(Math.abs(val - LIM[st.k]), 4)} from the limit ${fmt(LIM[st.k], 3)}. Increase n - the gap keeps shrinking but the terms never have to reach the limit exactly.`,
-          `При n = ${N} член равен ${fmt(val, 4)}, до предела ${fmt(LIM[st.k], 3)} осталось лишь ${fmt(Math.abs(val - LIM[st.k]), 4)}. Увеличивай n - разница продолжает уменьшаться, хотя члены могут так и не стать равны пределу.`,
-          `n = ${N} болғанда мүше ${fmt(val, 4)}, ${fmt(LIM[st.k], 3)} шегіне дейін тек ${fmt(Math.abs(val - LIM[st.k]), 4)} қалды. n-ді арттыр - айырма кішірейе береді, бірақ мүшелер шекке тең болмауы да мүмкін.`,
-        ),
-      };
-    },
-  },
-
-  // ===== Вторая пачка: начальная математика, арифметика, матрицы, соли, передача данных =====
-
-  tens: {
-    title: L('Tens and ones', 'Десятки и единицы', 'Ондықтар мен бірліктер'),
-    intro: L('Any number up to 100 is made of tens (bundles of 10) and ones. 47 = 4 tens and 7 ones.', 'Любое число до 100 складывается из десятков (пачек по 10) и единиц. 47 = 4 десятка и 7 единиц.', '100-ге дейінгі кез келген сан ондықтардан (10-нан бума) және бірліктерден тұрады. 47 = 4 ондық және 7 бірлік.'),
-    sliders: [{ id: 'n', label: L('number', 'число', 'сан'), min: 0, max: 99, value: 47 }],
-    buttons: ['+1', '+10', '−1', '−10'],
-    onButton: (i, st, v) => ({ n: clamp(v.n + [1, 10, -1, -10][i], 0, 99) }),
-    draw(v) {
-      const n = Math.round(v.n);
-      const t = Math.floor(n / 10);
-      const o = n % 10;
-      const rods = Array.from({ length: t }, (_, i) => `<rect x="${14 + i * 20}" y="60" width="14" height="120" rx="3" class="ex-fill exc-b" style="opacity:.85"/>${Array.from({ length: 9 }, (_, k) => `<line class="ex-stroke" style="stroke:var(--surface);stroke-width:1" x1="${14 + i * 20}" y1="${72 + k * 12}" x2="${28 + i * 20}" y2="${72 + k * 12}"/>`).join('')}`).join('');
-      const ones = Array.from({ length: o }, (_, i) => `<rect x="${214 + (i % 3) * 18}" y="${130 - Math.floor(i / 3) * 18}" width="14" height="14" rx="3" class="ex-fill exc-o"/>`).join('');
-      return {
-        svg: `${rods}${ones}<text class="ex-big" x="160" y="36">${n} = ${t} · 10 + ${o}</text><text class="ex-tiny" x="100" y="200">${u('tens', 'десятки', 'ондықтар')}: ${t}</text><text class="ex-tiny" x="245" y="200">${u('ones', 'единицы', 'бірліктер')}: ${o}</text>`,
-        caption: L(`${n} has ${t} ten${t === 1 ? '' : 's'} (blue rods) and ${o} one${o === 1 ? '' : 's'} (orange cubes). When there are 10 ones, they join into a new ten.`, `В числе ${n} - ${t} дес. (синие палочки) и ${o} ед. (оранжевые кубики). Когда единиц набирается 10, они собираются в новый десяток.`, `${n} санында ${t} ондық (көк таяқшалар) және ${o} бірлік (қызғылт сары текшелер). Бірлік 10-ға жеткенде, олар жаңа ондыққа жиналады.`),
-      };
-    },
-  },
-
-  column: {
-    title: L('Column addition with carrying', 'Сложение столбиком с переходом', 'Бағанмен қосу (ауыстырумен)'),
-    intro: L('Add ones with ones, tens with tens. If the ones make 10 or more, write the ones digit and carry 1 to the tens.', 'Складываем единицы с единицами, десятки с десятками. Если единиц получилось 10 или больше, пишем цифру единиц, а 1 переносим в десятки.', 'Бірліктерді бірліктермен, ондықтарды ондықтармен қосамыз. Бірліктер 10 не одан көп болса, бірліктер цифрын жазып, 1-ді ондықтарға ауыстырамыз.'),
-    sliders: [
-      { id: 'a', label: 'a', min: 10, max: 999, value: 358 },
-      { id: 'b', label: 'b', min: 10, max: 999, value: 276 },
-    ],
-    buttons: [L('Next digit', 'Следующий разряд', 'Келесі разряд'), RESET],
-    state: () => ({ k: 0 }),
-    onSlide(key, v, st) {
-      st.k = 0;
-    },
-    onButton(i, st) {
-      st.k = i ? 0 : Math.min(st.k + 1, 4);
-    },
-    draw(v, step, st) {
-      const a = Math.round(v.a);
-      const b = Math.round(v.b);
-      const s = a + b;
-      const da = String(a).padStart(4, ' ');
-      const db = String(b).padStart(4, ' ');
-      const ds = String(s).padStart(4, ' ');
-      const carry = [0, 0, 0, 0];
-      for (let i = 3, c = 0; i >= 0; i--) {
-        const x = (Number(da[i]) || 0) + (Number(db[i]) || 0) + c;
-        c = x >= 10 ? 1 : 0;
-        if (i > 0) carry[i - 1] = c;
-      }
-      const X = (i) => 140 + i * 34;
-      const shown = (i) => 3 - i < st.k;
-      const row = (str, y, cls = '') => [...str].map((ch, i) => `<text class="ex-big${cls}" x="${X(i)}" y="${y}">${ch.trim()}</text>`).join('');
-      const carries = carry.map((c, i) => (c && shown(i + 1) ? `<text class="ex-small exc-r" x="${X(i)}" y="44">1</text>` : '')).join('');
-      const res = [...ds].map((ch, i) => (shown(i) ? `<text class="ex-big exc-p" x="${X(i)}" y="170">${ch.trim()}</text>` : '')).join('');
-      const col = st.k < 4 ? 3 - st.k : -1;
-      return {
-        svg: `${col >= 0 ? `<rect x="${X(col) - 16}" y="52" width="32" height="128" rx="8" class="ex-fill exc-y" style="opacity:.25"/>` : ''}${carries}${row(da, 82)}<text class="ex-big" x="100" y="118">+</text>${row(db, 118)}<line class="ex-axis" x1="110" y1="134" x2="${X(3) + 20}" y2="134"/>${res}`,
-        caption:
-          st.k >= 4 || st.k > String(s).length - 1
-            ? L(`${a} + ${b} = ${s}. The red 1s are carries.`, `${a} + ${b} = ${s}. Красные единички - это переносы в следующий разряд.`, `${a} + ${b} = ${s}. Қызыл бірліктер - келесі разрядқа ауыстыру.`)
-            : L('Press "Next digit": we add the highlighted column, starting from the ones.', 'Нажимай «Следующий разряд»: складываем подсвеченный столбик, начиная с единиц.', '«Келесі разряд» бас: бірліктерден бастап белгіленген бағанды қосамыз.'),
-      };
-    },
-  },
-
-  numline: {
-    title: L('Negative numbers on the number line', 'Отрицательные числа на прямой', 'Сан түзуіндегі теріс сандар'),
-    intro: L('Adding a positive number moves right, adding a negative moves left. Subtracting a negative is the same as adding a positive: 3 − (−2) = 5.', 'Прибавить положительное - шаг вправо, отрицательное - шаг влево. Вычесть отрицательное - то же, что прибавить положительное: 3 − (−2) = 5.', 'Оң санды қосу - оңға қадам, терісті қосу - солға қадам. Терісті азайту оңды қосумен бірдей: 3 − (−2) = 5.'),
-    sliders: [
-      { id: 'a', label: 'a', min: -10, max: 10, value: 3 },
-      { id: 'b', label: 'b', min: -10, max: 10, value: -5 },
-    ],
-    buttons: ['a + b', 'a − b'],
-    state: () => ({ op: 0 }),
-    pressed: (i, v, st) => i === st.op,
-    onButton(i, st) {
-      st.op = i;
-    },
-    draw(v, step, st) {
-      const a = Math.round(v.a);
-      const b = Math.round(v.b);
-      const d = st.op ? -b : b;
-      const r = a + d;
-      const sx = (x) => 160 + x * 7.5;
-      const ticks = Array.from({ length: 41 }, (_, i) => i - 20).map((x) => `<line class="ex-stroke exc-m" x1="${sx(x)}" y1="${x % 5 ? 136 : 130}" x2="${sx(x)}" y2="${x % 5 ? 144 : 150}"/>${x % 5 ? '' : `<text class="ex-tiny" x="${sx(x)}" y="166">${x}</text>`}`).join('');
-      return {
-        svg: `<line class="ex-axis" x1="5" y1="140" x2="315" y2="140"/>${ticks}
-          <circle class="ex-fill exc-b" cx="${sx(a)}" cy="140" r="6"/>
-          <path class="ex-stroke exc-${d >= 0 ? 'g' : 'r'}" style="fill:none;stroke-width:2.5" d="M${sx(a)} 132 Q${n1((sx(a) + sx(r)) / 2)} ${n1(132 - Math.min(70, Math.abs(d) * 6))} ${sx(r)} 132"/>
-          <circle class="ex-fill exc-p" cx="${sx(r)}" cy="140" r="7"/>
-          <text class="ex-big" x="160" y="45">${a} ${st.op ? '−' : '+'} ${b < 0 ? `(${fmt(b)})` : b} = ${fmt(r)}</text>`,
-        caption: L(
-          `Start at ${a}, ${d >= 0 ? `move ${d} to the right` : `move ${-d} to the left`} - you land on ${r}.${st.op && b < 0 ? ' Subtracting a negative number turned into moving right!' : ''}`,
-          `Начинаем с ${a}, ${d >= 0 ? `идём на ${d} вправо` : `идём на ${-d} влево`} - попадаем в ${fmt(r)}.${st.op && b < 0 ? ' Вычитание отрицательного числа превратилось в шаг вправо!' : ''}`,
-          `${a}-тен бастап, ${d >= 0 ? `оңға ${d} қадам` : `солға ${-d} қадам`} жүреміз - ${fmt(r)}-ге түсеміз.${st.op && b < 0 ? ' Теріс санды азайту оңға қадамға айналды!' : ''}`,
-        ),
-      };
-    },
-  },
-
-  areamul: {
-    title: L('Multiplication as area', 'Умножение как площадь', 'Көбейту - аудан ретінде'),
-    intro: L('a × b is the number of squares in a rectangle a by b. Split a two-digit number into tens and ones - the rectangle splits into easy parts.', 'a × b - это число клеток в прямоугольнике a на b. Разбей двузначное число на десятки и единицы - прямоугольник разделится на простые части.', 'a × b - a-ға b тіктөртбұрыштағы шаршылар саны. Екі таңбалы санды ондықтар мен бірліктерге бөлсең, тіктөртбұрыш оңай бөліктерге бөлінеді.'),
-    sliders: [
-      { id: 'a', label: 'a', min: 1, max: 19, value: 14 },
-      { id: 'b', label: 'b', min: 1, max: 12, value: 6 },
-    ],
-    buttons: [L('Swap a and b', 'Поменять a и b', 'a мен b-ны ауыстыру')],
-    onButton: (i, st, v) => ({ a: clamp(v.b, 1, 19), b: clamp(v.a, 1, 12) }),
-    draw(v) {
-      const a = Math.round(v.a);
-      const b = Math.round(v.b);
-      const c = Math.min(14, 280 / Math.max(a, 1), 150 / Math.max(b, 1));
-      const t = Math.floor(a / 10) * 10;
-      const o = a - t;
-      const cells = [];
-      for (let y = 0; y < b; y++) for (let x = 0; x < a; x++) cells.push(`<rect x="${n1(20 + x * c)}" y="${n1(50 + y * c)}" width="${n1(c - 1.5)}" height="${n1(c - 1.5)}" rx="2" class="ex-fill ${x < t ? 'exc-b' : 'exc-o'}" style="opacity:.75"/>`);
-      return {
-        svg: `${cells.join('')}<text class="ex-big" x="160" y="32">${a} × ${b} = ${a * b}</text>${t && o ? `<text class="ex-tag" x="20" y="${n1(70 + b * c)}">${t} × ${b} + ${o} × ${b} = ${t * b} + ${o * b}</text>` : ''}`,
-        caption: L(
-          `${a} rows of ${b}... or ${b} rows of ${a} - the same ${a * b} squares.${t && o ? ` Split ${a} = ${t} + ${o}: ${t * b} (blue) + ${o * b} (orange) = ${a * b}.` : ''}`,
-          `${a} × ${b} = ${a * b} клеток, и от перестановки множителей площадь не меняется.${t && o ? ` Разбей ${a} = ${t} + ${o}: ${t * b} (синие) + ${o * b} (оранжевые) = ${a * b}.` : ''}`,
-          `${a} × ${b} = ${a * b} шаршы, көбейткіштердің орнын ауыстырғаннан аудан өзгермейді.${t && o ? ` ${a} = ${t} + ${o} деп бөл: ${t * b} (көк) + ${o * b} (қызғылт сары) = ${a * b}.` : ''}`,
-        ),
-      };
-    },
-  },
-
-  decimals: {
-    title: L('Decimals: tenths and hundredths', 'Десятичные дроби: десятые и сотые', 'Ондық бөлшектер: ондықтар мен жүздіктер'),
-    intro: L('Split a square into 100 small cells. One cell is 0.01, a column of ten is 0.1. So 0.37 = 3 columns and 7 cells.', 'Раздели квадрат на 100 клеток. Одна клетка - 0,01, столбик из десяти - 0,1. Значит, 0,37 = 3 столбика и 7 клеток.', 'Шаршыны 100 торға бөл. Бір тор - 0,01, оннан тұратын баған - 0,1. Демек, 0,37 = 3 баған және 7 тор.'),
-    sliders: [{ id: 'x', label: 'x', min: 0, max: 1, step: 0.01, value: 0.37 }],
-    buttons: ['+0,1', '+0,01', '−0,01'],
-    onButton: (i, st, v) => ({ x: clamp(Math.round((v.x + [0.1, 0.01, -0.01][i]) * 100) / 100, 0, 1) }),
-    draw(v) {
-      const k = Math.round(v.x * 100);
-      const cells = Array.from({ length: 100 }, (_, i) => {
-        const col = Math.floor(i / 10);
-        const row = i % 10;
-        return `<rect x="${20 + col * 17}" y="${30 + (9 - row) * 17}" width="15" height="15" rx="2" class="ex-fill ${i < k ? (col < Math.floor(k / 10) ? 'exc-b' : 'exc-o') : 'exc-m'}" style="opacity:${i < k ? 0.85 : 0.15}"/>`;
-      }).join('');
-      const t = Math.floor(k / 10);
-      const h = k % 10;
-      return {
-        svg: `${cells}<text class="ex-big" x="260" y="80">${fmt(k / 100)}</text><text class="ex-tag" x="200" y="115">= ${fmt(t / 10, 1)} + ${fmt(h / 100)}</text><text class="ex-tag" x="200" y="140">= ${k}%</text><text class="ex-tag" x="200" y="165">= ${k}/100</text>`,
-        caption: L(`${fmt(k / 100)} is ${t} tenths (blue columns) and ${h} hundredths (orange cells) - ${k} cells out of 100, that is ${k}%.`, `${fmt(k / 100)} - это ${t} десятых (синие столбики) и ${h} сотых (оранжевые клетки) - ${k} клеток из 100, то есть ${k}%.`, `${fmt(k / 100)} - бұл ${t} ондық (көк бағандар) және ${h} жүздік (қызғылт сары торлар) - 100-ден ${k} тор, яғни ${k}%.`),
-      };
-    },
-  },
-
-  ratio: {
-    title: L('Ratio and proportion', 'Отношения и пропорции', 'Қатынас және пропорция'),
-    intro: L('A ratio 2 : 3 means for every 2 parts of one thing there are 3 parts of another. Scale both parts by the same number - the ratio stays the same.', 'Отношение 2 : 3 значит: на каждые 2 части одного приходится 3 части другого. Умножь обе части на одно число - отношение не изменится.', '2 : 3 қатынасы: біреуінің әр 2 бөлігіне екіншісінің 3 бөлігі келеді. Екі бөлікті бір санға көбейтсең - қатынас өзгермейді.'),
-    sliders: [
-      { id: 'p', label: L('juice parts', 'частей сока', 'шырын бөлігі'), min: 1, max: 6, value: 2 },
-      { id: 'q', label: L('water parts', 'частей воды', 'су бөлігі'), min: 1, max: 6, value: 3 },
-      { id: 'T', label: L('total, ml', 'всего, мл', 'барлығы, мл'), min: 100, max: 1000, step: 50, value: 500 },
-    ],
-    buttons: [L('Double the recipe', 'Удвоить рецепт', 'Рецептті екі есе'), RESET],
-    onButton: (i, st, v) => [{ T: clamp(v.T * 2, 100, 1000) }, { p: 2, q: 3, T: 500 }][i],
-    draw(v) {
-      const p = Math.round(v.p);
-      const q = Math.round(v.q);
-      const part = v.T / (p + q);
-      const w = 280 / (p + q);
-      const blocks = Array.from({ length: p + q }, (_, i) => `<rect x="${n1(20 + i * w)}" y="80" width="${n1(w - 3)}" height="50" rx="6" class="ex-fill ${i < p ? 'exc-o' : 'exc-b'}" style="opacity:.8"/>`).join('');
-      return {
-        svg: `<text class="ex-big" x="160" y="45">${p} : ${q}</text>${blocks}<text class="ex-tag" x="20" y="160">${u('one part', 'одна часть', 'бір бөлік')} = ${fmt(v.T, 0)} : ${p + q} = ${fmt(part, 1)}</text><text class="ex-tag" x="20" y="185">${u('juice', 'сок', 'шырын')} ${fmt(part * p, 1)} · ${u('water', 'вода', 'су')} ${fmt(part * q, 1)}</text>`,
-        caption: L(`Total ${fmt(v.T, 0)} ml in the ratio ${p} : ${q}: there are ${p + q} equal parts of ${fmt(part, 1)} ml, so juice ${fmt(part * p, 1)} ml and water ${fmt(part * q, 1)} ml.`, `Всего ${fmt(v.T, 0)} мл в отношении ${p} : ${q}: это ${p + q} равных частей по ${fmt(part, 1)} мл, значит сока ${fmt(part * p, 1)} мл, воды ${fmt(part * q, 1)} мл.`, `Барлығы ${fmt(v.T, 0)} мл, қатынасы ${p} : ${q}: бұл ${fmt(part, 1)} мл-ден ${p + q} тең бөлік, демек шырын ${fmt(part * p, 1)} мл, су ${fmt(part * q, 1)} мл.`),
-      };
-    },
-  },
-
-  sieve: {
-    title: L('Prime numbers: the sieve of Eratosthenes', 'Простые числа: решето Эратосфена', 'Жай сандар: Эратосфен елегі'),
-    intro: L('Cross out all multiples of 2, then of 3, 5, 7… What is left are primes - numbers divisible only by 1 and themselves.', 'Вычеркни все числа, кратные 2, потом 3, 5, 7… Останутся простые - числа, которые делятся только на 1 и на себя.', '2-ге еселі барлық сандарды сыз, кейін 3, 5, 7-ге… Жай сандар қалады - тек 1-ге және өзіне бөлінетін сандар.'),
-    sliders: [],
-    buttons: [L('Next prime', 'Следующее простое', 'Келесі жай сан'), L('▶ All', '▶ Всё', '▶ Барлығы'), RESET],
-    state: () => ({ done: [] }),
-    onButton(i, st, v, api) {
-      const next = () => {
-        const p = [2, 3, 5, 7].find((x) => !st.done.includes(x));
-        if (p) st.done.push(p);
-        return Boolean(p);
-      };
-      if (i === 0) next();
-      else if (i === 1) api.run(() => next(), 700);
-      else {
-        api.stop();
-        st.done = [];
-      }
-    },
-    draw(v, step, st) {
-      const crossedBy = (n) => st.done.find((p) => n !== p && n % p === 0);
-      const cells = Array.from({ length: 100 }, (_, i) => {
-        const n = i + 1;
-        const by = crossedBy(n);
-        const prime = n > 1 && !by && st.done.length === 4;
-        const x = 12 + (i % 10) * 30;
-        const y = 12 + Math.floor(i / 10) * 20;
-        const color = n === 1 ? 'exc-m' : by ? ['exc-r', 'exc-o', 'exc-b', 'exc-k'][[2, 3, 5, 7].indexOf(by)] : prime || st.done.includes(n) ? 'exc-g' : '';
-        return `<text class="ex-tiny ${color}" x="${x + 13}" y="${y + 13}" style="${by || n === 1 ? 'opacity:.35;text-decoration:line-through' : prime || st.done.includes(n) ? 'font-weight:900' : ''}">${n}</text>`;
-      }).join('');
-      const left = Array.from({ length: 99 }, (_, i) => i + 2).filter((n) => !crossedBy(n)).length;
-      return {
-        svg: cells,
-        caption: st.done.length
-          ? L(`Crossed out multiples of ${st.done.join(', ')}. ${st.done.length === 4 ? `The ${left} numbers left are all the primes up to 100.` : `${left} numbers are still left.`}`, `Вычеркнуты кратные ${st.done.join(', ')}. ${st.done.length === 4 ? `Оставшиеся ${left} чисел - все простые числа до 100.` : `Осталось ещё ${left} чисел.`}`, `${st.done.join(', ')}-ге еселілер сызылды. ${st.done.length === 4 ? `Қалған ${left} сан - 100-ге дейінгі барлық жай сандар.` : `Әлі ${left} сан қалды.`}`)
-          : L('Press "Next prime": we start with 2.', 'Нажми «Следующее простое» - начнём с 2.', '«Келесі жай сан» бас - 2-ден бастаймыз.'),
-      };
-    },
-  },
-
-  matrix: {
-    title: L('A matrix transforms the plane', 'Матрица преобразует плоскость', 'Матрица жазықтықты түрлендіреді'),
-    intro: L('A 2×2 matrix sends the vector (1; 0) to its first column and (0; 1) to its second. The unit square becomes a parallelogram whose area is the determinant.', 'Матрица 2×2 переводит вектор (1; 0) в свой первый столбец, а (0; 1) - во второй. Единичный квадрат становится параллелограммом, его площадь - определитель.', '2×2 матрица (1; 0) векторын бірінші бағанына, (0; 1)-ді екіншісіне апарады. Бірлік шаршы параллелограмға айналады, оның ауданы - анықтауыш.'),
-    sliders: [
-      { id: 'a', label: 'a', min: -2, max: 2, step: C, value: 1.5 },
-      { id: 'b', label: 'b', min: -2, max: 2, step: C, value: 0.5 },
-      { id: 'c', label: 'c', min: -2, max: 2, step: C, value: 0 },
-      { id: 'd', label: 'd', min: -2, max: 2, step: C, value: 1 },
-    ],
-    buttons: [L('Identity', 'Единичная', 'Бірлік'), L('Rotate 90°', 'Поворот 90°', '90° бұру'), L('det = 0', 'det = 0', 'det = 0')],
-    onButton: (i) => [{ a: 1, b: 0, c: 0, d: 1 }, { a: 0, b: -1, c: 1, d: 0 }, { a: 1, b: 2, c: 0.5, d: 1 }][i],
-    draw(v) {
-      const sx = (x) => 160 + x * 32;
-      const sy = (y) => 110 - y * 32;
-      const P = (x, y) => [v.a * x + v.b * y, v.c * x + v.d * y];
-      const pts = [P(0, 0), P(1, 0), P(1, 1), P(0, 1)].map(([x, y]) => `${n1(sx(x))},${n1(sy(y))}`).join(' ');
-      const det = v.a * v.d - v.b * v.c;
-      return {
-        svg: `${axes(sx, sy, [-5, 5], [-3, 3])}<polygon points="${sx(0)},${sy(0)} ${sx(1)},${sy(0)} ${sx(1)},${sy(1)} ${sx(0)},${sy(1)}" class="ex-fill exc-m" style="opacity:.2"/>
-          <polygon points="${pts}" class="ex-fill exc-p" style="opacity:.35"/>${arrow(sx(0), sy(0), sx(v.a), sy(v.c), 'exc-o', 2.5)}${arrow(sx(0), sy(0), sx(v.b), sy(v.d), 'exc-b', 2.5)}
-          <text class="ex-tag" x="8" y="18">(${fmt(v.a)} ${fmt(v.b)} / ${fmt(v.c)} ${fmt(v.d)})</text><text class="ex-tag" x="8" y="38">det = ad − bc = ${fmt(det)}</text>`,
-        caption: L(
-          `The orange arrow is the first column (${fmt(v.a)}; ${fmt(v.c)}), the blue one the second (${fmt(v.b)}; ${fmt(v.d)}). det = ${fmt(det)}: the area changed ${fmt(Math.abs(det))} times${det < 0 ? ', and the picture is flipped' : ''}${Math.abs(det) < 0.01 ? ' - everything is squashed onto a line, there is no inverse matrix' : ''}.`,
-          `Оранжевая стрелка - первый столбец (${fmt(v.a)}; ${fmt(v.c)}), синяя - второй (${fmt(v.b)}; ${fmt(v.d)}). det = ${fmt(det)}: площадь изменилась в ${fmt(Math.abs(det))} раза${det < 0 ? ', а фигура перевернулась' : ''}${Math.abs(det) < 0.01 ? ' - всё сплющилось в прямую, обратной матрицы нет' : ''}.`,
-          `Қызғылт сары нұсқар - бірінші баған (${fmt(v.a)}; ${fmt(v.c)}), көгі - екінші (${fmt(v.b)}; ${fmt(v.d)}). det = ${fmt(det)}: аудан ${fmt(Math.abs(det))} есе өзгерді${det < 0 ? ', ал фигура аударылды' : ''}${Math.abs(det) < 0.01 ? ' - бәрі түзуге жаншылды, кері матрица жоқ' : ''}.`,
-        ),
-      };
-    },
-  },
-
-};
 
 // ---------- Дроби ----------
 
@@ -1861,8 +709,8 @@ const percent = modes({
       const sx = (x) => 14 + (x / top) * 280;
       const diff = nw - NN;
       const k = 1 + (sg * pp) / 100;
-      return `${T(14, 26, u('was: 100%', 'было: 100%', 'болды: 100%'), 'm11 ex-start exm-mut')}${box(14, 32, sx(NN) - 14, 26, 'exc-b', 5, 0.85)}${T(sx(NN) - 6, 50, fmt(NN), 'm12 ex-end exm-on')}
-        ${T(14, 84, `${u('now', 'стало', 'болды')}: ${fmt(100 + sg * pp)}%`, 'm11 ex-start exm-mut')}${box(14, 90, sx(nw) - 14, 26, 'exc-p', 5, 0.85)}${nw > top * 0.15 ? T(sx(nw) - 6, 108, fmt(nw), 'm12 ex-end exm-on') : T(sx(nw) + 4, 108, fmt(nw), 'm12 ex-start')}
+      return `${T(14, 26, u('was: 100%', 'было: 100%', 'бұрын: 100%'), 'm11 ex-start exm-mut')}${box(14, 32, sx(NN) - 14, 26, 'exc-b', 5, 0.85)}${T(sx(NN) - 6, 50, fmt(NN), 'm12 ex-end exm-on')}
+        ${T(14, 84, `${u('now', 'стало', 'қазір')}: ${fmt(100 + sg * pp)}%`, 'm11 ex-start exm-mut')}${box(14, 90, sx(nw) - 14, 26, 'exc-p', 5, 0.85)}${nw > top * 0.15 ? T(sx(nw) - 6, 108, fmt(nw), 'm12 ex-end exm-on') : T(sx(nw) + 4, 108, fmt(nw), 'm12 ex-start')}
         ${diff ? `${box(sx(Math.min(NN, nw)), 124, Math.abs(sx(nw) - sx(NN)), 8, sg > 0 ? 'exc-g' : 'exc-r', 3)}${ln(sx(NN), 32, sx(NN), 134, 'exc-m ex-dash', 1)}${T((sx(NN) + sx(nw)) / 2, 148, `${sg > 0 ? '+' : '−'}${fmt(pp)}% = ${sg > 0 ? '+' : '−'}${fmt(Math.abs(diff))}`, `m11 tc ${sg > 0 ? 'exc-g' : 'exc-r'}`)}` : ''}
         ${T(160, 180, `${fmt(NN)} · (1 ${sg > 0 ? '+' : '−'} ${fmt(pp / 100, 3)}) = ${fmt(NN)} · ${fmt(k, 3)} = ${fmt(nw)}`, 'm12')}
         ${sg > 0 && pp > 0 ? T(160, 204, `${u('then', 'а потом', 'кейін')} −${fmt(pp)}%: ${fmt(nw)} · ${fmt(1 - pp / 100, 3)} = ${fmt(Math.max(0, nw * (1 - pp / 100)))} ≠ ${fmt(NN)}`, 'm10 exm-mut') : ''}`;
@@ -3390,7 +2238,7 @@ const derivative = modes({
     const tri = h > 0.05 ? `${pth(`M${n1(sx(x0))} ${n1(sy(y0))} H${n1(sx(x1))} V${n1(clamp(sy(y1), -10, 230))}`, 'exc-o ex-dash', 1.5)}${T((sx(x0) + sx(x1)) / 2, sy(y0) + (y1 >= y0 ? 13 : -5), `Δx = ${fmt(h)}`, 'm9 tc exc-o h')}${T(sx(x1) + 4, (sy(y0) + sy(y1)) / 2 + 3, `Δy = ${fmt(y1 - y0)}`, 'm9 tc exc-o ex-start h')}` : '';
     return {
       svg: `${G.svg}${curve}${tanL(k, 'exc-g', 2)}${h > 0.001 ? tanL(ks, 'exc-o ex-dash', 2.2) : ''}${tri}${h > 0.001 ? dot(sx(x1), clamp(sy(y1), -10, 230), 5, 'exc-o') : ''}${P}
-        ${head}${T(312, 18, `Δy/Δx = ${fmt(ks)}`, 'm11 tc exc-o ex-end h')}${T(312, 34, `f′(${fmt(x0)}) = ${fmt(kz)}`, 'm11 tc exc-g ex-end h')}`,
+        ${head}${T(312, 18, `${ui.slope()} Δy/Δx = ${fmt(ks)}`, 'm11 tc exc-o ex-end h')}${T(312, 34, `f′(${fmt(x0)}) = ${fmt(kz)}`, 'm11 tc exc-g ex-end h')}`,
       caption: h <= 0.001 ? L(`h = 0: the two points merged, the secant became the tangent with slope f′(${fmt(x0)}) = ${F.ds} = ${fmt(kz)}.`, `h = 0: точки слились, секущая стала касательной с наклоном f′(${fmt(x0)}) = ${F.ds} = ${fmt(kz)}.`, `h = 0: нүктелер қосылды, қиюшы көлбеулігі f′(${fmt(x0)}) = ${F.ds} = ${fmt(kz)} жанамаға айналды.`) : L(
         `Secant slope Δy/Δx = (f(x₀ + h) − f(x₀))/h = ${fmt(y1 - y0)}/${fmt(h)} = ${fmt(ks)}. As h → 0 it tends to f′(x₀) = ${F.ds} = ${fmt(kz)} - the slope of the green tangent. Press ▶.`,
         `Наклон секущей Δy/Δx = (f(x₀ + h) − f(x₀))/h = ${fmt(y1 - y0)}/${fmt(h)} = ${fmt(ks)}. При h → 0 он стремится к f′(x₀) = ${F.ds} = ${fmt(kz)} - наклону зелёной касательной. Нажми ▶.`,
@@ -3613,12 +2461,12 @@ const motion = modes({
     const gap = Math.max(0, catchUp ? p2(t) - p1(t) : p2(t) - p1(t));
     const met = t >= tm - 1e-9;
     const km = u('km', 'км', 'км');
-    const hU = u('h', 'ч', 'сағ');
+    const hU = ui.h();
     // дорога
     let g = `<line class="ex-road" x1="18" y1="52" x2="302" y2="52"/>${ln(24, 40, 24, 64, 'exc-m', 1.5)}${T(24, 76, 'A', 'm10 exm-mut')}`;
     if (!catchUp) g += ln(296, 40, 296, 64, 'exc-m', 1.5) + T(296, 76, 'B', 'm10 exm-mut');
     else g += ln(rx(S), 40, rx(S), 64, 'exc-m ex-dash', 1) + T(rx(S), 76, `S = ${fmt(S)}`, 'm9 exm-mut');
-    if (!met && gap > 0) g += `${ln(rx(p1(t)) + 16, 30, rx(p2(t)) - 16 * (catchUp ? 1 : 1), 30, 'exc-o', 1.2)}${T((rx(p1(t)) + rx(p2(t))) / 2, 26, `${fmt(gap, 1)} ${km}`, 'm10 tc exc-o h')}`;
+    if (!met && gap > 0) g += `${ln(rx(p1(t)) + 16, 30, rx(p2(t)) - 16 * (catchUp ? 1 : 1), 30, 'exc-o', 1.2)}${T((rx(p1(t)) + rx(p2(t))) / 2, 26, `${ui.gap()}: ${fmt(gap, 1)} ${km}`, 'm10 tc exc-o h')}`;
     g += car(rx(p1(t)), 50, 'exc-p', 1) + car(rx(p2(t)), 50, 'exc-b', catchUp ? 1 : -1);
     // график s(t)
     const gx = (tt) => 40 + (tt / Tv) * 268;
@@ -3845,8 +2693,2501 @@ const inequality = modes({
   },
 });
 
+// ---------- Степени и показательная функция ----------
+
+/** Значение степени красиво: дробь, если знаменатель небольшой. */
+const powStr = (x) => (Math.abs(x) > 1e6 ? fmt(x, 0) : nice(x, 100, 3));
+
+function powTask(st) {
+  const last = st.task?.type;
+  const list = [
+    [2, 5],
+    [3, 4],
+    [2, -3],
+    [3, -2],
+    [4, 0.5],
+    [0.5, -3],
+    [10, -2],
+    [9, 0.5],
+    [5, 0],
+    [2, 6],
+  ];
+  let i;
+  do i = rnd(0, list.length - 1);
+  while (i === last);
+  const [a, n] = list[i];
+  st.task = { type: i, a, n, val: a ** n, done: false };
+  return { a, n: 1 };
+}
+
+const exponential = modes({
+  title: L('Powers and the exponential function', 'Степени и показательная функция', 'Дәрежелер және көрсеткіштік функция'),
+  intro: L('aⁿ is a multiplied by itself n times. Negative and fractional exponents follow the same pattern: a⁰ = 1, a⁻ⁿ = 1/aⁿ, a^(1/2) = √a.', 'aⁿ - это a, умноженное само на себя n раз. Отрицательные и дробные показатели продолжают ту же закономерность: a⁰ = 1, a⁻ⁿ = 1/aⁿ, a^(1/2) = √a.', 'aⁿ - a-ның өзіне n рет көбейтіндісі. Теріс және бөлшек көрсеткіштер сол заңдылықты жалғастырады: a⁰ = 1, a⁻ⁿ = 1/aⁿ, a^(1/2) = √a.'),
+  sliders: [
+    { id: 'a', label: L('base a', 'основание a', 'негіз a'), min: 0.1, max: 4, step: 0.1, value: 2, hidden: (v, st) => st.m === 3 },
+    { id: 'n', label: L('exponent n', 'показатель n', 'көрсеткіш n'), min: -4, max: 6, step: 0.5, value: 3 },
+    { id: 'm', label: L('exponent m', 'показатель m', 'көрсеткіш m'), min: 0, max: 5, value: 2, hidden: only(2) },
+  ],
+  tabs: [L('Graph aˣ', 'График aˣ', 'aˣ графигі'), L('Ladder', 'Лестница', 'Баспалдақ'), L('Rules', 'Свойства', 'Қасиеттер'), TASK],
+  acts: [{ label: MORE }],
+  state: () => ({ pre: 0 }),
+  onTab(m, st, v, again) {
+    if (m === 3 && (again || !st.task || st.task.done)) return powTask(st);
+    if (m === 1 || m === 2) return { n: clamp(Math.round(v.n), m === 2 ? 0 : -4, 6) };
+    return null;
+  },
+  onAct(j, st) {
+    if (st.m === 3) return powTask(st);
+    st.pre = (st.pre + 1) % 5;
+    return [{ a: 3, n: 2 }, { a: 0.5, n: 3 }, { a: 4, n: -1 }, { a: 2, n: 0.5 }, { a: 1, n: 4 }][st.pre];
+  },
+  draw(v, step, st) {
+    const tk = st.m === 3 ? (st.task ?? (powTask(st), st.task)) : null;
+    const a = tk ? tk.a : Math.round(v.a * 10) / 10;
+    const n = v.n;
+    const val = a ** n;
+    const aS = nice(a, 10);
+
+    if (st.m === 1) {
+      const N = Math.round(n);
+      const ks = [-3, -2, -1, 0, 1, 2, 3, 4];
+      const w = 37;
+      let g = '';
+      ks.forEach((k, i) => {
+        const x = 12 + i * w;
+        const on = k === N;
+        g += `${box(x, 92, w - 6, 40, on ? 'exc-o' : k < 0 ? 'exc-b' : k === 0 ? 'exc-g' : 'exc-p', 6, on ? 0.95 : 0.25)}${T(x + w / 2 - 3, 108, `${aS}${sup(k)}`, `m10 ${on ? 'exm-on' : ''}`)}${T(x + w / 2 - 3, 125, powStr(a ** k), `m10 ${on ? 'exm-on' : ''}`)}`;
+        if (i < ks.length - 1) g += pth(`M${n1(x + w / 2)} 88 Q${n1(x + w)} 70 ${n1(x + w * 1.5 - 6)} 88`, 'exc-g', 1.2) + T(x + w - 3, 74, `×${aS}`, 'm9 tc exc-g');
+        if (i > 0) g += pth(`M${n1(x + w / 2 - 6)} 136 Q${n1(x)} 152 ${n1(x - w / 2)} 136`, 'exc-r', 1.2);
+      });
+      g += T(160, 164, `← : ${aS}`, 'm10 tc exc-r');
+      const inv = N < 0 ? `${aS}${sup(N)} = 1/${aS}${sup(-N)} = 1/${powStr(a ** -N)}` : N === 0 ? `${aS}⁰ = 1` : `${aS}${sup(N)} = ${Array.from({ length: Math.min(N, 6) }, () => aS).join('·')} = ${powStr(a ** N)}`;
+      return {
+        svg: `${g}${T(160, 36, inv, 'm15')}${T(160, 200, a === 0 ? '' : u('each step to the left divides by a', 'каждый шаг влево делит на a', 'солға әр қадам a-ға бөледі'), 'm10 exm-mut')}`,
+        caption: L(
+          `To the right each step multiplies by ${aS}, to the left it divides by ${aS}. So ${aS}¹ : ${aS} = ${aS}⁰ = 1, and one more step gives ${aS}⁻¹ = 1/${aS}. That is why a⁰ = 1 and a⁻ⁿ = 1/aⁿ (a ≠ 0).`,
+          `Вправо каждый шаг умножает на ${aS}, влево - делит на ${aS}. Значит ${aS}¹ : ${aS} = ${aS}⁰ = 1, а ещё шаг даёт ${aS}⁻¹ = 1/${aS}. Поэтому a⁰ = 1 и a⁻ⁿ = 1/aⁿ (a ≠ 0).`,
+          `Оңға әр қадам ${aS}-ға көбейтеді, солға - ${aS}-ға бөледі. Демек ${aS}¹ : ${aS} = ${aS}⁰ = 1, тағы бір қадам ${aS}⁻¹ = 1/${aS} береді. Сондықтан a⁰ = 1 және a⁻ⁿ = 1/aⁿ (a ≠ 0).`,
+        ),
+      };
+    }
+
+    if (st.m === 2) {
+      const N = Math.max(0, Math.round(n));
+      const M = Math.round(v.m);
+      const chain = (k, y, cls, x0 = 20) => Array.from({ length: k }, (_, i) => `${box(x0 + i * 26, y, 22, 22, cls, 5, 0.85)}${T(x0 + i * 26 + 11, y + 15, aS, 'm10 exm-on')}`).join('');
+      const g = `${T(20, 30, `${aS}${sup(M)} · ${aS}${sup(N)}`, 'm12 ex-start')}${chain(M, 38, 'exc-o')}${chain(N, 38, 'exc-b', 20 + M * 26 + 8)}
+        ${T(20, 86, `= ${aS}${sup(M + N)} = ${powStr(a ** (M + N))}`, 'm12 ex-start tc exc-p')}
+        ${T(20, 120, `${aS}${sup(M)} : ${aS}${sup(N)} = ${aS}${sup(M - N)} = ${powStr(a ** (M - N))}`, 'm12 ex-start')}
+        ${T(20, 148, `(${aS}${sup(M)})${sup(N)} = ${aS}${sup(M * N)} = ${powStr(a ** (M * N))}`, 'm12 ex-start')}
+        ${T(20, 176, `(${aS}·b)${sup(N)} = ${aS}${sup(N)}·b${sup(N)}`, 'm11 ex-start exm-mut')}${T(20, 200, `${aS}^(1/2) = √${aS} = ${fmt(Math.sqrt(a))}`, 'm11 ex-start exm-mut')}`;
+      return {
+        svg: g,
+        caption: L(
+          `When multiplying, the factors just line up: ${M} + ${N} = ${M + N} copies of ${aS}, so exponents add. Dividing cancels ${Math.min(M, N)} pairs - exponents subtract. A power of a power multiplies the exponents: ${M}·${N} = ${M * N}.`,
+          `При умножении множители просто встают в ряд: ${M} + ${N} = ${M + N} копий ${aS}, поэтому показатели складываются. При делении сокращаются ${Math.min(M, N)} пар - показатели вычитаются. Степень в степени - показатели перемножаются: ${M}·${N} = ${M * N}.`,
+          `Көбейткенде көбейткіштер қатарға тұрады: ${aS}-ның ${M} + ${N} = ${M + N} көшірмесі, сондықтан көрсеткіштер қосылады. Бөлгенде ${Math.min(M, N)} жұп қысқарады - көрсеткіштер азаяды. Дәреженің дәрежесі - көрсеткіштер көбейтіледі: ${M}·${N} = ${M * N}.`,
+        ),
+      };
+    }
+
+    // график
+    const G = grid({ x0: -4.5, x1: 6.5, y0: -1, y1: 9, X0: 0, X1: W, Y0: 0, Y1: H, lab: 1, ylab: 2 });
+    const { sx, sy } = G;
+    const curve = pth(plotClip((x) => a ** x, -4.5, 6.5, sx, sy, -5, H + 5), 'exc-p', 3);
+    const ghost = a !== 1 ? pth(plotClip((x) => (1 / a) ** x, -4.5, 6.5, sx, sy, -5, H + 5), 'exc-m ex-dash', 1.5) : '';
+    const P = sy(val) >= 0 ? `${ln(sx(n), sy(0), sx(n), sy(val), 'exc-o ex-dash', 1.2)}${dot(sx(n), sy(val), 6, 'exc-o')}${T(sx(n) + 7, sy(val) - 6, `(${fmt(n)}; ${powStr(val)})`, 'm10 tc exc-o ex-start h')}` : '';
+    const head = `${T(8, 18, `y = ${aS}ˣ`, 'm15 ex-start h')}${T(312, tk ? 40 : 18, `${aS}${sup(n)} = ${powStr(val)}`, 'm12 ex-end h')}${dot(sx(0), sy(1), 4.5, 'exc-g')}`;
+    const half = Math.abs(n - Math.round(n)) > 0.01;
+    if (tk) {
+      const ok = check(st, near(n, tk.n, 0.01));
+      return {
+        svg: `${G.svg}${curve}${P}${head}${badge(`${nice(tk.a)}ⁿ = ${powStr(tk.val)}`, ok)}`,
+        caption: taskCap(
+          st,
+          ok,
+          L(`Find n: ${nice(tk.a)}ⁿ = ${powStr(tk.val)}.`, `Найди n: ${nice(tk.a)}ⁿ = ${powStr(tk.val)}.`, `n-ді тап: ${nice(tk.a)}ⁿ = ${powStr(tk.val)}.`),
+          L(`Now ${aS}${sup(n)} = ${powStr(val)}. ${tk.val < 1 && tk.a > 1 ? 'A result smaller than 1 needs a negative exponent.' : tk.val === 1 ? 'Which power of any number is 1?' : Math.abs(tk.n % 1) > 0 ? 'Think of roots: a^(1/2) = √a.' : 'Count how many times to multiply.'}`, `Сейчас ${aS}${sup(n)} = ${powStr(val)}. ${tk.val < 1 && tk.a > 1 ? 'Чтобы получить меньше 1, нужен отрицательный показатель.' : tk.val === 1 ? 'В какой степени любое число равно 1?' : Math.abs(tk.n % 1) > 0 ? 'Вспомни корни: a^(1/2) = √a.' : 'Посчитай, сколько раз умножать.'}`, `Қазір ${aS}${sup(n)} = ${powStr(val)}. ${tk.val < 1 && tk.a > 1 ? '1-ден кіші шығу үшін теріс көрсеткіш керек.' : tk.val === 1 ? 'Кез келген сан қай дәрежеде 1-ге тең?' : Math.abs(tk.n % 1) > 0 ? 'Түбірлерді еске ал: a^(1/2) = √a.' : 'Неше рет көбейту керегін сана.'}`),
+        ),
+      };
+    }
+    return {
+      svg: `${G.svg}${ln(0, sy(0), W, sy(0), 'exc-r ex-dash', 1)}${ghost}${curve}${P}${head}`,
+      caption: J(
+        a === 1
+          ? L('a = 1: 1ˣ = 1 for every x - a straight line, so the base must be a ≠ 1.', 'a = 1: 1ˣ = 1 при любом x - прямая, поэтому основание a ≠ 1.', 'a = 1: кез келген x үшін 1ˣ = 1 - түзу, сондықтан негіз a ≠ 1.')
+          : a > 1
+            ? L(`a = ${aS} > 1: the function increases, every +1 to x multiplies y by ${aS}.`, `a = ${aS} > 1: функция возрастает, каждый +1 к x умножает y на ${aS}.`, `a = ${aS} > 1: функция өседі, x-ке әр +1 y-ті ${aS}-ға көбейтеді.`)
+            : L(`0 < a = ${aS} < 1: the function decreases.`, `0 < a = ${aS} < 1: функция убывает.`, `0 < a = ${aS} < 1: функция кемиді.`),
+        L(`Always through (0; 1) and above the x-axis (y > 0). ${aS}${sup(n)} = ${powStr(val)}${half ? ` - a half exponent is a root: ${aS}${sup(n)} = √(${aS}${sup(2 * n)})` : ''}. Dashed: y = (1/a)ˣ, the mirror image.`, `Всегда проходит через (0; 1) и лежит выше оси x (y > 0). ${aS}${sup(n)} = ${powStr(val)}${half ? ` - половинный показатель - это корень: ${aS}${sup(n)} = √(${aS}${sup(2 * n)})` : ''}. Пунктир - y = (1/a)ˣ, зеркальное отражение.`, `Әрқашан (0; 1) арқылы өтеді және x осінен жоғары жатады (y > 0). ${aS}${sup(n)} = ${powStr(val)}${half ? ` - жарты көрсеткіш - түбір: ${aS}${sup(n)} = √(${aS}${sup(2 * n)})` : ''}. Пунктир - y = (1/a)ˣ, айнадағы бейнесі.`),
+      ),
+    };
+  },
+});
+
+// ---------- Логарифм ----------
+
+const BASES = [2, 3, 10, 0.5];
+const bStr = (b) => (b === 0.5 ? '½' : String(b));
+const logb = (b, x) => Math.log(x) / Math.log(b);
+const LOG_TASKS = [
+  [2, 5, 32],
+  [2, 3, 8],
+  [3, 2, 9],
+  [3, 4, 81],
+  [10, 2, 100],
+  [2, -1, 0.5],
+  [2, -2, 0.25],
+  [3, -2, 1 / 9],
+  [10, -1, 0.1],
+  [0.5, -3, 8],
+  [2, 0, 1],
+  [3, 0.5, Math.sqrt(3)],
+];
+
+function logTask(st) {
+  const last = st.task?.i;
+  let i;
+  do i = rnd(0, LOG_TASKS.length - 1);
+  while (i === last);
+  const [b, k, x] = LOG_TASKS[i];
+  st.task = { i, b, k, x, done: false };
+  st.bi = BASES.indexOf(b);
+  return { x: 1 };
+}
+
+const logarithm = modes({
+  title: L('Logarithms', 'Логарифмы', 'Логарифмдер'),
+  intro: L('log_b(x) is the power you raise b to in order to get x. It turns multiplication into addition.', 'log_b(x) - это показатель, в который надо возвести b, чтобы получить x. Логарифм превращает умножение в сложение.', 'log_b(x) - x шығу үшін b-ны шығаратын дәреже көрсеткіші. Логарифм көбейтуді қосуға айналдырады.'),
+  sliders: [
+    { id: 'x', label: 'x', min: 0.01, max: 100, step: 0.01, value: 8 },
+    { id: 'y', label: 'y', min: 0.01, max: 100, step: 0.01, value: 4, hidden: only(1) },
+  ],
+  tabs: [L('Definition', 'Определение', 'Анықтама'), L('Product rule', 'Логарифм произведения', 'Көбейтінді логарифмі'), TASK],
+  acts: [{ label: L('Base ↻', 'Основание ↻', 'Негіз ↻'), only: [0, 1] }, { label: MORE, only: [2] }],
+  state: () => ({ bi: 0 }),
+  onTab(m, st, v, again) {
+    if (m === 2 && (again || !st.task || st.task.done)) return logTask(st);
+    return null;
+  },
+  onAct(j, st) {
+    if (j === 1) return logTask(st);
+    st.bi = (st.bi + 1) % BASES.length;
+    return null;
+  },
+  draw(v, step, st) {
+    const b = BASES[st.bi];
+    const bs = bStr(b);
+    const { x, y } = v;
+    const lx = logb(b, x);
+    const ly = logb(b, y);
+    const L2 = (z) => (Math.abs(z - Math.round(z)) < 0.005 ? fmt(Math.round(z), 0) : fmt(z));
+
+    if (st.m === 1) {
+      const lo = Math.min(0, lx, ly, lx + ly) - 0.5;
+      const hi = Math.max(1, lx, lx + ly) + 0.5;
+      const sx = (t) => 16 + ((t - lo) / (hi - lo)) * 288;
+      let g = `${ln(10, 120, 310, 120, 'exc-m', 1.5)}`;
+      for (let k = Math.ceil(lo); k <= Math.floor(hi); k++) {
+        g += ln(sx(k), 113, sx(k), 127, 'exc-m', 1.2) + T(sx(k), 140, powStr(b ** k), 'm9 exm-mut') + T(sx(k), 108, k, 'm9 tc exc-p');
+        if (b > 1 && b <= 3) for (let mlt = 2; mlt < b; mlt++) g += ln(sx(k + logb(b, mlt)), 116, sx(k + logb(b, mlt)), 124, 'exc-m', 0.6);
+      }
+      g += `${box(sx(Math.min(0, lx)), 70, Math.abs(sx(lx) - sx(0)), 14, 'exc-o', 3, 0.9)}${box(sx(Math.min(lx, lx + ly)), 86, Math.abs(sx(lx + ly) - sx(lx)), 14, 'exc-b', 3, 0.9)}${ln(sx(lx + ly), 66, sx(lx + ly), 130, 'exc-p', 2)}${dot(sx(lx + ly), 120, 5, 'exc-p')}
+        ${T(sx(lx / 2), 64, `log x = ${L2(lx)}`, 'm10 tc exc-o h')}${T(sx(lx + ly / 2), 158, `log y = ${L2(ly)}`, 'm10 tc exc-b h')}`;
+      return {
+        svg: `${g}${T(160, 26, `log${sub(bs)}(${fmt(x)}·${fmt(y)}) = ${L2(lx)} + ${L2(ly)} = ${L2(lx + ly)}`, 'm12')}${T(160, 46, `${fmt(x)}·${fmt(y)} = ${fmt(x * y)} = ${bs}${sup(Math.round((lx + ly) * 100) / 100)}`, 'm11 exm-mut')}
+          ${T(160, 170, `log${sub(bs)}(x/y) = ${L2(lx)} − ${L2(ly)} = ${L2(lx - ly)}`, 'm11')}${T(160, 192, `log${sub(bs)}(x${sup(2)}) = 2·log${sub(bs)} x = ${L2(2 * lx)}`, 'm11 exm-mut')}${T(16, 156, u('top: exponent, bottom: number', 'сверху показатель, снизу число', 'үстінде дәреже, астында сан'), 'm9 exm-mut ex-start')}`,
+        caption: L(
+          `On a logarithmic ruler the distance from 1 is the log. Put log x (orange) and log y (blue) end to end: you land on x·y = ${fmt(x * y)}. So log(xy) = log x + log y - this is how slide rules multiplied.`,
+          `На логарифмической линейке расстояние от 1 - это логарифм. Приставим log x (оранжевый) и log y (синий) друг к другу - попадём в x·y = ${fmt(x * y)}. Значит log(xy) = log x + log y - так умножали на логарифмической линейке.`,
+          `Логарифмдік сызғышта 1-ден арақашықтық - логарифм. log x (қызғылт сары) пен log y (көк) кесінділерін жалғасақ, x·y = ${fmt(x * y)} нүктесіне түсеміз. Демек log(xy) = log x + log y - логарифмдік сызғыш осылай көбейтетін.`,
+        ),
+      };
+    }
+
+    const G = grid({ x0: -2, x1: 17, y0: -5, y1: 5.5, X0: 0, X1: W, Y0: 0, Y1: H, lab: 2, ylab: 1 });
+    const { sx, sy } = G;
+    const lg = pth(plotClip((t) => logb(b, t), 0.01, 17, sx, sy, -10, H + 10, 300), 'exc-p', 3);
+    const pw = pth(plotClip((t) => b ** t, -2, 17, sx, sy, -10, H + 10, 200), 'exc-k', 1.6);
+    const diag = ln(sx(-2), sy(-2), sx(5.5), sy(5.5), 'exc-m ex-dash', 1);
+    const vis = x <= 17 && Math.abs(lx) < 5.5;
+    const P = vis ? `${ln(sx(x), sy(0), sx(x), sy(lx), 'exc-o ex-dash', 1.2)}${ln(sx(0), sy(lx), sx(x), sy(lx), 'exc-o ex-dash', 1.2)}${dot(sx(x), sy(lx), 6, 'exc-o')}${Math.abs(lx) <= 5.5 && lx <= 17 ? dot(sx(lx), sy(x), 4, 'exc-k') : ''}` : '';
+    const tY = st.m === 2 ? 22 : 0;
+    const head = `${T(312, 18 + tY, `log${sub(bs)} ${fmt(x)} = ${L2(lx)}`, 'm12 ex-end h')}${T(312, 36 + tY, `${bs}${sup(Math.round(lx * 100) / 100)} = ${fmt(x)}`, 'm10 exm-mut ex-end h')}${T(42, 18, `y = log${sub(bs)} x`, 'm12 tc exc-p ex-start h')}${st.m === 2 ? '' : T(42, 36, `y = ${bs}ˣ`, 'm10 tc exc-k ex-start h')}`;
+    if (st.m === 2) {
+      const tk = st.task ?? (logTask(st), st.task);
+      const ok = check(st, Math.abs(lx - tk.k) < 0.02);
+      return {
+        svg: `${G.svg}${diag}${lg}${P}${head}${badge(`log${sub(bStr(tk.b))} x = ${fmt(tk.k)}`, ok)}`,
+        caption: taskCap(st, ok, L(`Find x: log${sub(bStr(tk.b))} x = ${fmt(tk.k)}.`, `Найди x: log${sub(bStr(tk.b))} x = ${fmt(tk.k)}.`, `x-ті тап: log${sub(bStr(tk.b))} x = ${fmt(tk.k)}.`), L(`Now log = ${fmt(lx)}. Hint: by definition x = ${bStr(tk.b)}^${fmt(tk.k)}.`, `Сейчас log = ${fmt(lx)}. Подсказка: по определению x = ${bStr(tk.b)}^${fmt(tk.k)}.`, `Қазір log = ${fmt(lx)}. Кеңес: анықтама бойынша x = ${bStr(tk.b)}^${fmt(tk.k)}.`)),
+      };
+    }
+    return {
+      svg: `${G.svg}${diag}${pw}${lg}${P}${head}`,
+      caption: J(
+        L(`log${sub(bs)} ${fmt(x)} = ${fmt(lx)}, because ${bs}^${fmt(lx)} ≈ ${fmt(x)}.`, `log${sub(bs)} ${fmt(x)} = ${fmt(lx)}, потому что ${bs}^${fmt(lx)} ≈ ${fmt(x)}.`, `log${sub(bs)} ${fmt(x)} = ${fmt(lx)}, себебі ${bs}^${fmt(lx)} ≈ ${fmt(x)}.`),
+        Math.abs(x - 1) < 0.005 ? L('log of 1 is always 0.', 'Логарифм единицы всегда 0.', 'Бірдің логарифмі әрқашан 0.') : x < 1 === b > 1 ? L('Here the log is negative.', 'Здесь логарифм отрицательный.', 'Мұнда логарифм теріс.') : null,
+        L('x must be > 0 - the graph never touches the y-axis. The pink y = bˣ is the mirror image in y = x.', 'x должен быть > 0 - график не касается оси y. Розовая y = bˣ - зеркальное отражение относительно y = x.', 'x > 0 болуы керек - график y осіне тимейді. Қызғылт y = bˣ - y = x түзуіне қатысты айнадағы бейнесі.'),
+      ),
+    };
+  },
+});
+/** Нижний индекс основания: 2 → ₂, 10 → ₁₀, ½ → ½. */
+function sub(s) {
+  return String(s).replace(/\d/g, (c) => '₀₁₂₃₄₅₆₇₈₉'[c]);
+}
+
+// ---------- Среднее, медиана, мода ----------
+
+const MM_X = (x) => 20 + x * 14;
+
+function mmTask(st) {
+  const last = st.task?.type;
+  let type;
+  do type = rnd(0, 2);
+  while (type === last);
+  const n = type === 1 ? pick([4, 6, 8]) : rnd(5, 8);
+  const target = type === 0 ? rnd(4, 14) : type === 1 ? rnd(5, 13) + pick([0, 0.5]) : rnd(6, 16);
+  st.task = { type, n, target, done: false };
+  return { n };
+}
+
+const meanMedian = modes({
+  title: L('Mean, median, mode', 'Среднее, медиана, мода', 'Орта мән, медиана, мода'),
+  intro: L('Drag the dots. The mean is the balance point, the median is the middle value after sorting, the mode is the most frequent value.', 'Перетаскивай точки. Среднее - точка равновесия, медиана - середина упорядоченного ряда, мода - самое частое значение.', 'Нүктелерді сүйре. Орта мән - тепе-теңдік нүктесі, медиана - реттелген қатардың ортасы, мода - ең жиі мән.'),
+  values: { p0: 2, p1: 3, p2: 4, p3: 4.5, p4: 6, p5: 7, p6: 8.5, p7: 10, p8: 12 },
+  sliders: [{ id: 'n', label: L('number of values', 'сколько значений', 'мәндер саны'), min: 3, max: 9, value: 7 }],
+  tabs: [L('Mean & median', 'Среднее и медиана', 'Орта мән және медиана'), L('Mode & range', 'Мода и размах', 'Мода және құлаш'), TASK],
+  acts: [{ label: MORE }],
+  state: () => ({ pre: 0 }),
+  onTab(m, st, v, again) {
+    if (m === 2 && (again || !st.task || st.task.done)) return mmTask(st);
+    if (m === 1) {
+      const p = {};
+      for (let i = 0; i < 9; i++) p[`p${i}`] = Math.round(v[`p${i}`]);
+      return p;
+    }
+    return null;
+  },
+  onAct(j, st) {
+    if (st.m === 2) return mmTask(st);
+    st.pre = (st.pre + 1) % 4;
+    if (st.pre === 1) return { p0: 3, p1: 4, p2: 4, p3: 5, p4: 5, p5: 5, p6: 19, n: 7 };
+    if (st.pre === 2) return { p0: 2, p1: 6, p2: 7, p3: 9, p4: 12, p5: 15, n: 6 };
+    if (st.pre === 3) return { p0: 1, p1: 2, p2: 2, p3: 3, p4: 8, p5: 9, p6: 9, p7: 9, p8: 10, n: 9 };
+    return { p0: 2, p1: 3, p2: 4, p3: 4.5, p4: 6, p5: 7, p6: 8.5, n: 7 };
+  },
+  onDrag(key, p, v, st) {
+    const raw = clamp((p.x - 20) / 14, 0, 20);
+    v[key] = st.m === 1 ? Math.round(raw) : Math.round(raw * 2) / 2;
+  },
+  draw(v, step, st) {
+    const n = Math.round(v.n);
+    const ks = Array.from({ length: n }, (_, i) => `p${i}`);
+    const xs = ks.map((k) => v[k]);
+    const sorted = [...xs].sort((a, b) => a - b);
+    const sum = xs.reduce((s, x) => s + x, 0);
+    const mean = sum / n;
+    const even = n % 2 === 0;
+    const med = even ? (sorted[n / 2 - 1] + sorted[n / 2]) / 2 : sorted[(n - 1) / 2];
+    const mid = even ? [n / 2 - 1, n / 2] : [(n - 1) / 2];
+    const cnt = new Map();
+    for (const x of xs) cnt.set(x, (cnt.get(x) ?? 0) + 1);
+    const top = Math.max(...cnt.values());
+    const modesL = [...cnt.entries()].filter(([, c]) => c === top && top > 1).map(([x]) => x).sort((a, b) => a - b);
+    const range = sorted[n - 1] - sorted[0];
+    const chips = sorted.map((x, i) => `<rect class="ex-chip${mid.includes(i) ? ' mid' : ''}" x="${n1(160 - (n * 34) / 2 + i * 34)}" y="8" width="31" height="20" rx="6"/>${T(160 - (n * 34) / 2 + i * 34 + 15.5, 22, fmt(x, 1), 'm10')}`).join('');
+    const axis = `${ln(14, 170, 306, 170, 'exc-m', 1.5)}${[0, 5, 10, 15, 20].map((x) => `${ln(MM_X(x), 166, MM_X(x), 174, 'exc-m', 1.2)}${T(MM_X(x), 186, x, 'm9 exm-mut')}`).join('')}`;
+    const tk = st.m === 2 ? (st.task ?? (mmTask(st), st.task)) : null;
+
+    if (st.m === 1) {
+      const stackN = new Map();
+      const dots = ks
+        .map((k) => {
+          const x = v[k];
+          const h = stackN.get(x) ?? 0;
+          stackN.set(x, h + 1);
+          const y = 158 - h * 15;
+          const isMode = modesL.includes(x);
+          return `${dot(MM_X(x), y, 6.5, isMode ? 'exc-o' : 'exc-p')}${hit(k, MM_X(x), y, 10)}`;
+        })
+        .join('');
+      return {
+        svg: `${chips}${axis}${ln(MM_X(sorted[0]), 200, MM_X(sorted[n - 1]), 200, 'exc-b', 2)}${ln(MM_X(sorted[0]), 194, MM_X(sorted[0]), 206, 'exc-b', 2)}${ln(MM_X(sorted[n - 1]), 194, MM_X(sorted[n - 1]), 206, 'exc-b', 2)}${T((MM_X(sorted[0]) + MM_X(sorted[n - 1])) / 2, 214, `R = ${fmt(sorted[n - 1])} − ${fmt(sorted[0])} = ${fmt(range)}`, 'm10 tc exc-b h')}${dots}
+          ${T(8, 48, modesL.length ? `${u('mode', 'мода', 'мода')} = ${modesL.map((x) => fmt(x)).join('; ')}` : u('no mode', 'моды нет', 'мода жоқ'), 'm12 tc exc-o ex-start')}`,
+        caption: J(
+          modesL.length
+            ? L(`Mode: ${modesL.map((x) => fmt(x)).join(' and ')} - appears ${top} times, more than any other value (orange).`, `Мода: ${modesL.map((x) => fmt(x)).join(' и ')} - встречается ${top} раза, чаще остальных (оранжевые).`, `Мода: ${modesL.map((x) => fmt(x)).join(' және ')} - ${top} рет кездеседі, басқалардан жиі (қызғылт сары).`)
+            : L('All values are different, so there is no mode. Drag dots onto one place.', 'Все значения разные - моды нет. Перетащи точки в одно место.', 'Барлық мәндер әртүрлі - мода жоқ. Нүктелерді бір жерге сүйре.'),
+          L(`Range: max − min = ${fmt(sorted[n - 1])} − ${fmt(sorted[0])} = ${fmt(range)} - how spread out the data are.`, `Размах: max − min = ${fmt(sorted[n - 1])} − ${fmt(sorted[0])} = ${fmt(range)} - насколько разбросаны данные.`, `Құлаш: max − min = ${fmt(sorted[n - 1])} − ${fmt(sorted[0])} = ${fmt(range)} - деректердің шашыраңқылығы.`),
+        ),
+      };
+    }
+
+    const dots = ks
+      .map((k, i) => {
+        const y = 48 + i * 12;
+        return `${ln(MM_X(v[k]), y, MM_X(v[k]), 170, 'exc-m', 0.5)}${dot(MM_X(v[k]), y, 6, 'exc-p')}${hit(k, MM_X(v[k]), y, 12)}`;
+      })
+      .join('');
+    const pic = `${chips}${axis}${dots}${area(`M${n1(MM_X(mean))} 172 l-9 15 h18 Z`, 'exc-o', 1)}${T(clamp(MM_X(mean), 30, 290), 206, `x̄ = ${fmt(mean)}`, 'm11 tc exc-o h')}${ln(MM_X(med), 40, MM_X(med), 170, 'exc-g', 2.5)}${T(clamp(MM_X(med) + 5, 0, 260), 40, `Me = ${fmt(med)}`, 'm11 tc exc-g ex-start h')}`;
+    if (tk) {
+      const ok = check(st, n === tk.n && (tk.type === 0 ? near(mean, tk.target, 0.001) : tk.type === 1 ? near(med, tk.target, 0.001) : near(range, tk.target, 0.001)));
+      const what = [L(`the mean = ${fmt(tk.target)}`, `среднее = ${fmt(tk.target)}`, `орта мән = ${fmt(tk.target)}`), L(`the median = ${fmt(tk.target)}`, `медиана = ${fmt(tk.target)}`, `медиана = ${fmt(tk.target)}`), L(`the range = ${fmt(tk.target)}`, `размах = ${fmt(tk.target)}`, `құлаш = ${fmt(tk.target)}`)][tk.type];
+      const hint = [
+        L(`Now the mean = ${fmt(mean)}. Hint: the sum must be ${fmt(tk.target)}·${n} = ${fmt(tk.target * n)} (now ${fmt(sum)}).`, `Сейчас среднее = ${fmt(mean)}. Подсказка: сумма должна быть ${fmt(tk.target)}·${n} = ${fmt(tk.target * n)} (сейчас ${fmt(sum)}).`, `Қазір орта мән = ${fmt(mean)}. Кеңес: қосынды ${fmt(tk.target)}·${n} = ${fmt(tk.target * n)} болуы керек (қазір ${fmt(sum)}).`),
+        L(`Now the median = ${fmt(med)}. ${n} values - even, so the median is the average of the two middle ones.`, `Сейчас медиана = ${fmt(med)}. Значений ${n} - чётное число, поэтому медиана - среднее двух средних.`, `Қазір медиана = ${fmt(med)}. Мәндер саны ${n} - жұп, сондықтан медиана - ортадағы екі мәннің орташасы.`),
+        L(`Now the range = ${fmt(range)}: the distance from the smallest to the largest value.`, `Сейчас размах = ${fmt(range)}: расстояние от самого маленького до самого большого.`, `Қазір құлаш = ${fmt(range)}: ең кішіден ең үлкенге дейінгі арақашықтық.`),
+      ][tk.type];
+      return { svg: `${pic}${badge(tx(what), ok)}`, caption: taskCap(st, ok, J(L(`${tk.n} values. Drag the dots so that`, `${tk.n} значений. Перетащи точки так, чтобы`, `${tk.n} мән. Нүктелерді сүйреп,`), what, L('.', '.', 'болсын.')), hint) };
+    }
+    return {
+      svg: pic,
+      caption: J(
+        L(`Mean = sum ÷ ${n} = ${fmt(sum)} ÷ ${n} = ${fmt(mean)} (orange balance point).`, `Среднее = сумма ÷ ${n} = ${fmt(sum)} ÷ ${n} = ${fmt(mean)} (оранжевая точка равновесия).`, `Орта мән = қосынды ÷ ${n} = ${fmt(sum)} ÷ ${n} = ${fmt(mean)} (қызғылт сары тепе-теңдік нүктесі).`),
+        even
+          ? L(`${n} values - even: median = (${fmt(sorted[n / 2 - 1])} + ${fmt(sorted[n / 2])}) / 2 = ${fmt(med)}.`, `${n} значений - чётное число: медиана = (${fmt(sorted[n / 2 - 1])} + ${fmt(sorted[n / 2])}) / 2 = ${fmt(med)}.`, `${n} мән - жұп сан: медиана = (${fmt(sorted[n / 2 - 1])} + ${fmt(sorted[n / 2])}) / 2 = ${fmt(med)}.`)
+          : L(`Median = the middle (${(n + 1) / 2}-th) of the sorted values = ${fmt(med)}.`, `Медиана = середина упорядоченного ряда (${(n + 1) / 2}-е значение) = ${fmt(med)}.`, `Медиана = реттелген қатардың ортасы (${(n + 1) / 2}-мән) = ${fmt(med)}.`),
+        Math.abs(mean - med) > 1.5 ? L('A far-away value drags the mean but hardly the median.', 'Далёкое значение тянет среднее, а медиану почти нет.', 'Алыс мән орта мәнді тартады, медиананы әрең.') : null,
+      ),
+    };
+  },
+});
+
+// ---------- Комбинаторика ----------
+
+const LET = 'ABCDEFGHIJ';
+/** Первые lim упорядоченных выборок (order) или сочетаний k из n. */
+function listSel(n, k, order, lim = 24) {
+  const out = [];
+  const rec = (cur, used, start) => {
+    if (out.length >= lim) return;
+    if (cur.length === k) {
+      out.push(cur.join(''));
+      return;
+    }
+    for (let i = order ? 0 : start; i < n; i++) if (!used.has(i)) {
+      used.add(i);
+      rec([...cur, LET[i]], used, i + 1);
+      used.delete(i);
+    }
+  };
+  rec([], new Set(), 0);
+  return out;
+}
+const Acnt = (n, k) => (k > n ? 0 : fact(n) / fact(n - k));
+const Ccnt = (n, k) => (k > n ? 0 : Acnt(n, k) / fact(k));
+
+function combTask(st) {
+  const last = st.task?.type;
+  let type;
+  do type = rnd(0, 2);
+  while (type === last);
+  let t;
+  if (type === 0) {
+    const n = rnd(4, 9);
+    t = { n, k: 2, val: Ccnt(n, 2), need: 'n', p: { n: 3, k: 2 } };
+  } else if (type === 1) {
+    const n = rnd(5, 8);
+    const k = rnd(2, 4);
+    t = { n, k, val: Acnt(n, k), need: 'k', p: { n, k: 0 } };
+  } else {
+    const n = rnd(3, 6);
+    t = { n, k: n, val: fact(n), need: 'n', perm: true, p: { n: 1, k: 1 } };
+  }
+  st.task = { type, done: false, ...t };
+  return t.p;
+}
+
+const combinatorics = modes({
+  title: L('Combinatorics: arrangements and combinations', 'Комбинаторика: размещения и сочетания', 'Комбинаторика: орналастырулар мен терулер'),
+  intro: L('Choosing k of n: if order matters - arrangements A = n!/(n−k)!, if not - combinations C = A/k!.', 'Выбираем k из n: если порядок важен - размещения A = n!/(n−k)!, если нет - сочетания C = A/k!.', 'n-нен k таңдаймыз: рет маңызды болса - орналастыру A = n!/(n−k)!, болмаса - теру C = A/k!.'),
+  sliders: [
+    { id: 'n', label: 'n', min: 1, max: 10, value: 5, hidden: (v, st) => st.m === 3 && st.task?.need !== 'n' },
+    { id: 'k', label: 'k', min: 0, max: 10, value: 3, hidden: (v, st) => st.m === 3 && (st.task?.need !== 'k') },
+  ],
+  tabs: [L('Order matters', 'Порядок важен', 'Рет маңызды'), L('No order', 'Порядок не важен', 'Рет маңызды емес'), L('Pascal', 'Паскаль', 'Паскаль'), TASK],
+  acts: [{ label: MORE, only: [3] }],
+  clamp(v) {
+    v.k = Math.min(v.k, v.n);
+  },
+  onTab(m, st, v, again) {
+    if (m === 3 && (again || !st.task || st.task.done)) return combTask(st);
+    return null;
+  },
+  onAct(j, st) {
+    return combTask(st);
+  },
+  draw(v, step, st) {
+    const tk = st.m === 3 ? (st.task ?? (combTask(st), st.task)) : null;
+    const n = Math.round(v.n);
+    const k = tk?.perm ? n : Math.min(Math.round(v.k), n);
+    const A = Acnt(n, k);
+    const Cn = Ccnt(n, k);
+    const people = Array.from({ length: n }, (_, i) => `${dot(18 + i * 22, 22, 9.5, i < k ? 'exc-p' : 'exc-m')}${T(18 + i * 22, 26, LET[i], 'm10 exm-on')}`).join('');
+
+    if (st.m === 2) {
+      let g = '';
+      for (let r = 0; r <= n; r++)
+        for (let c = 0; c <= r; c++) {
+          const x = 160 + (c - r / 2) * 28;
+          const y = 16 + r * 18.5;
+          const on = r === n && c === k;
+          g += `${on ? box(x - 13, y - 11, 26, 15, 'exc-o', 5) : ''}${T(x, y, Ccnt(r, c), `${Ccnt(r, c) > 99 ? 'm9' : 'm10'} ${on ? 'exm-on' : r === n ? 'tc exc-p' : 'exm-mut'}`)}`;
+        }
+      return {
+        svg: `${g}${T(8, 214, `C(${n}, ${k}) = ${Cn}`, 'm12 tc exc-o ex-start')}${T(312, 214, `Σ = 2${sup(n)} = ${2 ** n}`, 'm11 ex-end')}`,
+        caption: L(
+          `Pascal's triangle: every number is the sum of the two above it. Row ${n} lists C(${n}, 0) ... C(${n}, ${n}); the orange one is C(${n}, ${k}) = ${Cn}. The row adds up to 2${sup(n)} = ${2 ** n} - all subsets of ${n} things.`,
+          `Треугольник Паскаля: каждое число - сумма двух над ним. В строке ${n} стоят C(${n}, 0) ... C(${n}, ${n}); оранжевое - C(${n}, ${k}) = ${Cn}. Сумма строки 2${sup(n)} = ${2 ** n} - все подмножества из ${n} предметов.`,
+          `Паскаль үшбұрышы: әр сан үстіндегі екі санның қосындысы. ${n}-жолда C(${n}, 0) ... C(${n}, ${n}) тұр; қызғылт сары - C(${n}, ${k}) = ${Cn}. Жолдың қосындысы 2${sup(n)} = ${2 ** n} - ${n} заттың барлық ішкі жиындары.`,
+        ),
+      };
+    }
+
+    const order = tk ? tk.type !== 0 : st.m === 0;
+    const list = listSel(n, k, order, 30);
+    const total = order ? A : Cn;
+    const slots = order
+      ? Array.from({ length: k }, (_, i) => `${box(18 + i * 30, 44, 26, 24, 'exc-y', 5, 0.5)}${T(31 + i * 30, 61, n - i, 'm11')}${i < k - 1 ? T(46 + i * 30, 61, '·', 'm12') : ''}`).join('')
+      : '';
+    const cols = 6;
+    const lst = list
+      .slice(0, 24)
+      .map((s, i) => T(30 + (i % cols) * 50, 100 + Math.floor(i / cols) * 17, s || '∅', 'm10 tc exc-p'))
+      .join('');
+    const formula = order ? `A(${n}, ${k}) = ${n}!/${n - k}! = ${A}` : `C(${n}, ${k}) = ${n}!/(${k}!·${n - k}!) = ${Cn}`;
+    const svg = `${people}${slots}${lst}${total > 24 ? T(160, 100 + 4 * 17, `… ${u('total', 'всего', 'барлығы')} ${total}`, 'm10 exm-mut') : ''}${T(160, 192, formula, 'm15')}${T(160, 212, order ? `= ${k ? Array.from({ length: k }, (_, i) => n - i).join('·') : '1'}` : `= A : ${k}! = ${A} : ${fact(k)}`, 'm11 exm-mut')}`;
+    if (tk) {
+      const ok = check(st, n === tk.n && k === tk.k);
+      const ask = [
+        L(`A class chooses 2 duty students in C(n, 2) = ${tk.val} ways. How many students are there? Set n.`, `Двух дежурных в классе можно выбрать C(n, 2) = ${tk.val} способами. Сколько учеников? Установи n.`, `Сыныптан екі кезекшіні C(n, 2) = ${tk.val} тәсілмен таңдауға болады. Неше оқушы? n-ді орнат.`),
+        L(`A(${tk.n}, k) = ${tk.val}: how many places k are handed out among ${tk.n} people?`, `A(${tk.n}, k) = ${tk.val}: сколько мест k разыгрывают среди ${tk.n} человек?`, `A(${tk.n}, k) = ${tk.val}: ${tk.n} адам арасында неше орын (k) ойнатылады?`),
+        L(`n people can stand in a row in ${tk.val} ways. Find n (here k = n).`, `n человек можно поставить в ряд ${tk.val} способами. Найди n (здесь k = n).`, `n адамды қатарға ${tk.val} тәсілмен тұрғызуға болады. n-ді тап (мұнда k = n).`),
+      ][tk.type];
+      return { svg: `${svg}${badge(`= ${tk.val}`, ok)}`, caption: taskCap(st, ok, ask, L(`Now ${formula}.`, `Сейчас ${formula}.`, `Қазір ${formula}.`)) };
+    }
+    return {
+      svg,
+      caption: order
+        ? L(
+            `Places 1, 2, ... for ${k} of ${n}: the 1st place has ${n} candidates, the next one ${n - 1}, ... Multiply: ${A}. ${k === n ? `k = n: these are permutations, n! = ${A}.` : ''} AB and BA are different here.`,
+            `Места 1, 2, ... для ${k} из ${n}: на 1-е место ${n} кандидатов, на следующее ${n - 1}, ... Перемножаем: ${A}. ${k === n ? `k = n: это перестановки, n! = ${A}.` : ''} AB и BA здесь разные.`,
+            `${n} адамнан ${k} адамға 1, 2, ... орындар: 1-орынға ${n} үміткер, келесіге ${n - 1}, ... Көбейтеміз: ${A}. ${k === n ? `k = n: бұл алмастырулар, n! = ${A}.` : ''} Мұнда AB мен BA әртүрлі.`,
+          )
+        : L(
+            `A team of ${k} from ${n}: AB and BA are the same team. Every team was counted ${k}! = ${fact(k)} times among the arrangements, so C = ${A} : ${fact(k)} = ${Cn}.`,
+            `Команда из ${k} среди ${n}: AB и BA - одна и та же команда. Каждую команду среди размещений посчитали ${k}! = ${fact(k)} раз, поэтому C = ${A} : ${fact(k)} = ${Cn}.`,
+            `${n} адамнан ${k} адамдық команда: AB мен BA - бір команда. Әр команда орналастырулар ішінде ${k}! = ${fact(k)} рет саналды, сондықтан C = ${A} : ${fact(k)} = ${Cn}.`,
+          ),
+    };
+  },
+});
+
+// ---------- Десятки и единицы ----------
+
+/** Палочки-десятки, единицы и сотня-квадрат для числа n с левого верхнего угла (x, y). */
+function blocks(n, x, y, hl = 0) {
+  let g = '';
+  let cx = x;
+  const hund = Math.floor(n / 100);
+  const tens = Math.floor((n % 100) / 10);
+  const ones = n % 10;
+  for (let h = 0; h < hund; h++) {
+    g += `${box(cx, y, 100, 100, 'exc-g', 3, 0.8)}`;
+    for (let i = 1; i < 10; i++) g += ln(cx + i * 10, y, cx + i * 10, y + 100, 'exc-g', 0.5) + ln(cx, y + i * 10, cx + 100, y + i * 10, 'exc-g', 0.5);
+    cx += 108;
+  }
+  for (let t = 0; t < tens; t++) {
+    g += box(cx, y, 10, 100, 'exc-b', 2, 0.9);
+    for (let i = 1; i < 10; i++) g += `<line class="ex-cut" style="stroke-width:1" x1="${cx}" y1="${y + i * 10}" x2="${cx + 10}" y2="${y + i * 10}"/>`;
+    cx += 13;
+  }
+  cx += 6;
+  for (let o = 0; o < ones; o++) g += box(cx + (o % 3) * 13, y + 100 - 10 - Math.floor(o / 3) * 13, 10, 10, o >= ones - hl ? 'exc-g' : 'exc-o', 2, 0.9);
+  return g;
+}
+
+function tensTask(st) {
+  const last = st.task?.type;
+  let type;
+  do type = rnd(0, 3);
+  while (type === last);
+  let t;
+  if (type === 0) {
+    const n = rnd(11, 99);
+    t = { n, tag: `${Math.floor(n / 10)} ${u('tens', 'дес.', 'онд.')} ${n % 10} ${u('ones', 'ед.', 'бірл.')}` };
+  } else if (type === 1) {
+    let a;
+    let b;
+    do {
+      a = rnd(12, 89);
+      b = rnd(3, 9);
+    } while ((a % 10) + b < 10);
+    t = { n: a + b, a, b, tag: `${a} + ${b} = ?` };
+  } else if (type === 2) {
+    const a = rnd(10, 89);
+    t = { n: a + 10, a, tag: `${a} + 10 = ?` };
+  } else {
+    const a = rnd(25, 99);
+    const b = rnd(3, 9);
+    t = { n: a - b, a, b, tag: `${a} − ${b} = ?` };
+  }
+  st.task = { type, done: false, ...t };
+  return { a: 0 };
+}
+
+const tens = modes({
+  title: L('Tens and ones', 'Десятки и единицы', 'Ондықтар мен бірліктер'),
+  intro: L('A number is made of tens (rods of 10) and ones. When ones reach 10, they make a new ten.', 'Число складывается из десятков (палочек по 10) и единиц. Когда единиц набирается 10, получается новый десяток.', 'Сан ондықтардан (10-дық таяқшалар) және бірліктерден құралады. Бірлік 10-ға жеткенде жаңа ондық шығады.'),
+  sliders: [
+    { id: 'a', label: L('number', 'число', 'сан'), min: 0, max: 100, value: 47 },
+    { id: 'b', label: L('add', 'прибавить', 'қосу'), min: 1, max: 9, value: 8, hidden: only(1) },
+  ],
+  tabs: [L('Place value', 'Разряды', 'Разрядтар'), L('Through ten', 'Через десяток', 'Ондық арқылы'), TASK],
+  acts: [{ label: '+1', only: [0] }, { label: '+10', only: [0] }, { label: MORE, only: [1, 2] }],
+  onTab(m, st, v, again) {
+    if (m === 2 && (again || !st.task || st.task.done)) return tensTask(st);
+    return null;
+  },
+  onAct(j, st, v) {
+    if (j === 0) return { a: clamp(v.a + 1, 0, 100) };
+    if (j === 1) return { a: clamp(v.a + 10, 0, 100) };
+    if (st.m === 2) return tensTask(st);
+    return { a: rnd(11, 89), b: rnd(3, 9) };
+  },
+  draw(v, step, st) {
+    const a = Math.round(v.a);
+    const nl = numLine(0, 100, 20, 300, 200, 10, 10);
+    const marker = (n, cls = 'exc-p') => `${dot(nl.sx(n), 200, 5, cls)}`;
+    const digits = (n, x, y) => {
+      const s = String(n);
+      const cls = s.length === 3 ? ['exc-g', 'exc-b', 'exc-o'] : s.length === 2 ? ['exc-b', 'exc-o'] : ['exc-o'];
+      return [...s].map((c, i) => T(x - ((s.length - 1) * 13) / 2 + i * 13, y, c, `m18 tc ${cls[i]}`)).join('');
+    };
+    if (st.m === 1) {
+      const b = Math.round(v.b);
+      const t = Math.floor(a / 10);
+      const o = a % 10;
+      const need = (10 - o) % 10;
+      const s = a + b;
+      const cross = o + b >= 10 && a < 100;
+      // десятичная рамка: 2 × 5 клеток
+      const frame = (x, y, fill, extra) => {
+        let g = '';
+        for (let i = 0; i < 10; i++) {
+          const cls = i < fill ? 'exc-o' : i < fill + extra ? 'exc-g' : 'exm-off';
+          g += box(x + (i % 5) * 15, y + Math.floor(i / 5) * 15, 13, 13, cls, 2);
+        }
+        return g;
+      };
+      let g = '';
+      for (let i = 0; i < Math.min(t, 9); i++) g += box(14 + i * 12, 40, 9, 75, 'exc-b', 2, 0.9);
+      const fx = 14 + Math.min(t, 9) * 12 + 8;
+      g += frame(fx, 70, o, cross ? need : b);
+      if (cross) g += frame(fx + 84, 70, 0, b - need);
+      const expr = cross && need ? `${a} + ${b} = ${a} + ${need} + ${b - need} = ${a + need} + ${b - need} = ${s}` : `${a} + ${b} = ${s}`;
+      return {
+        svg: `${g}${T(160, 24, expr, 'm12')}${T(fx + 36, 112, `${o} + ${cross ? need : b}`, 'm10 exm-mut')}${cross ? T(fx + 120, 112, `${b - need}`, 'm10 tc exc-g') : ''}${nl.svg}${marker(a, 'exc-o')}${s <= 100 ? `${pth(`M${n1(nl.sx(a))} 192 Q${n1((nl.sx(a) + nl.sx(s)) / 2)} 168 ${n1(nl.sx(s))} 192`, 'exc-g', 2)}${marker(s, 'exc-g')}` : ''}${T(nl.sx(Math.min(s, 100)), 160, s, 'm12 tc exc-g h')}`,
+        caption: cross
+          ? L(
+              `${a} has ${o} ones. To make a full ten we need ${need} more - take them from ${b}: ${a} + ${need} = ${a + need}. ${b - need} are left: ${a + need} + ${b - need} = ${s}.`,
+              `В ${a} - ${o} ед. До полного десятка не хватает ${need} - берём их из ${b}: ${a} + ${need} = ${a + need}. Осталось ${b - need}: ${a + need} + ${b - need} = ${s}.`,
+              `${a} санында ${o} бірлік. Толық ондыққа ${need} жетпейді - оларды ${b}-ден аламыз: ${a} + ${need} = ${a + need}. ${b - need} қалды: ${a + need} + ${b - need} = ${s}.`,
+            )
+          : L(`${o} + ${b} = ${o + b} ones - less than 10, no new ten: ${a} + ${b} = ${s}.`, `${o} + ${b} = ${o + b} ед. - меньше 10, нового десятка нет: ${a} + ${b} = ${s}.`, `${o} + ${b} = ${o + b} бірлік - 10-нан аз, жаңа ондық жоқ: ${a} + ${b} = ${s}.`),
+      };
+    }
+    const t = Math.floor((a % 100) / 10);
+    const o = a % 10;
+    const pic = `${blocks(a, 14, 50)}${digits(a, 262, 76)}${T(262, 100, a === 100 ? `1 ${u('hundred', 'сотня', 'жүздік')}` : `${t} ${u('tens', 'дес.', 'онд.')} ${o} ${u('ones', 'ед.', 'бірл.')}`, 'm11')}${T(262, 120, a === 100 ? '100 = 10 · 10' : `${a} = ${t}·10 + ${o}`, 'm11 exm-mut')}${nl.svg}${marker(a)}`;
+    if (st.m === 2) {
+      const tk = st.task ?? (tensTask(st), st.task);
+      const ok = check(st, a === tk.n);
+      const ask = [
+        L(`Show the number: ${tk.tag}.`, `Покажи число: ${tk.tag}.`, `Санды көрсет: ${tk.tag}.`),
+        L(`How much is ${tk.a} + ${tk.b}? Set the number.`, `Сколько будет ${tk.a} + ${tk.b}? Установи число.`, `${tk.a} + ${tk.b} неше болады? Санды орнат.`),
+        L(`Which number is 10 more than ${tk.a}?`, `Какое число на 10 больше, чем ${tk.a}?`, `Қай сан ${tk.a}-ден 10-ға артық?`),
+        L(`How much is ${tk.a} − ${tk.b}?`, `Сколько будет ${tk.a} − ${tk.b}?`, `${tk.a} − ${tk.b} неше болады?`),
+      ][tk.type];
+      const hint = [
+        L(`Now ${t} tens and ${o} ones.`, `Сейчас ${t} дес. и ${o} ед.`, `Қазір ${t} ондық және ${o} бірлік.`),
+        L(`Hint: first complete the ten: ${tk.a} + ${10 - (tk.a % 10)} = ${tk.a + 10 - (tk.a % 10)}.`, `Подсказка: сначала дополни до десятка: ${tk.a} + ${10 - (tk.a % 10)} = ${tk.a + 10 - (tk.a % 10)}.`, `Кеңес: алдымен ондыққа толықтыр: ${tk.a} + ${10 - (tk.a % 10)} = ${tk.a + 10 - (tk.a % 10)}.`),
+        L('Hint: +10 adds one rod, the ones stay the same.', 'Подсказка: +10 - это ещё одна палочка, единицы не меняются.', 'Кеңес: +10 - тағы бір таяқша, бірліктер өзгермейді.'),
+        L(`Hint: ${tk.a} − ${tk.a % 10} = ${tk.a - (tk.a % 10)}, then subtract the rest.`, `Подсказка: ${tk.a} − ${tk.a % 10} = ${tk.a - (tk.a % 10)}, потом вычти остальное.`, `Кеңес: ${tk.a} − ${tk.a % 10} = ${tk.a - (tk.a % 10)}, сосын қалғанын азайт.`),
+      ][tk.type];
+      return { svg: `${pic}${badge(tk.tag, ok)}`, caption: taskCap(st, ok, ask, hint) };
+    }
+    return {
+      svg: pic,
+      caption: a === 100
+        ? L('100 is ten tens: the rods join into a square - one hundred.', '100 - это десять десятков: палочки сложились в квадрат - сотню.', '100 - он ондық: таяқшалар шаршыға - жүздікке жиналды.')
+        : L(`${a} = ${t} tens (blue rods of 10) and ${o} ones (orange cubes): ${t}·10 + ${o}. The left digit counts tens, the right one counts ones.`, `${a} = ${t} дес. (синие палочки по 10) и ${o} ед. (оранжевые кубики): ${t}·10 + ${o}. Левая цифра считает десятки, правая - единицы.`, `${a} = ${t} ондық (10-дық көк таяқшалар) және ${o} бірлік (қызғылт сары текшелер): ${t}·10 + ${o}. Сол цифр ондықтарды, оң цифр бірліктерді санайды.`),
+    };
+  },
+});
+
+// ---------- Столбиком ----------
+
+function colTask(st) {
+  const sub2 = Math.random() < 0.5;
+  let a;
+  let b;
+  let r;
+  do {
+    a = rnd(120, 899);
+    b = rnd(15, 99);
+    r = sub2 ? a - b : a + b;
+  } while (r > 999 || r < 10);
+  st.task = { sub: sub2, a, r, b, done: false };
+  st.k = 4;
+  return { a, b: 10 };
+}
+
+/** Столбик: цифры, переносы/займы и результат, видимые до шага k (k разрядов справа). */
+function columnSvg(a, b, sub2, k, task) {
+  const big = sub2 && a < b;
+  const A = big ? b : a;
+  const B = big ? a : b;
+  const R = sub2 ? A - B : A + B;
+  const da = String(A).padStart(4, ' ');
+  const db = String(B).padStart(4, ' ');
+  const dr = String(R).padStart(4, ' ');
+  const X = (i) => 120 + i * 34;
+  const marks = [];
+  const notes = [];
+  let c = 0;
+  const top = [...da].map((ch) => Number(ch) || 0);
+  for (let i = 3; i >= 0; i--) {
+    const x = Number(da[i]) || 0;
+    const y = Number(db[i]) || 0;
+    if (!sub2) {
+      const s = x + y + c;
+      notes[i] = [x, y, c, s];
+      c = s >= 10 ? 1 : 0;
+      if (c && i > 0) marks.push([i - 1, '1', 'exc-r']);
+    } else {
+      let xx = top[i] - c;
+      const borrow = xx < y;
+      notes[i] = [top[i], y, c, borrow ? xx + 10 - y : xx - y, borrow];
+      if (borrow) xx += 10;
+      c = borrow ? 1 : 0;
+      if (borrow && i > 0) marks.push([i - 1, String(top[i - 1] - 1), 'exc-r']);
+    }
+  }
+  const shown = (i) => 3 - i < k;
+  const col = k < 4 ? 3 - k : -1;
+  let g = `${col >= 0 && da[col].trim() + db[col].trim() !== '' ? soft(X(col) - 16, 30, 32, 146, 'exc-y', 8) : ''}`;
+  g += ['т', 'с', 'д', 'е'].map((h, i) => (i ? T(X(i), 22, [u('', '', ''), u('h', 'с', 'жүз'), u('t', 'д', 'он'), u('o', 'е', 'бір')][i], 'm9 exm-mut') : '')).join('');
+  for (const [i, s, cls] of marks) if (shown(i + 1)) g += T(X(i) + (sub2 ? 10 : 0), 44, s, `m11 tc ${cls}`);
+  g += [...da].map((ch, i) => T(X(i), 76, ch.trim(), `m18${sub2 && marks.some((m) => m[0] === i && shown(i + 1)) ? ' exm-mut' : ''}`)).join('');
+  if (sub2) for (const [i] of marks) if (shown(i + 1)) g += ln(X(i) - 7, 70, X(i) + 7, 60, 'exc-r', 1.5);
+  g += T(84, 110, sub2 ? '−' : '+', 'm18') + [...db].map((ch, i) => T(X(i), 110, ch.trim(), 'm18')).join('');
+  g += ln(96, 124, X(3) + 20, 124, 'exc-m', 2);
+  g += [...dr].map((ch, i) => (shown(i) && !task ? T(X(i), 158, ch.trim(), 'm18 tc exc-p') : '')).join('');
+  if (big) g += T(84, 158, '−', 'm18 tc exc-p');
+  return { svg: g, notes, R: big ? -R : R, big };
+}
+
+const column = modes({
+  title: L('Column addition and subtraction', 'Сложение и вычитание столбиком', 'Бағанмен қосу және азайту'),
+  intro: L('Work digit by digit from the ones. 10 or more - carry 1 to the next place; not enough - borrow 1 ten.', 'Считаем по разрядам, начиная с единиц. Получилось 10 и больше - переносим 1 в следующий разряд; не хватает - занимаем 1 десяток.', 'Бірліктерден бастап разряд бойынша есептейміз. 10 не одан көп шықса - келесі разрядқа 1 ауыстырамыз; жетпесе - 1 ондық аламыз.'),
+  sliders: [
+    { id: 'a', label: 'a', min: 10, max: 999, value: 358, hidden: (v, st) => st.m === 2 },
+    { id: 'b', label: 'b', min: 10, max: 999, value: 276 },
+  ],
+  tabs: ['a + b', 'a − b', TASK],
+  acts: [{ label: STEP, only: [0, 1] }, { label: MORE }],
+  state: () => ({ k: 0 }),
+  onSlide(key, v, st) {
+    if (st.m < 2) st.k = 0;
+  },
+  onTab(m, st, v, again) {
+    st.k = 0;
+    if (m === 2 && (again || !st.task || st.task.done)) return colTask(st);
+    if (m === 2) st.k = 4;
+    return null;
+  },
+  onAct(j, st) {
+    if (j === 0) {
+      st.k = st.k >= 4 ? 0 : st.k + 1;
+      return null;
+    }
+    if (st.m === 2) return colTask(st);
+    st.k = 0;
+    return st.m ? { a: rnd(300, 999), b: rnd(100, 299) } : { a: rnd(100, 899), b: rnd(100, 899) };
+  },
+  draw(v, step, st) {
+    const a = Math.round(v.a);
+    const b = Math.round(v.b);
+    if (st.m === 2) {
+      const tk = st.task ?? (colTask(st), st.task);
+      const c = columnSvg(tk.a, b, tk.sub, 4, false);
+      const ok = check(st, c.R === tk.r);
+      return {
+        svg: `${c.svg}${T(262, 158, `${tk.r}?`, `m12 tc ${ok ? 'exc-g' : 'exc-o'}`)}${badge(`${tk.a} ${tk.sub ? '−' : '+'} b = ${tk.r}`, ok)}`,
+        caption: taskCap(
+          st,
+          ok,
+          L(`Find b: ${tk.a} ${tk.sub ? '−' : '+'} b = ${tk.r}.`, `Найди b: ${tk.a} ${tk.sub ? '−' : '+'} b = ${tk.r}.`, `b-ны тап: ${tk.a} ${tk.sub ? '−' : '+'} b = ${tk.r}.`),
+          L(`Now ${tk.a} ${tk.sub ? '−' : '+'} ${b} = ${c.R}. Hint: b = ${tk.sub ? `${tk.a} − ${tk.r}` : `${tk.r} − ${tk.a}`}.`, `Сейчас ${tk.a} ${tk.sub ? '−' : '+'} ${b} = ${c.R}. Подсказка: b = ${tk.sub ? `${tk.a} − ${tk.r}` : `${tk.r} − ${tk.a}`}.`, `Қазір ${tk.a} ${tk.sub ? '−' : '+'} ${b} = ${c.R}. Кеңес: b = ${tk.sub ? `${tk.a} − ${tk.r}` : `${tk.r} − ${tk.a}`}.`),
+        ),
+      };
+    }
+    const sub2 = st.m === 1;
+    const c = columnSvg(a, b, sub2, st.k, false);
+    const names = [L('Ones', 'Единицы', 'Бірліктер'), L('Tens', 'Десятки', 'Ондықтар'), L('Hundreds', 'Сотни', 'Жүздіктер'), L('Thousands', 'Тысячи', 'Мыңдықтар')];
+    let cap;
+    if (st.k === 0) cap = L('Press "Step →": we start with the ones column (highlighted).', 'Нажимай «Шаг →»: начинаем со столбика единиц (подсвечен).', '«Қадам →» бас: бірліктер бағанынан бастаймыз (белгіленген).');
+    else if (st.k >= 4 || st.k > String(Math.abs(c.R)).length + 1) cap = L(`Done: ${a} ${sub2 ? '−' : '+'} ${b} = ${c.R}.${c.big ? ' a < b, so we subtracted the smaller from the bigger and put a minus.' : ''}`, `Готово: ${a} ${sub2 ? '−' : '+'} ${b} = ${c.R}.${c.big ? ' a < b, поэтому вычли из большего меньшее и поставили минус.' : ''}`, `Дайын: ${a} ${sub2 ? '−' : '+'} ${b} = ${c.R}.${c.big ? ' a < b, сондықтан үлкеннен кішіні азайтып, минус қойдық.' : ''}`);
+    else {
+      const i = 4 - st.k;
+      const [x, y, cin, s, borrow] = c.notes[i];
+      const nm = names[st.k - 1];
+      const N = (l) => tx(nm, l);
+      cap = sub2
+        ? L(`${N('en')}: ${x}${cin ? ' − 1 (borrowed)' : ''} − ${y}${borrow ? `: not enough, borrow a ten: ${x - cin + 10} − ${y} = ${s}` : ` = ${s}`}.`, `${N('ru')}: ${x}${cin ? ' − 1 (заняли)' : ''} − ${y}${borrow ? `: не хватает, занимаем десяток: ${x - cin + 10} − ${y} = ${s}` : ` = ${s}`}.`, `${N('kk')}: ${x}${cin ? ' − 1 (алынды)' : ''} − ${y}${borrow ? `: жетпейді, бір ондық аламыз: ${x - cin + 10} − ${y} = ${s}` : ` = ${s}`}.`)
+        : L(`${N('en')}: ${x} + ${y}${cin ? ' + 1' : ''} = ${s}${s >= 10 ? ` - write ${s % 10}, carry 1` : ''}.`, `${N('ru')}: ${x} + ${y}${cin ? ' + 1' : ''} = ${s}${s >= 10 ? ` - пишем ${s % 10}, 1 переносим` : ''}.`, `${N('kk')}: ${x} + ${y}${cin ? ' + 1' : ''} = ${s}${s >= 10 ? ` - ${s % 10} жазамыз, 1 ауыстырамыз` : ''}.`);
+    }
+    return { svg: c.svg, caption: cap };
+  },
+});
+
+// ---------- Отрицательные числа ----------
+
+function negTask(st) {
+  const last = st.task?.type;
+  let type;
+  do type = rnd(0, 2);
+  while (type === last);
+  let a;
+  let B;
+  do {
+    a = rnd(-9, 9);
+    B = rnd(-9, 9);
+  } while (!a || !B || (type === 2 && Math.abs(a * B) > 60));
+  const r = type === 0 ? a + B : type === 1 ? a - B : a * B;
+  st.task = { type, a, B, r, done: false };
+  return { a, b: 0 };
+}
+
+const numline = modes({
+  title: L('Negative numbers', 'Отрицательные числа', 'Теріс сандар'),
+  intro: L('Adding a positive number moves right, a negative one - left. Subtracting a negative is adding a positive.', 'Прибавить положительное - шаг вправо, отрицательное - влево. Вычесть отрицательное - то же, что прибавить положительное.', 'Оң санды қосу - оңға қадам, терісті - солға. Терісті азайту оңды қосумен бірдей.'),
+  sliders: [
+    { id: 'a', label: 'a', min: -10, max: 10, value: 3, hidden: (v, st) => st.m === 3 },
+    { id: 'b', label: 'b', min: -10, max: 10, value: -5 },
+  ],
+  tabs: ['a + b', 'a − b', 'a · b', TASK],
+  acts: [{ label: MORE }],
+  onTab(m, st, v, again) {
+    if (m === 3 && (again || !st.task || st.task.done)) return negTask(st);
+    return null;
+  },
+  onAct(j, st) {
+    if (st.m === 3) return negTask(st);
+    return { a: rnd(-9, 9), b: rnd(-9, 9) };
+  },
+  draw(v, step, st) {
+    const tk = st.m === 3 ? (st.task ?? (negTask(st), st.task)) : null;
+    const opM = tk ? tk.type : st.m;
+    const a = tk ? tk.a : Math.round(v.a);
+    const b = Math.round(v.b);
+    const fa = (x) => (x < 0 ? `(${fmt(x)})` : fmt(x));
+    if (opM === 2) {
+      const r = a * b;
+      const R = Math.max(10, Math.abs(r), Math.abs(b));
+      const lim = R <= 10 ? 10 : R <= 20 ? 20 : R <= 50 ? 50 : 100;
+      const nl = numLine(-lim, lim, 16, 304, 150, lim / 10, lim / 5);
+      const dir = a >= 0 ? 1 : -1;
+      let jumps = '';
+      for (let i = 0; i < Math.abs(a); i++) {
+        const x0 = dir * b * i;
+        const x1 = dir * b * (i + 1);
+        jumps += pth(`M${n1(nl.sx(x0))} 142 Q${n1((nl.sx(x0) + nl.sx(x1)) / 2)} ${n1(142 - 18 - Math.abs(nl.sx(x1) - nl.sx(x0)) * 0.25)} ${n1(nl.sx(x1))} 142`, dir * b >= 0 ? 'exc-g' : 'exc-r', 2);
+      }
+      const svg = `${nl.svg}${jumps}${dot(nl.sx(0), 150, 4, 'exc-m')}${dot(nl.sx(r), 150, 6, 'exc-p')}${T(160, 36, `${fa(a)} · ${fa(b)} = ${tk ? '?' : fmt(r)}`, 'm18')}${T(160, 60, tk ? '' : `${a < 0 && b < 0 ? '− · − = +' : a * b < 0 ? '+ · − = −' : '+ · + = +'}`, 'm12 exm-mut')}`;
+      if (tk) return negTaskOut(st, tk, b, svg);
+      return {
+        svg,
+        caption: L(
+          `${fa(a)} · ${fa(b)}: ${Math.abs(a)} jumps of ${fa(b)}${a < 0 ? ', but a < 0 turns them the other way' : ''} - we land on ${fmt(r)}. ${a < 0 && b < 0 ? 'Minus times minus is plus.' : r < 0 ? 'Different signs give a minus.' : ''}`,
+          `${fa(a)} · ${fa(b)}: ${Math.abs(a)} прыжков по ${fa(b)}${a < 0 ? ', но a < 0 разворачивает их в обратную сторону' : ''} - попадаем в ${fmt(r)}. ${a < 0 && b < 0 ? 'Минус на минус даёт плюс.' : r < 0 ? 'Разные знаки дают минус.' : ''}`,
+          `${fa(a)} · ${fa(b)}: ${fa(b)} бойынша ${Math.abs(a)} секіріс${a < 0 ? ', бірақ a < 0 оларды кері бұрады' : ''} - ${fmt(r)}-ге түсеміз. ${a < 0 && b < 0 ? 'Минус пен минус плюс береді.' : r < 0 ? 'Әртүрлі таңбалар минус береді.' : ''}`,
+        ),
+      };
+    }
+    const d = opM ? -b : b;
+    const r = a + d;
+    const nl = numLine(-20, 20, 16, 304, 150, 1, 5);
+    const h = Math.min(70, 16 + Math.abs(d) * 4);
+    const svg = `${nl.svg}${ln(nl.sx(0), 140, nl.sx(0), 160, 'exc-m', 2)}${dot(nl.sx(a), 150, 6, 'exc-b')}
+      ${d ? `${pth(`M${n1(nl.sx(a))} 142 Q${n1((nl.sx(a) + nl.sx(r)) / 2)} ${n1(142 - h)} ${n1(nl.sx(r))} 142`, d > 0 ? 'exc-g' : 'exc-r', 2.5)}${T((nl.sx(a) + nl.sx(r)) / 2, 142 - h / 2 - 6, `${d > 0 ? '+' : '−'}${Math.abs(d)}`, `m12 tc h ${d > 0 ? 'exc-g' : 'exc-r'}`)}` : ''}${dot(nl.sx(r), 150, 6, 'exc-p')}
+      ${T(160, 36, `${fmt(a)} ${opM ? '−' : '+'} ${fa(b)} = ${tk ? '?' : fmt(r)}`, 'm18')}${opM && b < 0 && !tk ? T(160, 58, `= ${fmt(a)} + ${fmt(-b)}`, 'm12 tc exc-g') : ''}`;
+    if (tk) return negTaskOut(st, tk, b, svg);
+    return {
+      svg,
+      caption: L(
+        `Start at ${fmt(a)} (blue), ${d >= 0 ? `move ${d} right` : `move ${-d} left`} - you land on ${fmt(r)}.${opM && b < 0 ? ' Subtracting a negative number turned into a step to the right!' : opM ? ' Subtracting means moving left.' : b < 0 ? ' Adding a negative means moving left.' : ''}`,
+        `Начинаем с ${fmt(a)} (синяя точка), ${d >= 0 ? `идём на ${d} вправо` : `идём на ${-d} влево`} - попадаем в ${fmt(r)}.${opM && b < 0 ? ' Вычитание отрицательного числа превратилось в шаг вправо!' : opM ? ' Вычитать - значит идти влево.' : b < 0 ? ' Прибавить отрицательное - значит идти влево.' : ''}`,
+        `${fmt(a)}-ден бастаймыз (көк нүкте), ${d >= 0 ? `оңға ${d} жүреміз` : `солға ${-d} жүреміз`} - ${fmt(r)}-ге түсеміз.${opM && b < 0 ? ' Теріс санды азайту оңға қадамға айналды!' : opM ? ' Азайту - солға жүру.' : b < 0 ? ' Терісті қосу - солға жүру.' : ''}`,
+      ),
+    };
+  },
+});
+function negTaskOut(st, tk, b, svg) {
+  const S = ['+', '−', '·'][tk.type];
+  const fa = (x) => (x < 0 ? `(${fmt(x)})` : fmt(x));
+  const cur = tk.type === 0 ? tk.a + b : tk.type === 1 ? tk.a - b : tk.a * b;
+  const ok = check(st, b === tk.B);
+  return {
+    svg: `${svg}${badge(`${fa(tk.a)} ${S} b = ${fmt(tk.r)}`, ok)}`,
+    caption: taskCap(st, ok, L(`Find b: ${fa(tk.a)} ${S} b = ${fmt(tk.r)}.`, `Найди b: ${fa(tk.a)} ${S} b = ${fmt(tk.r)}.`, `b-ны тап: ${fa(tk.a)} ${S} b = ${fmt(tk.r)}.`), L(`Now ${fa(tk.a)} ${S} ${fa(b)} = ${fmt(cur)}.`, `Сейчас ${fa(tk.a)} ${S} ${fa(b)} = ${fmt(cur)}.`, `Қазір ${fa(tk.a)} ${S} ${fa(b)} = ${fmt(cur)}.`)),
+  };
+}
+
+// ---------- Умножение как площадь ----------
+
+function mulTask(st) {
+  const type = rnd(0, 1);
+  const a = rnd(3, 12);
+  const b = rnd(2, 12);
+  st.task = type ? { type, a: a * b + rnd(0, b - 1), b, q: a, done: false } : { type, a, b, done: false };
+  if (type) st.task.r = st.task.a - b * a;
+  return type ? { a: st.task.a, b: 1 } : { a, b: 1 };
+}
+
+const areamul = modes({
+  title: L('Multiplication and division', 'Умножение и деление', 'Көбейту және бөлу'),
+  intro: L('a × b is the number of cells in an a by b rectangle. Division asks how many full rows of b fit in a.', 'a × b - число клеток в прямоугольнике a на b. Деление спрашивает, сколько полных рядов по b помещается в a.', 'a × b - a-ға b тіктөртбұрыштағы тор саны. Бөлу a-ға b-дан неше толық қатар сыятынын сұрайды.'),
+  sliders: [
+    { id: 'a', label: 'a', min: 1, max: 30, value: 14, hidden: (v, st) => st.m === 2 },
+    { id: 'b', label: 'b', min: 1, max: 12, value: 6 },
+  ],
+  tabs: [L('Area', 'Площадь', 'Аудан'), L('Division', 'Деление', 'Бөлу'), TASK],
+  acts: [{ label: MORE }],
+  onTab(m, st, v, again) {
+    if (m === 2 && (again || !st.task || st.task.done)) return mulTask(st);
+    return null;
+  },
+  onAct(j, st) {
+    if (st.m === 2) return mulTask(st);
+    return st.m ? { a: rnd(10, 30), b: rnd(2, 9) } : { a: rnd(11, 29), b: rnd(3, 12) };
+  },
+  draw(v, step, st) {
+    const tk = st.m === 2 ? (st.task ?? (mulTask(st), st.task)) : null;
+    const a = tk ? tk.a : Math.round(v.a);
+    const b = Math.round(v.b);
+    if (st.m === 1 || tk?.type === 1) {
+      const q = Math.floor(a / b);
+      const r = a % b;
+      const c = Math.min(26, 270 / b, 160 / Math.ceil(a / b));
+      let g = '';
+      for (let i = 0; i < a; i++) {
+        const row = Math.floor(i / b);
+        g += box(20 + (i % b) * c, 44 + row * c, c - 2, c - 2, row < q ? (row % 2 ? 'exc-b' : 'exc-p') : 'exc-o', 3, 0.85);
+      }
+      for (let row = 0; row < q && c >= 10; row++) g += T(20 + b * c + 6, 44 + row * c + c / 2 + 3, row + 1, 'm9 exm-mut ex-start');
+      const txt = `${a} : ${b} = ${q}${r ? ` ${u('rem.', 'ост.', 'қалд.')} ${r}` : ''}`;
+      if (tk) {
+        const ok = check(st, b === tk.b);
+        return {
+          svg: `${g}${T(160, 28, `${a} : b = ${tk.q} ${u('rem.', 'ост.', 'қалд.')} ${tk.r}`, 'm15')}${badge(`b = ?`, ok)}`,
+          caption: taskCap(st, ok, L(`${a} : b = ${tk.q} remainder ${tk.r}. Find b.`, `${a} : b = ${tk.q} (ост. ${tk.r}). Найди b.`, `${a} : b = ${tk.q} (қалдық ${tk.r}). b-ны тап.`), L(`Now ${txt}. Hint: ${a} − ${tk.r} = ${a - tk.r} = b · ${tk.q}.`, `Сейчас ${txt}. Подсказка: ${a} − ${tk.r} = ${a - tk.r} = b · ${tk.q}.`, `Қазір ${txt}. Кеңес: ${a} − ${tk.r} = ${a - tk.r} = b · ${tk.q}.`)),
+        };
+      }
+      return {
+        svg: `${g}${T(160, 28, txt, 'm15')}`,
+        caption: L(
+          `${a} cells in rows of ${b}: ${q} full ${q === 1 ? 'row' : 'rows'}${r ? ` and ${r} left over (orange)` : ''}. ${a} = ${b} · ${q} + ${r}, and the remainder ${r} is always less than ${b}.`,
+          `${a} клеток рядами по ${b}: ${q} ${pl(q, 'полный ряд', 'полных ряда', 'полных рядов')}${r ? ` и ${r} в остатке (оранжевые)` : ''}. ${a} = ${b} · ${q} + ${r}, остаток ${r} всегда меньше ${b}.`,
+          `${b}-дан қатарға қойылған ${a} тор: ${q} толық қатар${r ? ` және қалдықта ${r} (қызғылт сары)` : ''}. ${a} = ${b} · ${q} + ${r}, қалдық ${r} әрқашан ${b}-дан кіші.`,
+        ),
+      };
+    }
+    const c = Math.min(20, 292 / a, 150 / b);
+    const ta = a >= 10 ? Math.floor(a / 10) * 10 : 0;
+    const tb = b >= 10 ? 10 : 0;
+    let g = '';
+    for (let y = 0; y < b; y++)
+      for (let x = 0; x < a; x++) {
+        const cls = x < ta ? (y < tb ? 'exc-b' : 'exc-p') : y < tb ? 'exc-g' : 'exc-o';
+        g += box(14 + x * c, 46 + y * c, c - 1.2, c - 1.2, cls, 1.5, 0.75);
+      }
+    const parts = [];
+    if (ta && tb) parts.push([ta, tb]);
+    if (ta) parts.push([ta, b - tb]);
+    if (tb && a - ta) parts.push([a - ta, tb]);
+    if (a - ta && b - tb) parts.push([a - ta, b - tb]);
+    const split = parts.filter(([x, y]) => x && y);
+    const sum = split.map(([x, y]) => `${x}·${y}`).join(' + ');
+    const sumV = split.map(([x, y]) => x * y).join(' + ');
+    const svg = `${g}${T(160, 28, `${a} × ${b} = ${tk ? '?' : a * b}`, 'm15')}${split.length > 1 && !tk ? T(160, 210, `${sum} = ${sumV} = ${a * b}`, 'm11') : ''}`;
+    if (tk) {
+      const ok = check(st, b === tk.b);
+      return { svg: `${g}${T(160, 28, `${a} × b = ${a * tk.b}`, 'm15')}${T(160, 210, `${a} × ${b} = ${a * b}`, `m12 tc ${ok ? 'exc-g' : 'exc-o'}`)}${badge('b = ?', ok)}`, caption: taskCap(st, ok, L(`Find the missing factor: ${a} × b = ${a * tk.b}.`, `Найди пропущенный множитель: ${a} × b = ${a * tk.b}.`, `Жетіспейтін көбейткішті тап: ${a} × b = ${a * tk.b}.`), L(`Now ${a} × ${b} = ${a * b}. Hint: b = ${a * tk.b} : ${a}.`, `Сейчас ${a} × ${b} = ${a * b}. Подсказка: b = ${a * tk.b} : ${a}.`, `Қазір ${a} × ${b} = ${a * b}. Кеңес: b = ${a * tk.b} : ${a}.`)) };
+    }
+    return {
+      svg,
+      caption: split.length > 1
+        ? L(`Split the rectangle into easy parts: ${sum} = ${sumV} = ${a * b}. This is the distributive law: (x + y)·z = x·z + y·z.`, `Разрежем прямоугольник на удобные части: ${sum} = ${sumV} = ${a * b}. Это распределительный закон: (x + y)·z = x·z + y·z.`, `Тіктөртбұрышты ыңғайлы бөліктерге бөлеміз: ${sum} = ${sumV} = ${a * b}. Бұл үлестірімділік заңы: (x + y)·z = x·z + y·z.`)
+        : L(`${a} × ${b} = ${a * b} cells. Swap the factors - the rectangle turns, the area stays.`, `${a} × ${b} = ${a * b} клеток. От перестановки множителей прямоугольник поворачивается, а площадь та же.`, `${a} × ${b} = ${a * b} тор. Көбейткіштердің орнын ауыстырсаң, тіктөртбұрыш бұрылады, аудан сол.`),
+    };
+  },
+});
+
+// ---------- Десятичные дроби ----------
+
+/** Сетка 10×10 для числа k сотых: столбики-десятые синие, остаток оранжевый. */
+function hundredths(k, x, y, c, one = 'exc-b', rest = 'exc-o') {
+  let g = '';
+  const t = Math.floor(k / 10);
+  for (let i = 0; i < 100; i++) {
+    const col = Math.floor(i / 10);
+    const row = i % 10;
+    const on = i < k;
+    g += box(x + col * c, y + (9 - row) * c, c - 1.2, c - 1.2, on ? (col < t ? one : rest) : 'exm-off', 1.5, on ? 0.9 : 1);
+  }
+  return g;
+}
+
+function decTask(st) {
+  const last = st.task?.type;
+  let type;
+  do type = rnd(0, 3);
+  while (type === last);
+  let k;
+  let tag;
+  if (type === 0) {
+    k = rnd(1, 99);
+    tag = `${Math.floor(k / 10)}/10 + ${k % 10}/100`;
+  } else if (type === 1) {
+    const [p, q] = pick([[1, 4], [3, 4], [1, 5], [2, 5], [1, 2], [7, 20], [3, 25], [9, 10]]);
+    k = (100 * p) / q;
+    tag = `${p}/${q}`;
+  } else if (type === 2) {
+    k = rnd(1, 99);
+    tag = `${k}%`;
+  } else {
+    const a = rnd(10, 80);
+    const d = pick([5, 7, 10, 12, 15]);
+    k = a + d;
+    tag = `${fmt(a / 100)} + ${fmt(d / 100)}`;
+  }
+  st.task = { type, k, tag, done: false };
+  return { x: 0 };
+}
+
+const decimals = modes({
+  title: L('Decimals: tenths and hundredths', 'Десятичные дроби: десятые и сотые', 'Ондық бөлшектер: ондықтар мен жүздіктер'),
+  intro: L('A square of 100 cells: one cell is 0.01, a column of ten is 0.1. Compare decimals digit by digit from the left.', 'Квадрат из 100 клеток: одна клетка - 0,01, столбик из десяти - 0,1. Десятичные дроби сравнивают по разрядам слева направо.', '100 торлы шаршы: бір тор - 0,01, оннан тұратын баған - 0,1. Ондық бөлшектерді разрядтар бойынша солдан оңға салыстырады.'),
+  sliders: [
+    { id: 'x', label: 'x', min: 0, max: 1, step: 0.01, value: 0.37 },
+    { id: 'y', label: 'y', min: 0, max: 1, step: 0.01, value: 0.5, hidden: only(2) },
+  ],
+  tabs: [L('Hundredths', 'Сотые', 'Жүздіктер'), L('Zoom', 'Лупа', 'Лупа'), L('Compare', 'Сравнить', 'Салыстыру'), TASK],
+  acts: [{ label: MORE }],
+  state: () => ({ pre: 0 }),
+  onTab(m, st, v, again) {
+    if (m === 3 && (again || !st.task || st.task.done)) return decTask(st);
+    return null;
+  },
+  onAct(j, st) {
+    if (st.m === 3) return decTask(st);
+    st.pre = (st.pre + 1) % 4;
+    return st.m === 2 ? [{ x: 0.5, y: 0.45 }, { x: 0.3, y: 0.29 }, { x: 0.7, y: 0.7 }, { x: 0.08, y: 0.8 }][st.pre] : { x: [0.05, 0.5, 0.75, 0.37][st.pre] };
+  },
+  draw(v, step, st) {
+    const k = Math.round(v.x * 100);
+    const t = Math.floor(k / 10);
+    const h = k % 10;
+    const X = fmt(k / 100);
+    if (st.m === 1) {
+      const top = numLine(0, 1, 20, 300, 60, 0.1, 0.1, (q) => fmt(q, 1));
+      const lo = Math.min(t, 9) / 10;
+      const zx0 = top.sx(lo);
+      const zx1 = top.sx(lo + 0.1);
+      const bot = numLine(lo, lo + 0.1, 20, 300, 150, 0.01, 0.01, (q) => (Math.abs(q * 100 - Math.round(q * 100)) < 1e-6 ? fmt(q) : ''));
+      return {
+        svg: `${top.svg}${soft(zx0, 52, zx1 - zx0, 16, 'exc-y', 3)}${pth(`M${n1(zx0)} 68 L20 140 M${n1(zx1)} 68 L300 140`, 'exc-m ex-dash', 1)}${bot.svg}${dot(top.sx(k / 100), 60, 5, 'exc-p')}${k / 100 <= lo + 0.1 + 1e-9 ? dot(bot.sx(k / 100), 150, 6, 'exc-p') : ''}${T(160, 24, `x = ${X}`, 'm18')}${T(160, 196, `${X} = ${fmt(t / 10, 1)} + ${fmt(h / 100)}`, 'm12 tc exc-p')}`,
+        caption: L(
+          `The top line is cut into tenths. Zoom into the piece from ${fmt(lo, 1)} to ${fmt(lo + 0.1, 1)}: it is cut into 10 hundredths. ${X} is ${t} tenths and ${h} hundredths.`,
+          `Верхняя прямая разбита на десятые. Увеличим кусок от ${fmt(lo, 1)} до ${fmt(lo + 0.1, 1)}: он делится на 10 сотых. ${X} - это ${t} десятых и ${h} сотых.`,
+          `Жоғарғы түзу ондықтарға бөлінген. ${fmt(lo, 1)}-ден ${fmt(lo + 0.1, 1)}-ге дейінгі бөлікті үлкейтейік: ол 10 жүздікке бөлінеді. ${X} - ${t} ондық және ${h} жүздік.`,
+        ),
+      };
+    }
+    if (st.m === 2) {
+      const ky = Math.round(v.y * 100);
+      const s = k === ky ? '=' : k > ky ? '>' : '<';
+      const pad = (q) => fmt(q / 100).padEnd(4, '0');
+      const firstDiff = Math.floor(k / 10) !== Math.floor(ky / 10) ? 1 : 2;
+      return {
+        svg: `${hundredths(k, 16, 40, 12)}${hundredths(ky, 192, 40, 12, 'exc-g', 'exc-k')}${T(76, 30, `x = ${pad(k)}`, 'm12')}${T(252, 30, `y = ${pad(ky)}`, 'm12')}${T(160, 100, s, 'm18')}${T(160, 188, `${pad(k)} ${s} ${pad(ky)}`, 'm18')}${T(160, 208, `${k}/100 ${s} ${ky}/100`, 'm11 exm-mut')}`,
+        caption:
+          s === '='
+            ? L(`${pad(k)} = ${pad(ky)}: the same number of cells.`, `${pad(k)} = ${pad(ky)}: одинаковое число клеток.`, `${pad(k)} = ${pad(ky)}: торлар саны бірдей.`)
+            : L(
+                `Write both with two digits after the comma: ${pad(k)} and ${pad(ky)}. Compare from the left: the first difference is in the ${firstDiff === 1 ? 'tenths' : 'hundredths'}, so x ${s} y. A longer decimal is not always bigger: 0,5 > 0,45!`,
+                `Запишем обе дроби с двумя знаками: ${pad(k)} и ${pad(ky)}. Сравниваем слева направо: первое различие в ${firstDiff === 1 ? 'десятых' : 'сотых'}, значит x ${s} y. Длинная запись не значит больше: 0,5 > 0,45!`,
+                `Екеуін үтірден кейін екі цифрмен жазамыз: ${pad(k)} және ${pad(ky)}. Солдан оңға салыстырамыз: алғашқы айырмашылық ${firstDiff === 1 ? 'ондықтарда' : 'жүздіктерде'}, демек x ${s} y. Ұзын жазба үлкен деген сөз емес: 0,5 > 0,45!`,
+              ),
+      };
+    }
+    const pic = `${hundredths(k, 16, 22, 17)}${T(254, 60, X, 'm18 tc exc-p')}${T(254, 90, `= ${fmt(t / 10, 1)} + ${fmt(h / 100)}`, 'm12')}${T(254, 114, `= ${k}/100`, 'm12')}${frs(k, 100) !== `${k}/100` && k ? T(254, 138, `= ${frs(k, 100)}`, 'm12') : ''}${T(254, 162, `= ${k}%`, 'm12')}`;
+    if (st.m === 3) {
+      const tk = st.task ?? (decTask(st), st.task);
+      const ok = check(st, k === tk.k);
+      const ask = [
+        L(`Show the number ${tk.tag} as a decimal.`, `Покажи число ${tk.tag} десятичной дробью.`, `${tk.tag} санын ондық бөлшекпен көрсет.`),
+        L(`Write the fraction ${tk.tag} as a decimal.`, `Запиши дробь ${tk.tag} десятичной.`, `${tk.tag} бөлшегін ондық түрде жаз.`),
+        L(`Show ${tk.tag} as a decimal.`, `Покажи ${tk.tag} десятичной дробью.`, `${tk.tag}-ды ондық бөлшекпен көрсет.`),
+        L(`Find ${tk.tag}.`, `Найди ${tk.tag}.`, `${tk.tag} тап.`),
+      ][tk.type];
+      const hint = [
+        L('Columns are tenths, single cells are hundredths.', 'Столбики - десятые, отдельные клетки - сотые.', 'Бағандар - ондықтар, жеке торлар - жүздіктер.'),
+        L('Hint: make the denominator 100.', 'Подсказка: сделай знаменатель 100.', 'Кеңес: бөлімді 100 ет.'),
+        L('Hint: p% = p/100.', 'Подсказка: p% = p/100.', 'Кеңес: p% = p/100.'),
+        L('Hint: add hundredths to hundredths, carry 10 of them into a tenth.', 'Подсказка: складывай сотые с сотыми, 10 сотых - это одна десятая.', 'Кеңес: жүздікті жүздікке қос, 10 жүздік - бір ондық.'),
+      ][tk.type];
+      return { svg: `${pic}${badge(tk.tag, ok)}`, caption: taskCap(st, ok, ask, J(L(`Now x = ${X}.`, `Сейчас x = ${X}.`, `Қазір x = ${X}.`), hint)) };
+    }
+    return {
+      svg: pic,
+      caption: L(`${X} is ${t} tenths (blue columns) and ${h} hundredths (orange cells): ${k} cells of 100, that is ${k}/100 = ${k}%.`, `${X} - это ${t} десятых (синие столбики) и ${h} сотых (оранжевые клетки): ${k} клеток из 100, то есть ${k}/100 = ${k}%.`, `${X} - ${t} ондық (көк бағандар) және ${h} жүздік (қызғылт сары торлар): 100-ден ${k} тор, яғни ${k}/100 = ${k}%.`),
+    };
+  },
+});
+
+// ---------- Отношения и пропорции ----------
+
+function ratioTask(st) {
+  const last = st.task?.type;
+  let type;
+  do type = rnd(0, 2);
+  while (type === last);
+  let t;
+  if (type === 0) {
+    let p;
+    let q;
+    let T0;
+    do {
+      p = rnd(1, 5);
+      q = rnd(1, 5);
+      T0 = (p + q) * rnd(2, 20) * 10;
+    } while (p === q || T0 > 1000);
+    t = { p, q, T0, w: (T0 / (p + q)) * q };
+  } else if (type === 1) {
+    let p;
+    let q;
+    let k;
+    do {
+      p = rnd(1, 5);
+      q = rnd(1, 7);
+      k = rnd(2, 12) * 10;
+    } while (p === q || (p + q) * k > 1000);
+    t = { p, q, k, T0: (p + q) * k, water: q * k };
+  } else {
+    const p = rnd(1, 4);
+    let q;
+    do q = rnd(1, 4);
+    while (gcd(p, q) !== 1 || p === q);
+    const m = Math.max(p, q) <= 3 ? rnd(2, 3) : 2;
+    t = { p, q, P: p * m, Q: q * m };
+  }
+  st.task = { type, done: false, ...t };
+  return type === 2 ? { p: t.P, q: t.Q } : { p: t.p, q: t.q, T: 100 };
+}
+
+const ratio = modes({
+  title: L('Ratio and proportion', 'Отношения и пропорции', 'Қатынас және пропорция'),
+  intro: L('A ratio 2 : 3 means 2 parts of one thing for every 3 parts of another. Multiply both parts by the same number - the ratio stays.', 'Отношение 2 : 3 - на каждые 2 части одного приходится 3 части другого. Умножь обе части на одно число - отношение не изменится.', '2 : 3 қатынасы - біреуінің әр 2 бөлігіне екіншісінің 3 бөлігі келеді. Екеуін бір санға көбейтсең - қатынас өзгермейді.'),
+  sliders: [
+    { id: 'p', label: L('juice parts', 'частей сока', 'шырын бөлігі'), min: 1, max: 9, value: 2 },
+    { id: 'q', label: L('water parts', 'частей воды', 'су бөлігі'), min: 1, max: 9, value: 3 },
+    { id: 'T', label: L('total, ml', 'всего, мл', 'барлығы, мл'), min: 10, max: 1000, step: 10, value: 500, hidden: (v, st) => st.m === 3 && st.task?.type === 2 },
+  ],
+  tabs: [L('Divide', 'Разделить', 'Бөлу'), L('Proportion', 'Пропорция', 'Пропорция'), L('Simplify', 'Сократить', 'Қысқарту'), TASK],
+  acts: [{ label: MORE }],
+  state: () => ({ pre: 0 }),
+  onTab(m, st, v, again) {
+    if (m === 3 && (again || !st.task || st.task.done)) return ratioTask(st);
+    return null;
+  },
+  onAct(j, st) {
+    if (st.m === 3) return ratioTask(st);
+    st.pre = (st.pre + 1) % 4;
+    return [{ p: 1, q: 4, T: 250 }, { p: 3, q: 5, T: 400 }, { p: 6, q: 9, T: 600 }, { p: 2, q: 3, T: 500 }][st.pre];
+  },
+  draw(v, step, st) {
+    const tk = st.m === 3 ? (st.task ?? (ratioTask(st), st.task)) : null;
+    const p = Math.round(v.p);
+    const q = Math.round(v.q);
+    const T0 = v.T;
+    const ml = u('ml', 'мл', 'мл');
+    const g = gcd(p, q);
+    if (st.m === 1) {
+      const juice = T0;
+      const k = juice / p;
+      const water = k * q;
+      const bw = 26;
+      const row1 = Array.from({ length: p + q }, (_, i) => box(20 + i * bw, 40, bw - 3, 24, i < p ? 'exc-o' : 'exc-b', 4, 0.85)).join('');
+      const sc = 280 / Math.max(juice + water, 1);
+      return {
+        svg: `${T(20, 32, `${u('recipe', 'рецепт', 'рецепт')} ${p} : ${q}`, 'm11 ex-start')}${row1}${T(20, 104, `${u('we have', 'есть', 'бар')} ${fmt(juice)} ${ml} ${u('of juice', 'сока', 'шырын')}`, 'm11 ex-start')}${box(20, 112, juice * sc, 24, 'exc-o', 4, 0.85)}${box(20 + juice * sc, 112, water * sc, 24, 'exc-b', 4, 0.5)}${T(20 + juice * sc + (water * sc) / 2, 129, `x = ${fmt(water)}`, 'm11 h')}
+          ${T(160, 172, `${p} : ${q} = ${fmt(juice)} : x`, 'm15')}${T(160, 198, `x = ${fmt(juice)} · ${q} : ${p} = ${fmt(water)} ${ml}`, 'm12 tc exc-b')}`,
+        caption: L(
+          `Proportion ${p} : ${q} = ${fmt(juice)} : x. The juice grew ${fmt(k)} times (${fmt(juice)} : ${p}), so the water grows ${fmt(k)} times too: x = ${q} · ${fmt(k)} = ${fmt(water)} ${ml}. Cross rule: ${p}·x = ${q}·${fmt(juice)}.`,
+          `Пропорция ${p} : ${q} = ${fmt(juice)} : x. Сока стало в ${fmt(k)} раз больше (${fmt(juice)} : ${p}), значит и воды в ${fmt(k)} раз больше: x = ${q} · ${fmt(k)} = ${fmt(water)} ${ml}. Крест-накрест: ${p}·x = ${q}·${fmt(juice)}.`,
+          `Пропорция ${p} : ${q} = ${fmt(juice)} : x. Шырын ${fmt(k)} есе көбейді (${fmt(juice)} : ${p}), демек су да ${fmt(k)} есе көбейеді: x = ${q} · ${fmt(k)} = ${fmt(water)} ${ml}. Айқастыра: ${p}·x = ${q}·${fmt(juice)}.`,
+        ),
+      };
+    }
+    if (st.m === 2 || tk?.type === 2) {
+      const bw = Math.min(30, 280 / (p + q));
+      const row = (P, Q, y) => Array.from({ length: P + Q }, (_, i) => box(20 + i * bw, y, bw - 3, 26, i < P ? 'exc-o' : 'exc-b', 4, 0.85)).join('');
+      let groups = '';
+      if (g > 1) for (let i = 0; i < g; i++) groups += `<rect class="ex-stroke exc-g ex-dash" style="fill:none;stroke-width:1.5" x="${n1(18 + (i * (p / g)) * bw)}" y="36" width="${n1((p / g) * bw - 1)}" height="30" rx="5"/><rect class="ex-stroke exc-g ex-dash" style="fill:none;stroke-width:1.5" x="${n1(18 + (p + (i * q) / g) * bw)}" y="36" width="${n1((q / g) * bw - 1)}" height="30" rx="5"/>`;
+      const svg = `${row(p, q, 38)}${groups}${row(p / g, q / g, 110)}${T(20, 30, `${p} : ${q}`, 'm12 ex-start')}${T(20, 102, `= ${p / g} : ${q / g}`, 'm12 ex-start tc exc-g')}${T(160, 180, `${p} : ${q} = (${p} : ${g}) : (${q} : ${g}) = ${p / g} : ${q / g}`, 'm12')}`;
+      if (tk) {
+        const ok = check(st, p === tk.p && q === tk.q);
+        return { svg: `${svg}${badge(`${tk.P} : ${tk.Q} = ?`, ok)}`, caption: taskCap(st, ok, L(`Simplify the ratio ${tk.P} : ${tk.Q} - set it with the sliders.`, `Сократи отношение ${tk.P} : ${tk.Q} - выставь его ползунками.`, `${tk.P} : ${tk.Q} қатынасын қысқарт - жүгірткілермен қой.`), L(`Now ${p} : ${q}. Hint: divide both by gcd(${tk.P}, ${tk.Q}) = ${gcd(tk.P, tk.Q)}.`, `Сейчас ${p} : ${q}. Подсказка: раздели оба на НОД(${tk.P}, ${tk.Q}) = ${gcd(tk.P, tk.Q)}.`, `Қазір ${p} : ${q}. Кеңес: екеуін ЕҮОБ(${tk.P}, ${tk.Q}) = ${gcd(tk.P, tk.Q)}-ге бөл.`)) };
+      }
+      return {
+        svg,
+        caption: g > 1
+          ? L(`Both parts divide by gcd(${p}, ${q}) = ${g}: the green groups. ${p} : ${q} = ${p / g} : ${q / g} - the same mix, just fewer, bigger parts.`, `Обе части делятся на НОД(${p}, ${q}) = ${g} - зелёные группы. ${p} : ${q} = ${p / g} : ${q / g} - та же смесь, только частей меньше, и они крупнее.`, `Екі бөлік те ЕҮОБ(${p}, ${q}) = ${g}-ге бөлінеді - жасыл топтар. ${p} : ${q} = ${p / g} : ${q / g} - сол қоспа, тек бөліктері аз әрі ірі.`)
+          : L(`gcd(${p}, ${q}) = 1: the ratio ${p} : ${q} cannot be simplified.`, `НОД(${p}, ${q}) = 1: отношение ${p} : ${q} уже несократимо.`, `ЕҮОБ(${p}, ${q}) = 1: ${p} : ${q} қатынасы қысқармайды.`),
+      };
+    }
+    const part = T0 / (p + q);
+    const w = 280 / (p + q);
+    const blocks2 = Array.from({ length: p + q }, (_, i) => `${box(20 + i * w, 70, w - 3, 46, i < p ? 'exc-o' : 'exc-b', 6, 0.85)}${w > 26 ? T(20 + i * w + w / 2 - 1.5, 98, fmt(part, 1), 'm9 exm-on') : ''}`).join('');
+    const svg = `${T(160, 34, `${p} : ${q}`, 'm18')}${T(160, 56, `${fmt(T0)} ${ml}`, 'm11 exm-mut')}${blocks2}${T(20 + (p * w) / 2, 134, `${u('juice', 'сок', 'шырын')} ${fmt(part * p, 1)}`, 'm11 tc exc-o')}${T(20 + p * w + (q * w) / 2, 134, `${u('water', 'вода', 'су')} ${fmt(part * q, 1)}`, 'm11 tc exc-b')}${T(160, 176, `${u('one part', 'одна часть', 'бір бөлік')} = ${fmt(T0)} : ${p + q} = ${fmt(part, 2)}`, 'm12')}`;
+    if (tk) {
+      const ok = check(st, p === tk.p && q === tk.q && near(T0, tk.T0, 0.01));
+      const ask = tk.type === 0
+        ? L(`Juice : water = ${tk.p} : ${tk.q}, the water is ${fmt(tk.w)} ml. How much drink in total? Set the total.`, `Сок : вода = ${tk.p} : ${tk.q}, воды ${fmt(tk.w)} мл. Сколько всего напитка? Установи «всего».`, `Шырын : су = ${tk.p} : ${tk.q}, су ${fmt(tk.w)} мл. Барлық сусын қанша? «Барлығы» мәнін орнат.`)
+        : L(`Juice : water = ${tk.p} : ${tk.q}. There should be ${fmt(tk.water)} ml of water. Find the total.`, `Сок : вода = ${tk.p} : ${tk.q}. Воды должно быть ${fmt(tk.water)} мл. Найди общий объём.`, `Шырын : су = ${tk.p} : ${tk.q}. Су ${fmt(tk.water)} мл болуы керек. Жалпы көлемді тап.`);
+      const wv = tk.type === 0 ? tk.w : tk.water;
+      return { svg: `${svg}${badge(`${u('water', 'вода', 'су')} = ${fmt(wv)}`, ok)}`, caption: taskCap(st, ok, ask, L(`Now the water is ${fmt(part * q, 1)} ml. Hint: one part = ${fmt(wv)} : ${tk.q}.`, `Сейчас воды ${fmt(part * q, 1)} мл. Подсказка: одна часть = ${fmt(wv)} : ${tk.q}.`, `Қазір су ${fmt(part * q, 1)} мл. Кеңес: бір бөлік = ${fmt(wv)} : ${tk.q}.`)) };
+    }
+    return {
+      svg,
+      caption: L(`${fmt(T0)} ml in the ratio ${p} : ${q}: that is ${p + q} equal parts of ${fmt(part, 2)} ml. Juice ${p} parts = ${fmt(part * p, 1)} ml, water ${q} parts = ${fmt(part * q, 1)} ml.`, `${fmt(T0)} мл в отношении ${p} : ${q}: это ${p + q} равных частей по ${fmt(part, 2)} мл. Сок - ${p} ч. = ${fmt(part * p, 1)} мл, вода - ${q} ч. = ${fmt(part * q, 1)} мл.`, `${fmt(T0)} мл, қатынасы ${p} : ${q}: бұл ${fmt(part, 2)} мл-ден ${p + q} тең бөлік. Шырын ${p} бөлік = ${fmt(part * p, 1)} мл, су ${q} бөлік = ${fmt(part * q, 1)} мл.`),
+    };
+  },
+});
+
+// ---------- Простые числа, НОД и НОК ----------
+
+const factors = (n) => {
+  const out = [];
+  let m = n;
+  for (let p = 2; p * p <= m; p++) while (m % p === 0) {
+    out.push(p);
+    m /= p;
+  }
+  if (m > 1) out.push(m);
+  return out;
+};
+const isPrime = (n) => n > 1 && factors(n).length === 1;
+const powForm = (fs) => {
+  const c = new Map();
+  for (const p of fs) c.set(p, (c.get(p) ?? 0) + 1);
+  return [...c.entries()].map(([p, k]) => (k > 1 ? `${p}${sup(k)}` : p)).join('·');
+};
+
+function sieveTask(st) {
+  const last = st.task?.type;
+  let type;
+  do type = rnd(0, 2);
+  while (type === last);
+  let t;
+  if (type === 0) {
+    const [lo, hi] = pick([[90, 100], [20, 28], [50, 60], [110, 120], [30, 36], [62, 70]]);
+    t = { lo, hi, m: 1 };
+  } else if (type === 1) {
+    const n = pick([60, 72, 90, 84, 100, 48, 120, 108]);
+    t = { n, m: 1 };
+  } else {
+    const [a, g] = pick([[12, 4], [18, 6], [24, 8], [30, 10], [36, 12], [20, 5]]);
+    t = { a, g, m: 2 };
+  }
+  st.task = { type, done: false, ...t };
+  return type === 2 ? { a: t.a, b: 2 } : { a: 2 };
+}
+
+const sieve = modes({
+  title: L('Primes, GCD and LCM', 'Простые числа, НОД и НОК', 'Жай сандар, ЕҮОБ және ЕКОЕ'),
+  intro: L('A prime has exactly two divisors: 1 and itself. Every number splits into primes - that gives GCD and LCM at once.', 'У простого числа ровно два делителя: 1 и оно само. Любое число раскладывается на простые множители - отсюда сразу НОД и НОК.', 'Жай санның дәл екі бөлгіші бар: 1 және өзі. Кез келген сан жай көбейткіштерге жіктеледі - ЕҮОБ пен ЕКОЕ осыдан шығады.'),
+  sliders: [
+    { id: 'a', label: 'a', min: 2, max: 120, value: 84, hidden: (v, st) => st.m === 0 || (st.m === 3 && st.task?.type === 2) },
+    { id: 'b', label: 'b', min: 2, max: 120, value: 90, hidden: (v, st) => !(st.m === 2 || (st.m === 3 && st.task?.type === 2)) },
+  ],
+  tabs: [L('Sieve', 'Решето', 'Елек'), L('Factors', 'Разложение', 'Жіктеу'), L('GCD and LCM', 'НОД и НОК', 'ЕҮОБ және ЕКОЕ'), TASK],
+  acts: [{ label: L('Next prime', 'Следующее простое', 'Келесі жай сан'), only: [0] }, { label: L('▶ All', '▶ Всё', '▶ Барлығы'), only: [0] }, { label: RESET, only: [0] }, { label: MORE, only: [1, 2, 3] }],
+  state: () => ({ done: [] }),
+  onTab(m, st, v, again) {
+    if (m === 3 && (again || !st.task || st.task.done)) return sieveTask(st);
+    return null;
+  },
+  onAct(j, st, v, api) {
+    const next = () => {
+      const p = [2, 3, 5, 7].find((x) => !st.done.includes(x));
+      if (p) st.done.push(p);
+      return Boolean(p);
+    };
+    if (j === 0) next();
+    else if (j === 1) api.run(() => next(), 700);
+    else if (j === 2) {
+      api.stop();
+      st.done = [];
+    } else {
+      if (st.m === 3) return sieveTask(st);
+      return st.m === 1 ? { a: pick([36, 48, 60, 72, 84, 90, 96, 100, 105, 112, 120]) } : pick([{ a: 12, b: 18 }, { a: 24, b: 36 }, { a: 15, b: 28 }, { a: 42, b: 56 }, { a: 8, b: 12 }]);
+    }
+    return null;
+  },
+  draw(v, step, st) {
+    if (st.m === 0) {
+      const crossedBy = (n) => st.done.find((p) => n !== p && n % p === 0);
+      const COL = { 2: 'exc-r', 3: 'exc-o', 5: 'exc-b', 7: 'exc-k' };
+      const cells = Array.from({ length: 100 }, (_, i) => {
+        const n = i + 1;
+        const by = crossedBy(n);
+        const prime = n > 1 && !by && (st.done.length === 4 || st.done.includes(n));
+        const x = 12 + (i % 10) * 30;
+        const y = 8 + Math.floor(i / 10) * 20.5;
+        return `${prime ? box(x + 2, y + 1, 26, 17, 'exc-g', 5, 0.3) : ''}${T(x + 15, y + 14, n, `m10 ${n === 1 ? 'exm-mut' : by ? `tc ${COL[by]}` : prime ? 'tc exc-g' : ''}`)}${by ? ln(x + 6, y + 10, x + 24, y + 10, COL[by], 1.3) : ''}`;
+      }).join('');
+      const left = Array.from({ length: 99 }, (_, i) => i + 2).filter((n) => !crossedBy(n)).length;
+      const nx = [2, 3, 5, 7].find((x) => !st.done.includes(x));
+      return {
+        svg: cells,
+        caption: st.done.length
+          ? L(`Crossed out the multiples of ${st.done.join(', ')} (each prime has its colour). ${nx ? `${left} numbers are left. Next: ${nx}.` : `The ${left} green numbers are all the primes up to 100. It was enough to sieve by primes up to √100 = 10.`}`, `Вычеркнули кратные ${st.done.join(', ')} (у каждого простого свой цвет). ${nx ? `Осталось ${left} чисел. Дальше: ${nx}.` : `${left} зелёных чисел - все простые числа до 100. Хватило просеять простыми до √100 = 10.`}`, `${st.done.join(', ')}-ге еселілер сызылды (әр жай санның өз түсі). ${nx ? `${left} сан қалды. Келесі: ${nx}.` : `${left} жасыл сан - 100-ге дейінгі барлық жай сандар. √100 = 10-ға дейінгі жай сандармен електен өткізу жеткілікті болды.`}`)
+          : L('1 is neither prime nor composite. Press "Next prime": 2 stays, all its multiples are crossed out.', '1 - ни простое, ни составное. Нажми «Следующее простое»: 2 остаётся, все кратные ему вычёркиваем.', '1 - жай да, құрама да емес. «Келесі жай сан» бас: 2 қалады, оған еселілердің бәрін сызамыз.'),
+      };
+    }
+    const tk = st.m === 3 ? (st.task ?? (sieveTask(st), st.task)) : null;
+    const a = Math.round(v.a);
+    const b = Math.round(v.b);
+    if (st.m === 2 || tk?.type === 2) {
+      const A = tk ? tk.a : a;
+      const fa = factors(A);
+      const fb = factors(b);
+      const common = [];
+      const restB = [...fb];
+      const onlyA = [];
+      for (const p of fa) {
+        const i = restB.indexOf(p);
+        if (i >= 0) {
+          common.push(p);
+          restB.splice(i, 1);
+        } else onlyA.push(p);
+      }
+      const G = common.reduce((s, x) => s * x, 1);
+      const Lc = (A * b) / G;
+      const place = (arr, cx, cls) => arr.map((p, i) => T(cx + ((i % 2) - 0.5) * 22 * (arr.length > 1 ? 1 : 0), 94 + Math.floor(i / 2) * 20 - (Math.ceil(arr.length / 2) - 1) * 10, p, `m15 tc ${cls}`)).join('');
+      const svg = `<circle class="exm-soft exc-o" cx="118" cy="92" r="66"/><circle class="exm-soft exc-b" cx="202" cy="92" r="66"/>${place(onlyA, 90, 'exc-o')}${place(common, 160, 'exc-p')}${place(restB, 230, 'exc-b')}
+        ${T(70, 20, `${A} = ${powForm(fa)}`, 'm11 tc exc-o')}${T(250, 20, `${b} = ${powForm(fb)}`, 'm11 tc exc-b')}
+        ${T(160, 184, `${u('GCD', 'НОД', 'ЕҮОБ')}(${A}, ${b}) = ${common.length ? common.join('·') : '1'} = ${G}`, 'm12 tc exc-p')}${T(160, 206, `${u('LCM', 'НОК', 'ЕКОЕ')} = ${[...onlyA, ...common, ...restB].sort((x, y) => x - y).join('·')} = ${Lc}`, 'm12')}`;
+      if (tk) {
+        const ok = check(st, G === tk.g);
+        return { svg: `${svg}${badge(`${u('GCD', 'НОД', 'ЕҮОБ')}(${tk.a}, b) = ${tk.g}`, ok)}`, caption: taskCap(st, ok, L(`Find a number b such that gcd(${tk.a}, b) = ${tk.g}.`, `Подбери число b, чтобы НОД(${tk.a}, b) = ${tk.g}.`, `ЕҮОБ(${tk.a}, b) = ${tk.g} болатындай b санын таңда.`), L(`Now gcd = ${G}. The common primes (middle) must multiply to ${tk.g} = ${powForm(factors(tk.g))}.`, `Сейчас НОД = ${G}. Общие простые (в середине) должны дать ${tk.g} = ${powForm(factors(tk.g))}.`, `Қазір ЕҮОБ = ${G}. Ортақ жай сандар (ортада) ${tk.g} = ${powForm(factors(tk.g))} беруі керек.`)) };
+      }
+      return {
+        svg,
+        caption: L(
+          `Common prime factors are in the middle: their product is GCD = ${G}. LCM takes every factor once from the whole picture: ${Lc}. Check: GCD · LCM = ${G}·${Lc} = ${A * b} = a·b.${G === 1 ? ' GCD = 1: the numbers are coprime.' : ''}`,
+          `Общие простые множители - в середине: их произведение - НОД = ${G}. НОК берёт каждый множитель со всей картинки по одному разу: ${Lc}. Проверка: НОД · НОК = ${G}·${Lc} = ${A * b} = a·b.${G === 1 ? ' НОД = 1: числа взаимно простые.' : ''}`,
+          `Ортақ жай көбейткіштер ортада: олардың көбейтіндісі - ЕҮОБ = ${G}. ЕКОЕ барлық суреттегі әр көбейткішті бір реттен алады: ${Lc}. Тексеру: ЕҮОБ · ЕКОЕ = ${G}·${Lc} = ${A * b} = a·b.${G === 1 ? ' ЕҮОБ = 1: сандар өзара жай.' : ''}`,
+        ),
+      };
+    }
+    // дерево множителей
+    const fs = factors(a);
+    let g = '';
+    let cur = a;
+    let x = 150;
+    let y = 22;
+    const dx = 26;
+    const dy = 26;
+    g += `${box(x - 18, y - 13, 36, 18, 'exc-p', 6, 0.18)}${T(x, y, a, 'm12')}`;
+    fs.forEach((p, i) => {
+      if (i === fs.length - 1) return;
+      cur /= p;
+      const lx = x - dx;
+      const rx = x + dx;
+      const ny = y + dy;
+      g += ln(x - 4, y + 4, lx + 3, ny - 11, 'exc-m', 1.2) + ln(x + 4, y + 4, rx - 3, ny - 11, 'exc-m', 1.2);
+      g += `${dot(lx, ny - 4, 11, 'exc-g')}${T(lx, ny, p, 'm11 exm-on')}${T(rx, ny, cur, i === fs.length - 2 ? 'm11' : 'm11')}`;
+      if (i === fs.length - 2) g += `${dot(rx, ny - 4, 11, 'exc-g')}${T(rx, ny, cur, 'm11 exm-on')}`;
+      x = rx;
+      y = ny;
+    });
+    if (fs.length === 1) g += T(150, 52, u('prime!', 'простое!', 'жай сан!'), 'm12 tc exc-g');
+    const formula = `${a} = ${fs.join('·')}${fs.length > 1 && powForm(fs) !== fs.join('·') ? ` = ${powForm(fs)}` : ''}`;
+    const divs = Array.from({ length: a }, (_, i) => i + 1).filter((d) => a % d === 0);
+    const svg = `${g}${T(160, 192, formula, 'm12 tc exc-p')}${T(160, 212, `${u('divisors', 'делители', 'бөлгіштер')}: ${divs.length > 12 ? `${divs.slice(0, 12).join(', ')}…` : divs.join(', ')} (${divs.length})`, 'm9 exm-mut')}`;
+    if (tk) {
+      const ok = check(st, tk.type === 0 ? isPrime(a) && a > tk.lo && a < tk.hi : a === tk.n);
+      const ask = tk.type === 0 ? L(`Find a prime number between ${tk.lo} and ${tk.hi}.`, `Найди простое число между ${tk.lo} и ${tk.hi}.`, `${tk.lo} мен ${tk.hi} арасындағы жай санды тап.`) : L(`Which number factors as ${powForm(factors(tk.n))}?`, `Какое число раскладывается как ${powForm(factors(tk.n))}?`, `Қай сан ${powForm(factors(tk.n))} болып жіктеледі?`);
+      return { svg: `${svg}${badge(tk.type === 0 ? `${tk.lo} < p < ${tk.hi}` : powForm(factors(tk.n)), ok)}`, caption: taskCap(st, ok, ask, L(`Now ${formula}.`, `Сейчас ${formula}.`, `Қазір ${formula}.`)) };
+    }
+    return {
+      svg,
+      caption: fs.length === 1
+        ? L(`${a} is prime: no divisors except 1 and ${a}.`, `${a} - простое: делителей, кроме 1 и ${a}, нет.`, `${a} - жай сан: 1 мен ${a}-тен басқа бөлгіші жоқ.`)
+        : L(`Split off the smallest prime each time: ${formula}. Green circles are primes - they cannot be split. ${a} has ${divs.length} divisors.`, `Каждый раз отделяем наименьший простой множитель: ${formula}. Зелёные кружки - простые, их не разложить. У ${a} ${divs.length} ${pl(divs.length, 'делитель', 'делителя', 'делителей')}.`, `Әр жолы ең кіші жай көбейткішті бөліп аламыз: ${formula}. Жасыл дөңгелектер - жай сандар, оларды жіктеу мүмкін емес. ${a} санының ${divs.length} бөлгіші бар.`),
+    };
+  },
+});
+
+// ---------- Углы ----------
+
+/** Вершины треугольника с углами A, B при основании, вписанные в рамку (x0, y0, w, h). */
+function triFit(A, B, x0 = 14, y0 = 26, w = 190, h = 160) {
+  const C = 180 - A - B;
+  const PR = Math.sin(deg(B)) / Math.sin(deg(C));
+  const R = [PR * Math.cos(deg(A)), PR * Math.sin(deg(A))];
+  const xs = [0, 1, R[0]];
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const s = Math.min(w / (maxX - minX), h / Math.max(R[1], 0.01));
+  const ox = x0 + (w - (maxX - minX) * s) / 2 - minX * s;
+  const oy = y0 + h;
+  const P = (p) => [ox + p[0] * s, oy - p[1] * s];
+  return { P: P([0, 0]), Q: P([1, 0]), R: P(R), s, C };
+}
+const wedge = (cx, cy, r, a0, sweep, cls) => `<path class="ex-fill ${cls}" style="opacity:.85" d="${arcD(cx, cy, r, a0, a0 + sweep, true)}"/>`;
+const PAIRS = [
+  { n: L('vertical', 'вертикальные', 'вертикаль'), a: 1, b: 3, eq: true },
+  { n: L('corresponding', 'соответственные', 'сәйкес'), a: 1, b: 5, eq: true },
+  { n: L('alternate interior', 'накрест лежащие', 'айқыш'), a: 4, b: 6, eq: true },
+  { n: L('co-interior (same side)', 'односторонние', 'тұстас'), a: 4, b: 5, eq: false },
+];
+
+function angTask(st) {
+  const last = st.task?.type;
+  let type;
+  do type = rnd(0, 2);
+  while (type === last);
+  let t;
+  if (type === 0) {
+    const A = rnd(3, 9) * 5;
+    const Cg = pick([90, 60, 100, 45, 120, 75]);
+    t = { A, Cg, B: 180 - A - Cg };
+    if (t.B < 10) t = { A: 40, Cg: 90, B: 50 };
+  } else if (type === 1) {
+    const Cg = pick([20, 40, 60, 80, 100, 120, 30, 50]);
+    t = { Cg, B: (180 - Cg) / 2 };
+  } else {
+    const A = rnd(4, 10) * 5;
+    const Ext = A + rnd(4, 14) * 5;
+    t = { A, Ext, B: 180 - Ext };
+  }
+  st.task = { type, done: false, ...t };
+  return type === 1 ? { A: 50, B: 50 } : { A: t.A, B: 60 };
+}
+
+const angles = modes({
+  title: L('Angles', 'Углы', 'Бұрыштар'),
+  intro: L('The angles of a triangle add up to 180°. An exterior angle equals the sum of the two non-adjacent ones. Parallel lines cut by a transversal give equal angles.', 'Сумма углов треугольника - 180°. Внешний угол равен сумме двух несмежных с ним. Параллельные прямые и секущая дают равные углы.', 'Үшбұрыш бұрыштарының қосындысы - 180°. Сыртқы бұрыш онымен сыбайлас емес екі бұрыштың қосындысына тең. Параллель түзулер мен қиюшы тең бұрыштар береді.'),
+  sliders: [
+    { id: 'A', label: 'A°', min: 10, max: 150, value: 60, hidden: (v, st) => st.m === 3 && st.task?.type !== 1 },
+    { id: 'B', label: 'B°', min: 10, max: 150, value: 50, hidden: only(0, 1, 3) },
+  ],
+  values: { ph: 0 },
+  clamp(v) {
+    if (v.A + v.B > 170) v.B = 170 - v.A;
+  },
+  tabs: [L('Sum 180°', 'Сумма 180°', 'Қосынды 180°'), L('Exterior', 'Внешний угол', 'Сыртқы бұрыш'), L('Parallel lines', 'Параллельные', 'Параллель түзулер'), TASK],
+  acts: [{ label: L('▶ Put together', '▶ Сложить углы', '▶ Бұрыштарды қосу'), only: [0] }, { label: L('Pairs ↻', 'Пары ↻', 'Жұптар ↻'), only: [2] }, { label: MORE, only: [3] }],
+  state: () => ({ pr: 0 }),
+  onTab(m, st, v, again) {
+    if (m === 3 && (again || !st.task || st.task.done)) return angTask(st);
+    return { ph: 0, $dur: 1 };
+  },
+  onAct(j, st, v) {
+    if (j === 0) return { ph: v.ph > 0.5 ? 0 : 1, $dur: 1400 };
+    if (j === 1) {
+      st.pr = (st.pr + 1) % PAIRS.length;
+      return null;
+    }
+    return angTask(st);
+  },
+  draw(v, step, st) {
+    const tk = st.m === 3 ? (st.task ?? (angTask(st), st.task)) : null;
+    if (st.m === 2) {
+      const A = v.A;
+      const y1 = 70;
+      const y2 = 152;
+      const dx = (y2 - y1) / Math.tan(deg(A));
+      const c1 = 160 + dx / 2;
+      const c2 = 160 - dx / 2;
+      const pr = PAIRS[st.pr];
+      const val = (i) => ([1, 3, 5, 7].includes(i) ? A : 180 - A);
+      // углы: 1 - вверх-вправо, 2 - вверх-влево, 3 - вниз-влево, 4 - вниз-вправо
+      const starts = { 1: 0, 2: A, 3: 180, 4: 180 + A };
+      let g = `${ln(10, y1, 310, y1, 'exc-b', 2.5)}${ln(10, y2, 310, y2, 'exc-b', 2.5)}${ln(c1 + 80 * Math.cos(deg(A)), y1 - 80 * Math.sin(deg(A)), c2 - 80 * Math.cos(deg(A)), y2 + 80 * Math.sin(deg(A)), 'exc-m', 2)}`;
+      for (let i = 1; i <= 8; i++) {
+        const k = ((i - 1) % 4) + 1;
+        const [cx, cy] = i <= 4 ? [c1, y1] : [c2, y2];
+        const on = i === pr.a || i === pr.b;
+        const sw = k % 2 ? A : 180 - A;
+        if (on) g += wedge(cx, cy, 24, starts[k], sw, i === pr.a ? 'exc-o' : pr.eq ? 'exc-o' : 'exc-g');
+        const [lx, ly] = on ? on2(cx, cy, 34, starts[k] + sw / 2) : on2(cx, cy, 30, starts[k] + sw / 2);
+        g += T(lx, ly + 4, on ? `${fmt(val(i), 0)}°` : i, `m10 ${on ? '' : 'exm-mut'}`);
+      }
+      g += T(312, 18, tx(pr.n), 'm12 ex-end') + T(14, y1 - 6, 'a', 'm11 tc exc-b ex-start') + T(14, y2 - 6, 'b', 'm11 tc exc-b ex-start') + T(160, 206, 'a ∥ b', 'm11 exm-mut');
+      return {
+        svg: g,
+        caption: J(
+          L(`${tx(pr.n, 'en')} angles ${pr.a} and ${pr.b}: `, `${tx(pr.n, 'ru')[0].toUpperCase()}${tx(pr.n, 'ru').slice(1)} углы ${pr.a} и ${pr.b}: `, `${tx(pr.n, 'kk')[0].toUpperCase()}${tx(pr.n, 'kk').slice(1)} ${pr.a} және ${pr.b} бұрыштар: `),
+          pr.eq
+            ? L(`they are equal, ${fmt(val(pr.a), 0)}° = ${fmt(val(pr.b), 0)}°.`, `они равны, ${fmt(val(pr.a), 0)}° = ${fmt(val(pr.b), 0)}°.`, `олар тең, ${fmt(val(pr.a), 0)}° = ${fmt(val(pr.b), 0)}°.`)
+            : L(`they add up to 180°: ${fmt(val(pr.a), 0)}° + ${fmt(val(pr.b), 0)}° = 180°.`, `в сумме 180°: ${fmt(val(pr.a), 0)}° + ${fmt(val(pr.b), 0)}° = 180°.`, `қосындысы 180°: ${fmt(val(pr.a), 0)}° + ${fmt(val(pr.b), 0)}° = 180°.`),
+          L('Only two different values appear: A and 180° − A. "Pairs ↻" shows other pairs.', 'Всего два разных значения: A и 180° − A. «Пары ↻» - другие пары.', 'Барлығы екі түрлі мән: A және 180° − A. «Жұптар ↻» - басқа жұптар.'),
+        ),
+      };
+    }
+    const A = tk && tk.type !== 1 ? tk.A : v.A;
+    const B = Math.min(v.B, 170 - A);
+    const { P, Q, R, C } = triFit(A, B);
+    const k = clamp(v.ph, 0, 1);
+    const kind =
+      Math.abs(C - 90) < 0.5 || Math.abs(A - 90) < 0.5 || Math.abs(B - 90) < 0.5
+        ? L('right', 'прямоугольный', 'тікбұрышты')
+        : Math.max(A, B, C) > 90
+          ? L('obtuse', 'тупоугольный', 'доғал бұрышты')
+          : L('acute', 'остроугольный', 'сүйір бұрышты');
+    const iso = Math.abs(A - B) < 0.5 || Math.abs(A - C) < 0.5 || Math.abs(B - C) < 0.5;
+    const tri = `<path class="ex-tri" d="M${pts([P, Q, R])} Z"/>`;
+    const lab = (p, a0, sw, s, cls) => {
+      const [x, y] = on2(p[0], p[1], 34, a0 + sw / 2);
+      return T(x, y + 4, s, `m10 tc ${cls} h`);
+    };
+    if (st.m === 1 || tk?.type === 2) {
+      const ext = 180 - B;
+      const svg = `${ln(Q[0], Q[1], Math.min(316, Q[0] + 90), Q[1], 'exc-m ex-dash', 2)}${tri}${wedge(P[0], P[1], 22, 0, A, 'exc-p')}${wedge(R[0], R[1], 22, 180 + A, C, 'exc-o')}${wedge(Q[0], Q[1], 18, 180 - B, B, 'exc-m')}${wedge(Q[0], Q[1], 28, 0, ext, 'exc-g')}
+        ${lab(P, 0, A, `${fmt(A, 0)}°`, 'exc-p')}${lab(R, 180 + A, C, `${fmt(C, 0)}°`, 'exc-o')}${T(...on2(Q[0], Q[1], 44, ext / 2), `${fmt(ext, 0)}°`, 'm11 tc exc-g h')}
+        ${T(240, 30, `${u('ext.', 'внешн.', 'сырт.')} = 180° − B`, 'm11')}${T(240, 50, `= A + C = ${fmt(A, 0)}° + ${fmt(C, 0)}°`, 'm11')}`;
+      if (tk) {
+        const ok = check(st, near(180 - B, tk.Ext, 0.5));
+        return { svg: `${svg}${badge(`A = ${tk.A}°, ${u('ext.', 'внешн.', 'сырт.')} B = ${tk.Ext}°`, ok)}`, caption: taskCap(st, ok, L(`A = ${tk.A}°, the exterior angle at B is ${tk.Ext}°. Build the triangle: set B.`, `A = ${tk.A}°, внешний угол при B равен ${tk.Ext}°. Построй треугольник: установи B.`, `A = ${tk.A}°, B-дағы сыртқы бұрыш ${tk.Ext}°. Үшбұрышты тұрғыз: B-ны орнат.`), L(`Now the exterior angle is ${fmt(180 - B, 0)}°. Hint: interior + exterior = 180°.`, `Сейчас внешний угол ${fmt(180 - B, 0)}°. Подсказка: внутренний + внешний = 180°.`, `Қазір сыртқы бұрыш ${fmt(180 - B, 0)}°. Кеңес: ішкі + сыртқы = 180°.`)) };
+      }
+      return {
+        svg,
+        caption: L(
+          `The exterior angle at B (green) = 180° − ${fmt(B, 0)}° = ${fmt(ext, 0)}°. It equals the sum of the two angles not next to it: A + C = ${fmt(A, 0)}° + ${fmt(C, 0)}° = ${fmt(A + C, 0)}°.`,
+          `Внешний угол при B (зелёный) = 180° − ${fmt(B, 0)}° = ${fmt(ext, 0)}°. Он равен сумме двух углов, не смежных с ним: A + C = ${fmt(A, 0)}° + ${fmt(C, 0)}° = ${fmt(A + C, 0)}°.`,
+          `B-дағы сыртқы бұрыш (жасыл) = 180° − ${fmt(B, 0)}° = ${fmt(ext, 0)}°. Ол өзімен сыбайлас емес екі бұрыштың қосындысына тең: A + C = ${fmt(A, 0)}° + ${fmt(C, 0)}° = ${fmt(A + C, 0)}°.`,
+        ),
+      };
+    }
+    // сумма углов: клинья переезжают к развёрнутому углу
+    const O = [262, 186];
+    const mv = (p, a0, to, sw, cls) => {
+      const cx = lerp(p[0], O[0], k);
+      const cy = lerp(p[1], O[1], k);
+      return wedge(cx, cy, 26, lerp(a0, to, k), sw, cls);
+    };
+    const svg = `${ln(206, O[1], 316, O[1], 'exc-m', 1.5)}${tri}${mv(P, 0, 0, A, 'exc-p')}${mv(R, 180 + A, A, C, 'exc-o')}${mv(Q, 180 - B, A + C, B, 'exc-b')}
+      ${k < 0.1 ? `${lab(P, 0, A, `${fmt(A, 0)}°`, 'exc-p')}${lab(Q, 180 - B, B, `${fmt(B, 0)}°`, 'exc-b')}${lab(R, 180 + A, C, `${fmt(C, 0)}°`, 'exc-o')}` : ''}${k > 0.9 ? T(O[0], O[1] - 40, '180°', 'm15') : ''}
+      ${T(P[0] - 4, P[1] + 14, 'A', 'm11 exm-mut')}${T(Q[0] + 4, Q[1] + 14, 'B', 'm11 exm-mut')}${T(R[0], R[1] - 8, 'C', 'm11 exm-mut')}${T(312, 212, `${tx(kind)}${iso ? `, ${u('isosceles', 'равнобедренный', 'теңбүйірлі')}` : ''}`, 'm10 ex-end exm-mut')}`;
+    if (tk) {
+      const ok = check(st, tk.type === 0 ? near(B, tk.B, 0.5) : near(A, tk.B, 0.5) && near(B, tk.B, 0.5));
+      const ask = tk.type === 0
+        ? L(`A = ${tk.A}°. Make the angle C = ${tk.Cg}°: set B.`, `A = ${tk.A}°. Сделай угол C = ${tk.Cg}°: установи B.`, `A = ${tk.A}°. C = ${tk.Cg}° бұрышын жаса: B-ны орнат.`)
+        : L(`Build an isosceles triangle (A = B) with the top angle C = ${tk.Cg}°.`, `Построй равнобедренный треугольник (A = B) с углом при вершине C = ${tk.Cg}°.`, `Төбесіндегі бұрышы C = ${tk.Cg}° теңбүйірлі үшбұрыш (A = B) тұрғыз.`);
+      return { svg: `${svg}${badge(`C = ${tk.Cg}°`, ok)}`, caption: taskCap(st, ok, ask, L(`Now C = ${fmt(C, 0)}°. Hint: C = 180° − A − B.`, `Сейчас C = ${fmt(C, 0)}°. Подсказка: C = 180° − A − B.`, `Қазір C = ${fmt(C, 0)}°. Кеңес: C = 180° − A − B.`)) };
+    }
+    return {
+      svg,
+      caption:
+        k > 0.9
+          ? L(`${fmt(A, 0)}° + ${fmt(C, 0)}° + ${fmt(B, 0)}° = 180°: the three angles form a straight angle.`, `${fmt(A, 0)}° + ${fmt(C, 0)}° + ${fmt(B, 0)}° = 180°: три угла вместе образуют развёрнутый угол.`, `${fmt(A, 0)}° + ${fmt(C, 0)}° + ${fmt(B, 0)}° = 180°: үш бұрыш бірге жазыңқы бұрыш құрайды.`)
+          : L(`C = 180° − A − B = 180° − ${fmt(A, 0)}° − ${fmt(B, 0)}° = ${fmt(C, 0)}°. The triangle is ${tx(kind, 'en')}. Press "Put together".`, `C = 180° − A − B = 180° − ${fmt(A, 0)}° − ${fmt(B, 0)}° = ${fmt(C, 0)}°. Треугольник ${tx(kind, 'ru')}. Нажми «Сложить углы».`, `C = 180° − A − B = 180° − ${fmt(A, 0)}° − ${fmt(B, 0)}° = ${fmt(C, 0)}°. Үшбұрыш ${tx(kind, 'kk')}. «Бұрыштарды қосу» бас.`),
+    };
+  },
+});
+/** Точка на окружности (как on), но возвращает [x, y] для подписи. */
+function on2(cx, cy, r, a) {
+  return on(cx, cy, r, a);
+}
+
+// ---------- Площади фигур ----------
+
+const rot = (p, c, a) => {
+  const ca = Math.cos(a);
+  const sa = Math.sin(a);
+  const dx = p[0] - c[0];
+  const dy = p[1] - c[1];
+  return [c[0] + dx * ca - dy * sa, c[1] + dx * sa + dy * ca];
+};
+
+const circleArea = modes({
+  title: L('Areas of figures', 'Площади фигур', 'Фигуралардың аудандары'),
+  intro: L('Cut a figure and rearrange the pieces into a rectangle - the area does not change. That is where every area formula comes from.', 'Разрежь фигуру и переложи куски в прямоугольник - площадь не изменится. Отсюда все формулы площадей.', 'Фигураны кесіп, бөліктерін тіктөртбұрышқа құрастыр - аудан өзгермейді. Аудан формулаларының бәрі осыдан шығады.'),
+  sliders: [
+    { id: 'a', label: L('base a', 'основание a', 'табан a'), min: 2, max: 12, step: 0.5, value: 8, hidden: only(0, 1, 2) },
+    { id: 'b', label: L('top base b', 'верхнее основание b', 'жоғарғы табан b'), min: 1, max: 10, step: 0.5, value: 4, hidden: only(2) },
+    { id: 'h', label: L('height h', 'высота h', 'биіктік h'), min: 1, max: 7, step: 0.5, value: 4, hidden: only(0, 1, 2) },
+    { id: 'r', label: L('radius r', 'радиус r', 'радиус r'), min: 1, max: 5, step: 0.5, value: 3, hidden: only(3) },
+  ],
+  values: { ph: 0 },
+  clamp(v) {
+    if (v.b > v.a) v.b = v.a;
+  },
+  tabs: [L('Parallelogram', 'Параллелограмм', 'Параллелограмм'), L('Triangle', 'Треугольник', 'Үшбұрыш'), L('Trapezoid', 'Трапеция', 'Трапеция'), L('Circle', 'Круг', 'Дөңгелек')],
+  acts: [{ label: L('▶ Cut and move', '▶ Разрезать', '▶ Кесу') }],
+  onTab() {
+    return { ph: 0, $dur: 1 };
+  },
+  onAct(j, st, v) {
+    return { ph: v.ph > 0.5 ? 0 : 1, $dur: 1600 };
+  },
+  draw(v, step, st) {
+    const k = ease(clamp(v.ph, 0, 1));
+    const done = v.ph > 0.95;
+    if (st.m === 3) {
+      const r = v.r;
+      const R = r * 20;
+      const N = 16;
+      const al = Math.PI / N;
+      const cx = 160;
+      const cy = 100;
+      const w = (Math.PI * R) / N;
+      const x0 = 160 - (Math.PI * R) / 2 - w / 2;
+      const yB = 100 + R / 2;
+      const sec = `M0 0 L${n1(-R * Math.sin(al))} ${n1(-R * Math.cos(al))} A${n1(R)} ${n1(R)} 0 0 1 ${n1(R * Math.sin(al))} ${n1(-R * Math.cos(al))} Z`;
+      let g = '';
+      for (let i = 0; i < N; i++) {
+        const th = ((i + 0.5) * 360) / N;
+        const up = i % 2 === 0;
+        const tx0 = x0 + (i + 0.5) * w + (up ? 0 : 0);
+        const tgt = up ? [tx0, yB] : [tx0, yB - R * Math.cos(al)];
+        const rotA = up ? 0 : 180;
+        let from = th;
+        if (Math.abs(from - rotA) > 180) from -= 360 * Math.sign(from - rotA);
+        const X = lerp(cx, tgt[0], k);
+        const Y = lerp(cy, tgt[1], k);
+        const A = lerp(from, rotA, k);
+        g += `<path class="ex-fill ${i % 2 ? 'exc-b' : 'exc-p'}" style="opacity:.75" transform="translate(${n1(X)} ${n1(Y)}) rotate(${n1(A)})" d="${sec}"/>`;
+      }
+      const S = Math.PI * r * r;
+      return {
+        svg: `${g}${done ? `${T(160, yB + 18, `≈ πr = ${fmt(Math.PI * r)}`, 'm11 tc exc-o')}${T(x0 - 4, yB - R / 2 + 4, 'r', 'm12 tc exc-o ex-end')}` : ln(cx, cy, cx + R, cy, 'exc-o', 2) + T(cx + R / 2, cy - 5, 'r', 'm12 tc exc-o h')}
+          ${T(8, 18, `S = πr² = ${fmt(S)}`, 'm12 ex-start')}${T(8, 214, `C = 2πr = ${fmt(2 * Math.PI * r)}`, 'm11 ex-start exm-mut')}`,
+        caption: done
+          ? L(`16 sectors make almost a rectangle: the top and bottom are half the circumference πr each, the height is r. S = πr · r = πr² = ${fmt(S)}. More sectors - closer to a true rectangle.`, `16 секторов сложились почти в прямоугольник: сверху и снизу по половине окружности πr, высота r. S = πr · r = πr² = ${fmt(S)}. Чем больше секторов, тем точнее прямоугольник.`, `16 сектор тіктөртбұрышқа жуық құрады: үсті мен асты шеңбердің жартысы πr, биіктігі r. S = πr · r = πr² = ${fmt(S)}. Сектор көп болса, тіктөртбұрыш дәлірек.`)
+          : L(`A circle of radius ${fmt(r)}: circumference 2πr = ${fmt(2 * Math.PI * r)}. Cut it into 16 sectors and lay them head to tail.`, `Круг радиуса ${fmt(r)}: длина окружности 2πr = ${fmt(2 * Math.PI * r)}. Разрежем его на 16 секторов и уложим «валетом».`, `Радиусы ${fmt(r)} дөңгелек: шеңбер ұзындығы 2πr = ${fmt(2 * Math.PI * r)}. Оны 16 секторға бөліп, кезектестіріп қоямыз.`),
+      };
+    }
+    const a = v.a;
+    const h = v.h;
+    const b = Math.min(v.b, a);
+    const s = Math.min(24, 290 / (a + (st.m === 1 ? a : st.m === 2 ? b : a * 0.4) + 1), 120 / h);
+    const X0 = 20;
+    const Y0 = 196;
+    const P = (x, y) => [X0 + x * s, Y0 - y * s];
+    const hLine = (x) => `${ln(...P(x, 0), ...P(x, h), 'exc-o ex-dash', 1.5)}${T(P(x, h / 2)[0] + 4, P(x, h / 2)[1] + 4, `h = ${fmt(h)}`, 'm10 tc exc-o ex-start h')}`;
+    const baseL = (x1, x2, txt) => T((P(x1, 0)[0] + P(x2, 0)[0]) / 2, Y0 + 15, txt, 'm10 tc exc-b');
+    if (st.m === 0) {
+      const sh = Math.min(h * 0.7, a * 0.45);
+      const body = [P(sh, 0), P(a, 0), P(a + sh, h), P(sh, h)];
+      const cut = [P(0, 0), P(sh, 0), P(sh, h)].map((p) => [p[0] + a * s * k, p[1]]);
+      const S = a * h;
+      return {
+        svg: `${poly(body, 'exc-p', 0.35)}${poly(cut, 'exc-o', 0.6)}${pth(`M${pts([P(0, 0), P(a, 0), P(a + sh, h), P(sh, h)])} Z`, 'exc-p ex-dash', 1)}${hLine(sh)}${baseL(0, a, `a = ${fmt(a)}`)}${T(236, 30, done ? 'S = a · h' : 'S = ?', 'm15')}${T(236, 54, `= ${fmt(a)} · ${fmt(h)} = ${fmt(S)}`, 'm12')}`,
+        caption: done
+          ? L(`The cut-off triangle moved to the right: now it is a rectangle ${fmt(a)} by ${fmt(h)}. S = a·h = ${fmt(S)}. The slanted side does not matter - only the base and the height.`, `Отрезанный треугольник переехал вправо: получился прямоугольник ${fmt(a)} на ${fmt(h)}. S = a·h = ${fmt(S)}. Боковая сторона не важна - только основание и высота.`, `Кесілген үшбұрыш оңға көшті: ${fmt(a)}-ға ${fmt(h)} тіктөртбұрыш шықты. S = a·h = ${fmt(S)}. Бүйір қабырға маңызды емес - тек табан мен биіктік.`)
+          : L(`Cut a triangle off along the height h (orange) and move it to the other side. Press ▶.`, `Отрежем треугольник по высоте h (оранжевый) и перенесём на другую сторону. Нажми ▶.`, `h биіктігі бойымен үшбұрышты кесіп (қызғылт сары), екінші жаққа көшірейік. ▶ бас.`),
+      };
+    }
+    if (st.m === 1) {
+      const c = a * 0.35;
+      const A = P(0, 0);
+      const B = P(a, 0);
+      const Cc = P(c, h);
+      const M = [(B[0] + Cc[0]) / 2, (B[1] + Cc[1]) / 2];
+      const ang = Math.PI * k;
+      const copy = [A, B, Cc].map((p) => rot(p, M, ang));
+      const S = (a * h) / 2;
+      return {
+        svg: `${poly(copy, 'exc-o', 0.45)}${poly([A, B, Cc], 'exc-p', 0.45)}${pth(`M${pts([A, B, Cc])} Z`, 'exc-p', 2)}${hLine(c)}${baseL(0, a, `a = ${fmt(a)}`)}${T(236, 30, done ? 'S = ½ a · h' : 'S = ?', 'm15')}${T(236, 54, `= ½ · ${fmt(a)} · ${fmt(h)} = ${fmt(S)}`, 'm12')}`,
+        caption: done
+          ? L(`Two equal triangles make a parallelogram with area a·h = ${fmt(a * h)}. One triangle is half: S = ½·a·h = ${fmt(S)}.`, `Два одинаковых треугольника образуют параллелограмм площадью a·h = ${fmt(a * h)}. Один треугольник - половина: S = ½·a·h = ${fmt(S)}.`, `Екі бірдей үшбұрыш ауданы a·h = ${fmt(a * h)} параллелограмм құрайды. Бір үшбұрыш - жартысы: S = ½·a·h = ${fmt(S)}.`)
+          : L('Take a copy of the triangle and turn it by 180°. Press ▶.', 'Возьмём копию треугольника и повернём на 180°. Нажми ▶.', 'Үшбұрыштың көшірмесін алып, 180°-қа бұрайық. ▶ бас.'),
+      };
+    }
+    const d = (a - b) / 2;
+    const A = P(0, 0);
+    const B = P(a, 0);
+    const Cc = P(d + b, h);
+    const D = P(d, h);
+    const M = [(B[0] + Cc[0]) / 2, (B[1] + Cc[1]) / 2];
+    const copy = [A, B, Cc, D].map((p) => rot(p, M, Math.PI * k));
+    const S = ((a + b) / 2) * h;
+    return {
+      svg: `${poly(copy, 'exc-o', 0.45)}${poly([A, B, Cc, D], 'exc-p', 0.45)}${pth(`M${pts([A, B, Cc, D])} Z`, 'exc-p', 2)}${hLine(d)}${baseL(0, a, `a = ${fmt(a)}`)}${T((D[0] + Cc[0]) / 2, D[1] - 6, `b = ${fmt(b)}`, 'm10 tc exc-b h')}${T(250, 30, done ? 'S = (a + b)/2 · h' : 'S = ?', 'm12')}${T(250, 54, `= (${fmt(a)} + ${fmt(b)})/2 · ${fmt(h)}`, 'm11')}${T(250, 74, `= ${fmt(S)}`, 'm15')}`,
+      caption: done
+        ? L(`Two trapezoids make a parallelogram with base a + b = ${fmt(a + b)} and height ${fmt(h)}. One trapezoid is half of it: S = (a + b)/2 · h = ${fmt(S)}.`, `Две трапеции дают параллелограмм с основанием a + b = ${fmt(a + b)} и высотой ${fmt(h)}. Одна трапеция - половина: S = (a + b)/2 · h = ${fmt(S)}.`, `Екі трапеция табаны a + b = ${fmt(a + b)}, биіктігі ${fmt(h)} параллелограмм береді. Бір трапеция - жартысы: S = (a + b)/2 · h = ${fmt(S)}.`)
+        : L('Take a copy of the trapezoid and turn it by 180° around the middle of the side. Press ▶.', 'Возьмём копию трапеции и повернём на 180° вокруг середины боковой стороны. Нажми ▶.', 'Трапецияның көшірмесін бүйір қабырғасының ортасынан 180°-қа бұрайық. ▶ бас.'),
+    };
+  },
+});
+
+// ---------- Векторы ----------
+
+const VX = (x) => 120 + x * 20;
+const VY = (y) => 130 - y * 20;
+const vs = (x, y) => `(${fmt(x)}; ${fmt(y)})`;
+
+function vecTask(st) {
+  const last = st.task?.type;
+  let type;
+  do type = rnd(0, 2);
+  while (type === last);
+  let t;
+  if (type === 0) t = { a: pick([[3, 1], [2, 2], [1, 3], [4, -2], [3, 2]]) };
+  else if (type === 1) t = { a: [2, 1], S: [rnd(-3, 6), rnd(-2, 5)] };
+  else t = { a: [3, 1], len: 5 };
+  st.task = { type, done: false, ...t };
+  const [ax, ay] = t.a;
+  return { ax, ay, bx: 1, by: 1 };
+}
+
+const vectors = modes({
+  title: L('Vectors', 'Векторы', 'Векторлар'),
+  intro: L('A vector is an arrow (x; y). Drag the ends of a and b: coordinates add, subtract and multiply by a number.', 'Вектор - это стрелка (x; y). Перетаскивай концы a и b: координаты складываются, вычитаются и умножаются на число.', 'Вектор - (x; y) нұсқары. a мен b ұштарын сүйре: координаталар қосылады, азаяды және санға көбейтіледі.'),
+  sliders: [{ id: 'k', label: 'k', min: -3, max: 3, step: 0.5, value: 2, hidden: only(1) }],
+  values: { ax: 3, ay: 1, bx: 1, by: 2.5 },
+  tabs: ['a + b', 'a − b, k·a', 'a · b', TASK],
+  acts: [{ label: L('Rule ↻', 'Правило ↻', 'Ереже ↻'), only: [0] }, { label: MORE }],
+  state: () => ({ par: false }),
+  onTab(m, st, v, again) {
+    if (m === 3 && (again || !st.task || st.task.done)) return vecTask(st);
+    return null;
+  },
+  onAct(j, st) {
+    if (j === 0) {
+      st.par = !st.par;
+      return null;
+    }
+    if (st.m === 3) return vecTask(st);
+    return pick([{ ax: 3, ay: 1, bx: 1, by: 2.5 }, { ax: 2, ay: 2, bx: 2, by: -2 }, { ax: 4, ay: 0, bx: 2, by: 3 }, { ax: -2, ay: 3, bx: 4, by: 1 }]);
+  },
+  onDrag(key, p, v, st) {
+    const x = clamp(Math.round(((p.x - 120) / 20) * 2) / 2, -5.5, 9.5);
+    const y = clamp(Math.round(((130 - p.y) / 20) * 2) / 2, -4, 6);
+    if (key === 'a' && !(st.m === 3)) [v.ax, v.ay] = [x, y];
+    if (key === 'b') [v.bx, v.by] = [x, y];
+  },
+  draw(v, step, st) {
+    const { ax, ay, bx, by } = v;
+    const G = grid({ x0: -6, x1: 10, y0: -4.5, y1: 6.5, lab: 2, ylab: 2 }).svg;
+    const O = [VX(0), VY(0)];
+    const A = [VX(ax), VY(ay)];
+    const B = [VX(bx), VY(by)];
+    const la = Math.hypot(ax, ay);
+    const lb = Math.hypot(bx, by);
+    const handles = `${st.m === 3 ? '' : hit('a', A[0], A[1], 14)}${hit('b', B[0], B[1], 14)}${st.m === 3 ? '' : dot(A[0], A[1], 4, 'exc-p')}${dot(B[0], B[1], 4, 'exc-b')}`;
+    const labA = T(A[0] + 6, A[1] - 6, 'a', 'm12 tc exc-p ex-start h');
+    const labB = T(B[0] + 6, B[1] - 6, 'b', 'm12 tc exc-b ex-start h');
+    const tk = st.m === 3 ? (st.task ?? (vecTask(st), st.task)) : null;
+
+    if (st.m === 1) {
+      const k = v.k;
+      const D = [VX(ax - bx), VY(ay - by)];
+      const K = [VX(k * ax), VY(k * ay)];
+      return {
+        svg: `${G}${arrow(A[0], A[1], VX(ax - bx), VY(ay - by), 'exc-b ex-faint', 2)}${arrow(O[0], O[1], K[0], K[1], 'exc-g', 4)}${arrow(O[0], O[1], A[0], A[1], 'exc-p')}${arrow(O[0], O[1], B[0], B[1], 'exc-b')}${arrow(O[0], O[1], D[0], D[1], 'exc-o', 3)}${handles}${labA}${labB}
+          ${T(8, 18, `a − b = ${vs(ax - bx, ay - by)}`, 'm11 tc exc-o ex-start h')}${T(8, 36, `${fmt(k)}·a = ${vs(k * ax, k * ay)}`, 'm11 tc exc-g ex-start h')}${T(D[0] + 6, D[1] + 12, 'a − b', 'm10 tc exc-o ex-start h')}`,
+        caption: L(
+          `a − b = a + (−b): from the end of a go along −b (faint blue). Coordinates: ${vs(ax, ay)} − ${vs(bx, by)} = ${vs(ax - bx, ay - by)}. k·a (green) stretches a ${fmt(Math.abs(k))} times${k < 0 ? ' and turns it around' : ''}: |k·a| = ${fmt(Math.abs(k) * la)}.`,
+          `a − b = a + (−b): из конца a идём по −b (бледная синяя). Координаты: ${vs(ax, ay)} − ${vs(bx, by)} = ${vs(ax - bx, ay - by)}. k·a (зелёный) растягивает a в ${fmt(Math.abs(k))} раза${k < 0 ? ' и разворачивает' : ''}: |k·a| = ${fmt(Math.abs(k) * la)}.`,
+          `a − b = a + (−b): a-ның соңынан −b бойымен жүреміз (бозғылт көк). Координаталар: ${vs(ax, ay)} − ${vs(bx, by)} = ${vs(ax - bx, ay - by)}. k·a (жасыл) a-ны ${fmt(Math.abs(k))} есе созады${k < 0 ? ' және кері бұрады' : ''}: |k·a| = ${fmt(Math.abs(k) * la)}.`,
+        ),
+      };
+    }
+
+    if (st.m === 2) {
+      const dotp = ax * bx + ay * by;
+      const cos = la && lb ? dotp / (la * lb) : 0;
+      const phi = (Math.acos(clamp(cos, -1, 1)) * 180) / Math.PI;
+      const a0 = (Math.atan2(ay, ax) * 180) / Math.PI;
+      const b0 = (Math.atan2(by, bx) * 180) / Math.PI;
+      let d0 = b0 - a0;
+      if (d0 > 180) d0 -= 360;
+      if (d0 < -180) d0 += 360;
+      const pr = la ? dotp / (la * la) : 0;
+      const F = [VX(pr * ax), VY(pr * ay)];
+      const perp = Math.abs(dotp) < 1e-9 && la && lb;
+      return {
+        svg: `${G}${ln(B[0], B[1], F[0], F[1], 'exc-m ex-dash', 1.2)}${ln(O[0], O[1], F[0], F[1], 'exc-o', 5)}${la && lb ? pth(arcD(O[0], O[1], 22, a0, a0 + d0), 'exc-g', 2) : ''}${arrow(O[0], O[1], A[0], A[1], 'exc-p')}${arrow(O[0], O[1], B[0], B[1], 'exc-b')}${handles}${labA}${labB}
+          ${T(8, 18, `a · b = ${fmt(ax)}·${pn(bx)} + ${fmt(ay)}·${pn(by)} = ${fmt(dotp)}`, 'm11 ex-start h')}${T(8, 36, `φ = ${fmt(phi, 1)}°, cos φ = ${fmt(cos, 3)}`, 'm11 tc exc-g ex-start h')}${perp ? T(8, 54, 'a ⊥ b', 'm12 tc exc-g ex-start h') : ''}`,
+        caption: J(
+          L(`a · b = x₁x₂ + y₁y₂ = ${fmt(dotp)} = |a|·|b|·cos φ = ${fmt(la)}·${fmt(lb)}·${fmt(cos, 3)}.`, `a · b = x₁x₂ + y₁y₂ = ${fmt(dotp)} = |a|·|b|·cos φ = ${fmt(la)}·${fmt(lb)}·${fmt(cos, 3)}.`, `a · b = x₁x₂ + y₁y₂ = ${fmt(dotp)} = |a|·|b|·cos φ = ${fmt(la)}·${fmt(lb)}·${fmt(cos, 3)}.`),
+          perp
+            ? L('The product is 0 - the vectors are perpendicular!', 'Произведение равно 0 - векторы перпендикулярны!', 'Көбейтінді 0 - векторлар перпендикуляр!')
+            : dotp > 0
+              ? L('Positive: the angle is acute. The orange part is the shadow (projection) of b on a.', 'Положительное: угол острый. Оранжевый отрезок - «тень» (проекция) b на a.', 'Оң: бұрыш сүйір. Қызғылт сары кесінді - b-ның a-ға «көлеңкесі» (проекциясы).')
+              : L('Negative: the angle is obtuse, b points "backwards" relative to a.', 'Отрицательное: угол тупой, b смотрит «назад» относительно a.', 'Теріс: бұрыш доғал, b a-ға қарағанда «артқа» қарайды.'),
+        ),
+      };
+    }
+
+    const S = [VX(ax + bx), VY(ay + by)];
+    const sum = `${arrow(O[0], O[1], S[0], S[1], 'exc-o', 3.2)}${T(S[0] + 6, S[1] + 4, 'a + b', 'm11 tc exc-o ex-start h')}`;
+    const rule = st.par
+      ? `${arrow(B[0], B[1], S[0], S[1], 'exc-p ex-faint', 2)}${arrow(A[0], A[1], S[0], S[1], 'exc-b ex-faint', 2)}`
+      : `${arrow(A[0], A[1], S[0], S[1], 'exc-b ex-faint', 2.2)}`;
+    const base = `${G}${rule}${arrow(O[0], O[1], A[0], A[1], 'exc-p')}${arrow(O[0], O[1], B[0], B[1], 'exc-b')}${sum}${handles}${labA}${labB}`;
+    if (tk) {
+      let ok;
+      let ask;
+      let hint;
+      let tag;
+      if (tk.type === 0) {
+        ok = Math.abs(ax * bx + ay * by) < 1e-9 && lb > 0;
+        tag = 'a ⊥ b';
+        ask = L(`a = ${vs(ax, ay)}. Drag b so that b ⊥ a.`, `a = ${vs(ax, ay)}. Перетащи b так, чтобы b ⊥ a.`, `a = ${vs(ax, ay)}. b ⊥ a болатындай b-ны сүйре.`);
+        hint = L(`Now a·b = ${fmt(ax * bx + ay * by)}. Perpendicular means a·b = 0. Try (${fmt(-ay)}; ${fmt(ax)}).`, `Сейчас a·b = ${fmt(ax * bx + ay * by)}. Перпендикулярны - значит a·b = 0. Попробуй (${fmt(-ay)}; ${fmt(ax)}).`, `Қазір a·b = ${fmt(ax * bx + ay * by)}. Перпендикуляр - a·b = 0. (${fmt(-ay)}; ${fmt(ax)}) байқап көр.`);
+      } else if (tk.type === 1) {
+        ok = near(ax + bx, tk.S[0], 0.01) && near(ay + by, tk.S[1], 0.01);
+        tag = `a + b = ${vs(...tk.S)}`;
+        ask = L(`a = ${vs(ax, ay)}. Find b so that a + b = ${vs(...tk.S)}.`, `a = ${vs(ax, ay)}. Найди b, чтобы a + b = ${vs(...tk.S)}.`, `a = ${vs(ax, ay)}. a + b = ${vs(...tk.S)} болатындай b тап.`);
+        hint = L(`Now a + b = ${vs(ax + bx, ay + by)}. Hint: b = (a + b) − a.`, `Сейчас a + b = ${vs(ax + bx, ay + by)}. Подсказка: b = (a + b) − a.`, `Қазір a + b = ${vs(ax + bx, ay + by)}. Кеңес: b = (a + b) − a.`);
+      } else {
+        ok = near(lb, 5, 1e-6);
+        tag = '|b| = 5';
+        ask = L('Make the length of b equal to 5.', 'Сделай длину вектора b равной 5.', 'b векторының ұзындығын 5-ке теңе.');
+        hint = L(`Now |b| = √(${fmt(bx)}² + ${fmt(by)}²) = ${fmt(lb)}. Think of the triangle 3-4-5.`, `Сейчас |b| = √(${fmt(bx)}² + ${fmt(by)}²) = ${fmt(lb)}. Вспомни треугольник 3-4-5.`, `Қазір |b| = √(${fmt(bx)}² + ${fmt(by)}²) = ${fmt(lb)}. 3-4-5 үшбұрышын еске ал.`);
+      }
+      ok = check(st, ok);
+      return { svg: `${base}${T(8, 18, `b = ${vs(bx, by)}`, 'm11 tc exc-b ex-start h')}${badge(tag, ok)}`, caption: taskCap(st, ok, ask, hint) };
+    }
+    return {
+      svg: `${base}${T(8, 18, `a = ${vs(ax, ay)}, |a| = ${fmt(la)}`, 'm11 tc exc-p ex-start h')}${T(8, 36, `b = ${vs(bx, by)}, |b| = ${fmt(lb)}`, 'm11 tc exc-b ex-start h')}${T(8, 54, `a + b = ${vs(ax + bx, ay + by)}`, 'm11 tc exc-o ex-start h')}`,
+      caption: st.par
+        ? L(`Parallelogram rule: put a and b at one point - the sum is the diagonal. a + b = b + a = ${vs(ax + bx, ay + by)}, length ${fmt(Math.hypot(ax + bx, ay + by))}. Drag the arrow ends.`, `Правило параллелограмма: векторы из одной точки - сумма это диагональ. a + b = b + a = ${vs(ax + bx, ay + by)}, длина ${fmt(Math.hypot(ax + bx, ay + by))}. Перетаскивай концы стрелок.`, `Параллелограмм ережесі: векторлар бір нүктеден - қосынды диагональ. a + b = b + a = ${vs(ax + bx, ay + by)}, ұзындығы ${fmt(Math.hypot(ax + bx, ay + by))}. Нұсқар ұштарын сүйре.`)
+        : L(`Triangle rule: put the start of b at the end of a (faint). The sum goes from the start of a to the end of b: ${vs(ax, ay)} + ${vs(bx, by)} = ${vs(ax + bx, ay + by)}. Drag the arrow ends.`, `Правило треугольника: начало b - в конец a (бледная стрелка). Сумма - из начала a в конец b: ${vs(ax, ay)} + ${vs(bx, by)} = ${vs(ax + bx, ay + by)}. Перетаскивай концы стрелок.`, `Үшбұрыш ережесі: b-ның басы - a-ның соңында (бозғылт нұсқар). Қосынды a-ның басынан b-ның соңына: ${vs(ax, ay)} + ${vs(bx, by)} = ${vs(ax + bx, ay + by)}. Нұсқар ұштарын сүйре.`),
+    };
+  },
+});
+
+// ---------- Объём и площадь поверхности ----------
+
+const volume = modes({
+  title: L('Volume and surface area', 'Объём и площадь поверхности', 'Көлем және бет ауданы'),
+  intro: L('Volume of a prism or cylinder = base area × height; a cone or pyramid holds one third of that. Unfold a solid to see its surface area.', 'Объём призмы или цилиндра = площадь основания × высота; конус или пирамида - треть от этого. Разверни тело - увидишь площадь поверхности.', 'Призма не цилиндр көлемі = табан ауданы × биіктік; конус не пирамида - оның үштен бірі. Денені жазсаң - бет ауданын көресің.'),
+  sliders: [
+    { id: 'a', label: L('a (radius r)', 'a (радиус r)', 'a (радиус r)'), min: 1, max: 6, step: 0.5, value: 3 },
+    { id: 'b', label: 'b', min: 1, max: 6, step: 0.5, value: 2, hidden: only(0) },
+    { id: 'h', label: 'h', min: 1, max: 8, step: 0.5, value: 4, hidden: (v, st) => st.m === 3 },
+  ],
+  values: { ph: 0 },
+  tabs: [L('Box', 'Параллелепипед', 'Параллелепипед'), L('Cylinder', 'Цилиндр', 'Цилиндр'), L('Cone', 'Конус', 'Конус'), L('Sphere', 'Шар', 'Шар')],
+  acts: [{ label: L('Unfold ↔', 'Развёртка ↔', 'Жазба ↔'), only: [0, 1, 2] }],
+  onTab() {
+    return { ph: 0, $dur: 1 };
+  },
+  onAct(j, st, v) {
+    return { ph: v.ph > 0.5 ? 0 : 1, $dur: 700 };
+  },
+  draw(v, step, st) {
+    const { a, b, h } = v;
+    const k = clamp(v.ph, 0, 1);
+    const net = k > 0.5;
+    const o1 = op(1 - k * 2);
+    const o2 = op(k * 2 - 1);
+    const P = Math.PI;
+    const R = (x, y, w, hh, cls, o = 0.3) => box(x, y, w, hh, cls, 1, o) + `<rect class="ex-stroke exc-m" style="fill:none;stroke-width:1" x="${n1(x)}" y="${n1(y)}" width="${n1(w)}" height="${n1(hh)}"/>`;
+    if (st.m === 0) {
+      const V = a * b * h;
+      const S = 2 * (a * b + b * h + a * h);
+      const s = Math.min(22, 150 / (h + b * 0.5), 150 / (a + b * 0.6));
+      const dx = b * s * 0.6;
+      const dy = b * s * 0.45;
+      const x0 = 48;
+      const y0 = 196;
+      const W1 = a * s;
+      const H1 = h * s;
+      let grid3 = '';
+      if (Number.isInteger(a) && Number.isInteger(h)) {
+        for (let i = 1; i < a; i++) grid3 += ln(x0 + i * s, y0, x0 + i * s, y0 - H1, 'exc-b', 0.6);
+        for (let j = 1; j < h; j++) grid3 += ln(x0, y0 - j * s, x0 + W1, y0 - j * s, 'exc-b', 0.6);
+      }
+      const solid = `<g opacity="${o1}">${poly([[x0, y0 - H1], [x0 + dx, y0 - H1 - dy], [x0 + W1 + dx, y0 - H1 - dy], [x0 + W1, y0 - H1]], 'exc-b', 0.55)}${poly([[x0 + W1, y0], [x0 + W1 + dx, y0 - dy], [x0 + W1 + dx, y0 - H1 - dy], [x0 + W1, y0 - H1]], 'exc-b', 0.4)}${box(x0, y0 - H1, W1, H1, 'exc-b', 0, 0.3)}${grid3}
+        <path class="ex-stroke exc-m" style="stroke-width:1.5;fill:none" d="M${x0} ${y0} H${n1(x0 + W1)} V${n1(y0 - H1)} H${x0} Z M${x0} ${n1(y0 - H1)} l${n1(dx)} ${n1(-dy)} h${n1(W1)} l${n1(-dx)} ${n1(dy)} M${n1(x0 + W1 + dx)} ${n1(y0 - H1 - dy)} v${n1(H1)} l${n1(-dx)} ${n1(dy)}"/>
+        ${T(x0 + W1 / 2, y0 + 13, `a = ${fmt(a)}`, 'm10')}${T(x0 + W1 + dx / 2 + 6, y0 - dy / 2 + 8, `b = ${fmt(b)}`, 'm10 ex-start')}${T(x0 - 4, y0 - H1 / 2, `h = ${fmt(h)}`, 'm10 ex-end')}</g>`;
+      // развёртка: крест
+      const t = Math.min(12, 200 / (2 * h + 2 * b), 190 / (2 * a + 2 * b));
+      const nx = 20;
+      const ny = 16;
+      const A1 = a * t;
+      const B1 = b * t;
+      const H2 = h * t;
+      const netS = `<g opacity="${o2}">${R(nx + B1, ny, A1, B1, 'exc-o')}${R(nx, ny + B1, B1, H2, 'exc-g')}${R(nx + B1, ny + B1, A1, H2, 'exc-b')}${R(nx + B1 + A1, ny + B1, B1, H2, 'exc-g')}${R(nx + 2 * B1 + A1, ny + B1, A1, H2, 'exc-b')}${R(nx + B1, ny + B1 + H2, A1, B1, 'exc-o')}</g>`;
+      return {
+        svg: `${solid}${netS}${T(250, 40, `V = a·b·h`, 'm12')}${T(250, 60, `= ${fmt(V)}`, 'm15 tc exc-p')}${T(250, 100, 'S = 2(ab + bh + ah)', 'm10')}${T(250, 120, `= ${fmt(S)}`, 'm12 tc exc-o')}`,
+        caption: net
+          ? L(`The surface unfolds into 6 rectangles: two a×b (orange), two a×h (blue), two b×h (green). S = 2(${fmt(a * b)} + ${fmt(b * h)} + ${fmt(a * h)}) = ${fmt(S)}.`, `Поверхность разворачивается в 6 прямоугольников: два a×b (оранжевые), два a×h (синие), два b×h (зелёные). S = 2(${fmt(a * b)} + ${fmt(b * h)} + ${fmt(a * h)}) = ${fmt(S)}.`, `Бет 6 тіктөртбұрышқа жазылады: екі a×b (қызғылт сары), екі a×h (көк), екі b×h (жасыл). S = 2(${fmt(a * b)} + ${fmt(b * h)} + ${fmt(a * h)}) = ${fmt(S)}.`)
+          : L(`V = a·b·h = ${fmt(a)}·${fmt(b)}·${fmt(h)} = ${fmt(V)}: the base a×b = ${fmt(a * b)} is stacked ${fmt(h)} times. Double one edge - the volume doubles.`, `V = a·b·h = ${fmt(a)}·${fmt(b)}·${fmt(h)} = ${fmt(V)}: основание a×b = ${fmt(a * b)} уложено в ${fmt(h)} слоёв. Удвой одно ребро - объём удвоится.`, `V = a·b·h = ${fmt(a)}·${fmt(b)}·${fmt(h)} = ${fmt(V)}: a×b = ${fmt(a * b)} табаны ${fmt(h)} қабат болып жатыр. Бір қырын екі есе арттырсаң - көлем екі есе артады.`),
+      };
+    }
+    const r = a;
+    if (st.m === 3) {
+      const s = Math.min(26, 90 / r);
+      const cx = 100;
+      const cy = 112;
+      const Rr = r * s;
+      const V = (4 / 3) * P * r ** 3;
+      const S = 4 * P * r * r;
+      return {
+        svg: `<rect class="ex-stroke exc-m ex-dash" style="fill:none;stroke-width:1.2" x="${n1(cx - Rr)}" y="${n1(cy - Rr)}" width="${n1(2 * Rr)}" height="${n1(2 * Rr)}"/><circle class="ex-fill exc-b" style="opacity:.3" cx="${cx}" cy="${cy}" r="${n1(Rr)}"/><circle class="ex-stroke exc-b" style="fill:none;stroke-width:2" cx="${cx}" cy="${cy}" r="${n1(Rr)}"/><ellipse class="ex-stroke exc-b ex-dash" style="fill:none;stroke-width:1.2" cx="${cx}" cy="${cy}" rx="${n1(Rr)}" ry="${n1(Rr * 0.3)}"/>${ln(cx, cy, cx + Rr, cy, 'exc-o', 2)}${T(cx + Rr / 2, cy - 5, `r = ${fmt(r)}`, 'm10 tc exc-o h')}
+          ${T(250, 40, 'V = 4/3 πr³', 'm12')}${T(250, 60, `= ${fmt(V)}`, 'm15 tc exc-p')}${T(250, 100, 'S = 4πr²', 'm12')}${T(250, 120, `= ${fmt(S)}`, 'm12 tc exc-o')}${T(250, 160, `${u('cylinder', 'цилиндр', 'цилиндр')}: ${fmt(2 * P * r ** 3)}`, 'm10 exm-mut')}`,
+        caption: L(`A ball of radius ${fmt(r)}: V = 4/3·π·r³ = ${fmt(V)}, S = 4πr² = ${fmt(S)}. Archimedes: the ball takes exactly 2/3 of the cylinder around it (dashed), V = 2/3 · 2πr³.`, `Шар радиуса ${fmt(r)}: V = 4/3·π·r³ = ${fmt(V)}, S = 4πr² = ${fmt(S)}. Архимед: шар занимает ровно 2/3 описанного цилиндра (пунктир), V = 2/3 · 2πr³.`, `Радиусы ${fmt(r)} шар: V = 4/3·π·r³ = ${fmt(V)}, S = 4πr² = ${fmt(S)}. Архимед: шар сырттай сызылған цилиндрдің дәл 2/3 бөлігін алады (пунктир), V = 2/3 · 2πr³.`),
+      };
+    }
+    const cone = st.m === 2;
+    const Sb = P * r * r;
+    const Vv = cone ? (Sb * h) / 3 : Sb * h;
+    const l = Math.hypot(r, h);
+    const Sside = cone ? P * r * l : 2 * P * r * h;
+    const Stot = Sside + (cone ? Sb : 2 * Sb);
+    const s = Math.min(18, 160 / h, 85 / r);
+    const cx = 100;
+    const base = 196;
+    const Rr = r * s;
+    const Hh = h * s;
+    const ry = Rr * 0.3;
+    const top = base - Hh;
+    const solid = `<g opacity="${o1}">${cone ? `<path class="ex-fill exc-o" style="opacity:.45" d="M${n1(cx - Rr)} ${base} L${cx} ${n1(top)} L${n1(cx + Rr)} ${base} A${n1(Rr)} ${n1(ry)} 0 0 1 ${n1(cx - Rr)} ${base} Z"/>` : `<path class="ex-fill exc-b" style="opacity:.4" d="M${n1(cx - Rr)} ${n1(top)} V${base} A${n1(Rr)} ${n1(ry)} 0 0 0 ${n1(cx + Rr)} ${base} V${n1(top)} Z"/><ellipse class="ex-fill exc-b" style="opacity:.6" cx="${cx}" cy="${n1(top)}" rx="${n1(Rr)}" ry="${n1(ry)}"/>`}
+      <ellipse class="ex-stroke exc-m" style="fill:none;stroke-width:1.2" cx="${cx}" cy="${base}" rx="${n1(Rr)}" ry="${n1(ry)}"/>${ln(cx, base, cx, top, 'exc-k ex-dash', 1.5)}${ln(cx, base, cx + Rr, base, 'exc-p', 2)}
+      ${T(cx + Rr / 2, base - 4, 'r', 'm11 tc exc-p h')}${T(cx - 5, (base + top) / 2, 'h', 'm11 tc exc-k ex-end h')}${cone ? T((cx + Rr + cx) / 2 + 10, (base + top) / 2, `l = ${fmt(l)}`, 'm10 ex-start h') : ''}</g>`;
+    // развёртка
+    let netS;
+    const t = cone ? Math.min(60 / l, 14) : Math.min(180 / (2 * P * r), 120 / (h + 4 * r), 14);
+    if (cone) {
+      const ang = (360 * r) / l;
+      const L1 = l * t;
+      netS = `<g opacity="${o2}"><path class="ex-fill exc-o" style="opacity:.45" d="${arcD(100, 30, L1, -90 - ang / 2, -90 + ang / 2, true)}"/><circle class="ex-fill exc-b" style="opacity:.4" cx="100" cy="${n1(30 + L1 + r * t + 4)}" r="${n1(r * t)}"/>${T(100, 24, `${fmt(ang, 0)}°`, 'm10 exm-mut')}</g>`;
+    } else {
+      const Wd = 2 * P * r * t;
+      const Hn = h * t;
+      const y1 = 110 - Hn / 2;
+      netS = `<g opacity="${o2}">${R(100 - Wd / 2, y1, Wd, Hn, 'exc-b', 0.35)}<circle class="ex-fill exc-b" style="opacity:.5" cx="100" cy="${n1(y1 - r * t)}" r="${n1(r * t)}"/><circle class="ex-fill exc-b" style="opacity:.5" cx="100" cy="${n1(y1 + Hn + r * t)}" r="${n1(r * t)}"/>${T(100, y1 + Hn / 2 + 4, `2πr = ${fmt(2 * P * r)}`, 'm10 h')}</g>`;
+    }
+    return {
+      svg: `${solid}${netS}${T(250, 30, cone ? 'V = ⅓ πr²h' : 'V = πr²h', 'm12')}${T(250, 52, `= ${fmt(Vv)}`, 'm15 tc exc-p')}${T(250, 90, cone ? 'S = πr² + πrl' : 'S = 2πr² + 2πrh', 'm10')}${T(250, 110, `= ${fmt(Stot)}`, 'm12 tc exc-o')}${cone ? T(250, 150, `${u('3 cones = 1 cylinder', '3 конуса = 1 цилиндр', '3 конус = 1 цилиндр')}`, 'm10 exm-mut') : ''}`,
+      caption: net
+        ? cone
+          ? L(`The side of a cone unrolls into a sector of radius l = √(r² + h²) = ${fmt(l)}: its area is πrl = ${fmt(Sside)}. Plus the base πr² = ${fmt(Sb)}: S = ${fmt(Stot)}.`, `Боковая поверхность конуса разворачивается в сектор радиуса l = √(r² + h²) = ${fmt(l)}: его площадь πrl = ${fmt(Sside)}. Плюс основание πr² = ${fmt(Sb)}: S = ${fmt(Stot)}.`, `Конустың бүйір беті радиусы l = √(r² + h²) = ${fmt(l)} секторға жазылады: ауданы πrl = ${fmt(Sside)}. Қосу табан πr² = ${fmt(Sb)}: S = ${fmt(Stot)}.`)
+          : L(`The side of a cylinder unrolls into a rectangle 2πr × h = ${fmt(2 * P * r)} × ${fmt(h)} = ${fmt(Sside)}. Plus two circles 2πr² = ${fmt(2 * Sb)}: S = ${fmt(Stot)}.`, `Боковая поверхность цилиндра - прямоугольник 2πr × h = ${fmt(2 * P * r)} × ${fmt(h)} = ${fmt(Sside)}. Плюс два круга 2πr² = ${fmt(2 * Sb)}: S = ${fmt(Stot)}.`, `Цилиндрдің бүйір беті - 2πr × h = ${fmt(2 * P * r)} × ${fmt(h)} = ${fmt(Sside)} тіктөртбұрыш. Қосу екі дөңгелек 2πr² = ${fmt(2 * Sb)}: S = ${fmt(Stot)}.`)
+        : cone
+          ? L(`Cone: V = ⅓·πr²·h = ⅓·${fmt(Sb)}·${fmt(h)} = ${fmt(Vv)}. Three such cones fill a cylinder of the same size.`, `Конус: V = ⅓·πr²·h = ⅓·${fmt(Sb)}·${fmt(h)} = ${fmt(Vv)}. Три таких конуса заполняют цилиндр того же размера.`, `Конус: V = ⅓·πr²·h = ⅓·${fmt(Sb)}·${fmt(h)} = ${fmt(Vv)}. Осындай үш конус сол өлшемдегі цилиндрді толтырады.`)
+          : L(`Cylinder: V = πr²·h = ${fmt(Sb)}·${fmt(h)} = ${fmt(Vv)}. Double r - the volume grows 4 times; double h - only 2 times.`, `Цилиндр: V = πr²·h = ${fmt(Sb)}·${fmt(h)} = ${fmt(Vv)}. Удвой r - объём вырастет в 4 раза; h - только в 2 раза.`, `Цилиндр: V = πr²·h = ${fmt(Sb)}·${fmt(h)} = ${fmt(Vv)}. r-ді екі есе арттырсаң - көлем 4 есе өседі; h-ты - тек 2 есе.`),
+    };
+  },
+});
+
+// ---------- Интеграл ----------
+
+const IFUN = [
+  { f: (x) => x * x, F: (x) => (x * x * x) / 3, s: 'x²', Fs: 'x³/3', y0: -1.2, y1: 9.5 },
+  { f: (x) => 4 - x * x, F: (x) => 4 * x - (x * x * x) / 3, s: '4 − x²', Fs: '4x − x³/3', y0: -5.5, y1: 4.8 },
+  { f: Math.sin, F: (x) => -Math.cos(x), s: 'sin x', Fs: '−cos x', y0: -1.5, y1: 1.5 },
+  { f: (x) => x + 1, F: (x) => (x * x) / 2 + x, s: 'x + 1', Fs: 'x²/2 + x', y0: -2.5, y1: 4.5 },
+];
+const METH = [L('left', 'левые', 'сол'), L('middle', 'средние', 'орта'), L('right', 'правые', 'оң'), L('trapezoids', 'трапеции', 'трапециялар')];
+const INT_TASKS = [
+  { fi: 0, a: 0, v: 9, sol: [3] },
+  { fi: 3, a: -1, v: 2, sol: [1] },
+  { fi: 2, a: 0, v: 1, sol: [Math.PI / 2] },
+  { fi: 1, a: 0, v: 0, sol: [Math.sqrt(12)] },
+  { fi: 0, a: 0, v: 1 / 3, sol: [1] },
+];
+
+function intTask(st) {
+  let i;
+  do i = rnd(0, INT_TASKS.length - 1);
+  while (st.task && st.task.i === i);
+  const t = INT_TASKS[i];
+  st.task = { i, ...t, done: false };
+  st.fi = t.fi;
+  return { a: t.a, b: t.a + 0.5 };
+}
+
+const integral = modes({
+  title: L('The integral: area under the graph', 'Интеграл - площадь под графиком', 'Интеграл - график астындағы аудан'),
+  intro: L('Cover the area with thin rectangles and add them up. The limit of these sums is the integral, and it equals F(b) − F(a).', 'Закроем площадь тонкими прямоугольниками и сложим их. Предел таких сумм - интеграл, и он равен F(b) − F(a).', 'Ауданды жұқа тіктөртбұрыштармен жауып, қосамыз. Осындай қосындылардың шегі - интеграл, ол F(b) − F(a)-ға тең.'),
+  sliders: [
+    { id: 'a', label: 'a', min: -3, max: 3, step: 0.1, value: 0, hidden: (v, st) => st.m === 2 },
+    { id: 'b', label: 'b', min: -3, max: 3, step: 0.01, value: 2 },
+    { id: 'n', label: 'n', min: 1, max: 40, value: 6, hidden: only(0) },
+  ],
+  tabs: [L('Riemann sums', 'Суммы', 'Қосындылар'), L('Antiderivative', 'Первообразная', 'Алғашқы функция'), TASK],
+  acts: [{ label: L('Function ↻', 'Функция ↻', 'Функция ↻'), only: [0, 1] }, { label: L('Method ↻', 'Способ ↻', 'Тәсіл ↻'), only: [0] }, { label: MORE, only: [2] }],
+  state: () => ({ fi: 0, me: 1 }),
+  onTab(m, st, v, again) {
+    if (m === 2 && (again || !st.task || st.task.done)) return intTask(st);
+    if (m === 2) st.fi = st.task.fi;
+    return null;
+  },
+  onAct(j, st) {
+    if (j === 0) st.fi = (st.fi + 1) % IFUN.length;
+    else if (j === 1) st.me = (st.me + 1) % 4;
+    else return intTask(st);
+    return null;
+  },
+  draw(v, step, st) {
+    const F0 = IFUN[st.fi];
+    const { f, F } = F0;
+    const tk = st.m === 2 ? (st.task ?? (intTask(st), st.task)) : null;
+    const a = tk ? tk.a : v.a;
+    const b = v.b;
+    const exact = F(b) - F(a);
+    const two = st.m === 1;
+    const G = grid({ x0: -3.3, x1: 3.3, y0: F0.y0, y1: F0.y1, Y0: 0, Y1: two ? 126 : H, lab: 1, ylab: F0.y1 > 5 ? 2 : 1, ystep: F0.y1 > 5 ? 1 : 0.5 });
+    const { sx, sy } = G;
+    const lo = Math.min(a, b);
+    const hi = Math.max(a, b);
+    const fill = (fn, x1, x2, cls) => (x2 - x1 > 1e-6 ? area(`M${n1(sx(x1))} ${n1(sy(0))} ${plot((x) => fn(x), x1, x2, sx, sy, 80).replace(/^M/, 'L')} L${n1(sx(x2))} ${n1(sy(0))} Z`, cls, 0.3) : '');
+    const shade = fill((x) => Math.max(0, f(x)), lo, hi, 'exc-g') + fill((x) => Math.min(0, f(x)), lo, hi, 'exc-r');
+    const curve = pth(plotClip(f, -3.3, 3.3, sx, sy, -5, (two ? 126 : H) + 5), 'exc-p', 3);
+    const ab = `${ln(sx(a), sy(0) - 4, sx(a), sy(0) + 4, 'exc-o', 2)}${T(sx(a), sy(0) + 16, 'a', 'm11 tc exc-o h')}${ln(sx(b), sy(0) - 4, sx(b), sy(0) + 4, 'exc-o', 2)}${T(sx(b), sy(0) + 16, 'b', 'm11 tc exc-o h')}`;
+    const head = T(8, 16, `f(x) = ${F0.s}`, 'm11 ex-start h');
+    const nl = `∫ ${fmt(a)}..${fmt(b)}`;
+
+    if (st.m === 1) {
+      const Gb = grid({ x0: -3.3, x1: 3.3, y0: -1, y1: 1, Y0: 134, Y1: 216, labels: false });
+      const vals = [];
+      for (let i = 0; i <= 60; i++) vals.push(F(-3.3 + (6.6 * i) / 60) - F(a));
+      const ymin = Math.min(...vals, -0.5);
+      const ymax = Math.max(...vals, 0.5);
+      const syb = (y) => 216 - ((y - ymin) / (ymax - ymin)) * 80;
+      return {
+        svg: `${G.svg}${shade}${curve}${ab}${head}${Gb.svg.replace(/<text[^>]*>[^<]*<\/text>/g, '')}${ln(0, syb(0), W, syb(0), 'exc-m', 1.2)}${pth(plotClip((x) => F(x) - F(a), -3.3, 3.3, sx, syb, 132, 218), 'exc-o', 2.5)}${dot(sx(b), syb(exact), 5, 'exc-o')}${ln(sx(b), sy(f(b)), sx(b), syb(exact), 'exc-m ex-dash', 1)}
+          ${T(8, 146, `F(x) − F(a), F = ${F0.Fs}`, 'm10 tc exc-o ex-start h')}${T(312, 16, `${nl} = ${fmt(exact, 3)}`, 'm11 ex-end h')}`,
+        caption: L(
+          `The orange graph is the accumulated area from a to x. It grows where f > 0 (green area) and falls where f < 0 (red). Its slope is f itself: F′ = f. So ∫ from ${fmt(a)} to ${fmt(b)} of ${F0.s} dx = F(b) − F(a) = ${fmt(F(b), 3)} − ${fmt(F(a), 3)} = ${fmt(exact, 3)} (Newton-Leibniz).`,
+          `Оранжевый график - накопленная площадь от a до x. Он растёт там, где f > 0 (зелёная площадь), и падает, где f < 0 (красная). Его наклон - сама f: F′ = f. Поэтому ∫ от ${fmt(a)} до ${fmt(b)} ${F0.s} dx = F(b) − F(a) = ${fmt(F(b), 3)} − ${fmt(F(a), 3)} = ${fmt(exact, 3)} (Ньютон-Лейбниц).`,
+          `Қызғылт сары график - a-дан x-ке дейінгі жиналған аудан. Ол f > 0 жерде (жасыл аудан) өседі, f < 0 жерде (қызыл) кемиді. Оның көлбеулігі - f-тің өзі: F′ = f. Сондықтан ${fmt(a)}-дан ${fmt(b)}-ге дейін ∫ ${F0.s} dx = F(b) − F(a) = ${fmt(F(b), 3)} − ${fmt(F(a), 3)} = ${fmt(exact, 3)} (Ньютон-Лейбниц).`,
+        ),
+      };
+    }
+
+    if (tk) {
+      const ok = check(st, Math.abs(exact - tk.v) < 0.02 && b > tk.a + 0.05);
+      return {
+        svg: `${G.svg}${shade}${curve}${ab}${head}${T(312, 40, `= ${fmt(exact, 3)}`, 'm12 ex-end h')}${badge(`∫ ${fmt(tk.a)}..b ${F0.s} dx = ${fmt(tk.v, 3)}`, ok)}`,
+        caption: taskCap(
+          st,
+          ok,
+          L(`Find b > ${fmt(tk.a)} such that the integral of ${F0.s} from ${fmt(tk.a)} to b equals ${fmt(tk.v, 3)}.`, `Найди b > ${fmt(tk.a)}, при котором интеграл ${F0.s} от ${fmt(tk.a)} до b равен ${fmt(tk.v, 3)}.`, `${fmt(tk.a)}-дан b-ге дейінгі ${F0.s} интегралы ${fmt(tk.v, 3)}-ге тең болатын b > ${fmt(tk.a)} тап.`),
+          L(`Now it is ${fmt(exact, 3)}. Hint: F(x) = ${F0.Fs}, solve F(b) − F(${fmt(tk.a)}) = ${fmt(tk.v, 3)}.${tk.v === 0 ? ' Area above and below the axis must cancel.' : ''}`, `Сейчас ${fmt(exact, 3)}. Подсказка: F(x) = ${F0.Fs}, реши F(b) − F(${fmt(tk.a)}) = ${fmt(tk.v, 3)}.${tk.v === 0 ? ' Площади над осью и под осью должны сократиться.' : ''}`, `Қазір ${fmt(exact, 3)}. Кеңес: F(x) = ${F0.Fs}, F(b) − F(${fmt(tk.a)}) = ${fmt(tk.v, 3)} теңдеуін шеш.${tk.v === 0 ? ' Осьтен жоғары және төмен аудандар қысқаруы керек.' : ''}`),
+        ),
+      };
+    }
+
+    const n = Math.round(v.n);
+    const dx = (b - a) / n;
+    let sum = 0;
+    let rects = '';
+    for (let i = 0; i < n; i++) {
+      const x1 = a + i * dx;
+      const x2 = x1 + dx;
+      if (st.me === 3) {
+        sum += ((f(x1) + f(x2)) / 2) * dx;
+        rects += `<path class="ex-rect" d="M${n1(sx(x1))} ${n1(sy(0))} L${n1(sx(x1))} ${n1(clamp(sy(f(x1)), -10, 230))} L${n1(sx(x2))} ${n1(clamp(sy(f(x2)), -10, 230))} L${n1(sx(x2))} ${n1(sy(0))} Z"/>`;
+      } else {
+        const xs = st.me === 0 ? x1 : st.me === 1 ? x1 + dx / 2 : x2;
+        const y = f(xs);
+        sum += y * dx;
+        const top = clamp(sy(Math.max(y, 0)), -10, 230);
+        const bot = clamp(sy(Math.min(y, 0)), -10, 230);
+        rects += `<rect class="ex-rect" x="${n1(Math.min(sx(x1), sx(x2)))}" y="${n1(top)}" width="${n1(Math.abs(sx(x2) - sx(x1)))}" height="${n1(bot - top)}"/>`;
+      }
+    }
+    return {
+      svg: `${G.svg}${shade}${rects}${curve}${ab}${head}${T(312, 16, `Σ = ${fmt(sum, 3)}`, 'm11 ex-end h')}${T(312, 32, `${nl} = ${fmt(exact, 3)}`, 'm11 tc exc-p ex-end h')}${T(312, 48, `${u('error', 'ошибка', 'қате')} ${fmt(Math.abs(exact - sum), 3)}`, 'm10 exm-mut ex-end h')}`,
+      caption: J(
+        L(`${n} ${tx(METH[st.me], 'en')} ${st.me === 3 ? '' : 'rectangles '}of width Δx = (b − a)/n = ${fmt(dx, 3)} give ${fmt(sum, 3)}; the exact integral is F(b) − F(a) = ${fmt(exact, 3)}. More pieces - smaller error.`, `${n} ${tx(METH[st.me], 'ru')}${st.me === 3 ? '' : ' прямоугольники'} шириной Δx = (b − a)/n = ${fmt(dx, 3)} дают ${fmt(sum, 3)}; точный интеграл F(b) − F(a) = ${fmt(exact, 3)}. Больше кусочков - меньше ошибка.`, `Ені Δx = (b − a)/n = ${fmt(dx, 3)} болатын ${n} ${tx(METH[st.me], 'kk')}${st.me === 3 ? '' : ' тіктөртбұрыш'} ${fmt(sum, 3)} береді; нақты интеграл F(b) − F(a) = ${fmt(exact, 3)}. Бөлік көп - қате аз.`),
+        lo < hi && (f(lo) < 0 || f(hi) < 0 || f((lo + hi) / 2) < 0) ? L('Area below the axis counts with a minus (red).', 'Площадь под осью идёт со знаком минус (красная).', 'Осьтен төменгі аудан минус таңбамен алынады (қызыл).') : null,
+        a > b ? L('a > b: the integral changes sign.', 'a > b: интеграл меняет знак.', 'a > b: интеграл таңбасын өзгертеді.') : null,
+      ),
+    };
+  },
+});
+
+// ---------- Комплексные числа ----------
+
+const zStr = (a, b) => {
+  if (Math.abs(b) < 1e-9) return fmt(a);
+  const bi = Math.abs(Math.abs(b) - 1) < 1e-9 ? 'i' : `${fmt(Math.abs(b))}i`;
+  if (Math.abs(a) < 1e-9) return `${b < 0 ? '−' : ''}${bi}`;
+  return `${fmt(a)} ${b < 0 ? '−' : '+'} ${bi}`;
+};
+const argD = (a, b) => (Math.atan2(b, a) * 180) / Math.PI;
+
+function cxTask(st) {
+  const last = st.task?.type;
+  let type;
+  do type = rnd(0, 2);
+  while (type === last);
+  let t;
+  if (type === 0) {
+    const [re, im] = pick([[3, 4], [-3, 4], [4, -3], [0, 5], [-4, -3]]);
+    t = { re, mod: 5, im, tag: `|z| = 5, Re z = ${fmt(re)}` };
+  } else if (type === 1) {
+    const re = rnd(-3, 3);
+    const im = pick([-3, -2, -1, 1, 2, 3]);
+    t = { re, im: -im, tag: `z = ${zStr(re, im)} → z̄`, from: [re, im] };
+  } else {
+    const re = rnd(-3, 3);
+    const im = rnd(-3, 3) || 1;
+    t = { re, im, tag: `z · i = ${zStr(-im, re)}` };
+  }
+  st.task = { type, done: false, ...t };
+  return { a: 0, b: 0 };
+}
+
+const complex = modes({
+  title: L('Complex numbers on the plane', 'Комплексные числа на плоскости', 'Жазықтықтағы комплекс сандар'),
+  intro: L('z = a + bi is a point (a; b). Adding works like vectors; multiplying multiplies the lengths and adds the angles.', 'z = a + bi - точка (a; b). Сложение - как у векторов; при умножении длины перемножаются, а углы складываются.', 'z = a + bi - (a; b) нүктесі. Қосу векторлардағыдай; көбейткенде ұзындықтар көбейтіледі, бұрыштар қосылады.'),
+  sliders: [
+    { id: 'a', label: 'Re z = a', min: -4, max: 4, step: 0.5, value: 3 },
+    { id: 'b', label: 'Im z = b', min: -4, max: 4, step: 0.5, value: 2 },
+  ],
+  values: { c: 1, d: 2 },
+  tabs: [L('z and |z|', 'z и |z|', 'z және |z|'), 'z + w', 'z · w', TASK],
+  acts: [{ label: '× i', only: [0] }, { label: L('conjugate', 'сопряжённое', 'түйіндес'), only: [0] }, { label: MORE, only: [1, 2, 3] }],
+  onTab(m, st, v, again) {
+    if (m === 3 && (again || !st.task || st.task.done)) return cxTask(st);
+    return null;
+  },
+  onAct(j, st, v) {
+    if (j === 0) return { a: clamp(-v.b, -4, 4), b: clamp(v.a, -4, 4) };
+    if (j === 1) return { b: -v.b };
+    if (st.m === 3) return cxTask(st);
+    return { c: pick([1, -1, 2, 0, 1.5]), d: pick([1, 2, -1, 1.5, -2]) };
+  },
+  onDrag(key, p, v, st) {
+    const R = st.m === 2 ? Math.max(5, Math.hypot(v.a, v.b) * Math.hypot(v.c, v.d) * 1.1) : 5;
+    const sc = 100 / R;
+    v.c = clamp(Math.round(((p.x - 160) / sc) * 2) / 2, -4, 4);
+    v.d = clamp(Math.round(((110 - p.y) / sc) * 2) / 2, -4, 4);
+  },
+  draw(v, step, st) {
+    const { a, b, c, d } = v;
+    const mod = Math.hypot(a, b);
+    const ph = argD(a, b);
+    if (st.m === 1 || st.m === 2) {
+      const mult = st.m === 2;
+      const pa = mult ? a * c - b * d : a + c;
+      const pb = mult ? a * d + b * c : b + d;
+      const R = Math.max(5, Math.hypot(pa, pb) * 1.1, mod * 1.1);
+      const sc = 100 / R;
+      const sx = (x) => 160 + x * sc;
+      const sy = (y) => 110 - y * sc;
+      const step2 = R > 20 ? 5 : R > 10 ? 2 : 1;
+      const G = grid({ x0: -1.6 * R, x1: 1.6 * R, y0: -1.1 * R, y1: 1.1 * R, step: step2, lab: step2 * 2 }).svg;
+      const O = [sx(0), sy(0)];
+      const Z = [sx(a), sy(b)];
+      const Wp = [sx(c), sy(d)];
+      const P = [sx(pa), sy(pb)];
+      const arcs = mult && mod && Math.hypot(c, d) ? `${pth(arcD(O[0], O[1], 16, 0, ph), 'exc-p', 2)}${pth(arcD(O[0], O[1], 24, 0, argD(c, d)), 'exc-b', 2)}${pth(arcD(O[0], O[1], 32, 0, argD(pa, pb)), 'exc-o', 2)}` : '';
+      return {
+        svg: `${G}${T(312, sy(0) - 5, 'Re', 'm9 exm-mut ex-end')}${T(sx(0) + 5, 12, 'Im', 'm9 exm-mut ex-start')}${arcs}${mult ? '' : `${arrow(Z[0], Z[1], P[0], P[1], 'exc-b ex-faint', 2)}`}${arrow(O[0], O[1], Z[0], Z[1], 'exc-p')}${arrow(O[0], O[1], Wp[0], Wp[1], 'exc-b')}${arrow(O[0], O[1], P[0], P[1], 'exc-o', 3)}${hit('w', Wp[0], Wp[1], 14)}${dot(Wp[0], Wp[1], 4, 'exc-b')}
+          ${T(8, 16, `z = ${zStr(a, b)}`, 'm11 tc exc-p ex-start h')}${T(8, 32, `w = ${zStr(c, d)}`, 'm11 tc exc-b ex-start h')}${T(8, 48, `z ${mult ? '·' : '+'} w = ${zStr(pa, pb)}`, 'm11 tc exc-o ex-start h')}${T(Wp[0] + 6, Wp[1] - 6, 'w', 'm11 tc exc-b ex-start h')}`,
+        caption: mult
+          ? L(
+              `(${zStr(a, b)})(${zStr(c, d)}) = ${fmt(a)}·${pn(c)} − ${pn(b)}·${pn(d)} + (${fmt(a)}·${pn(d)} + ${pn(b)}·${pn(c)})i = ${zStr(pa, pb)}. Lengths multiply: ${fmt(mod)}·${fmt(Math.hypot(c, d))} = ${fmt(Math.hypot(pa, pb))}; angles add: ${fmt(ph, 0)}° + ${fmt(argD(c, d), 0)}° = ${fmt(argD(pa, pb), 0)}° (mod 360°). Drag w.`,
+              `(${zStr(a, b)})(${zStr(c, d)}) = ${fmt(a)}·${pn(c)} − ${pn(b)}·${pn(d)} + (${fmt(a)}·${pn(d)} + ${pn(b)}·${pn(c)})i = ${zStr(pa, pb)}, ведь i² = −1. Длины перемножаются: ${fmt(mod)}·${fmt(Math.hypot(c, d))} = ${fmt(Math.hypot(pa, pb))}; углы складываются: ${fmt(ph, 0)}° + ${fmt(argD(c, d), 0)}° = ${fmt(argD(pa, pb), 0)}° (с точностью до 360°). Перетаскивай w.`,
+              `(${zStr(a, b)})(${zStr(c, d)}) = ${fmt(a)}·${pn(c)} − ${pn(b)}·${pn(d)} + (${fmt(a)}·${pn(d)} + ${pn(b)}·${pn(c)})i = ${zStr(pa, pb)}, өйткені i² = −1. Ұзындықтар көбейеді: ${fmt(mod)}·${fmt(Math.hypot(c, d))} = ${fmt(Math.hypot(pa, pb))}; бұрыштар қосылады: ${fmt(ph, 0)}° + ${fmt(argD(c, d), 0)}° = ${fmt(argD(pa, pb), 0)}° (360°-қа дейінгі дәлдікпен). w-ны сүйре.`,
+            )
+          : L(`Add real parts and imaginary parts: (${fmt(a)} + ${pn(c)}) + (${fmt(b)} + ${pn(d)})i = ${zStr(pa, pb)} - like adding vectors. Drag w.`, `Складываем отдельно действительные и мнимые части: (${fmt(a)} + ${pn(c)}) + (${fmt(b)} + ${pn(d)})i = ${zStr(pa, pb)} - как сложение векторов. Перетаскивай w.`, `Нақты және жорамал бөліктерді бөлек қосамыз: (${fmt(a)} + ${pn(c)}) + (${fmt(b)} + ${pn(d)})i = ${zStr(pa, pb)} - векторларды қосу сияқты. w-ны сүйре.`),
+      };
+    }
+    const G = grid({ x0: -8, x1: 8, y0: -5.5, y1: 5.5, lab: 2, ylab: 2 }).svg;
+    const sx = (x) => 160 + x * 20;
+    const sy = (y) => 110 - y * 20;
+    const Z = [sx(a), sy(b)];
+    const base = `${G}${T(312, sy(0) - 5, 'Re', 'm9 exm-mut ex-end')}${T(sx(0) + 5, 12, 'Im', 'm9 exm-mut ex-start')}${st.m === 3 ? '' : `${dot(sx(a), sy(-b), 3.5, 'exc-m')}${ln(Z[0], Z[1], sx(a), sy(-b), 'exc-m ex-dash', 1)}${T(sx(a) + 6, sy(-b) + 12, 'z̄', 'm10 exm-mut ex-start h')}`}${ln(Z[0], Z[1], Z[0], sy(0), 'exc-k ex-dash', 1.2)}${ln(sx(0), sy(0), Z[0], sy(0), 'exc-g', 3)}${mod ? pth(arcD(sx(0), sy(0), 18, 0, ph), 'exc-o', 2) : ''}${arrow(sx(0), sy(0), Z[0], Z[1], 'exc-p')}${dot(Z[0], Z[1], 4, 'exc-p')}`;
+    const tf = `${fmt(mod)}(cos ${fmt(ph, 0)}° + i·sin ${fmt(ph, 0)}°)`;
+    if (st.m === 3) {
+      const tk = st.task ?? (cxTask(st), st.task);
+      const ok = check(st, tk.type === 0 ? near(mod, 5, 1e-6) && near(a, tk.re, 1e-6) : near(a, tk.re, 1e-6) && near(b, tk.im, 1e-6));
+      const ask = [
+        L(`Find z with |z| = 5 and Re z = ${fmt(tk.re)}.`, `Найди z, у которого |z| = 5 и Re z = ${fmt(tk.re)}.`, `|z| = 5 және Re z = ${fmt(tk.re)} болатын z тап.`),
+        L(`Set the conjugate of ${zStr(tk.from?.[0] ?? 0, tk.from?.[1] ?? 0)}.`, `Поставь число, сопряжённое к ${zStr(tk.from?.[0] ?? 0, tk.from?.[1] ?? 0)}.`, `${zStr(tk.from?.[0] ?? 0, tk.from?.[1] ?? 0)} санына түйіндес санды қой.`),
+        L(`Find z: z · i = ${zStr(-tk.im, tk.re)}.`, `Найди z: z · i = ${zStr(-tk.im, tk.re)}.`, `z-ті тап: z · i = ${zStr(-tk.im, tk.re)}.`),
+      ][tk.type];
+      const hint = [
+        L(`Now |z| = ${fmt(mod)}. Hint: a² + b² = 25.`, `Сейчас |z| = ${fmt(mod)}. Подсказка: a² + b² = 25.`, `Қазір |z| = ${fmt(mod)}. Кеңес: a² + b² = 25.`),
+        L('Hint: the conjugate keeps a and changes the sign of b - a mirror in the Re axis.', 'Подсказка: у сопряжённого то же a, а знак b противоположный - отражение относительно оси Re.', 'Кеңес: түйіндесте a сол, b-ның таңбасы қарама-қарсы - Re осіне қатысты бейне.'),
+        L(`Now z · i = ${zStr(-b, a)}. Hint: × i turns by 90°, so turn back by 90°.`, `Сейчас z · i = ${zStr(-b, a)}. Подсказка: × i поворачивает на 90°, значит поверни обратно на 90°.`, `Қазір z · i = ${zStr(-b, a)}. Кеңес: × i 90°-қа бұрады, демек кері 90°-қа бұр.`),
+      ][tk.type];
+      return { svg: `${base}${T(8, 16, `z = ${zStr(a, b)}`, 'm12 tc exc-p ex-start h')}${badge(tk.tag, ok)}`, caption: taskCap(st, ok, ask, hint) };
+    }
+    return {
+      svg: `${base}${T(8, 16, `z = ${zStr(a, b)}`, 'm12 tc exc-p ex-start h')}${T(8, 34, `|z| = √(${pn(a)}² + ${pn(b)}²) = ${fmt(mod)}`, 'm11 ex-start h')}${T(8, 52, `arg z = ${fmt(ph, 1)}°`, 'm11 tc exc-o ex-start h')}${mod ? T(8, 212, `z = ${tf}`, 'm10 ex-start h') : ''}`,
+      caption: J(
+        L(`z = ${zStr(a, b)} is the point (${fmt(a)}; ${fmt(b)}): real part on Re (green), imaginary on Im. |z| = ${fmt(mod)}, the angle arg z = ${fmt(ph, 1)}°.`, `z = ${zStr(a, b)} - точка (${fmt(a)}; ${fmt(b)}): действительная часть по оси Re (зелёная), мнимая - по Im. |z| = ${fmt(mod)}, угол arg z = ${fmt(ph, 1)}°.`, `z = ${zStr(a, b)} - (${fmt(a)}; ${fmt(b)}) нүктесі: нақты бөлігі Re осі бойынша (жасыл), жорамал - Im бойынша. |z| = ${fmt(mod)}, arg z = ${fmt(ph, 1)}°.`),
+        L('"× i" turns z by 90°; i² = −1 means two turns = 180°. The grey point is the conjugate z̄.', '«× i» поворачивает z на 90°; i² = −1 - два поворота дают 180°. Серая точка - сопряжённое z̄.', '«× i» z-ті 90°-қа бұрады; i² = −1 - екі бұрылыс 180° береді. Сұр нүкте - түйіндес z̄.'),
+      ),
+    };
+  },
+});
+
+// ---------- Предел ----------
+
+const SEQS = [
+  { a: (n) => 1 / n, L: 0, s: '1/n', y0: -0.2, y1: 1.1 },
+  { a: (n) => (n + 1) / n, L: 1, s: '(n + 1)/n', y0: 0.8, y1: 2.1 },
+  { a: (n) => (1 + 1 / n) ** n, L: Math.E, s: '(1 + 1/n)ⁿ', y0: 1.9, y1: 2.9 },
+  { a: (n) => (-1) ** n / n, L: 0, s: '(−1)ⁿ/n', y0: -1.1, y1: 0.7 },
+  { a: (n) => (2 * n + 1) / (n + 3), L: 2, s: '(2n + 1)/(n + 3)', y0: 0.6, y1: 2.2 },
+  { a: (n) => (-1) ** n, L: null, s: '(−1)ⁿ', y0: -1.4, y1: 1.4 },
+];
+const FUNL = [
+  { f: (x) => (x * x - 1) / (x - 1), p: 1, L: 2, s: '(x² − 1)/(x − 1)', x0: -1, x1: 3, y0: -0.5, y1: 4.5 },
+  { f: (x) => Math.sin(x) / x, p: 0, L: 1, s: 'sin x / x', x0: -6, x1: 6, y0: -0.4, y1: 1.3 },
+  { f: (x) => (Math.sqrt(x + 1) - 1) / x, p: 0, L: 0.5, s: '(√(x + 1) − 1)/x', x0: -0.9, x1: 3, y0: 0, y1: 1.2 },
+  { f: (x) => Math.abs(x) / x, p: 0, L: null, s: '|x| / x', x0: -2, x1: 2, y0: -1.6, y1: 1.6 },
+];
+/** Номер, начиная с которого все члены в полосе L ± eps (проверяем до 5000). */
+function bandN(S, eps) {
+  let last = 0;
+  for (let n = 1; n <= 5000; n++) if (Math.abs(S.a(n) - S.L) >= eps) last = n;
+  return last + 1;
+}
+
+function limTask(st) {
+  const opts = [[0, 0.1], [0, 0.05], [1, 0.2], [1, 0.04], [4, 0.5], [4, 0.25], [3, 0.1], [0, 0.2]];
+  let i;
+  do i = rnd(0, opts.length - 1);
+  while (st.task && st.task.i === i);
+  const [si, eps] = opts[i];
+  st.task = { i, si, eps, N: bandN(SEQS[si], eps), done: false };
+  st.si = si;
+  return { n: 1, eps };
+}
+
+const limit = modes({
+  title: L('Limits', 'Пределы', 'Шектер'),
+  intro: L('L is the limit if the values get as close to L as you like: for any band L ± ε, from some point on all values stay inside.', 'L - предел, если значения подходят к L сколь угодно близко: для любой полосы L ± ε с какого-то места все значения остаются внутри.', 'Мәндер L-ге қалағанша жақындаса, L - шек: кез келген L ± ε жолағы үшін бір орыннан бастап барлық мәндер ішінде қалады.'),
+  sliders: [
+    { id: 'n', label: 'n', min: 1, max: 100, value: 20 },
+    { id: 'eps', label: 'ε', min: 0.02, max: 0.5, step: 0.01, value: 0.2, hidden: (v, st) => st.m === 1 },
+  ],
+  tabs: [L('Sequence', 'Последовательность', 'Тізбек'), L('Function', 'Функция', 'Функция'), TASK],
+  acts: [{ label: L('Example ↻', 'Пример ↻', 'Мысал ↻'), only: [0, 1] }, { label: MORE, only: [2] }],
+  state: () => ({ si: 0, fi: 0 }),
+  onTab(m, st, v, again) {
+    if (m === 2 && (again || !st.task || st.task.done)) return limTask(st);
+    if (m === 2) st.si = st.task.si;
+    return null;
+  },
+  onAct(j, st) {
+    if (j === 1) return limTask(st);
+    if (st.m === 0) st.si = (st.si + 1) % SEQS.length;
+    else st.fi = (st.fi + 1) % FUNL.length;
+    return null;
+  },
+  draw(v, step, st) {
+    const n = Math.round(v.n);
+    if (st.m === 1) {
+      const F = FUNL[st.fi];
+      const G = grid({ x0: F.x0, x1: F.x1, y0: F.y0, y1: F.y1, lab: F.x1 > 4 ? 2 : 1, ylab: F.y1 > 2 ? 1 : 0.5, step: F.x1 > 4 ? 1 : 0.5, ystep: F.y1 > 2 ? 1 : 0.25 });
+      const { sx, sy } = G;
+      const h = (F.x1 - F.x0) / 4 / n;
+      const xl = F.p - h;
+      const xr = F.p + h;
+      const yl = F.f(xl);
+      const yr = F.f(xr);
+      const curveL = pth(plotClip(F.f, F.x0, F.p - 1e-6, sx, sy, -5, H + 5), 'exc-p', 3);
+      const curveR = pth(plotClip(F.f, F.p + 1e-6, F.x1, sx, sy, -5, H + 5), 'exc-p', 3);
+      const hole = F.L !== null ? ring(sx(F.p), sy(F.L), 5, 'exc-p', 2.5) : `${ring(sx(F.p), sy(F.f(F.p - 1e-6)), 5, 'exc-p', 2.5)}${ring(sx(F.p), sy(F.f(F.p + 1e-6)), 5, 'exc-p', 2.5)}`;
+      return {
+        svg: `${G.svg}${curveL}${curveR}${hole}${ln(sx(xl), sy(0), sx(xl), sy(yl), 'exc-o ex-dash', 1)}${ln(sx(xr), sy(0), sx(xr), sy(yr), 'exc-b ex-dash', 1)}${dot(sx(xl), sy(yl), 5, 'exc-o')}${dot(sx(xr), sy(yr), 5, 'exc-b')}
+          ${T(8, 16, `f(x) = ${F.s}`, 'm11 ex-start h')}${T(312, 16, `f(${fmt(xl, 3)}) = ${fmt(yl, 4)}`, 'm10 tc exc-o ex-end h')}${T(312, 32, `f(${fmt(xr, 3)}) = ${fmt(yr, 4)}`, 'm10 tc exc-b ex-end h')}${F.L !== null ? T(312, 48, `lim = ${fmt(F.L)}`, 'm12 tc exc-p ex-end h') : ''}`,
+        caption: F.L !== null
+          ? L(`x → ${F.p}: the points x = ${fmt(xl, 3)} and ${fmt(xr, 3)} come from both sides (move n), and f(x) gets close to ${fmt(F.L)}. At x = ${F.p} itself f is not defined (empty circle), but the limit exists: ${fmt(F.L)}.${st.fi === 0 ? ' Indeed (x² − 1)/(x − 1) = x + 1 for x ≠ 1.' : ''}`, `x → ${F.p}: точки x = ${fmt(xl, 3)} и ${fmt(xr, 3)} подходят с обеих сторон (двигай n), а f(x) приближается к ${fmt(F.L)}. В самой точке x = ${F.p} функция не определена (пустой кружок), но предел есть: ${fmt(F.L)}.${st.fi === 0 ? ' Ведь (x² − 1)/(x − 1) = x + 1 при x ≠ 1.' : ''}`, `x → ${F.p}: x = ${fmt(xl, 3)} және ${fmt(xr, 3)} нүктелері екі жақтан жақындайды (n-ді жылжыт), ал f(x) ${fmt(F.L)}-ге жақындайды. x = ${F.p} нүктесінің өзінде функция анықталмаған (бос дөңгелек), бірақ шегі бар: ${fmt(F.L)}.${st.fi === 0 ? ' Себебі x ≠ 1 болғанда (x² − 1)/(x − 1) = x + 1.' : ''}`)
+          : L(`From the left f → −1, from the right f → 1. The one-sided limits differ, so there is no limit at 0.`, `Слева f → −1, справа f → 1. Односторонние пределы разные, поэтому предела в точке 0 нет.`, `Сол жақтан f → −1, оң жақтан f → 1. Бір жақты шектер әртүрлі, сондықтан 0 нүктесінде шек жоқ.`),
+      };
+    }
+    const tk = st.m === 2 ? (st.task ?? (limTask(st), st.task)) : null;
+    const S = SEQS[tk ? tk.si : st.si];
+    const eps = tk ? tk.eps : v.eps;
+    const M = Math.max(10, n);
+    const G = grid({ x0: 0, x1: M * 1.04, y0: S.y0, y1: S.y1, X0: 22, X1: 314, Y0: 6, Y1: 210, step: M > 50 ? 10 : M > 20 ? 5 : 1, lab: M > 50 ? 20 : M > 20 ? 10 : 2, ystep: 0.1, ylab: S.y1 - S.y0 > 1.5 ? 0.5 : 0.2 });
+    const { sx, sy } = G;
+    const Nb = S.L !== null ? bandN(S, eps) : Infinity;
+    let dots = '';
+    for (let i = 1; i <= n; i++) {
+      const y = S.a(i);
+      const inb = S.L !== null && Math.abs(y - S.L) < eps;
+      dots += `<circle class="ex-fill ${inb ? 'exc-g' : 'exc-r'}" cx="${n1(sx(i))}" cy="${n1(clamp(sy(y), 0, H))}" r="${n > 60 ? 1.8 : n > 30 ? 2.4 : 3.2}"/>`;
+    }
+    const band = S.L !== null ? `${soft(22, sy(S.L + eps), 292, sy(S.L - eps) - sy(S.L + eps), 'exc-g', 0)}${ln(22, sy(S.L), 314, sy(S.L), 'exc-o ex-dash', 1.5)}${T(312, sy(S.L) - 4, `L = ${fmt(S.L, 3)}`, 'm10 tc exc-o ex-end h')}${Nb <= M ? `${ln(sx(Nb), 6, sx(Nb), 210, 'exc-p ex-dash', 1.2)}${T(sx(Nb) + 3, 20, `N = ${Nb}`, 'm10 tc exc-p ex-start h')}` : ''}` : '';
+    const val = S.a(n);
+    const head = `${T(30, 18, `aₙ = ${S.s}`, 'm11 ex-start h')}${T(30, 34, `a${sub(n)} = ${fmt(val, 4)}`, 'm10 ex-start h')}`;
+    if (tk) {
+      const ok = check(st, n === tk.N);
+      return {
+        svg: `${G.svg}${band.replace(/N = \d+/, 'N = ?').replace(/<line[^>]*exc-p ex-dash[^>]*>/, '')}${dots}${head}${badge(`ε = ${fmt(eps)}: N = ?`, ok)}`,
+        caption: taskCap(
+          st,
+          ok,
+          L(`aₙ = ${S.s}, ε = ${fmt(eps)}. Find the smallest N from which all terms are inside the band L ± ε. Set n = N.`, `aₙ = ${S.s}, ε = ${fmt(eps)}. Найди наименьший N, начиная с которого все члены внутри полосы L ± ε. Поставь n = N.`, `aₙ = ${S.s}, ε = ${fmt(eps)}. Барлық мүшелер L ± ε жолағында болатын ең кіші N-ді тап. n = N қой.`),
+          L(`Now n = ${n}: |a${sub(n)} − L| = ${fmt(Math.abs(val - S.L), 4)} ${Math.abs(val - S.L) < eps ? '<' : '≥'} ε. Solve |aₙ − L| < ε.`, `Сейчас n = ${n}: |a${sub(n)} − L| = ${fmt(Math.abs(val - S.L), 4)} ${Math.abs(val - S.L) < eps ? '<' : '≥'} ε. Реши |aₙ − L| < ε.`, `Қазір n = ${n}: |a${sub(n)} − L| = ${fmt(Math.abs(val - S.L), 4)} ${Math.abs(val - S.L) < eps ? '<' : '≥'} ε. |aₙ − L| < ε шеш.`),
+        ),
+      };
+    }
+    return {
+      svg: `${G.svg}${band}${dots}${head}`,
+      caption: S.L === null
+        ? L('(−1)ⁿ jumps between −1 and 1 forever: no band around a single number catches all terms - there is no limit.', '(−1)ⁿ вечно прыгает между −1 и 1: ни одна узкая полоса вокруг одного числа не поймает все члены - предела нет.', '(−1)ⁿ −1 мен 1 арасында мәңгі секіреді: бір санның айналасындағы ешбір тар жолақ барлық мүшені ұстамайды - шек жоқ.')
+        : L(
+            `a${sub(n)} = ${fmt(val, 4)}, distance to L = ${fmt(S.L, 3)} is ${fmt(Math.abs(val - S.L), 4)}. For ε = ${fmt(eps)} all terms from N = ${Nb} on are inside the green band. Make ε smaller - N grows, but it always exists: that is the limit.`,
+            `a${sub(n)} = ${fmt(val, 4)}, до L = ${fmt(S.L, 3)} осталось ${fmt(Math.abs(val - S.L), 4)}. Для ε = ${fmt(eps)} все члены, начиная с N = ${Nb}, в зелёной полосе. Уменьши ε - N вырастет, но он всегда найдётся: это и есть предел.`,
+            `a${sub(n)} = ${fmt(val, 4)}, L = ${fmt(S.L, 3)}-ге дейін ${fmt(Math.abs(val - S.L), 4)} қалды. ε = ${fmt(eps)} үшін N = ${Nb}-ден бастап барлық мүшелер жасыл жолақта. ε-ны кішірейт - N өседі, бірақ ол әрқашан табылады: бұл шек.`,
+          ),
+    };
+  },
+});
+
+// ---------- Матрицы ----------
+
+const MX_PRE = [
+  { a: 1, b: 0, c: 0, d: 1 },
+  { a: 0, b: -1, c: 1, d: 0 },
+  { a: -1, b: 0, c: 0, d: 1 },
+  { a: 1, b: 1, c: 0, d: 1 },
+  { a: 2, b: 0, c: 0, d: 0.5 },
+  { a: 1, b: 2, c: 0.5, d: 1 },
+];
+const MX_TASKS = [
+  { M: { a: 0, b: -1, c: 1, d: 0 }, t: L('Rotate the plane by 90° counterclockwise.', 'Поверни плоскость на 90° против часовой стрелки.', 'Жазықтықты сағат тіліне қарсы 90°-қа бұр.') },
+  { M: { a: -1, b: 0, c: 0, d: 1 }, t: L('Mirror the plane in the y-axis.', 'Отрази плоскость относительно оси y.', 'Жазықтықты y осіне қатысты шағылыстыр.') },
+  { M: { a: 2, b: 0, c: 0, d: 2 }, t: L('Stretch everything 2 times from the origin.', 'Растяни всё в 2 раза от начала координат.', 'Бәрін координаттар басынан 2 есе соз.') },
+  { M: { a: 1, b: 0, c: 0, d: -1 }, t: L('Mirror the plane in the x-axis.', 'Отрази плоскость относительно оси x.', 'Жазықтықты x осіне қатысты шағылыстыр.') },
+  { det: 0, t: L('Make a matrix with det = 0, but not all zeros.', 'Сделай матрицу с det = 0, но не нулевую.', 'det = 0, бірақ нөлдік емес матрица жаса.') },
+  { det: -2, t: L('Make a matrix with det = −2.', 'Сделай матрицу с det = −2.', 'det = −2 болатын матрица жаса.') },
+];
+function mxTask(st) {
+  let i;
+  do i = rnd(0, MX_TASKS.length - 1);
+  while (st.task && st.task.i === i);
+  st.task = { i, ...MX_TASKS[i], done: false };
+  return { a: 1, b: 0, c: 0, d: 1 };
+}
+const mxStr = (v) => `(${fmt(v.a)} ${fmt(v.b)} | ${fmt(v.c)} ${fmt(v.d)})`;
+
+const matrix = modes({
+  title: L('A matrix transforms the plane', 'Матрица преобразует плоскость', 'Матрица жазықтықты түрлендіреді'),
+  intro: L('A 2×2 matrix sends (1; 0) to its first column and (0; 1) to its second. The whole grid follows; the area changes det times.', 'Матрица 2×2 переводит (1; 0) в свой первый столбец, а (0; 1) - во второй. Вся сетка следует за ними; площадь меняется в det раз.', '2×2 матрица (1; 0)-ді бірінші бағанына, (0; 1)-ді екіншісіне апарады. Бүкіл тор соларға ереді; аудан det есе өзгереді.'),
+  sliders: [
+    { id: 'a', label: 'a', min: -2, max: 2, step: 0.5, value: 1.5 },
+    { id: 'b', label: 'b', min: -2, max: 2, step: 0.5, value: 0.5 },
+    { id: 'c', label: 'c', min: -2, max: 2, step: 0.5, value: 0 },
+    { id: 'd', label: 'd', min: -2, max: 2, step: 0.5, value: 1 },
+  ],
+  values: { vx: 1, vy: 1 },
+  tabs: [L('Transform', 'Преобразование', 'Түрлендіру'), 'A · v', 'det', TASK],
+  acts: [{ label: MORE }],
+  state: () => ({ pre: 0 }),
+  onTab(m, st, v, again) {
+    if (m === 3 && (again || !st.task || st.task.done)) return mxTask(st);
+    return null;
+  },
+  onAct(j, st) {
+    if (st.m === 3) return mxTask(st);
+    st.pre = (st.pre + 1) % MX_PRE.length;
+    return MX_PRE[st.pre];
+  },
+  onDrag(key, p, v) {
+    v.vx = clamp(Math.round(((p.x - 160) / 30) * 2) / 2, -4, 4);
+    v.vy = clamp(Math.round(((110 - p.y) / 30) * 2) / 2, -3, 3);
+  },
+  draw(v, step, st) {
+    const { a, b, c, d } = v;
+    const sx = (x) => 160 + x * 30;
+    const sy = (y) => 110 - y * 30;
+    const M = (x, y) => [a * x + b * y, c * x + d * y];
+    const det = a * d - b * c;
+    let g = grid({ x0: -5.4, x1: 5.4, y0: -3.7, y1: 3.7, labels: false }).svg;
+    // образ сетки
+    for (let k = -4; k <= 4; k++) {
+      const p1 = M(k, -6);
+      const p2 = M(k, 6);
+      const q1 = M(-6, k);
+      const q2 = M(6, k);
+      g += ln(sx(p1[0]), sy(p1[1]), sx(p2[0]), sy(p2[1]), 'exc-p ex-faint', k ? 0.4 : 1) + ln(sx(q1[0]), sy(q1[1]), sx(q2[0]), sy(q2[1]), 'exc-p ex-faint', k ? 0.4 : 1);
+    }
+    const sq = [[0, 0], [1, 0], [1, 1], [0, 1]];
+    const img = sq.map(([x, y]) => M(x, y)).map(([x, y]) => [sx(x), sy(y)]);
+    // буква F - видно отражение
+    const Fp = [[0, 0], [0, 2], [1.2, 2], [1.2, 1.6], [0.4, 1.6], [0.4, 1.2], [1, 1.2], [1, 0.8], [0.4, 0.8], [0.4, 0]].map(([x, y]) => [x - 3.5, y - 1]);
+    const F1 = Fp.map(([x, y]) => [sx(x), sy(y)]);
+    const F2 = Fp.map(([x, y]) => M(x, y)).map(([x, y]) => [sx(x), sy(y)]);
+    const cols = `${arrow(sx(0), sy(0), sx(a), sy(c), 'exc-o', 2.8)}${arrow(sx(0), sy(0), sx(b), sy(d), 'exc-b', 2.8)}`;
+    const head = `${T(8, 18, `A = ${mxStr(v)}`, 'm11 ex-start h')}${T(8, 36, `det = ${fmt(a)}·${pn(d)} − ${pn(b)}·${pn(c)} = ${fmt(det)}`, 'm11 ex-start h')}`;
+    if (st.m === 1) {
+      const { vx, vy } = v;
+      const [wx, wy] = M(vx, vy);
+      return {
+        svg: `${g}${poly(img, 'exc-p', 0.15)}${arrow(sx(0), sy(0), sx(vx * a), sy(vx * c), 'exc-o ex-faint', 2)}${arrow(sx(vx * a), sy(vx * c), sx(wx), sy(wy), 'exc-b ex-faint', 2)}${arrow(sx(0), sy(0), sx(vx), sy(vy), 'exc-g', 2.8)}${arrow(sx(0), sy(0), sx(wx), sy(wy), 'exc-k', 3)}${hit('v', sx(vx), sy(vy), 14)}${dot(sx(vx), sy(vy), 4, 'exc-g')}
+          ${T(8, 18, `(${fmt(a)} ${fmt(b)}) (${fmt(vx)})   (${fmt(a)}·${pn(vx)} + ${fmt(b)}·${pn(vy)})   (${fmt(wx)})`, 'm10 ex-start h')}${T(8, 34, `(${fmt(c)} ${fmt(d)}) (${fmt(vy)}) = (${fmt(c)}·${pn(vx)} + ${fmt(d)}·${pn(vy)}) = (${fmt(wy)})`, 'm10 ex-start h')}${T(sx(vx) + 6, sy(vy) - 6, 'v', 'm11 tc exc-g ex-start h')}${T(sx(wx) + 6, sy(wy) - 6, 'Av', 'm11 tc exc-k ex-start h')}`,
+        caption: L(
+          `A·v: each row times the column (${fmt(vx)}; ${fmt(vy)}) gives (${fmt(wx)}; ${fmt(wy)}). In the picture: ${fmt(vx)} steps along the first column (orange) and ${fmt(vy)} along the second (blue) - you reach Av. Drag v.`,
+          `A·v: каждая строка умножается на столбец (${fmt(vx)}; ${fmt(vy)}) - получаем (${fmt(wx)}; ${fmt(wy)}). На картинке: ${fmt(vx)} шага по первому столбцу (оранжевый) и ${fmt(vy)} по второму (синий) - приходим в Av. Перетаскивай v.`,
+          `A·v: әр жол (${fmt(vx)}; ${fmt(vy)}) бағанына көбейтіледі - (${fmt(wx)}; ${fmt(wy)}) шығады. Суретте: бірінші баған бойымен (қызғылт сары) ${fmt(vx)} қадам және екіншісімен (көк) ${fmt(vy)} қадам - Av-ге жетеміз. v-ны сүйре.`,
+        ),
+      };
+    }
+    const base = `${g}${poly(F1, 'exc-m', 0.25)}${poly(F2, 'exc-g', 0.55)}${poly(img, det < 0 ? 'exc-r' : 'exc-p', 0.35)}${cols}${head}`;
+    if (st.m === 2) {
+      return {
+        svg: `${base}${T(sx((a + b) / 2), sy((c + d) / 2) + 4, `S = ${fmt(Math.abs(det))}`, 'm11 h')}`,
+        caption: Math.abs(det) < 1e-9
+          ? L('det = 0: the square is squashed into a segment or a point - the area is 0 and the matrix has no inverse.', 'det = 0: квадрат сплющен в отрезок или точку - площадь 0, обратной матрицы нет.', 'det = 0: шаршы кесіндіге не нүктеге жаншылды - аудан 0, кері матрица жоқ.')
+          : L(
+              `The unit square (area 1) becomes a parallelogram with area |det| = |ad − bc| = ${fmt(Math.abs(det))}. ${det < 0 ? 'det < 0: the plane is flipped - look at the letter F (red square).' : 'det > 0: the orientation is kept.'}`,
+              `Единичный квадрат (площадь 1) стал параллелограммом площадью |det| = |ad − bc| = ${fmt(Math.abs(det))}. ${det < 0 ? 'det < 0: плоскость перевернулась - посмотри на букву F (красный квадрат).' : 'det > 0: ориентация сохранилась.'}`,
+              `Бірлік шаршы (ауданы 1) ауданы |det| = |ad − bc| = ${fmt(Math.abs(det))} параллелограмға айналды. ${det < 0 ? 'det < 0: жазықтық аударылды - F әрпіне қара (қызыл шаршы).' : 'det > 0: бағдар сақталды.'}`,
+            ),
+      };
+    }
+    if (st.m === 3) {
+      const tk = st.task ?? (mxTask(st), st.task);
+      const ok = check(st, tk.M ? ['a', 'b', 'c', 'd'].every((k) => near(v[k], tk.M[k], 1e-6)) : near(det, tk.det, 1e-6) && (a || b || c || d));
+      return {
+        svg: `${base}${badge(tk.M ? u('columns = images', 'столбцы = образы', 'бағандар = бейнелер') : `det = ${fmt(tk.det)}`, ok)}`,
+        caption: taskCap(st, ok, tk.t, L('Hint: where must (1; 0) go (first column) and where (0; 1) (second column)?', 'Подсказка: куда должен перейти (1; 0) (первый столбец) и куда (0; 1) (второй столбец)?', 'Кеңес: (1; 0) қайда кетуі керек (бірінші баған) және (0; 1) қайда (екінші баған)?')),
+      };
+    }
+    return {
+      svg: base,
+      caption: L(
+        `Orange arrow = first column (${fmt(a)}; ${fmt(c)}) = image of (1; 0), blue = second column (${fmt(b)}; ${fmt(d)}) = image of (0; 1). The purple grid and the green letter F show where everything goes. Press "Another" for rotation, mirror, shear, stretch.`,
+        `Оранжевая стрелка - первый столбец (${fmt(a)}; ${fmt(c)}) = образ (1; 0), синяя - второй (${fmt(b)}; ${fmt(d)}) = образ (0; 1). Фиолетовая сетка и зелёная буква F показывают, куда переходит всё остальное. «Ещё» - поворот, отражение, сдвиг, растяжение.`,
+        `Қызғылт сары нұсқар - бірінші баған (${fmt(a)}; ${fmt(c)}) = (1; 0) бейнесі, көгі - екінші баған (${fmt(b)}; ${fmt(d)}) = (0; 1) бейнесі. Күлгін тор мен жасыл F әрпі қалғанының бәрі қайда кететінін көрсетеді. «Тағы» - бұру, шағылыстыру, ығысу, созу.`,
+      ),
+    };
+  },
+});
+
+// ---------- Задачи на совместную работу (новая сцена) ----------
+
+const WORK_T = [[6, 3, 0], [4, 12, 0], [10, 15, 0], [6, 12, 0], [2, 6, 0], [3, 12, 0], [6, 6, 0], [5, 20, 0], [3, 6, 1], [4, 12, 1], [2, 3, 1], [6, 12, 1]];
+
+function workTask(st) {
+  let i;
+  do i = rnd(0, WORK_T.length - 1);
+  while (st.task && st.task.i === i);
+  const [t1, t2, drain] = WORK_T[i];
+  const T0 = drain ? (t1 * t2) / (t2 - t1) : (t1 * t2) / (t1 + t2);
+  st.task = { i, t1, t2, drain, T0, done: false };
+  return { t1, t2, t: 0 };
+}
+
+const work = modes({
+  title: L('Work problems: two pipes', 'Задачи на работу: две трубы', 'Жұмысқа берілген есептер: екі құбыр'),
+  intro: L('The whole job is 1. If a pipe fills the pool in t hours, it does 1/t of it per hour. Working together, the rates add.', 'Вся работа - это 1. Если труба наполняет бассейн за t часов, за час она делает 1/t. При совместной работе производительности складываются.', 'Барлық жұмыс - 1. Құбыр бассейнді t сағатта толтырса, сағатына 1/t бөлігін орындайды. Бірге жұмыс істегенде өнімділіктер қосылады.'),
+  sliders: [
+    { id: 't1', label: L('pipe A alone, h', 'труба A одна, ч', 'A құбыры жалғыз, сағ'), min: 1, max: 12, value: 6, hidden: (v, st) => st.m === 2 },
+    { id: 't2', label: L('pipe B alone, h', 'труба B одна, ч', 'B құбыры жалғыз, сағ'), min: 1, max: 12, value: 3, hidden: (v, st) => st.m === 2 },
+    { id: 't', label: L('time, h', 'время, ч', 'уақыт, сағ'), min: 0, max: 12, step: 0.1, value: 0 },
+  ],
+  tabs: [L('Together', 'Вместе', 'Бірге'), L('Fill and drain', 'Наполнение и слив', 'Толтыру және ағызу'), TASK],
+  acts: [{ label: PLAY, only: [0, 1] }, { label: MORE }],
+  onTab(m, st, v, again) {
+    if (m === 2 && (again || !st.task || st.task.done)) return workTask(st);
+    return m === 1 ? { t: 0, t1: 3, t2: 6, $dur: 1 } : { t: 0, $dur: 1 };
+  },
+  onAct(j, st, v, api) {
+    if (j === 0) {
+      api.play('t', { dur: 6000, linear: true });
+      return null;
+    }
+    if (st.m === 2) return workTask(st);
+    return st.m === 1 ? pick([{ t1: 3, t2: 6 }, { t1: 4, t2: 12 }, { t1: 2, t2: 3 }, { t1: 6, t2: 12 }]) : pick([{ t1: 6, t2: 3 }, { t1: 4, t2: 4 }, { t1: 10, t2: 15 }, { t1: 2, t2: 6 }, { t1: 3, t2: 12 }]);
+  },
+  draw(v, step, st) {
+    const tk = st.m === 2 ? (st.task ?? (workTask(st), st.task)) : null;
+    const t1 = tk ? tk.t1 : Math.round(v.t1);
+    const t2 = tk ? tk.t2 : Math.round(v.t2);
+    const drain = tk ? tk.drain : st.m === 1;
+    const t = v.t;
+    const r = 1 / t1 + (drain ? -1 / t2 : 1 / t2);
+    const T0 = r > 1e-9 ? 1 / r : Infinity;
+    const lvl = clamp(r * t, 0, 1);
+    const hU = ui.h();
+    // бассейн
+    const X0 = 22;
+    const Y0 = 78;
+    const Wp = 120;
+    const Hp = 110;
+    const wy = Y0 + Hp * (1 - lvl);
+    let g = `${box(X0, wy, Wp, Y0 + Hp - wy, 'exc-b', 2, 0.45)}<path class="ex-stroke exc-m" style="stroke-width:2.5;fill:none" d="M${X0} ${Y0 - 6} V${Y0 + Hp} H${X0 + Wp} V${Y0 - 6}"/>`;
+    for (let k = 1; k < 4; k++) g += ln(X0 + Wp, Y0 + (Hp * k) / 4, X0 + Wp + 5, Y0 + (Hp * k) / 4, 'exc-m', 1) + T(X0 + Wp + 7, Y0 + (Hp * k) / 4 + 3, `${4 - k}/4`, 'm9 exm-mut ex-start');
+    // трубы
+    const flow = t > 0 && lvl < 1;
+    g += `${box(X0 + 10, 40, 40, 10, 'exc-o', 3)}${box(X0 + 44, 40, 8, 26, 'exc-o', 2)}${flow ? box(X0 + 45, 66, 6, wy - 66, 'exc-o', 2, 0.5) : ''}${T(X0 + 30, 34, `A: 1/${t1}`, 'm10 tc exc-o')}`;
+    if (drain) g += `${box(X0 + Wp - 12, Y0 + Hp - 2, 8, 16, 'exc-r', 2)}${box(X0 + Wp - 12, Y0 + Hp + 10, 36, 8, 'exc-r', 3)}${T(X0 + Wp + 8, Y0 + Hp + 30, `B: −1/${t2}`, 'm10 tc exc-r')}`;
+    else g += `${box(X0 + 70, 40, 40, 10, 'exc-g', 3)}${box(X0 + 70, 40, 8, 26, 'exc-g', 2)}${flow ? box(X0 + 71, 66, 6, wy - 66, 'exc-g', 2, 0.5) : ''}${T(X0 + 90, 34, `B: 1/${t2}`, 'm10 tc exc-g')}`;
+    g += T(X0 + Wp / 2, Y0 + Hp - 8, `${fmt(lvl * 100, 0)}%`, 'm12 h');
+    // график
+    const Tm = Number.isFinite(T0) ? Math.max(Math.ceil(T0 * 1.6), Math.ceil(t), 2) : 12;
+    const gx = (x) => 178 + (x / Tm) * 132;
+    const gy = (y) => 190 - y * 120;
+    g += `${ln(178, 190, 312, 190, 'exc-m', 1.2)}${ln(178, 60, 178, 190, 'exc-m', 1.2)}${ln(178, gy(1), 312, gy(1), 'exc-m ex-dash', 1)}${T(174, gy(1) + 3, '1', 'm9 exm-mut ex-end')}${T(312, 204, `t, ${hU}`, 'm9 exm-mut ex-end')}`;
+    const stp = Tm > 12 ? 4 : Tm > 6 ? 2 : 1;
+    for (let k = stp; k < Tm; k += stp) g += ln(gx(k), 188, gx(k), 192, 'exc-m', 1) + T(gx(k), 202, k, 'm9 exm-mut');
+    const lineR = (rate, cls, w) => pth(`M${gx(0)} ${gy(0)} L${n1(gx(Math.min(Tm, rate > 0 ? 1 / rate : Tm)))} ${n1(gy(clamp(rate * Math.min(Tm, rate > 0 ? 1 / rate : Tm), 0, 1)))}`, cls, w);
+    g += lineR(1 / t1, 'exc-o ex-dash', 1.5) + (drain ? '' : lineR(1 / t2, 'exc-g ex-dash', 1.5)) + lineR(r, 'exc-b', 3);
+    g += ln(gx(Math.min(t, Tm)), 60, gx(Math.min(t, Tm)), 190, 'exc-p', 1.2) + dot(gx(Math.min(t, Tm)), gy(lvl), 4, 'exc-b');
+    if (Number.isFinite(T0) && T0 <= Tm) g += dot(gx(T0), gy(1), 5, 'exc-p') + T(gx(T0), gy(1) - 8, `${nice(T0, 12)} ${hU}`, 'm10 tc exc-p h');
+    const rateS = drain ? `1/${t1} − 1/${t2} = ${frs(t2 - t1, t1 * t2)}` : `1/${t1} + 1/${t2} = ${frs(t1 + t2, t1 * t2)}`;
+    g += T(8, 16, rateS, 'm11 ex-start');
+    if (tk) {
+      const ok = check(st, near(t, tk.T0, 0.051));
+      return {
+        svg: `${g}${badge('t = ?', ok)}`,
+        caption: taskCap(
+          st,
+          ok,
+          tk.drain
+            ? L(`Pipe A fills the pool in ${t1} h, pipe B drains it in ${t2} h. Both are open: when is the pool full? Set the time.`, `Труба A наполняет бассейн за ${t1} ч, труба B сливает его за ${t2} ч. Открыты обе: когда бассейн наполнится? Установи время.`, `A құбыры бассейнді ${t1} сағатта толтырады, B құбыры ${t2} сағатта ағызады. Екеуі де ашық: бассейн қашан толады? Уақытты орнат.`)
+            : L(`Pipe A fills the pool in ${t1} h, pipe B in ${t2} h. How long together? Set the time.`, `Труба A наполняет бассейн за ${t1} ч, труба B - за ${t2} ч. За сколько часов вместе? Установи время.`, `A құбыры бассейнді ${t1} сағатта, B - ${t2} сағатта толтырады. Бірге неше сағатта? Уақытты орнат.`),
+          L(`Now ${fmt(lvl * 100, 0)}% is filled. Hint: rate together = ${rateS} of the pool per hour; time = 1 : rate.`, `Сейчас заполнено ${fmt(lvl * 100, 0)}%. Подсказка: вместе за час - ${rateS} бассейна; время = 1 : производительность.`, `Қазір ${fmt(lvl * 100, 0)}% толды. Кеңес: бірге сағатына - бассейннің ${rateS} бөлігі; уақыт = 1 : өнімділік.`),
+        ),
+      };
+    }
+    if (drain && r <= 1e-9)
+      return {
+        svg: g,
+        caption: L(`The drain is not slower than the filling (1/${t2} ≥ 1/${t1}): the pool will never fill.`, `Слив не медленнее наполнения (1/${t2} ≥ 1/${t1}): бассейн никогда не наполнится.`, `Ағызу толтырудан баяу емес (1/${t2} ≥ 1/${t1}): бассейн ешқашан толмайды.`),
+      };
+    return {
+      svg: g,
+      caption: J(
+        drain
+          ? L(`Per hour A adds 1/${t1}, B takes away 1/${t2}: together ${rateS} of the pool. It fills in 1 : ${frs(t2 - t1, t1 * t2)} = ${nice(T0, 12)} h.`, `За час A наливает 1/${t1}, B сливает 1/${t2}: вместе ${rateS} бассейна. Наполнится за 1 : ${frs(t2 - t1, t1 * t2)} = ${nice(T0, 12)} ч.`, `Сағатына A 1/${t1} құяды, B 1/${t2} ағызады: бірге бассейннің ${rateS} бөлігі. 1 : ${frs(t2 - t1, t1 * t2)} = ${nice(T0, 12)} сағатта толады.`)
+          : L(`Per hour A does 1/${t1}, B does 1/${t2}: together ${rateS} of the pool. Time together = 1 : ${frs(t1 + t2, t1 * t2)} = ${nice(T0, 12)} h - less than each pipe alone.`, `За час A делает 1/${t1}, B - 1/${t2}: вместе ${rateS} бассейна. Время вместе = 1 : ${frs(t1 + t2, t1 * t2)} = ${nice(T0, 12)} ч - меньше, чем у каждой трубы отдельно.`, `Сағатына A 1/${t1}, B 1/${t2} орындайды: бірге бассейннің ${rateS} бөлігі. Бірге уақыт = 1 : ${frs(t1 + t2, t1 * t2)} = ${nice(T0, 12)} сағ - әр құбырдың жалғыз уақытынан аз.`),
+        L(`After ${fmt(t, 1)} h: ${fmt(lvl * 100, 0)}%.`, `Через ${fmt(t, 1)} ч: ${fmt(lvl * 100, 0)}%.`, `${fmt(t, 1)} сағаттан кейін: ${fmt(lvl * 100, 0)}%.`),
+      ),
+    };
+  },
+});
+
 export const SCENES_MATH = {
-  ...OLD,
   fractions,
   percent,
   linear,
@@ -3860,4 +5201,24 @@ export const SCENES_MATH = {
   balance,
   motion,
   inequality,
+  exponential,
+  logarithm,
+  'mean-median': meanMedian,
+  combinatorics,
+  tens,
+  column,
+  numline,
+  areamul,
+  decimals,
+  ratio,
+  sieve,
+  angles,
+  'circle-area': circleArea,
+  vectors,
+  volume,
+  integral,
+  complex,
+  limit,
+  matrix,
+  work,
 };

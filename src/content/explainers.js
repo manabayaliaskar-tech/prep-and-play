@@ -11,6 +11,7 @@ export const EXPLAINERS = [
   { id: 'parabola', subj: 'algebra', icon: '🎢', topics: ['m.quad'] },
   { id: 'probability', subj: 'algebra', icon: '🎲', topics: ['m.prob'] },
   { id: 'motion', subj: 'algebra', icon: '🚗', topics: ['m.motion', 'p.kin'] },
+  { id: 'work', subj: 'algebra', icon: '💧', topics: ['m.work'] },
   { id: 'linear', subj: 'algebra', icon: '📏', topics: ['m.func'] },
   { id: 'exponential', subj: 'algebra', icon: '🚀', topics: ['m.pow'] },
   { id: 'logarithm', subj: 'algebra', icon: '🔍', topics: ['m.log'] },
