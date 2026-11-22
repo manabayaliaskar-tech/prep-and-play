@@ -7,15 +7,16 @@ import { HANZI } from '../pools/languages/hanzi.js';
 import { XWORDS } from '../pools/languages/xwords.js';
 import { JA_WORDS } from '../pools/languages/ja-words.js';
 import { KO_WORDS } from '../pools/languages/ko-words.js';
+import { RUIT_WORDS } from '../pools/languages/ruit-words.js';
 import { dayKey } from './dates.js';
 import { addDays } from './review.js';
 import { storage } from './storage.js';
 
 export const CARD_INTERVALS = [1, 3, 7, 21];
 export const LEARNED = CARD_INTERVALS.length;
-export const DECK_LANGS = ['en', 'es', 'fr', 'zh', 'de', 'tr', 'ja', 'ko'];
+export const DECK_LANGS = ['en', 'es', 'fr', 'zh', 'de', 'tr', 'ja', 'ko', 'ru', 'it'];
 /** Какой курс соответствует колоде. */
-export const DECK_COURSE = { en: 'english', es: 'spanish', fr: 'french', zh: 'chinese', de: 'german', tr: 'turkish', ja: 'japanese', ko: 'korean' };
+export const DECK_COURSE = { en: 'english', es: 'spanish', fr: 'french', zh: 'chinese', de: 'german', tr: 'turkish', ja: 'japanese', ko: 'korean', ru: 'rki', it: 'italian' };
 
 /** Колода языка: [{ id, level, front, sub, back: { en, ru, kk } }]. */
 export function deck(lang) {
@@ -28,6 +29,10 @@ export function deck(lang) {
   }
   if (lang === 'ko') {
     return KO_WORDS.map((w) => ({ id: `ko:${w.i}`, level: w.level, front: w.ko, sub: '', back: { en: w.en, ru: w.ru, kk: w.kk } }));
+  }
+  // Русский как иностранный и итальянский. В русской колоде русский интерфейс показывает английский и казахский перевод.
+  if (RUIT_WORDS[lang]) {
+    return RUIT_WORDS[lang].map((w) => ({ id: `${lang}:${w.i}`, level: w.level, front: w.f, sub: '', back: { en: w.en, ru: lang === 'ru' ? `${w.en} · ${w.kk}` : w.ru, kk: w.kk } }));
   }
   if (XWORDS[lang]) {
     return XWORDS[lang].map((w) => ({ id: `${lang}:${w.i}`, level: w.level, front: w.f, sub: '', back: { en: w.en, ru: w.ru, kk: w.kk } }));

@@ -36,6 +36,11 @@ import { trVerbsMaker } from './languages/tr-verbs.js';
 import { xWordsMaker } from './languages/xwords.js';
 import { jaBankMaker, jaWordsMaker, kanaMaker, kanjiMaker } from './languages/ja.js';
 import { hangulMaker, koBankMaker, koWordsMaker } from './languages/ko.js';
+import { RKI_BANK } from './languages/rki-bank.js';
+import { RKI_VERBS } from './languages/rki-verbs.js';
+import { ITALIAN_BANK } from './languages/it-bank.js';
+import { IT_VERB_ROWS } from './languages/it-verbs.js';
+import { ruitWordsMaker } from './languages/ruit-words.js';
 import { comparisonMaker, grammarMaker, irregularMaker } from './english/gen.js';
 import { kazakhstanMaker, recordsMaker, worldMaker } from './science/geo.js';
 import { compoundsMaker, elementsMaker } from './science/chem-gen.js';
@@ -57,6 +62,8 @@ import { counting, diophantine, divisors, factorials, lastDigit, logic, paths, p
 const topic = (pool, name, make) => ({ pool, name, make });
 /** Задания английского - в выбранном варианте: британское или американское написание. */
 const enV = (make) => (ctx, key) => variantize(make(ctx, key), getEnVariant());
+/** Озвучка ответа после задания (русский как иностранный, итальянский): предложение с вставленным ответом. */
+const voiced = (make, lang) => (ctx, key) => Object.assign(make(ctx, key), { voice: { lang } });
 
 export const TOPICS = {
   // ----- Математика -----
@@ -294,6 +301,12 @@ export const TOPICS = {
   'ko.hangul': topic('korean', L('Korean: reading hangul', 'Корейский: чтение хангыля', 'Корей тілі: хангыльді оқу'), hangulMaker('ko.hangul')),
   'ko.words': topic('korean', L('Korean words', 'Корейский: слова', 'Корей тілі: сөздер'), koWordsMaker('ko.words')),
   'ko.bank': topic('korean', L('Korean grammar', 'Корейский: грамматика', 'Корей тілі: грамматика'), koBankMaker('ko.bank')),
+  'rki.bank': topic('rki', L('Russian as a foreign language: grammar', 'Русский как иностранный: грамматика', 'Орыс тілі шет тілі ретінде: грамматика'), voiced(languageMaker('rki.bank', RKI_BANK), 'ru')),
+  'rki.words': topic('rki', L('Russian as a foreign language: words', 'Русский как иностранный: слова', 'Орыс тілі шет тілі ретінде: сөздер'), ruitWordsMaker('rki.words', 'ru')),
+  'rki.verbs': topic('rki', L('Russian as a foreign language: verbs and aspect', 'Русский как иностранный: глаголы и вид', 'Орыс тілі шет тілі ретінде: етістіктер және етістік түрі'), voiced(languageMaker('rki.verbs', RKI_VERBS), 'ru')),
+  'it.bank': topic('italian', L('Italian grammar', 'Итальянский: грамматика', 'Итальян тілі: грамматика'), voiced(languageMaker('it.bank', ITALIAN_BANK), 'it')),
+  'it.words': topic('italian', L('Italian words and articles', 'Итальянский: слова и артикли', 'Итальян тілі: сөздер мен артикльдер'), ruitWordsMaker('it.words', 'it')),
+  'it.verbs': topic('italian', L('Italian verb conjugation', 'Итальянский: спряжение глаголов', 'Итальян тілі: етістіктің жіктелуі'), voiced(languageMaker('it.verbs', IT_VERB_ROWS), 'it')),
 
   // ----- Программирование -----
   'code.theory': topic('code', L('Programming basics', 'Основы программирования', 'Бағдарламалау негіздері'), bankMaker('code.theory', CODE_THEORY, { tf: true })),
@@ -343,6 +356,8 @@ export const POOLS = {
   turkish: { icon: 'TR', color: '#e30a17' },
   japanese: { icon: 'JA', color: '#be123c' },
   korean: { icon: 'KO', color: '#0369a1' },
+  rki: { icon: 'RU', color: '#1d4ed8' },
+  italian: { icon: 'IT', color: '#15803d' },
   code: { icon: '</>', color: '#0f172a' },
 };
 

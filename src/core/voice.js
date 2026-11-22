@@ -5,7 +5,7 @@
 import { getEnVariant } from './en-variant.js';
 
 // Английский звучит с британским или американским акцентом - как выбрано в курсе английского.
-const LOCALES = { es: 'es-ES', fr: 'fr-FR', zh: 'zh-CN', ja: 'ja-JP', ko: 'ko-KR', de: 'de-DE', tr: 'tr-TR' };
+const LOCALES = { es: 'es-ES', fr: 'fr-FR', zh: 'zh-CN', ja: 'ja-JP', ko: 'ko-KR', de: 'de-DE', tr: 'tr-TR', ru: 'ru-RU', it: 'it-IT' };
 const LOCALE = new Proxy(LOCALES, { get: (o, k) => (k === 'en' ? (getEnVariant() === 'us' ? 'en-US' : 'en-GB') : o[k]) });
 const synth = () => globalThis.speechSynthesis ?? null;
 
