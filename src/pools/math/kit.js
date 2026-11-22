@@ -29,7 +29,9 @@ export function qNum(ctx, id, d, prompt, ex, ans, wrong, { fig = null, spr = 0.3
 
 /** Задание с вариантами-текстами: correct + неправильные (берутся первые три разных). */
 export function qText(ctx, id, d, prompt, ex, correct, wrong, { fig = null } = {}) {
-  const key = (x) => `${textOf(x, 'en')}|${textOf(x, 'ru')}`;
+  // Сравниваем видимый текст (без тегов): «1 1/12» и «11/12» не должны совпасть на экране.
+  const vis = (t) => String(t).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  const key = (x) => `${vis(textOf(x, 'en'))}|${vis(textOf(x, 'ru'))}`;
   const seen = new Set([key(correct)]);
   const ws = [];
   for (const w of wrong) {
@@ -144,7 +146,13 @@ export const COLORS = [
   ['yellow', 'жёлтый', 'жёлтая', 'сары', '#eab308'],
 ];
 
-export const svg = (w, h, inner) => `<svg viewBox="0 0 ${w} ${h}" class="geo" role="img" aria-label="figure">${inner}</svg>`;
+/** Рисунок: ширина на экране - около 1,25 ширины рисунка, но не больше 320 px (как у .geo). */
+export const svg = (w, h, inner, scale = 1.25) => `<svg viewBox="0 0 ${w} ${h}" class="geo" style="width:min(${Math.min(320, Math.round(w * scale))}px,100%)" role="img" aria-label="figure">${inner}</svg>`;
+/** Прямоугольник a × b в масштабе (для чертежей). */
+export function rectPts(a, b, maxW = 200, maxH = 120) {
+  const k = Math.min(maxW / a, maxH / b);
+  return [[30, 30], [30 + a * k, 30], [30 + a * k, 30 + b * k], [30, 30 + b * k]].map(([x, y]) => [Math.round(x), Math.round(y)]);
+}
 export const txt = (x, y, s, { cls = 'geo-l', anchor = 'middle', size = '' } = {}) =>
   `<text x="${r1(x)}" y="${r1(y)}" class="${cls}" text-anchor="${anchor}"${size ? ` font-size="${size}"` : ''}>${s}</text>`;
 const r1 = (x) => Math.round(x * 10) / 10;
@@ -465,7 +473,7 @@ export function columnSvg(top, bottom, op, result = '?') {
   const x = (i, s) => 30 + (len - String(s).length + i) * w + w / 2;
   const row = (s, y) => [...String(s)].map((ch, i) => txt(x(i, s), y, ch, { cls: 'geo-v', size: 24 })).join('');
   const parts = [row(top, 34), row(bottom, 68), txt(18, 54, op, { cls: 'geo-v', size: 24 }), `<line x1="24" y1="80" x2="${36 + len * w}" y2="80" stroke="currentColor" stroke-width="2"/>`, row(result, 110)];
-  return svg(48 + len * w, 122, parts.join(''));
+  return svg(48 + len * w, 122, parts.join(''), 1.7);
 }
 
 /** Угол в deg градусов: вершина, две стороны, дуга (или квадратик для прямого угла). */

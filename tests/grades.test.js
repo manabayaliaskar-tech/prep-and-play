@@ -11,6 +11,9 @@ const GRADES = {
   1: ['m.num10', 'm.cmp', 'm.add10', 'm.num20', 'm.add20', 'm.word1', 'm.len', 'm.shapes', 'm.orient', 'm.pattern', 'm.money1', 'm.clock1', 'm.count100'],
   2: ['m.place100', 'm.add2d', 'm.col', 'm.mulmean', 'm.tab23', 'm.laws', 'm.ord2', 'm.eq1', 'm.units', 'm.time2', 'm.perim', 'm.rect', 'm.word2', 'm.change'],
   3: ['m.remdiv', 'm.mulbig', 'm.num1000', 'm.col3', 'm.colmul', 'm.parts', 'm.area3', 'm.mass', 'm.time3', 'm.eq3', 'm.price', 'm.circle3'],
+  4: ['m.bignum', 'm.addbig', 'm.mul2d', 'm.speed', 'm.motion4', 'm.partof', 'm.units4', 'm.box', 'm.eq2step', 'm.chart', 'm.seq4', 'm.roman'],
+  5: ['m.ray', 'm.round', 'm.sqcube', 'm.props', 'm.eq5', 'm.formula', 'm.mixed', 'm.rounddec', 'm.tri', 'm.prime'],
+  6: ['m.fracadd', 'm.fracmul', 'm.scale', 'm.circle', 'm.modulus', 'm.rational', 'm.coord', 'm.brackets', 'm.lines', 'm.diagram', 'm.pcttask', 'm.sym'],
 };
 
 const math = courseById('math');
@@ -61,7 +64,7 @@ const answerOf = (q) => (q.type === 'spr' ? q.value : Number(toJs(plain(q.choice
 
 /** Возвращает true/false, если ответ удаётся пересчитать, иначе null. */
 function recheck(q) {
-  if (/frac|<sup>/.test(q.prompt.en)) return null;
+  if (/frac|<sup>/.test(q.prompt.en) || (q.type === 'mc' && /frac/.test(JSON.stringify(q.choices[q.answer])))) return null;
   const p = plain(q.prompt.en);
   const ans = answerOf(q);
   if (!Number.isFinite(ans)) return null;

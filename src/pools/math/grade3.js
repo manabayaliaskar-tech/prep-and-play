@@ -2,7 +2,7 @@
 // письменные вычисления, доли, площадь, масса, время, уравнения, цена и стоимость, окружность.
 
 import { L, n, same, why } from '../gen.js';
-import { DIV, MINUS, R, TIMES, anyOf, barFracSvg, circleSvg, columnSvg, gridSvg, kkAbl, kkDat, one, pieFracSvg, polySvg, qNum, qText, ru } from './kit.js';
+import { DIV, MINUS, R, TIMES, anyOf, barFracSvg, circleSvg, columnSvg, gridSvg, kkAbl, kkDat, one, pieFracSvg, polySvg, qNum, qText, rectPts, ru } from './kit.js';
 import { column } from './grade2.js';
 
 const calc = (e) => L(`Calculate: ${e}`, `Вычисли: ${e}`, `Есепте: ${e}`);
@@ -331,7 +331,7 @@ export function area3(ctx, d) {
       L(`A rectangle is ${a} ${U1[0]} long and ${b} ${U1[0]} wide. Find its area in ${SQ[u][0]}.`, `Длина прямоугольника ${a} ${U1[1]}, ширина ${b} ${U1[1]}. Найди его площадь в ${SQ[u][1]}.`, `Тіктөртбұрыштың ұзындығы ${a} ${U1[2]}, ені ${b} ${U1[2]}. Оның ауданын ${SQ[u][2]}-мен тап.`),
       [L('Area of a rectangle = length × width.', 'Площадь прямоугольника = длина × ширина.', 'Тіктөртбұрыштың ауданы = ұзындығы × ені.'), same(`${a} ${TIMES} ${b} = ${a * b}`)],
       a * b, [why(2 * (a + b), L('That is the perimeter. Area = length × width.', 'Это периметр. Площадь = длина × ширина.', 'Бұл - периметр. Аудан = ұзындық × ен.')), a + b, a * b + a],
-      { fig: polySvg([[30, 30], [30 + 16 * Math.min(a, 12), 30], [30 + 16 * Math.min(a, 12), 30 + 14 * b], [30, 30 + 14 * b]], [String(a), String(b)], { right: [0, 1, 2, 3], h: 175 }), min: 1 },
+      { fig: polySvg(rectPts(a, b), [String(a), String(b)], { right: [0, 1, 2, 3], h: 170 }), min: 1 },
     );
   };
   const convert = () => {

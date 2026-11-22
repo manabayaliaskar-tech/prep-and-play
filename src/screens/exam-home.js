@@ -32,7 +32,7 @@ import { baseStats, celebrate, runSession } from './play.js';
 import { BOSS_QUESTIONS, saveBossResult } from './practice.js';
 
 /** Цель «Пути к …» по шкале экзамена. */
-const PATH_GOAL = { cambridge: 'C2', duolingo: '160', pte: '90', toeic: '990', act: '36', psat: '1520', ap: '5', gre: '340', gmat: '805', dele: 'C2', delf: 'C2', ib: '45', alevel: 'A*', gcse: '9', jee: '300', neet: '720', gaokao: '750', csat: '1', yks: '560', nis: '100%', bil: '100%', ielts: '9.0', toefl: '120', hsk: 'HSK 6', ent: '140', ege: '100', oge: '«5»', ct: '100', dtm: '189', ort: '245', tj: '100', dim: '700', arm: '20', bac: '10' };
+const PATH_GOAL = { goethe: 'C2', testdaf: 'TDN 5', tomer: 'C1', cambridge: 'C2', duolingo: '160', pte: '90', toeic: '990', act: '36', psat: '1520', ap: '5', gre: '340', gmat: '805', dele: 'C2', delf: 'C2', ib: '45', alevel: 'A*', gcse: '9', jee: '300', neet: '720', gaokao: '750', csat: '1', yks: '560', nis: '100%', bil: '100%', ielts: '9.0', toefl: '120', hsk: 'HSK 6', jlpt: 'N1', topik: '6급', ent: '140', ege: '100', oge: '«5»', ct: '100', dtm: '189', ort: '245', tj: '100', dim: '700', arm: '20', bac: '10' };
 const LEVELS = 4;
 const LEVEL_Q = 8;
 const DAILY_N = 5;

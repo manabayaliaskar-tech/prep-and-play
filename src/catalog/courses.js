@@ -68,12 +68,12 @@ const MATH_GRADES = [
     [['m.early', [2, 3]], ['m.add', [1]], ['m.mul', [1]], ['m.place100', [1, 2]], ['m.add2d', [1, 2]], ['m.col', [1, 2]], ['m.mulmean', [1, 2]], ['m.tab23', [1, 2]], ['m.laws', [1, 2]], ['m.ord2', [1, 2]], ['m.eq1', [1, 2]], ['m.units', [1, 2]], ['m.time2', [1, 2]], ['m.perim', [1, 2]], ['m.rect', [1, 2]], ['m.word2', [1, 2]], ['m.change', [1, 2]]]],
   [G('Times tables', 'Таблица умножения', 'Көбейту кестесі'), G('Times tables, remainders, numbers to 1000, fractions of a whole, area, mass, circle', 'Таблица умножения, остаток, числа до 1000, доли, площадь, масса, окружность', 'Көбейту кестесі, қалдық, 1000-ға дейінгі сандар, үлестер, аудан, масса, шеңбер'),
     [['m.add', [1, 2]], ['m.mul', [1, 2]], ['m.seq', [1]], ['m.order', [1]], ['m.remdiv', [1, 2]], ['m.mulbig', [1, 2]], ['m.num1000', [1, 2]], ['m.col3', [1, 2]], ['m.colmul', [1, 2]], ['m.parts', [1, 2]], ['m.area3', [1, 2]], ['m.mass', [1, 2]], ['m.time3', [1, 2]], ['m.eq3', [1, 2]], ['m.price', [1, 2]], ['m.circle3', [1, 2]]]],
-  [G('Multi-digit numbers', 'Многозначные числа', 'Көп таңбалы сандар'), G('Big numbers, motion, area of a rectangle', 'Большие числа, движение, площадь прямоугольника', 'Үлкен сандар, қозғалыс, тіктөртбұрыш ауданы'),
-    [['m.add', [2, 3]], ['m.mul', [2, 3]], ['m.order', [1, 2]], ['m.seq', [1, 2]], ['m.area', [1]], ['m.motion', [1]]]],
-  [G('Fractions and decimals', 'Дроби и десятичные', 'Бөлшектер мен ондық сандар'), G('Fractions, decimals, divisibility, angles', 'Обыкновенные и десятичные дроби, делимость, углы', 'Жай және ондық бөлшектер, бөлінгіштік, бұрыштар'),
-    [['m.frac', [1, 2]], ['m.dec', [1, 2]], ['m.divis', [1, 2]], ['m.order', [2, 3]], ['m.area', [1, 2]], ['m.pct', [1]], ['m.angle', [1]], ['m.mix', [1]]]],
-  [G('Negative numbers and ratios', 'Отрицательные числа и пропорции', 'Теріс сандар мен пропорциялар'), G('Negative numbers, proportions, first equations', 'Отрицательные числа, пропорции, первые уравнения', 'Теріс сандар, пропорциялар, алғашқы теңдеулер'),
-    [['m.neg', [1, 2, 3]], ['m.frac', [3]], ['m.dec', [3]], ['m.ratio', [1, 2]], ['m.pct', [1, 2]], ['m.divis', [3]], ['m.lineq', [1]], ['m.stat', [1]], ['m.work', [1]]]],
+  [G('Multi-digit numbers', 'Многозначные числа', 'Көп таңбалы сандар'), G('Big numbers, motion, fractions of a number, volume, charts, Roman numerals', 'Большие числа, движение, часть числа, объём, диаграммы, римские цифры', 'Үлкен сандар, қозғалыс, санның бөлігі, көлем, диаграммалар, рим цифрлары'),
+    [['m.add', [2, 3]], ['m.mul', [2, 3]], ['m.order', [1, 2]], ['m.seq', [1, 2]], ['m.area', [1]], ['m.motion', [1]], ['m.bignum', [1, 2]], ['m.addbig', [1, 2]], ['m.mul2d', [1, 2]], ['m.speed', [1, 2]], ['m.motion4', [1, 2]], ['m.partof', [1, 2]], ['m.units4', [1, 2]], ['m.box', [1, 2]], ['m.eq2step', [1, 2]], ['m.chart', [1, 2]], ['m.seq4', [1, 2]], ['m.roman', [1, 2]]]],
+  [G('Fractions and decimals', 'Дроби и десятичные', 'Бөлшектер мен ондық сандар'), G('Fractions and mixed numbers, decimals, rounding, powers, primes, triangles', 'Дроби и смешанные числа, десятичные, округление, степени, простые числа, треугольники', 'Бөлшектер мен аралас сандар, ондық бөлшектер, дөңгелектеу, дәрежелер, жай сандар, үшбұрыштар'),
+    [['m.frac', [1, 2]], ['m.dec', [1, 2]], ['m.divis', [1, 2]], ['m.order', [2, 3]], ['m.area', [1, 2]], ['m.pct', [1]], ['m.angle', [1]], ['m.mix', [1]], ['m.ray', [1, 2, 3]], ['m.round', [1, 2, 3]], ['m.sqcube', [1, 2, 3]], ['m.props', [1, 2, 3]], ['m.eq5', [1, 2, 3]], ['m.formula', [1, 2, 3]], ['m.mixed', [1, 2, 3]], ['m.rounddec', [1, 2, 3]], ['m.tri', [1, 2, 3]], ['m.prime', [1, 2, 3]]]],
+  [G('Negative numbers and ratios', 'Отрицательные числа и пропорции', 'Теріс сандар мен пропорциялар'), G('Fractions, negative numbers, proportions, scale, circle, coordinate plane, symmetry', 'Дроби, отрицательные числа, пропорции, масштаб, окружность, координатная плоскость, симметрия', 'Бөлшектер, теріс сандар, пропорциялар, масштаб, шеңбер, координаталық жазықтық, симметрия'),
+    [['m.neg', [1, 2, 3]], ['m.frac', [3]], ['m.dec', [3]], ['m.ratio', [1, 2]], ['m.pct', [1, 2]], ['m.divis', [3]], ['m.lineq', [1]], ['m.stat', [1]], ['m.work', [1]], ['m.fracadd', [1, 2, 3]], ['m.fracmul', [1, 2, 3]], ['m.scale', [1, 2, 3]], ['m.circle', [1, 2, 3]], ['m.modulus', [1, 2, 3]], ['m.rational', [1, 2, 3]], ['m.coord', [1, 2, 3]], ['m.brackets', [1, 2, 3]], ['m.lines', [1, 2, 3]], ['m.diagram', [1, 2, 3]], ['m.pcttask', [1, 2, 3]], ['m.sym', [1, 2, 3]]]],
   [G('Algebra begins', 'Начало алгебры', 'Алгебраның басы'), G('Linear equations, expressions, functions, triangles', 'Линейные уравнения, выражения, функции, треугольники', 'Сызықтық теңдеулер, өрнектер, функциялар, үшбұрыштар'),
     [['m.lineq', [1, 2, 3]], ['m.expr', [1, 2]], ['m.pow', [1]], ['m.func', [1]], ['m.sys', [1]], ['m.angle', [1, 2]], ['m.motion', [2]], ['m.prob', [1]]]],
   [G('Quadratics and Pythagoras', 'Квадратные уравнения и Пифагор', 'Квадрат теңдеулер мен Пифагор'), G('Quadratic equations, roots, inequalities, areas', 'Квадратные уравнения, корни, неравенства, площади', 'Квадрат теңдеулер, түбірлер, теңсіздіктер, аудандар'),
@@ -226,6 +226,22 @@ const LANG_DESC = {
     L('Plus-que-parfait, dont, lequel, subjunctive after conjunctions', 'Plus-que-parfait, dont, lequel, subjonctif после союзов', 'Plus-que-parfait, dont, lequel, жалғаулықтардан кейінгі subjonctif'),
     L('Participle agreement, literary forms, all irregular verbs', 'Согласование причастий, книжные формы, все неправильные глаголы', 'Есімшелердің қиысуы, кітаби түрлер, барлық бұрыс етістіктер'),
   ],
+  de: [
+    L('Articles, sein and haben, word order, Akkusativ', 'Артикли, sein и haben, порядок слов, Akkusativ', 'Артикльдер, sein мен haben, сөз тәртібі, Akkusativ'),
+    L('Dativ, Perfekt with haben and sein, separable verbs', 'Dativ, Perfekt с haben и sein, отделяемые глаголы', 'Dativ, haben мен sein-мен Perfekt, бөлінетін етістіктер'),
+    L('Subordinate clauses, Präteritum, adjective endings, relative clauses', 'Придаточные, Präteritum, окончания прилагательных, относительные предложения', 'Бағыныңқы сөйлемдер, Präteritum, сын есім жалғаулары, қатыстық сөйлемдер'),
+    L('Konjunktiv II, passive, n-declension, Genitiv', 'Konjunktiv II, пассив, n-склонение, Genitiv', 'Konjunktiv II, ырықсыз етіс, n-септелу, Genitiv'),
+    L('Konjunktiv I, participles, fixed verb phrases', 'Konjunktiv I, причастия, устойчивые глагольные сочетания', 'Konjunktiv I, есімшелер, тұрақты етістік тіркестері'),
+    L('Idioms, modal particles, double infinitive, all strong verbs', 'Идиомы, модальные частицы, двойной инфинитив, все сильные глаголы', 'Идиомалар, модаль шылаулар, қос инфинитив, барлық күшті етістіктер'),
+  ],
+  tr: [
+    L('Vowel harmony, mi/mı/mu/mü, cases -e, -de, present -iyor', 'Гармония гласных, mi/mı/mu/mü, падежи -e, -de, настоящее -iyor', 'Үндестік заңы, mi/mı/mu/mü, -e, -de септіктері, нақ осы шақ -iyor'),
+    L('Possessives, -den and -i, past -di, future -ecek', 'Притяжательные окончания, -den и -i, прошедшее -di, будущее -ecek', 'Тәуелдік жалғаулар, -den мен -i, өткен шақ -di, келер шақ -ecek'),
+    L('Aorist, -miş, -ebil, -meden önce, conditional -se', 'Широкое время, -miş, -ebil, -meden önce, условное -se', 'Ауыспалы шақ, -miş, -ebil, -meden önce, шартты рай -se'),
+    L('Participles -en, -dik, -ecek, passive, -meli', 'Причастия -en, -dik, -ecek, пассив, -meli', '-en, -dik, -ecek есімшелері, ырықсыз етіс, -meli'),
+    L('Causative, -dığı için, -masına rağmen, -seydi', 'Понудительный залог, -dığı için, -masına rağmen, -seydi', 'Өзгелік етіс, -dığı için, -masına rağmen, -seydi'),
+    L('-dığı halde, -dikçe, -se bile, proverbs and idioms', '-dığı halde, -dikçe, -se bile, пословицы и идиомы', '-dığı halde, -dikçe, -se bile, мақалдар мен идиомалар'),
+  ],
 };
 const HSK_NAMES = [
   L('HSK 1: first words', 'HSK 1: первые слова', 'HSK 1: алғашқы сөздер'),
@@ -247,6 +263,45 @@ const HSK_DESC = [
 /** Набор тем уровня иностранного языка: банк, слова и (для испанского и французского) спряжение. */
 const langSpec = (lang, level) => (lang === 'zh' ? [['zh.bank', [level]], ['zh.words', [level]]] : [[`${lang}.bank`, [level]], [`${lang}.words`, [level]], [`${lang}.verbs`, [level]]]);
 const SIX = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+
+// Японский: уровни JLPT от N5 (ключ 1) до N1 (ключ 5); в курсе перед ними - вводный уровень «Кана» (азбука).
+const JLPT_CODES = ['N5', 'N4', 'N3', 'N2', 'N1'];
+const JLPT_NAMES = [
+  L('N5: first steps', 'N5: первые шаги', 'N5: алғашқы қадамдар'),
+  L('N4: everyday Japanese', 'N4: повседневный японский', 'N4: күнделікті жапон тілі'),
+  L('N3: intermediate', 'N3: средний уровень', 'N3: орта деңгей'),
+  L('N2: newspapers and work', 'N2: газеты и работа', 'N2: газеттер мен жұмыс'),
+  L('N1: fluent Japanese', 'N1: свободный японский', 'N1: еркін жапон тілі'),
+];
+const JLPT_DESC = [
+  L('Particles は, を, に, で, ます and て forms, first kanji', 'Частицы は, を, に, で, формы на ます и て, первые кандзи', 'は, を, に, で шылаулары, ます және て формалары, алғашқы кандзи'),
+  L('Potential, volitional, ば and たら, giving and receiving', 'Потенциальная форма, волитив, ば и たら, «давать и получать»', 'Мүмкіндік формасы, ниет формасы, ば және たら, «беру мен алу»'),
+  L('Passive and causative, うちに, として, わけ', 'Страдательный и понудительный залог, うちに, として, わけ', 'Ырықсыз және өзгелік етіс, うちに, として, わけ'),
+  L('Keigo お～になる and お～する, formal patterns', 'Кэйго お～になる и お～する, книжные конструкции', 'Кэйго お～になる және お～する, кітаби құрылымдар'),
+  L('Honorific and humble verbs, literary patterns', 'Почтительные и скромные глаголы, книжные обороты', 'Құрмет және кішірейту етістіктері, кітаби тіркестер'),
+];
+const jaSpec = (level) => [...(level === 1 ? [['ja.kana', [3]]] : []), ['ja.words', [level]], ['ja.kanji', [level]], ['ja.bank', [level]]];
+const jlptTrack = (i, test = null) => track(JLPT_CODES[i].toLowerCase(), JLPT_CODES[i], JLPT_NAMES[i], JLPT_DESC[i], jaSpec(i + 1), test);
+
+// Корейский: уровни TOPIK 1-6 (TOPIK I - уровни 1-2, TOPIK II - уровни 3-6).
+const TOPIK_NAMES = [
+  L('Level 1: first words', '1 уровень: первые слова', '1-деңгей: алғашқы сөздер'),
+  L('Level 2: everyday Korean', '2 уровень: повседневный корейский', '2-деңгей: күнделікті корей тілі'),
+  L('Level 3: intermediate', '3 уровень: средний', '3-деңгей: орта'),
+  L('Level 4: upper intermediate', '4 уровень: выше среднего', '4-деңгей: ортадан жоғары'),
+  L('Level 5: advanced', '5 уровень: продвинутый', '5-деңгей: жоғары'),
+  L('Level 6: fluent Korean', '6 уровень: свободный корейский', '6-деңгей: еркін корей тілі'),
+];
+const TOPIK_DESC = [
+  L('Hangul, particles 은/는, 이/가, 을/를, 에/에서, -아요/어요', 'Хангыль, частицы 은/는, 이/가, 을/를, 에/에서, -아요/어요', 'Хангыль, 은/는, 이/가, 을/를, 에/에서 шылаулары, -아요/어요'),
+  L('Future -(으)ㄹ 거예요, -고 싶다, -지만, -아서, honorific -(으)세요', 'Будущее -(으)ㄹ 거예요, -고 싶다, -지만, -아서, почтительное -(으)세요', 'Келер шақ -(으)ㄹ 거예요, -고 싶다, -지만, -아서, құрмет -(으)세요'),
+  L('-(으)면, -(으)니까, -(으)려고, -는 것 같다', '-(으)면, -(으)니까, -(으)려고, -는 것 같다', '-(으)면, -(으)니까, -(으)려고, -는 것 같다'),
+  L('Indirect speech -다고, -자고, -라고; passive and causative', 'Косвенная речь -다고, -자고, -라고; страдательный и понудительный залог', 'Төлеу сөз -다고, -자고, -라고; ырықсыз және өзгелік етіс'),
+  L('-에 따라, -는 바람에, -다 보니, formal writing', '-에 따라, -는 바람에, -다 보니, книжный стиль', '-에 따라, -는 바람에, -다 보니, кітаби стиль'),
+  L('-기 마련이다, -(으)ㄹ지언정, -건만, literary endings', '-기 마련이다, -(으)ㄹ지언정, -건만, книжные окончания', '-기 마련이다, -(으)ㄹ지언정, -건만, кітаби жалғаулар'),
+];
+const koSpec = (level) => [...(level <= 2 ? [['ko.hangul', [level]]] : []), ['ko.words', [level]], ['ko.bank', [level]]];
+const topikTrack = (k, icon, test = null) => track(`topik${k}`, icon, TOPIK_NAMES[k - 1], TOPIK_DESC[k - 1], koSpec(k), test);
 
 const CODE_NAMES = { py: 'Python', cpp: 'C++', js: 'JavaScript', java: 'Java' };
 
@@ -354,6 +409,40 @@ export const COURSES = [
     tracks: [1, 2, 3, 4, 5, 6].map((k) => track(`hsk${k}`, `${k}`, HSK_NAMES[k - 1], HSK_DESC[k - 1], langSpec('zh', k), { count: 15, minutes: 15 })),
     soon: [L('Listening', 'Аудирование', 'Тыңдалым'), L('Writing characters', 'Письмо иероглифов', 'Иероглиф жазу')],
   },
+  {
+    id: 'jlpt',
+    group: 'exams',
+    region: 'intl',
+    code: 'JLPT',
+    color: '#be123c',
+    name: L('JLPT', 'JLPT', 'JLPT'),
+    full: L('Japanese-Language Proficiency Test', 'Экзамен по японскому языку', 'Жапон тілінен емтихан'),
+    about: L(
+      'The international exam in Japanese. It has five levels, from N5 (easiest) to N1 (hardest); here are all five: vocabulary, kanji and grammar, as in the "language knowledge" part of the exam.',
+      'Международный экзамен по японскому языку. В нём пять уровней - от N5 (самый простой) до N1 (самый трудный); здесь есть все пять: слова, кандзи и грамматика, как в части «языковые знания».',
+      'Жапон тілінен халықаралық емтихан. Онда бес деңгей бар - N5-тен (ең оңай) N1-ге (ең қиын) дейін; мұнда бесеуі де бар: сөздер, кандзи және грамматика, «тіл білімі» бөліміндегідей.',
+    ),
+    official: { label: 'jlpt.jp', url: 'https://www.jlpt.jp/e/' },
+    tracks: JLPT_CODES.map((_, i) => jlptTrack(i, { count: 15, minutes: 15 })),
+    soon: [L('Reading', 'Чтение', 'Оқылым'), L('Listening', 'Аудирование', 'Тыңдалым')],
+  },
+  {
+    id: 'topik',
+    group: 'exams',
+    region: 'intl',
+    code: 'TOPIK',
+    color: '#0369a1',
+    name: L('TOPIK', 'TOPIK', 'TOPIK'),
+    full: L('Test of Proficiency in Korean', 'Экзамен по корейскому языку', 'Корей тілінен емтихан'),
+    about: L(
+      'The international exam in Korean: TOPIK I gives levels 1-2, TOPIK II gives levels 3-6. Here are all six levels: hangul, vocabulary and grammar, as in the reading part of the exam.',
+      'Международный экзамен по корейскому языку: TOPIK I даёт уровни 1-2, TOPIK II - уровни 3-6. Здесь есть все шесть уровней: хангыль, слова и грамматика, как в части «чтение».',
+      'Корей тілінен халықаралық емтихан: TOPIK I 1-2 деңгейлерді, TOPIK II 3-6 деңгейлерді береді. Мұнда алты деңгейдің бәрі бар: хангыль, сөздер және грамматика, «оқылым» бөліміндегідей.',
+    ),
+    official: { label: 'topik.go.kr', url: 'https://www.topik.go.kr/' },
+    tracks: [1, 2, 3, 4, 5, 6].map((k) => topikTrack(k, `${k}`, { count: 15, minutes: 15 })),
+    soon: [L('Listening', 'Аудирование', 'Тыңдалым'), L('Writing', 'Письмо', 'Жазылым')],
+  },
   // ===== Экзамены: самые популярные в мире =====
   exam('cambridge', 'CAM', '#7c2d12', L('Cambridge English', 'Cambridge English', 'Cambridge English'),
     L('A2 Key, B1 Preliminary, B2 First, C1 Advanced, C2 Proficiency', 'A2 Key, B1 Preliminary, B2 First, C1 Advanced, C2 Proficiency', 'A2 Key, B1 Preliminary, B2 First, C1 Advanced, C2 Proficiency'),
@@ -425,6 +514,28 @@ export const COURSES = [
     L('Official French language diplomas from France Education International: DELF for A1-B2 and DALF for C1-C2, valid for life.', 'Официальные дипломы по французскому языку от France Education International: DELF для A1-B2 и DALF для C1-C2, бессрочные.', 'France Education International-дың француз тілінен ресми дипломдары: A1-B2 үшін DELF және C1-C2 үшін DALF, мерзімсіз.'),
     { label: 'france-education-international.fr', url: 'https://www.france-education-international.fr/' },
     SIX.map((code, i) => track(code.toLowerCase(), code, L(`${i < 4 ? 'DELF' : 'DALF'} ${code}`, `${i < 4 ? 'DELF' : 'DALF'} ${code}`, `${i < 4 ? 'DELF' : 'DALF'} ${code}`), LANG_DESC.fr[i], langSpec('fr', i + 1), { count: 15, minutes: 15 })),
+  ),
+  exam('goethe', 'GOE', '#15803d', L('Goethe-Zertifikat', 'Goethe-Zertifikat', 'Goethe-Zertifikat'),
+    L('German language certificates, A1-C2', 'Сертификаты по немецкому языку, A1-C2', 'Неміс тілінен сертификаттар, A1-C2'),
+    L('The German language exams of the Goethe-Institut, recognised by universities and employers worldwide. Six levels from Start Deutsch A1 to the Großes Deutsches Sprachdiplom C2; here: grammar, vocabulary and verbs for every level.', 'Экзамены Гёте-Института по немецкому языку, их признают университеты и работодатели по всему миру. Шесть уровней: от Start Deutsch A1 до Großes Deutsches Sprachdiplom C2; здесь - грамматика, лексика и глаголы каждого уровня.', 'Гёте институтының неміс тілінен емтихандары, оларды әлем университеттері мен жұмыс берушілер мойындайды. Start Deutsch A1-ден Großes Deutsches Sprachdiplom C2-ге дейін алты деңгей; мұнда әр деңгейдің грамматикасы, лексикасы мен етістіктері.'),
+    { label: 'goethe.de', url: 'https://www.goethe.de/en/spr/prf.html' },
+    SIX.map((code, i) => track(code.toLowerCase(), code, L(`Goethe-Zertifikat ${code}`, `Goethe-Zertifikat ${code}`, `Goethe-Zertifikat ${code}`), LANG_DESC.de[i], langSpec('de', i + 1), { count: 15, minutes: 15 })),
+  ),
+  exam('testdaf', 'TDAF', '#0f766e', L('TestDaF', 'TestDaF', 'TestDaF'),
+    L('German for university admission, B2-C1', 'Немецкий для поступления в вуз, B2-C1', 'Университетке түсуге арналған неміс тілі, B2-C1'),
+    L('The test of German as a foreign language for studying at German universities. Results are given as levels TDN 3-5; most universities require TDN 4 in every part. Here: grammar and vocabulary of levels B2 and C1.', 'Тест по немецкому как иностранному для учёбы в университетах Германии. Результат - уровни TDN 3-5; большинство вузов требует TDN 4 в каждой части. Здесь - грамматика и лексика уровней B2 и C1.', 'Германия университеттерінде оқуға арналған шет тілі ретіндегі неміс тілі тесті. Нәтиже TDN 3-5 деңгейлерімен беріледі; көп университет әр бөлімнен TDN 4 талап етеді. Мұнда B2 және C1 деңгейлерінің грамматикасы мен лексикасы.'),
+    { label: 'testdaf.de', url: 'https://www.testdaf.de/' },
+    [
+      track('tdn4', '4', L('TDN 4 (B2)', 'TDN 4 (B2)', 'TDN 4 (B2)'), L('Grammar, words and verbs of level B2', 'Грамматика, слова и глаголы уровня B2', 'B2 деңгейінің грамматикасы, сөздері мен етістіктері'), langSpec('de', 4), { count: 20, minutes: 20 }),
+      track('tdn5', '5', L('TDN 5 (C1)', 'TDN 5 (C1)', 'TDN 5 (C1)'), L('Academic grammar and vocabulary of level C1', 'Академическая грамматика и лексика уровня C1', 'C1 деңгейінің академиялық грамматикасы мен лексикасы'), langSpec('de', 5), { count: 20, minutes: 20 }),
+    ],
+    [L('Reading', 'Чтение', 'Оқылым'), L('Listening', 'Аудирование', 'Тыңдалым'), L('Writing', 'Письмо', 'Жазылым'), L('Speaking', 'Говорение', 'Айтылым')],
+  ),
+  exam('tomer', 'TOMER', '#9f1239', L('TÖMER', 'TÖMER', 'TÖMER'),
+    L('Turkish proficiency exam, A1-C2', 'Экзамен по турецкому языку, A1-C2', 'Түрік тілінен емтихан, A1-C2'),
+    L('The Turkish language exam of Ankara University TÖMER; Turkish universities accept it for admission, and the Yunus Emre Institute exam uses the same six levels. Here: grammar, vocabulary and verbs from A1 to C2.', 'Экзамен по турецкому языку центра TÖMER Анкарского университета; его принимают университеты Турции, а экзамен Института Юнуса Эмре использует те же шесть уровней. Здесь - грамматика, лексика и глаголы от A1 до C2.', 'Анкара университеті TÖMER орталығының түрік тілінен емтиханы; оны Түркия университеттері қабылдайды, ал Юнус Эмре институтының емтиханы да осы алты деңгейді қолданады. Мұнда A1-ден C2-ге дейінгі грамматика, лексика және етістіктер.'),
+    { label: 'tomer.ankara.edu.tr', url: 'https://tomer.ankara.edu.tr/' },
+    SIX.map((code, i) => track(code.toLowerCase(), code, L(`TÖMER ${code}`, `TÖMER ${code}`, `TÖMER ${code}`), LANG_DESC.tr[i], langSpec('tr', i + 1), { count: 15, minutes: 15 })),
   ),
   exam('ib', 'IB', '#334155', L('IB Diploma', 'IB Diploma', 'IB Diploma'),
     L('International Baccalaureate', 'Международный бакалавриат', 'Халықаралық бакалавриат'),
@@ -830,6 +941,38 @@ export const COURSES = [
     tracks: SIX.map((code, i) => track(code.toLowerCase(), code, LEVEL_NAMES[i], LANG_DESC.fr[i], langSpec('fr', i + 1))),
   },
   {
+    id: 'german',
+    group: 'daily',
+    code: 'DE',
+    color: '#ca8a04',
+    leveled: true,
+    cefr: true,
+    name: L('German', 'Немецкий язык', 'Неміс тілі'),
+    full: L('Levels A1-C2', 'Уровни A1-C2', 'A1-C2 деңгейлері'),
+    about: L(
+      'Articles and cases, word order, verbs and vocabulary from the first words to Konjunktiv I. Every answer comes with a rule in your language.',
+      'Артикли и падежи, порядок слов, глаголы и лексика: от первых слов до Konjunktiv I. К каждому ответу - правило на твоём языке.',
+      'Артикльдер мен септіктер, сөз тәртібі, етістіктер мен лексика: алғашқы сөздерден Konjunktiv I-ге дейін. Әр жауапқа - өз тіліңдегі ереже.',
+    ),
+    tracks: SIX.map((code, i) => track(code.toLowerCase(), code, LEVEL_NAMES[i], LANG_DESC.de[i], langSpec('de', i + 1))),
+  },
+  {
+    id: 'turkish',
+    group: 'daily',
+    code: 'TR',
+    color: '#e30a17',
+    leveled: true,
+    cefr: true,
+    name: L('Turkish', 'Турецкий язык', 'Түрік тілі'),
+    full: L('Levels A1-C2', 'Уровни A1-C2', 'A1-C2 деңгейлері'),
+    about: L(
+      'Vowel harmony, cases, verb tenses and vocabulary. Turkish is a close relative of Kazakh, and the explanations point out where the rules match.',
+      'Гармония гласных, падежи, времена глаголов и лексика. Турецкий - близкий родственник казахского, и в разборах видно, где правила совпадают.',
+      'Үндестік заңы, септіктер, етістік шақтары және лексика. Түрік тілі - қазақ тілінің жақын туысы, ал түсіндірмелерде ережелердің қай жерде сәйкес келетіні көрсетіледі.',
+    ),
+    tracks: SIX.map((code, i) => track(code.toLowerCase(), code, LEVEL_NAMES[i], LANG_DESC.tr[i], langSpec('tr', i + 1))),
+  },
+  {
     id: 'chinese',
     group: 'daily',
     code: '中',
@@ -844,6 +987,41 @@ export const COURSES = [
       'Пиньинь жазылған иероглифтер, мөлшер сөздер және негізгі грамматикалық құрылымдар - HSK емтиханындағыдай деңгейлер бойынша.',
     ),
     tracks: [1, 2, 3, 4, 5, 6].map((k) => track(`hsk${k}`, `HSK${k}`, HSK_NAMES[k - 1], HSK_DESC[k - 1], langSpec('zh', k))),
+  },
+  {
+    id: 'japanese',
+    group: 'daily',
+    code: 'JA',
+    color: '#be123c',
+    leveled: true,
+    cefr: true,
+    name: L('Japanese', 'Японский язык', 'Жапон тілі'),
+    full: L('Kana and JLPT levels N5-N1', 'Кана и уровни JLPT N5-N1', 'Кана және JLPT N5-N1 деңгейлері'),
+    about: L(
+      'Hiragana and katakana first, then words, kanji and grammar level by level as in the JLPT exam: from N5 (easiest) to N1. Every answer comes with a rule in your language.',
+      'Сначала хирагана и катакана, потом слова, кандзи и грамматика - по уровням, как в экзамене JLPT: от N5 (самый простой) до N1. К каждому ответу - правило на твоём языке.',
+      'Алдымен хирагана мен катакана, содан кейін сөздер, кандзи және грамматика - JLPT емтиханындағыдай деңгейлер бойынша: N5-тен (ең оңай) N1-ге дейін. Әр жауапқа - өз тіліңдегі ереже.',
+    ),
+    tracks: [
+      track('kana', 'かな', L('Kana: the Japanese alphabets', 'Кана: японская азбука', 'Кана: жапон әліпбиі'), L('Hiragana, katakana and words written in kana', 'Хирагана, катакана и слова, написанные каной', 'Хирагана, катакана және канамен жазылған сөздер'), [['ja.kana', [1, 2, 3]]]),
+      ...JLPT_CODES.map((_, i) => jlptTrack(i)),
+    ],
+  },
+  {
+    id: 'korean',
+    group: 'daily',
+    code: 'KO',
+    color: '#0369a1',
+    leveled: true,
+    cefr: true,
+    name: L('Korean', 'Корейский язык', 'Корей тілі'),
+    full: L('TOPIK levels 1-6', 'Уровни TOPIK 1-6', 'TOPIK 1-6 деңгейлері'),
+    about: L(
+      'Hangul first, then words, particles and verb endings level by level as in the TOPIK exam: from level 1 to level 6. Every answer comes with a rule in your language.',
+      'Сначала хангыль, потом слова, частицы и глагольные окончания - по уровням, как в экзамене TOPIK: от 1 до 6. К каждому ответу - правило на твоём языке.',
+      'Алдымен хангыль, содан кейін сөздер, шылаулар мен етістік жалғаулары - TOPIK емтиханындағыдай деңгейлер бойынша: 1-ден 6-ға дейін. Әр жауапқа - өз тіліңдегі ереже.',
+    ),
+    tracks: [1, 2, 3, 4, 5, 6].map((k) => topikTrack(k, `TOPIK${k}`)),
   },
   // ===== Ежедневная практика: естественные науки =====
   {

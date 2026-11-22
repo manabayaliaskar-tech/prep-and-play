@@ -12,7 +12,7 @@ import { storage } from '../core/storage.js';
 import { esc } from '../ui/dom.js';
 import { mascot } from '../ui/mascot.js';
 
-const LEVELS = { en: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'], es: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'], fr: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'], zh: ['HSK 1', 'HSK 2', 'HSK 3', 'HSK 4', 'HSK 5', 'HSK 6'] };
+const LEVELS = { en: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'], es: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'], fr: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'], zh: ['HSK 1', 'HSK 2', 'HSK 3', 'HSK 4', 'HSK 5', 'HSK 6'], ja: ['N5', 'N4', 'N3', 'N2', 'N1'], ko: ['TOPIK 1', 'TOPIK 2', 'TOPIK 3', 'TOPIK 4', 'TOPIK 5', 'TOPIK 6'] };
 const SESSION = 15;
 
 /** Карточка на странице языкового курса. */
@@ -58,7 +58,7 @@ export function cardsRoute(app, { lang }) {
           </div>
           <h2 class="section-title">${t('cards.newLevel')}</h2>
           <div class="quiz-levels cards-levels" role="radiogroup">
-            ${LEVELS[lang].map((name, i) => `<button type="button" role="radio" class="quiz-level" data-level="${i + 1}" aria-checked="${i + 1 === level}" style="--k:${(i + 1) * 1.6}"><b>${name}</b></button>`).join('')}
+            ${(LEVELS[lang] ?? LEVELS.en).map((name, i) => `<button type="button" role="radio" class="quiz-level" data-level="${i + 1}" aria-checked="${i + 1 === level}" style="--k:${(i + 1) * 1.6}"><b>${name}</b></button>`).join('')}
           </div>
           <button type="button" class="btn btn-primary btn-xl start-btn">▶ ${t('cards.start', { n: SESSION })}</button>
         </div>

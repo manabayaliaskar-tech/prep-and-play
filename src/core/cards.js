@@ -1,23 +1,36 @@
-// Карточки слов с интервальным повтором (как в Anki): английский, испанский, французский, китайский.
+// Карточки слов с интервальным повтором (как в Anki): английский, испанский, французский, китайский и другие языки курсов.
 // «Знал» - карточка вернётся через 1, 3, 7, 21 день, после этого слово выучено.
 // «Не знал» - карточка вернётся завтра и начнёт с начала.
 
 import { WORDS } from '../pools/languages/vocab.js';
 import { HANZI } from '../pools/languages/hanzi.js';
+import { XWORDS } from '../pools/languages/xwords.js';
+import { JA_WORDS } from '../pools/languages/ja-words.js';
+import { KO_WORDS } from '../pools/languages/ko-words.js';
 import { dayKey } from './dates.js';
 import { addDays } from './review.js';
 import { storage } from './storage.js';
 
 export const CARD_INTERVALS = [1, 3, 7, 21];
 export const LEARNED = CARD_INTERVALS.length;
-export const DECK_LANGS = ['en', 'es', 'fr', 'zh'];
+export const DECK_LANGS = ['en', 'es', 'fr', 'zh', 'de', 'tr', 'ja', 'ko'];
 /** Какой курс соответствует колоде. */
-export const DECK_COURSE = { en: 'english', es: 'spanish', fr: 'french', zh: 'chinese' };
+export const DECK_COURSE = { en: 'english', es: 'spanish', fr: 'french', zh: 'chinese', de: 'german', tr: 'turkish', ja: 'japanese', ko: 'korean' };
 
 /** Колода языка: [{ id, level, front, sub, back: { en, ru, kk } }]. */
 export function deck(lang) {
   if (lang === 'zh') {
     return HANZI.map((w) => ({ id: `zh:${w.i}`, level: w.level, front: w.hz, sub: w.py, back: { en: w.en, ru: w.ru, kk: w.kk } }));
+  }
+  // Японский: уровни 1-5 = N5-N1, под словом - чтение каной.
+  if (lang === 'ja') {
+    return JA_WORDS.map((w) => ({ id: `ja:${w.i}`, level: w.level, front: w.jp, sub: w.kanaOnly ? '' : w.kana, back: { en: w.en, ru: w.ru, kk: w.kk } }));
+  }
+  if (lang === 'ko') {
+    return KO_WORDS.map((w) => ({ id: `ko:${w.i}`, level: w.level, front: w.ko, sub: '', back: { en: w.en, ru: w.ru, kk: w.kk } }));
+  }
+  if (XWORDS[lang]) {
+    return XWORDS[lang].map((w) => ({ id: `${lang}:${w.i}`, level: w.level, front: w.f, sub: '', back: { en: w.en, ru: w.ru, kk: w.kk } }));
   }
   return WORDS.map((w) => ({
     id: `${lang}:${w.i}`,

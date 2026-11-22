@@ -3,7 +3,7 @@
 // прямой угол, задачи в два действия, покупки и сдача.
 
 import { L, n, same, why } from '../gen.js';
-import { DIV, ITEMS, MINUS, NAMES, R, TIMES, angleSvg, anyOf, clockSvg, cnt, columnSvg, g, groupsSvg, kkAt, kkDat, one, polySvg, qNum, qText, ru, rulerSvg, two } from './kit.js';
+import { DIV, ITEMS, MINUS, NAMES, R, TIMES, angleSvg, anyOf, clockSvg, cnt, columnSvg, g, groupsSvg, kkAt, kkDat, one, polySvg, qNum, qText, rectPts, ru, rulerSvg, two } from './kit.js';
 import { clockQ, hm } from './grade1.js';
 
 const calc = (e) => L(`Calculate: ${e}`, `Вычисли: ${e}`, `Есепте: ${e}`);
@@ -137,11 +137,10 @@ const noBorrow = (a, b) => Number([...String(a)].map((_, i, arr) => {
   return Math.abs((Math.floor(a / p) % 10) - (Math.floor(b / p) % 10));
 }).join(''));
 
-export function column(ctx, d, id = 'm.col', digits = 2) {
+export function column(ctx, d, id = 'm.col', digits = 2, carry = d >= 2) {
   const { rng } = ctx;
   const lo = 10 ** (digits - 1);
   const hi = 10 ** digits - 1;
-  const carry = d >= 2;
   let a;
   let b;
   const plus = rng() < 0.5;
@@ -559,7 +558,7 @@ export function perim(ctx, d) {
     const sq = rng() < 0.3;
     if (sq) b = a;
     const p = 2 * (a + b);
-    const fig = polySvg([[30, 40], [30 + 18 * Math.min(a, 11), 40], [30 + 18 * Math.min(a, 11), 40 + 10 * Math.min(b, 11)], [30, 40 + 10 * Math.min(b, 11)]], sq ? [cmL(a)] : [cmL(a), cmL(b)], { right: [0, 1, 2, 3] });
+    const fig = polySvg(rectPts(a, b), sq ? [cmL(a)] : [cmL(a), cmL(b)], { right: [0, 1, 2, 3], h: 170 });
     return qNum(
       ctx, id, d,
       sq ? L(`The side of a square is ${a} cm. Find its perimeter.`, `Сторона квадрата ${a} см. Найди его периметр.`, `Шаршының қабырғасы ${a} см. Оның периметрін тап.`) : L(`A rectangle has sides ${a} cm and ${b} cm. Find its perimeter.`, `Стороны прямоугольника ${a} см и ${b} см. Найди его периметр.`, `Тіктөртбұрыштың қабырғалары ${a} см және ${b} см. Оның периметрін тап.`),

@@ -85,7 +85,7 @@ const WEAK_END = ['e', 'est', 'e', 'en', 'et', 'en'];
 const base = (v) => (v.sep ? v.inf.slice(v.sep.length) : v.inf);
 const stemOf = (v) => base(v).replace(/e?n$/, '');
 /** Нужна ли -e- перед -st/-t: arbeit-e-st, öffn-e-t. */
-const needE = (stem) => /[td]$/.test(stem) || /[^lrhaeiouäöü][mn]$/.test(stem);
+const needE = (stem) => /[td]$/.test(stem) || /[^lrhmnaeiouäöü][mn]$/.test(stem);
 
 function presForms(v) {
   if (v.pres) return v.pres;
@@ -180,8 +180,9 @@ function tensesFor(level) {
   return all.filter((t) => TENSES[t].level === level);
 }
 
-function explain(v, t, shown) {
+function explain(v, t, full) {
   const tn = TENSES[t];
+  const shown = full.replace(/[.?!]$/, '');
   return L(
     `${tn.rule.en} ${v.inf} (${v.en}): ${shown}.`,
     `${tn.rule.ru} ${v.inf} (${v.ru}) - ${tn.name.ru}: ${shown}.`,

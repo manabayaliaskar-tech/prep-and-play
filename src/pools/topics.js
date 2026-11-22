@@ -12,6 +12,9 @@ import { early } from './math/early.js';
 import { add10, add20, clock1, compare, count100, length1, money1, num10, num20, orient, pattern1, shapes1, word1 } from './math/grade1.js';
 import { add2d, change2, col, eq1, laws, mulMean, order2, perim, place100, rightAngle, tab23, time2, units2, word2 } from './math/grade2.js';
 import { area3, circle3, col3, colMul, eq3, mass, mulBig, num1000, parts, price, remDiv, time3 } from './math/grade3.js';
+import { addBig, bigNum, box, chart, eq2step, motion4, mul2d, partOf, romanQ, seq4, speed, units4 } from './math/grade4.js';
+import { eq5, formula, mixedNum, primes, props, ray, roundDec, roundNat, sqCube, triKinds } from './math/grade5.js';
+import { brackets, circle6, coord, diagram, fracAdd, fracMul, lines, modulus, pctTask, rational, scale, symmetry } from './math/grade6.js';
 import { complexNumbers, integrals, limits, matrices, vectors } from './math/higher.js';
 import { englishMaker } from './english/index.js';
 import { ukusMaker, variantize } from './english/variant.js';
@@ -26,6 +29,13 @@ import { CHINESE } from './languages/chinese.js';
 import { analogyMaker, wordsMaker } from './languages/vocab.js';
 import { verbsMaker } from './languages/verbs.js';
 import { hanziMaker } from './languages/zh.js';
+import { GERMAN } from './languages/de.js';
+import { TURKISH } from './languages/tr.js';
+import { deVerbsMaker } from './languages/de-verbs.js';
+import { trVerbsMaker } from './languages/tr-verbs.js';
+import { xWordsMaker } from './languages/xwords.js';
+import { jaBankMaker, jaWordsMaker, kanaMaker, kanjiMaker } from './languages/ja.js';
+import { hangulMaker, koBankMaker, koWordsMaker } from './languages/ko.js';
 import { comparisonMaker, grammarMaker, irregularMaker } from './english/gen.js';
 import { kazakhstanMaker, recordsMaker, worldMaker } from './science/geo.js';
 import { compoundsMaker, elementsMaker } from './science/chem-gen.js';
@@ -129,6 +139,43 @@ export const TOPICS = {
   'm.eq3': topic('math', L('Equations with multiplication and division', 'Уравнения с умножением и делением', 'Көбейту және бөлу амалдары бар теңдеулер'), eq3),
   'm.price': topic('math', L('Price, quantity and cost', 'Задачи на цену, количество и стоимость', 'Баға, саны және құн есептері'), price),
   'm.circle3': topic('math', L('Circle: radius and diameter', 'Окружность и круг, радиус, диаметр', 'Шеңбер мен дөңгелек, радиус, диаметр'), circle3),
+  // 4 класс
+  'm.bignum': topic('math', L('Multi-digit numbers: thousands and millions', 'Многозначные числа: классы тысяч и миллионов', 'Көп таңбалы сандар: мыңдар және миллиондар класы'), bigNum),
+  'm.addbig': topic('math', L('Adding and subtracting multi-digit numbers', 'Сложение и вычитание многозначных чисел', 'Көп таңбалы сандарды қосу және азайту'), addBig),
+  'm.mul2d': topic('math', L('Multiplying and dividing by two- and three-digit numbers', 'Умножение и деление на двузначное и трёхзначное число', 'Екі және үш таңбалы санға көбейту және бөлу'), mul2d),
+  'm.speed': topic('math', L('Speed, time, distance', 'Скорость, время, расстояние', 'Жылдамдық, уақыт, қашықтық'), speed),
+  'm.motion4': topic('math', L('Moving towards each other and catching up', 'Движение навстречу и вдогонку', 'Қарсы қозғалыс және қуып жету'), motion4),
+  'm.partof': topic('math', L('A fraction of a number and a number from its fraction', 'Нахождение части числа и числа по части', 'Санның бөлігін және бөлігі бойынша санды табу'), partOf),
+  'm.units4': topic('math', L('Units of mass and area: t, c, km², ha', 'Единицы массы и площади: тонна, центнер, км², гектар', 'Масса және аудан бірліктері: тонна, центнер, км², гектар'), units4),
+  'm.box': topic('math', L('Rectangular box and cube, volume', 'Прямоугольный параллелепипед и куб, объём', 'Тікбұрышты параллелепипед және текше, көлем'), box),
+  'm.eq2step': topic('math', L('Two-step equations', 'Уравнения в два действия', 'Екі амалды теңдеулер'), eq2step),
+  'm.chart': topic('math', L('Tables and charts', 'Таблицы и диаграммы', 'Кестелер мен диаграммалар'), chart),
+  'm.seq4': topic('math', L('Number patterns (grade 4)', 'Числовые закономерности (4 класс)', 'Сандық заңдылықтар (4-сынып)'), seq4),
+  'm.roman': topic('math', L('Roman numerals', 'Римские цифры', 'Рим цифрлары'), romanQ),
+  // 5 класс
+  'm.ray': topic('math', L('Scales and the coordinate ray', 'Натуральные числа и шкалы, координатный луч', 'Натурал сандар мен шкалалар, координаталық сәуле'), ray),
+  'm.round': topic('math', L('Rounding whole numbers', 'Округление натуральных чисел', 'Натурал сандарды дөңгелектеу'), roundNat),
+  'm.sqcube': topic('math', L('Powers: square and cube', 'Степень числа, квадрат и куб', 'Санның дәрежесі, квадрат және куб'), sqCube),
+  'm.props': topic('math', L('Properties of addition and multiplication', 'Свойства сложения и умножения, упрощение выражений', 'Қосу мен көбейтудің қасиеттері, өрнектерді ықшамдау'), props),
+  'm.eq5': topic('math', L('Equations (grade 5)', 'Уравнения (5 класс)', 'Теңдеулер (5-сынып)'), eq5),
+  'm.formula': topic('math', L('Formulas: area, volume, distance', 'Формулы площади, объёма и пути', 'Аудан, көлем және жол формулалары'), formula),
+  'm.mixed': topic('math', L('Mixed numbers', 'Смешанные числа', 'Аралас сандар'), mixedNum),
+  'm.rounddec': topic('math', L('Rounding decimals', 'Округление десятичных дробей', 'Ондық бөлшектерді дөңгелектеу'), roundDec),
+  'm.tri': topic('math', L('Types of triangles', 'Виды треугольников', 'Үшбұрыштың түрлері'), triKinds),
+  'm.prime': topic('math', L('Prime and composite numbers', 'Простые и составные числа, разложение на множители', 'Жай және құрама сандар, көбейткіштерге жіктеу'), primes),
+  // 6 класс
+  'm.fracadd': topic('math', L('Adding and subtracting fractions with different denominators', 'Сложение и вычитание дробей с разными знаменателями', 'Бөлімдері әртүрлі бөлшектерді қосу және азайту'), fracAdd),
+  'm.fracmul': topic('math', L('Multiplying and dividing fractions', 'Умножение и деление дробей', 'Бөлшектерді көбейту және бөлу'), fracMul),
+  'm.scale': topic('math', L('Map scale', 'Масштаб', 'Масштаб'), scale),
+  'm.circle': topic('math', L('Circumference and area of a circle', 'Длина окружности и площадь круга', 'Шеңбердің ұзындығы және дөңгелектің ауданы'), circle6),
+  'm.modulus': topic('math', L('Absolute value', 'Модуль числа', 'Санның модулі'), modulus),
+  'm.rational': topic('math', L('Operations with rational numbers', 'Действия с рациональными числами', 'Рационал сандарға амалдар қолдану'), rational),
+  'm.coord': topic('math', L('The coordinate plane', 'Координатная плоскость', 'Координаталық жазықтық'), coord),
+  'm.brackets': topic('math', L('Expanding brackets and like terms', 'Раскрытие скобок, подобные слагаемые', 'Жақшаны ашу, ұқсас қосылғыштар'), brackets),
+  'm.lines': topic('math', L('Parallel and perpendicular lines', 'Перпендикулярные и параллельные прямые', 'Перпендикуляр және параллель түзулер'), lines),
+  'm.diagram': topic('math', L('Bar and pie charts', 'Диаграммы: столбчатые и круговые', 'Диаграммалар: бағанды және дөңгелек'), diagram),
+  'm.pcttask': topic('math', L('Percentage problems', 'Задачи на проценты', 'Пайызға берілген есептер'), pctTask),
+  'm.sym': topic('math', L('Line and point symmetry', 'Осевая и центральная симметрия', 'Осьтік және центрлік симметрия'), symmetry),
 
   // ----- Английский язык -----
   'e.basics': topic('english', L('Basics: to be, pronouns, nouns', 'Основы: to be, местоимения, существительные', 'Негіздер: to be, есімдіктер, зат есімдер'), enV(englishMaker('e.basics'))),
@@ -234,6 +281,19 @@ export const TOPICS = {
   'fr.words': topic('french', L('French words', 'Французский: слова', 'Француз тілі: сөздер'), wordsMaker('fr.words', 'fr')),
   'fr.verbs': topic('french', L('French verb conjugation', 'Французский: спряжение глаголов', 'Француз тілі: етістіктің жіктелуі'), verbsMaker('fr.verbs', 'fr')),
   'zh.words': topic('chinese', L('Chinese characters and pinyin', 'Китайский: иероглифы и пиньинь', 'Қытай тілі: иероглифтер мен пиньинь'), hanziMaker('zh.words')),
+  'de.bank': topic('german', L('German grammar', 'Немецкий: грамматика', 'Неміс тілі: грамматика'), languageMaker('de.bank', GERMAN)),
+  'de.words': topic('german', L('German words and articles', 'Немецкий: слова и артикли', 'Неміс тілі: сөздер мен артикльдер'), xWordsMaker('de.words', 'de')),
+  'de.verbs': topic('german', L('German verb conjugation', 'Немецкий: спряжение глаголов', 'Неміс тілі: етістіктің жіктелуі'), deVerbsMaker('de.verbs')),
+  'tr.bank': topic('turkish', L('Turkish grammar', 'Турецкий: грамматика', 'Түрік тілі: грамматика'), languageMaker('tr.bank', TURKISH)),
+  'tr.words': topic('turkish', L('Turkish words and cases', 'Турецкий: слова и падежи', 'Түрік тілі: сөздер мен септіктер'), xWordsMaker('tr.words', 'tr')),
+  'tr.verbs': topic('turkish', L('Turkish verb conjugation', 'Турецкий: спряжение глаголов', 'Түрік тілі: етістіктің жіктелуі'), trVerbsMaker('tr.verbs')),
+  'ja.kana': topic('japanese', L('Japanese: hiragana and katakana', 'Японский: хирагана и катакана', 'Жапон тілі: хирагана мен катакана'), kanaMaker('ja.kana')),
+  'ja.words': topic('japanese', L('Japanese words', 'Японский: слова', 'Жапон тілі: сөздер'), jaWordsMaker('ja.words')),
+  'ja.kanji': topic('japanese', L('Japanese kanji', 'Японский: иероглифы кандзи', 'Жапон тілі: кандзи иероглифтері'), kanjiMaker('ja.kanji')),
+  'ja.bank': topic('japanese', L('Japanese grammar', 'Японский: грамматика', 'Жапон тілі: грамматика'), jaBankMaker('ja.bank')),
+  'ko.hangul': topic('korean', L('Korean: reading hangul', 'Корейский: чтение хангыля', 'Корей тілі: хангыльді оқу'), hangulMaker('ko.hangul')),
+  'ko.words': topic('korean', L('Korean words', 'Корейский: слова', 'Корей тілі: сөздер'), koWordsMaker('ko.words')),
+  'ko.bank': topic('korean', L('Korean grammar', 'Корейский: грамматика', 'Корей тілі: грамматика'), koBankMaker('ko.bank')),
 
   // ----- Программирование -----
   'code.theory': topic('code', L('Programming basics', 'Основы программирования', 'Бағдарламалау негіздері'), bankMaker('code.theory', CODE_THEORY, { tf: true })),
@@ -279,6 +339,10 @@ export const POOLS = {
   spanish: { icon: 'ES', color: '#dc2626' },
   french: { icon: 'FR', color: '#2563eb' },
   chinese: { icon: '中', color: '#b91c1c' },
+  german: { icon: 'DE', color: '#ca8a04' },
+  turkish: { icon: 'TR', color: '#e30a17' },
+  japanese: { icon: 'JA', color: '#be123c' },
+  korean: { icon: 'KO', color: '#0369a1' },
   code: { icon: '</>', color: '#0f172a' },
 };
 
