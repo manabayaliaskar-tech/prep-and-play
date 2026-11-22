@@ -494,7 +494,7 @@ export function time2(ctx, d) {
     const m = (x) => L(MONTHS[x][0], MONTHS[x][1], MONTHS[x][2]);
     return qText(
       ctx, id, d,
-      L(`Which month comes after ${MONTHS[i][0]}?`, `Какой месяц идёт после ${MONTHS[i][3]}?`, `${MONTHS[i][2]} айынан кейін қай ай келеді?`),
+      L(`Which month comes after ${MONTHS[i][0]}?`, `Какой месяц идёт после ${MONTHS[i][3]}?`, `${MONTHS[i][2][0].toUpperCase() + MONTHS[i][2].slice(1)} айынан кейін қай ай келеді?`),
       [L('A year has 12 months: from January to December.', 'В году 12 месяцев: от января до декабря.', 'Жылда 12 ай бар: қаңтардан желтоқсанға дейін.'), m(j)],
       m(j), [m((i + 11) % 12), m((j + 1) % 12), m(i)],
     );
@@ -504,7 +504,7 @@ export function time2(ctx, d) {
     const v = MONTHS[i][5];
     return qNum(
       ctx, id, d,
-      L(`How many days are there in ${MONTHS[i][0]}?`, `Сколько дней в ${MONTHS[i][4]}?`, `${MONTHS[i][2]} айында неше күн бар?`),
+      L(`How many days are there in ${MONTHS[i][0]}?`, `Сколько дней в ${MONTHS[i][4]}?`, `${MONTHS[i][2][0].toUpperCase() + MONTHS[i][2].slice(1)} айында неше күн бар?`),
       [L('Months have 30 or 31 days (February has 28 or 29). Use your knuckles: a knuckle is 31 days.', 'В месяцах 30 или 31 день (в феврале 28 или 29). Посчитай по косточкам кулака: косточка - 31 день.', 'Айларда 30 немесе 31 күн болады (ақпанда 28 немесе 29). Жұдырықтың буындарымен санауға болады: буын - 31 күн.'), ans(v)],
       v, [v === 31 ? 30 : 31, 28, 7],
       { spr: 0, min: 1 },
@@ -602,7 +602,9 @@ export function rightAngle(ctx, d) {
   };
   const countRight = () => {
     const w = R(rng, 110, 190);
-    const h = R(rng, 60, 110);
+    let h = R(rng, 60, 110);
+    // У равнобедренного треугольника угол при вершине не должен случайно стать прямым (h = w/2).
+    if (Math.abs(h - w / 2) < 15) h = Math.min(110, w / 2 + 30);
     const s = R(rng, 25, 60);
     const x0 = 30;
     const y0 = 20;

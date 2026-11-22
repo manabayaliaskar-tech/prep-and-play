@@ -775,7 +775,7 @@ export function clock1(ctx, d) {
     const b = R(rng, a + 1, 12);
     return qNum(
       ctx, id, d,
-      L(`A lesson started at ${a}:00 and the walk ended at ${b}:00. How many hours passed?`, `Занятия начались в ${a}:00, а прогулка закончилась в ${b}:00. Сколько часов прошло?`, `Сабақ ${kkAt(a, 0)} басталып, серуен ${kkAt(b, 0)} аяқталды. Неше сағат өтті?`),
+      L(`A hike started at ${a}:00 and ended at ${b}:00. How many hours did it last?`, `Поход начался в ${a}:00 и закончился в ${b}:00. Сколько часов он длился?`, `Жорық ${kkAt(a, 0)} басталып, ${kkAt(b, 0)} аяқталды. Ол неше сағатқа созылды?`),
       [L('Subtract the start time from the end time.', 'Из времени окончания вычтем время начала.', 'Аяқталу уақытынан басталу уақытын азайтамыз.'), same(`${b} ${MINUS} ${a} = ${b - a}`)],
       b - a, [a + b, b - a + 1, b - a - 1],
       { min: 1 },

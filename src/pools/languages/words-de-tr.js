@@ -161,7 +161,7 @@ back|der Rücken|sırt
 stomach|der Bauch|karın
 face|das Gesicht|yüz
 husband|der Ehemann|koca
-wife|die Ehefrau|karı
+wife|die Ehefrau|hanım
 neighbour|der Nachbar|komşu
 guest|der Gast|misafir
 son|der Sohn|oğul

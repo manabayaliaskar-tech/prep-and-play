@@ -98,16 +98,28 @@ function caseRows() {
 // ---------- Число после числительных: iki kitap, а не iki kitaplar (A1) ----------
 function countRows() {
   const out = [];
-  const list = [{ w: 'kitap', v: 'kitab', en: 'book' }, { w: 'elma', en: 'apple' }, { w: 'öğrenci', en: 'pupil' }, { w: 'kedi', en: 'cat' }, { w: 'kalem', en: 'pen' }, { w: 'araba', en: 'car' }, { w: 'çocuk', v: 'çocuğ', en: 'child' }, { w: 'ağaç', v: 'ağac', en: 'tree' }, { w: 'oda', en: 'room' }, { w: 'masa', en: 'table' }, { w: 'sandalye', en: 'chair' }, { w: 'kuş', en: 'bird' }];
-  const frames = ['Masada iki ______ var.', 'Bahçede birkaç ______ var.', 'Kaç ______ var?', 'Sınıfta yirmi ______ var.', 'Evde üç ______ var.', 'Burada çok ______ var.'];
-  list.forEach((n, i) => {
-    for (const f of [frames[i % 6], frames[(i + 3) % 6]]) {
+  const list = [
+    [{ w: 'kitap', v: 'kitab' }, 'Masada iki ______ var.', 'Çantamda üç ______ var.'],
+    [{ w: 'elma' }, 'Sepette beş ______ var.', 'Bugün kaç ______ yedin?'],
+    [{ w: 'öğrenci' }, 'Sınıfta yirmi ______ var.', 'Derse kaç ______ geldi?'],
+    [{ w: 'kedi' }, 'Bahçede iki ______ var.', 'Evde kaç ______ var?'],
+    [{ w: 'kalem' }, 'Çantamda birkaç ______ var.', 'Masada üç ______ var.'],
+    [{ w: 'araba' }, 'Sokakta çok ______ var.', 'Otoparkta on ______ var.'],
+    [{ w: 'çocuk', v: 'çocuğ' }, 'Parkta birkaç ______ oynuyor.', 'Bahçede beş ______ var.'],
+    [{ w: 'ağaç', v: 'ağac' }, 'Bahçede birkaç ______ var.', 'Parkta çok ______ var.'],
+    [{ w: 'oda' }, 'Evimizde üç ______ var.', 'Otelde kaç ______ var?'],
+    [{ w: 'masa' }, 'Sınıfta on ______ var.', 'Restoranda kaç ______ var?'],
+    [{ w: 'sandalye' }, 'Mutfakta dört ______ var.', 'Salonda birkaç ______ var.'],
+    [{ w: 'kuş' }, 'Ağaçta iki ______ var.', 'Gökyüzünde çok ______ var.'],
+  ];
+  for (const [n, ...frames] of list) {
+    for (const f of frames) {
       out.push(row(1, `${f} (${n.w})`, n.w, [noun.pl(n), `${noun.pl(n)}${h4(noun.pl(n))}`, noun.loc(n)],
         `После числительных и слов kaç, birkaç, çok существительное стоит в единственном числе: ${f.replace('______', n.w)}`,
         `Сан есімдерден және kaç, birkaç, çok сөздерінен кейін зат есім жекеше түрде тұрады (қазақшадағы «екі кітап» сияқты): ${f.replace('______', n.w)}`,
         `After numbers and kaç, birkaç, çok the noun stays singular: ${f.replace('______', n.w)}`));
     }
-  });
+  }
   return out;
 }
 
@@ -169,7 +181,7 @@ function comparisonRows() {
 }
 
 // ---------- Деепричастия перед önce / sonra (B1) ----------
-const VP = [['Kahvaltı', 'yap'], ['Ödevimi', 'yap'], ['Eve', 'gel'], ['Yemek', 'ye'], ['Filmi', 'izle'], ['Kitabı', 'oku'], ['Dersi', 'bitir'], ['İşe', 'git'], ['Mektubu', 'yaz'], ['Telefonu', 'kapat'], ['Müzik', 'dinle'], ['Duş', 'al'], ['Ellerimi', 'yıka'], ['Kapıyı', 'aç']];
+const VP = [['Kahvaltı', 'yap'], ['Ödevimi', 'yap'], ['Eve', 'gel'], ['Yemek', 'ye'], ['Filmi', 'izle'], ['Kitabı', 'oku'], ['Dersi', 'bitir'], ['İşe', 'git'], ['Mektubu', 'yaz'], ['Telefonu', 'kapat'], ['Haberleri', 'dinle'], ['Duş', 'al'], ['Ellerimi', 'yıka'], ['Kapıyı', 'aç']];
 function converbRows() {
   const out = [];
   VP.forEach(([obj, s], i) => {
@@ -377,7 +389,8 @@ function moreRows() {
     {
       const neg = `${v.s}m${h2(v.s)}`;
       const ok = `${neg}m${h4(neg)}ş`;
-      out.push(row(6, `O, sanki ${v.obj} hiç ______ gibi davranıyor. (${v.inf})`, ok, [`${neg}d${h4(neg)}`, part.meden(v), part.mesine(v, 2)],
+      const obj = v.obj === 'çok' ? '' : `${v.obj} `;
+      out.push(row(6, `O, sanki ${obj}hiç ______ gibi davranıyor. (${v.inf})`, ok, [`${neg}d${h4(neg)}`, part.meden(v), part.mesine(v, 2)],
         `«Как будто не ...»: отрицательная форма на -miş + gibi: ${ok} gibi.`,
         `«... мағандай»: болымсыз -miş түрі + gibi: ${ok} gibi (қазақшадағы көрмегендей сияқты).`,
         `"As if (he) had not ...": negative -miş + gibi: ${ok} gibi.`));
@@ -479,7 +492,7 @@ const HAND = [
   [6, 'Sabrın sonu ______.', 'selamettir', ['mutluluktur', 'zaferdir', 'başarıdır'], 'Пословица: «Конец терпения - спасение».', 'Мақал: «Сабырдың түбі - сары алтын» мағынасындағы түрік мақалы.', 'Proverb: "The end of patience is salvation".'],
   [6, 'Mum dibine ______ vermez.', 'ışık', ['ateş', 'gölge', 'ses'], 'Пословица: «Свеча не светит под собой» - близким часто не помогают.', 'Мақал: «Шам өз түбін жарықтандырмайды».', 'Proverb: "A candle gives no light at its base".'],
   [6, 'Dost kara günde ______.', 'belli olur', ['kaybolur', 'gelir', 'ağlar'], 'Пословица: «Друг познаётся в беде».', 'Мақал: «Дос басқа іс түскенде танылады».', 'Proverb: "A friend is known in hard times".'],
-  [6, 'Görmüş geçirmiş biri olduğu ______ ondan akıl danıştık.', 'için', ['halde', 'rağmen', 'gibi'], 'Причина: -dik + için; görmüş geçirmiş - «бывалый, опытный».', 'Себеп: -dik + için; görmüş geçirmiş - «көпті көрген».', 'Cause: -dik + için; görmüş geçirmiş means "experienced".'],
+  [6, 'Görmüş geçirmiş biri olduğu ______ ona akıl danıştık.', 'için', ['halde', 'rağmen', 'gibi'], 'Причина: -dik + için; görmüş geçirmiş - «бывалый, опытный».', 'Себеп: -dik + için; görmüş geçirmiş - «көпті көрген».', 'Cause: -dik + için; görmüş geçirmiş means "experienced".'],
 ];
 
 export const TURKISH = [

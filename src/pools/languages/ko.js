@@ -26,7 +26,7 @@ const PLAIN = [0, 2, 3, 5, 6, 7, 9, 11, 12, 14, 15, 16, 17, 18];
 const syl = (l, v, t = 0) => ({ ch: _hangul.enc(l, v, t), l, v, t, r: INIT_R[l] + VOW_R[v] + (t ? FIN[t][1] : '') });
 const SYL1 = INIT_R.flatMap((_, l) => BASIC.map((v) => syl(l, v)));
 const SYL2 = [
-  ...INIT_R.flatMap((_, l) => COMPOUND.map((v) => syl(l, v))),
+  ...PLAIN.flatMap((l) => COMPOUND.map((v) => syl(l, v))),
   ...PLAIN.flatMap((l) => [0, 4, 8, 13, 18, 20].flatMap((v) => Object.keys(FIN).map((t) => syl(l, v, Number(t))))),
 ];
 /** Буквы: согласные (кроме немой ㅇ) и гласные с их звучанием. */

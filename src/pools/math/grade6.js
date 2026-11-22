@@ -471,7 +471,7 @@ export function symmetry(ctx, d) {
       [L('a rhombus (not a square)', 'ромба (не квадрата)', 'ромбының (шаршы емес)'), 2],
     ];
     const [name, v] = one(rng, SH);
-    return qNum(ctx, id, d, L(`How many axes of symmetry does ${name.en} have?`, `Сколько осей симметрии у ${name.ru}?`, `${name.kk} неше симметрия осі бар?`), [L('An axis of symmetry folds the figure into two matching halves.', 'Ось симметрии делит фигуру на две половинки, которые совпадают при перегибании.', 'Симметрия осі фигураны бүктегенде беттесетін екі жартыға бөледі.'), ans(v)], v, [v + 1, v === 0 ? 2 : v - 1, v * 2, 4].filter((x) => x !== v), { spr: 0, min: 0 });
+    return qNum(ctx, id, d, L(`How many axes of symmetry does ${name.en} have?`, `Сколько осей симметрии у ${name.ru}?`, `${name.kk[0].toUpperCase() + name.kk.slice(1)} неше симметрия осі бар?`), [L('An axis of symmetry folds the figure into two matching halves.', 'Ось симметрии делит фигуру на две половинки, которые совпадают при перегибании.', 'Симметрия осі фигураны бүктегенде беттесетін екі жартыға бөледі.'), ans(v)], v, [v + 1, v === 0 ? 2 : v - 1, v * 2, 4].filter((x) => x !== v), { spr: 0, min: 0 });
   };
   const centre = () => {
     const P = [R(rng, -5, 5), R(rng, -5, 5)];

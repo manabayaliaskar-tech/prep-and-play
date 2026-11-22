@@ -177,7 +177,7 @@ function practiced(profile) {
 
 const bossesBeaten = (profile) => Object.values(profile.practice ?? {}).filter((rec) => rec.boss).length;
 
-const LANGS = ['english', 'spanish', 'french', 'chinese', 'hsk', 'ielts', 'toefl'];
+const LANGS = ['english', 'spanish', 'french', 'chinese', 'japanese', 'korean', 'german', 'turkish', 'italian', 'rki', 'hsk', 'ielts', 'toefl', 'jlpt', 'topik', 'goethe', 'testdaf', 'tomer', 'dele', 'delf', 'cils', 'trki', 'cambridge', 'duolingo'];
 const SCIENCES = ['physics', 'chemistry', 'biology'];
 const CODE = ['python', 'cpp', 'javascript', 'java'];
 

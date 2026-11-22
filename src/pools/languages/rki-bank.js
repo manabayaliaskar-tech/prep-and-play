@@ -169,9 +169,9 @@ function agreeEx(n, g, word, form) {
   const odd = LOOKS_F.has(n.nom);
   const nn = g === 'pl' ? n.pl[0] : n.nom;
   return L(
-    `"${nn}" is ${GENDER[g].en}, so ${word} → ${form}: ${form} ${nn}.${odd ? ` ${n.nom} ends in -а but means a man, so it is masculine.` : ''}`,
-    `«${nn}» - ${GENDER[g].ru}, поэтому ${word} → ${form}: ${form} ${nn}.${odd ? ` Слово «${n.nom}» оканчивается на -а, но называет мужчину, поэтому оно мужского рода.` : ''}`,
-    `«${nn}» - ${GENDER[g].kk}, сондықтан ${word} → ${form}: ${form} ${nn}.${odd ? ` «${n.nom}» сөзі -а әрпімен аяқталады, бірақ ер адамды білдіреді, сондықтан еркек тектес.` : ''}`,
+    `"${nn}" is ${GENDER[g].en}, so the form of ${word} is ${form}: ${form} ${nn}.${odd ? ` ${n.nom} ends in -а but means a man, so it is masculine.` : ''}`,
+    `«${nn}» - ${GENDER[g].ru}, поэтому нужна форма «${form}»: ${form} ${nn}.${odd ? ` Слово «${n.nom}» оканчивается на -а, но называет мужчину, поэтому оно мужского рода.` : ''}`,
+    `«${nn}» - ${GENDER[g].kk}, сондықтан «${form}» түрі керек: ${form} ${nn}.${odd ? ` «${n.nom}» сөзі -а әрпімен аяқталады, бірақ ер адамды білдіреді, сондықтан еркек тектес.` : ''}`,
   );
 }
 const possRows = spread(
@@ -187,13 +187,13 @@ const possRows = spread(
 
 // Прилагательные с твёрдой основой: новый, новая, новое, новые.
 const ADJ = [
-  ['нов', ['p', 'pl', 't', 'e']],
-  ['стар', ['p', 'pl', 't']],
-  ['красив', ['p', 'pl', 't']],
+  ['нов', ['pl', 't', 'e', 'job']],
+  ['стар', ['pl', 't']],
+  ['красив', ['pl', 't']],
   ['интересн', ['pl', 't', 'e']],
   ['добр', ['p', 'job']],
   ['умн', ['p', 'job']],
-  ['бел', ['t']],
+  ['весёл', ['p']],
   ['трудн', ['e']],
 ];
 const END = {
@@ -204,9 +204,11 @@ const END = {
 };
 /** Форма прилагательного: основа, род (m/f/n/pl), падеж, одушевлённость (для винительного). */
 const adjForm = (stem, g, c, an = false) => stem + (c === 3 && an && (g === 'm' || g === 'pl') ? END[g][1] : END[g][c]);
-const ADJ_SKIP = new Set(['почта', 'работа', 'улица', 'общежитие', 'стол', 'окно', 'тетрадь']);
+const ADJ_SKIP = new Set(['почта', 'работа', 'улица', 'общежитие', 'стол', 'окно', 'тетрадь', 'яблоко', 'ручка']);
+// «Интересный» - только о том, что читают, смотрят или слушают.
+const NOT_INTERESTING = new Set(['словарь', 'билет', 'машина', 'телефон', 'банк', 'рынок', 'стадион', 'комната', 'аудитория', 'вокзал']);
 const adjFor = (n, i, avoidVowel = false) => {
-  const list = ADJ.filter(([stem, cls]) => cls.includes(n.cls) && !(avoidVowel && /^[аеиоуэ]/.test(stem)));
+  const list = ADJ.filter(([stem, cls]) => cls.includes(n.cls) && !(avoidVowel && /^[аеиоуэ]/.test(stem)) && !(stem === 'интересн' && NOT_INTERESTING.has(n.nom)) && !(stem === 'красив' && n.cls === 't' && n.nom !== 'машина'));
   return list.length ? list[i % list.length][0] : null;
 };
 const adjNomRows = spread(
@@ -252,7 +254,7 @@ const sRows = [
 const JOB_RULE = L('стать / работать + instrumental case (as whom?)', 'Кем? После «стать», «работать» - творительный падеж', 'Кім болып? «Стать», «работать» етістіктерінен кейін көмектес септік (творительный) керек');
 const jobRows = jobs.flatMap((n, i) => [`Мой брат хочет стать ______ (${n.nom}).`, `Моя сестра работает ______ (${n.nom}).`].map((s, k) => caseRow(2, s, n, 4, JOB_RULE, DOT, i + k)));
 const KUDA_RULE = L('Where to? в / на + accusative case (direction)', 'Куда? Направление: «в» / «на» + винительный падеж', 'Қайда (бағыт)? «В» / «на» + табыс септік (винительный)');
-const kudaRows = byCls('pl', 'e').map((n, i) => caseRow(2, `Завтра мы пойдём ${n.pr} ______ (${n.nom}).`, n, 3, KUDA_RULE, L('. Compare: где? - в / на + prepositional.', '. Сравни: где? - «в» / «на» + предложный.', '. Салыстыр: қайда (орын)? - «в» / «на» + предложный.'), i));
+const kudaRows = byCls('pl', 'e').filter((n) => n.nom !== 'комната').map((n, i) => caseRow(2, `Завтра мы пойдём ${n.pr} ______ (${n.nom}).`, n, 3, KUDA_RULE, L('. Compare: где? - в / на + prepositional.', '. Сравни: где? - «в» / «на» + предложный.', '. Салыстыр: қайда (орын)? - «в» / «на» + предложный.'), i));
 
 // Глаголы движения: идти / ходить, ехать / ездить.
 const MOTION = {
@@ -270,7 +272,7 @@ const MOTION_FRAMES = [
 ];
 const DEST = byCls('pl').filter((n) => !['комната', 'аудитория', 'улица', 'озеро', 'общежитие'].includes(n.nom));
 const motionRows = [];
-for (let i = 0; i < 56; i++) {
+for (let i = 0; i < 40; i++) {
   const [verb, frame, rule] = MOTION_FRAMES[i % 4];
   const p = Math.floor(i / 4) % 6;
   const subj = SUBJ[p][Math.floor(i / 24) % SUBJ[p].length];
@@ -289,9 +291,10 @@ const NUM_RULE = {
   many: L('From 5 upwards (пять, шесть...) the noun is in the genitive plural', 'После «пять» и больших чисел - родительный падеж множественного числа', '«Пять» және одан үлкен сандардан кейін зат есім ілік септіктің көпше түрінде тұрады'),
   one: L('A number ending in "one" (21, 31, 101) takes the nominative singular', 'Если число оканчивается на «один» (21, 31, 101), существительное стоит в именительном падеже единственного числа', 'Сан «один» сөзімен аяқталса (21, 31, 101), зат есім атау септіктің жекеше түрінде тұрады'),
 };
-const NUM_FRAME = { p: 'В зале', pl: 'В нашем городе', t: 'На столе' };
-const numRows = [...people.filter((n) => n.nom !== 'мама' && n.nom !== 'папа'), ...byCls('pl').filter((n) => ['театр', 'музей', 'парк', 'магазин', 'банк', 'школа', 'библиотека', 'университет', 'рынок', 'стадион'].includes(n.nom)), ...byCls('t').filter((n) => n.nom !== 'стол' && n.nom !== 'окно')].flatMap((n, i) => {
-  const where = NUM_FRAME[n.cls];
+const NUM_FRAME = { p: 'В аудитории', fam: 'У него', pl: 'В нашем городе', t: 'На столе' };
+const FAMILY = new Set(['брат', 'сестра', 'сын']);
+const numRows = [...people.filter((n) => ['студент', 'студентка', 'преподаватель', 'друг', 'подруга', 'сосед', 'брат', 'сестра', 'сын'].includes(n.nom)), ...byCls('pl').filter((n) => ['театр', 'музей', 'парк', 'магазин', 'банк', 'школа', 'библиотека', 'университет', 'рынок', 'стадион'].includes(n.nom)), ...byCls('t').filter((n) => !['стол', 'окно', 'машина'].includes(n.nom))].flatMap((n, i) => {
+  const where = NUM_FRAME[FAMILY.has(n.nom) ? 'fam' : n.cls];
   const cands = [n.sg[0], n.sg[1], n.pl[1], n.pl[0], n.sg[4], n.pl[2]];
   const out = [];
   const few = NUM_FEW[n.g][i % 3];
@@ -299,7 +302,7 @@ const numRows = [...people.filter((n) => n.nom !== 'мама' && n.nom !== 'па
   out.push(row(3, s, n.sg[1], cands, why(NUM_RULE.few, s, n.sg[1], DOT)));
   s = `${where} ${NUM_MANY[i % NUM_MANY.length]} ______ (${n.nom}).`;
   out.push(row(3, s, n.pl[1], cands, why(NUM_RULE.many, s, n.pl[1], DOT)));
-  if (i % 3 === 0) {
+  if (i % 3 === 0 && !FAMILY.has(n.nom)) {
     s = `${where} ${NUM_ONE[n.g]} ______ (${n.nom}).`;
     out.push(row(3, s, n.sg[0], cands, why(NUM_RULE.one, s, n.sg[0], DOT)));
   }
@@ -327,10 +330,10 @@ function adjCaseRow(level, n, stem, c, frame) {
 const ADJ_FRAMES = {
   pl: [[5, (x, n) => `Мы были ${n.pr} ${x}.`], [1, (x) => `Здесь нет ${x}.`], [2, (x) => `Мы подошли к ${x}.`], [3, (x) => `Я вижу ${x}.`], [4, (x) => `Мы встретились рядом с ${x}.`]],
   p: [[5, (x) => `Мы говорили о ${x}.`], [2, (x) => `Мы подошли к ${x}.`], [3, (x) => `Я давно знаю ${x}.`], [4, (x) => `Я познакомился с ${x}.`], [1, (x) => `Это книга ${x}.`]],
-  t: [[5, (x) => `Мы говорили о ${x}.`], [1, (x) => `Здесь нет ${x}.`], [3, (x) => `Я вижу ${x}.`], [4, (x) => `Я доволен ${x}.`]],
+  t: [[5, (x) => `Мы говорили о ${x}.`], [1, (x) => `Здесь нет ${x}.`], [3, (x) => `Я вижу ${x}.`]],
 };
 const adjCaseRows = spread(
-  [...byCls('pl'), ...people, ...byCls('t')].filter((n) => !ADJ_SKIP.has(n.nom)).flatMap((n, i) => {
+  [...byCls('pl').filter((n) => n.nom !== 'комната' && n.nom !== 'аудитория'), ...people, ...byCls('t')].filter((n) => !ADJ_SKIP.has(n.nom)).flatMap((n, i) => {
     const frames = ADJ_FRAMES[n.cls];
     return [0, 1].map((k) => {
       const [c, f] = frames[(i + k * 2) % frames.length];
@@ -350,11 +353,11 @@ function plRow(n, c, s, k) {
   return row(4, s, ok, cands, L(`${cap(r.en)}: ${n.nom} → ${ok}. «${full(s, ok)}»`, `${cap(r.ru)}: ${n.nom} → ${ok}. «${full(s, ok)}»`, `${cap(r.kk)}: ${n.nom} → ${ok}. «${full(s, ok)}»`));
 }
 const PL_PEOPLE = [[1, (w) => `У меня много ______ (${w}).`], [2, (w) => `Я часто пишу своим ______ (${w}).`], [3, (w) => `Я давно не видел своих ______ (${w}).`], [4, (w) => `Мы гуляли с нашими ______ (${w}).`], [5, (w) => `Он часто рассказывает о своих ______ (${w}).`]];
-const PL_THINGS = [[1, (w) => `Я купил пять ______ (${w}).`], [5, (w) => `В этих ______ (${w}) много интересного.`], [4, (w) => `Он пришёл с новыми ______ (${w}).`]];
+const PL_THINGS = [[1, (w) => `Я купил пять ______ (${w}).`], [5, (w) => `В этих ______ (${w}) нет ошибок.`], [4, (w) => `Он пришёл с новыми ______ (${w}).`]];
 const plRows = spread(
   [
-    ...[...people, ...jobs].flatMap((n, i) => [0, 2].map((k) => { const [c, f] = PL_PEOPLE[(i + k) % 5]; return plRow(n, c, f(n.nom), i + k); })),
-    ...byCls('t').filter((n) => !['окно', 'машина', 'стол'].includes(n.nom)).flatMap((n, i) => [0, 1].map((k) => { const [c, f] = PL_THINGS[(i + k) % 3]; return plRow(n, c, f(n.nom), i + k); })),
+    ...[...people, ...jobs].filter((n) => !['мама', 'папа'].includes(n.nom)).flatMap((n, i) => [0, 2].map((k) => { const [c, f] = PL_PEOPLE[(i + k) % 5]; return plRow(n, c, f(n.nom), i + k); })),
+    ...byCls('t').filter((n) => ['газета', 'журнал', 'тетрадь', 'письмо', 'задание', 'книга', 'словарь'].includes(n.nom)).flatMap((n, i) => [0, 1].map((k) => { const [c, f] = PL_THINGS[(i + k) % 3]; return plRow(n, c, f(n.nom), i + k); })),
     ...byCls('e').map((n, i) => plRow(n, 2, `Студенты готовятся к ______ (${n.nom}).`, i)),
   ],
   44,
@@ -367,7 +370,7 @@ const KOT = {
 };
 const KOT_ANTE = [['Это мой друг', 'друг', 'm'], ['Это моя подруга', 'подруга', 'f'], ['Это мои соседи', 'соседи', 'pl'], ['Это наш преподаватель', 'преподаватель', 'm'], ['Это моя сестра', 'сестра', 'f'], ['Это наши студенты', 'студенты', 'pl']];
 const KOT_FRAMES = [
-  [0, ', ______ живёт в Москве.', L('who lives? - nominative', 'кто живёт? - именительный падеж', 'кім тұрады? - атау септік')],
+  [0, ', ______ {live} в Москве.', L('who lives? - nominative', 'кто живёт? - именительный падеж', 'кім тұрады? - атау септік')],
   [1, ', у ______ есть машина.', L('у кого? - genitive', 'у кого? - родительный падеж', 'кімде? - ілік септік')],
   [2, ', ______ я звонил вчера.', L('called whom? (dative) - dative', 'звонил кому? - дательный падеж', 'кімге қоңырау шалдым? - барыс септік')],
   [3, ', ______ я встретил в метро.', L('met whom? - accusative', 'встретил кого? - винительный падеж', 'кімді кездестірдім? - табыс септік')],
@@ -376,7 +379,7 @@ const KOT_FRAMES = [
 ];
 const kotRows = KOT_ANTE.flatMap(([ante, word, g], a) =>
   KOT_FRAMES.map(([c, tail, q], k) => {
-    const s = `${ante}${tail}`;
+    const s = `${ante}${tail}`.replace('{live}', g === 'pl' ? 'живут' : 'живёт');
     const ok = KOT[g][c];
     const cands = rot([...KOT[g], ...['m', 'f', 'pl'].filter((x) => x !== g).map((x) => KOT[x][c])], a + k);
     const gn = GENDER[g];
@@ -493,7 +496,7 @@ const prepRows = PREPS.flatMap(([level, prep, c, frame, words], i) =>
     const ok = forms[c];
     return row(level, s, ok, rot(forms, i + k), L(
       `"${prep}" takes the ${CASE[c].en} case: ${prep} ${ok}. «${full(s, ok)}»`,
-      `«${prep}» требует падежа: ${CASE[c].ru} - ${prep} ${ok}. «${full(s, ok)}»`,
+      `После «${prep}» нужен ${CASE[c].ru} падеж: ${prep} ${ok}. «${full(s, ok)}»`,
       `«${prep}» предлогынан кейін ${CASE[c].kk} керек: ${prep} ${ok}. «${full(s, ok)}»`,
     ));
   }),

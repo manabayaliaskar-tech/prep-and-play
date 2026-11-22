@@ -173,7 +173,7 @@ function topicsPanel(p) {
 const SUBJECTS = {
   math: ['math'],
   english: ['english', 'reading'],
-  langs: ['spanish', 'french', 'chinese'],
+  langs: ['spanish', 'french', 'chinese', 'japanese', 'korean', 'german', 'turkish', 'italian', 'rki'],
   physics: ['physics'],
   chemistry: ['chemistry'],
   biology: ['biology'],
