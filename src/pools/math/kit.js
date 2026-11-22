@@ -41,9 +41,9 @@ export function qText(ctx, id, d, prompt, ex, correct, wrong, { fig = null } = {
       ws.push(w);
     }
   }
-  if (ws.length < 3) throw new Error(`${id}: мало вариантов для ${key(correct)}`);
+  if (ws.length < 2) throw new Error(`${id}: мало вариантов для ${key(correct)}`);
   const all = [correct, ...ws];
-  const order = [0, 1, 2, 3].map((i) => [ctx.rng(), i]).sort((a, b) => a[0] - b[0]).map((x) => x[1]);
+  const order = all.map((_, i) => [ctx.rng(), i]).sort((a, b) => a[0] - b[0]).map((x) => x[1]);
   return poolQ(id, d, { prompt, ex: steps(...ex), figure: fig, mc: { choices: order.map((i) => all[i]), answer: order.indexOf(0) } });
 }
 
@@ -89,6 +89,49 @@ export function two(rng, list) {
 
 /** «3 дня», «5 минут» - русское слово после числа. */
 export const ru = (k, forms) => `${n(k)} ${plural(k, ...forms)}`;
+
+// ---------- Казахские окончания после чисел ----------
+
+const KK_UNITS = ['', 'бір', 'екі', 'үш', 'төрт', 'бес', 'алты', 'жеті', 'сегіз', 'тоғыз'];
+const KK_TENS = ['', 'он', 'жиырма', 'отыз', 'қырық', 'елу', 'алпыс', 'жетпіс', 'сексен', 'тоқсан'];
+/** Последнее слово в названии числа (по нему выбирается окончание). */
+function kkLast(x) {
+  const v = Math.abs(Math.round(x));
+  if (!Number.isInteger(x)) return KK_UNITS[Number(String(x).slice(-1))];
+  if (v === 0) return 'нөл';
+  if (v % 10) return KK_UNITS[v % 10];
+  if (v % 100) return KK_TENS[(v % 100) / 10];
+  if (v % 1000) return 'жүз';
+  if (v % 1e6) return 'мың';
+  return 'миллион';
+}
+const back = (w) => /[аоұыя]/.test(w.replace(/.*([аәоөұүыіеэиуя])[^аәоөұүыіеэиуя]*$/, '$1'));
+const lastCh = (w) => w[w.length - 1];
+/** Дательный падеж: 5-ке, 6-ға, 10-ға, 3-ке. */
+export function kkDat(x) {
+  const w = kkLast(x);
+  const hard = /[кқпстшфхцч]/.test(lastCh(w));
+  return `${n(x).replace('.', ',')}-${back(w) ? (hard ? 'қа' : 'ға') : hard ? 'ке' : 'ге'}`;
+}
+/** Исходный падеж: 5-тен, 6-дан, 10-нан. */
+export function kkAbl(x) {
+  const w = kkLast(x);
+  const c = lastCh(w);
+  const t = /[мнң]/.test(c) ? 'н' : /[кқпстшфхцчбвгд]/.test(c) ? 'т' : 'д';
+  return `${n(x).replace('.', ',')}-${t}${back(w) ? 'ан' : 'ен'}`;
+}
+
+/** Местный падеж: 5-те, 6-да, 10-да. */
+export function kkLoc(x) {
+  const w = kkLast(x);
+  const hard = /[кқпстшфхцч]/.test(lastCh(w));
+  return `${n(x).replace('.', ',')}-${hard ? 'т' : 'д'}${back(w) ? 'а' : 'е'}`;
+}
+/** Время с окончанием местного падежа: 8:30-да, 8:05-те, 8:00-де. */
+export function kkAt(h, m) {
+  const w = kkLoc(m || h);
+  return `${h}:${String(m).padStart(2, '0')}${w.slice(w.indexOf('-'))}`;
+}
 
 // ---------- Чертежи ----------
 
@@ -413,4 +456,37 @@ export function triangleSvg(A, B, { labels = true, marks = '' } = {}) {
     });
   }
   return svg(260, 170, parts.join('') + marks);
+}
+
+/** Запись столбиком: числа выровнены по правому краю, внизу - «?» или ответ. */
+export function columnSvg(top, bottom, op, result = '?') {
+  const w = 24;
+  const len = Math.max(String(top).length, String(bottom).length + 1, String(result).length);
+  const x = (i, s) => 30 + (len - String(s).length + i) * w + w / 2;
+  const row = (s, y) => [...String(s)].map((ch, i) => txt(x(i, s), y, ch, { cls: 'geo-v', size: 24 })).join('');
+  const parts = [row(top, 34), row(bottom, 68), txt(18, 54, op, { cls: 'geo-v', size: 24 }), `<line x1="24" y1="80" x2="${36 + len * w}" y2="80" stroke="currentColor" stroke-width="2"/>`, row(result, 110)];
+  return svg(48 + len * w, 122, parts.join(''));
+}
+
+/** Угол в deg градусов: вершина, две стороны, дуга (или квадратик для прямого угла). */
+export function angleSvg(deg, rot = 0) {
+  const vx = 70;
+  const vy = 120;
+  const a0 = (-rot * Math.PI) / 180;
+  const a1 = (-(rot + deg) * Math.PI) / 180;
+  const p = (a, r) => [vx + r * Math.cos(a), vy + r * Math.sin(a)];
+  const [x0, y0] = p(a0, 120);
+  const [x1, y1] = p(a1, 120);
+  let mark;
+  if (deg === 90) {
+    const [ux, uy] = p(a0, 16);
+    const [wx, wy] = p(a1, 16);
+    mark = `<polyline points="${r1(ux)},${r1(uy)} ${r1(ux + wx - vx)},${r1(uy + wy - vy)} ${r1(wx)},${r1(wy)}" fill="none" stroke="var(--primary)" stroke-width="2"/>`;
+  } else {
+    const [ax, ay] = p(a0, 26);
+    const [bx, by] = p(a1, 26);
+    mark = `<path d="M${r1(ax)},${r1(ay)} A26,26 0 0 0 ${r1(bx)},${r1(by)}" fill="none" stroke="var(--primary)" stroke-width="2"/>`;
+  }
+  const line = (x, y) => `<line x1="${vx}" y1="${vy}" x2="${r1(x)}" y2="${r1(y)}" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>`;
+  return svg(260, 150, `<g transform="translate(${r1(130 - vx - (Math.cos(a0) + Math.cos(a1)) * 30)},0)">${line(x0, y0)}${line(x1, y1)}${mark}<circle cx="${vx}" cy="${vy}" r="4" fill="currentColor"/></g>`);
 }

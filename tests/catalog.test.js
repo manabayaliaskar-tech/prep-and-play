@@ -78,7 +78,8 @@ test('каталог: тренировка и тест собираются бе
 test('уровни математики идут от простого к сложному', () => {
   const tracks = courseById('math').tracks;
   // 1 класс - счёт до 10, 11 класс - производная, после школы - пределы и интегралы.
-  assert.deepEqual(tracks[0].spec, [['m.early', [1]]]);
+  assert.deepEqual(tracks[0].spec[0], ['m.early', [1]]);
+  assert.ok(tracks[0].spec.every(([, keys]) => keys.every((k) => k <= 2)), '1 класс - только лёгкие уровни');
   assert.ok(tracks[10].spec.some(([topic]) => topic === 'm.deriv'));
   assert.ok(tracks.at(-1).spec.some(([topic]) => topic === 'm.integral'));
   // Геометрия и тригонометрия входят в школьные классы.

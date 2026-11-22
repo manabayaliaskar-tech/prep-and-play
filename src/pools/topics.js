@@ -9,6 +9,9 @@ import { combinatorics, derivative, logarithms, probability, statistics, trig } 
 import { angles, area, pythagoras, volume } from './math/geometry.js';
 import { mixtures, motion, work } from './math/word.js';
 import { early } from './math/early.js';
+import { add10, add20, clock1, compare, count100, length1, money1, num10, num20, orient, pattern1, shapes1, word1 } from './math/grade1.js';
+import { add2d, change2, col, eq1, laws, mulMean, order2, perim, place100, rightAngle, tab23, time2, units2, word2 } from './math/grade2.js';
+import { area3, circle3, col3, colMul, eq3, mass, mulBig, num1000, parts, price, remDiv, time3 } from './math/grade3.js';
 import { complexNumbers, integrals, limits, matrices, vectors } from './math/higher.js';
 import { englishMaker } from './english/index.js';
 import { ukusMaker, variantize } from './english/variant.js';
@@ -84,6 +87,48 @@ export const TOPICS = {
   'm.complex': topic('math', L('Complex numbers', 'Комплексные числа', 'Комплекс сандар'), complexNumbers),
   'm.vector': topic('math', L('Vectors', 'Векторы', 'Векторлар'), vectors),
   'm.matrix': topic('math', L('Matrices', 'Матрицы', 'Матрицалар'), matrices),
+  // 1 класс
+  'm.num10': topic('math', L('Numbers 1 to 10', 'Числа от 1 до 10', '1-ден 10-ға дейінгі сандар'), num10),
+  'm.cmp': topic('math', L('Comparing numbers', 'Сравнение чисел', 'Сандарды салыстыру'), compare),
+  'm.add10': topic('math', L('Adding and subtracting within 10', 'Сложение и вычитание в пределах 10', '10 көлеміндегі қосу және азайту'), add10),
+  'm.num20': topic('math', L('Numbers 11 to 20: tens and ones', 'Числа от 11 до 20: десяток и единицы', '11-ден 20-ға дейінгі сандар: ондық және бірлік'), num20),
+  'm.add20': topic('math', L('Adding and subtracting within 20', 'Сложение и вычитание в пределах 20', '20 көлеміндегі қосу және азайту'), add20),
+  'm.word1': topic('math', L('One-step word problems', 'Задачи в одно действие', 'Бір амалды есептер'), word1),
+  'm.len': topic('math', L('Length: centimetre and ruler', 'Длина: сантиметр, линейка', 'Ұзындық: сантиметр, сызғыш'), length1),
+  'm.shapes': topic('math', L('Shapes and lines', 'Геометрические фигуры', 'Геометриялық фигуралар'), shapes1),
+  'm.orient': topic('math', L('Left, right, above, below', 'Ориентация: левее, правее, выше, ниже', 'Бағдарлау: сол, оң, жоғары, төмен'), orient),
+  'm.pattern': topic('math', L('Patterns and sequences', 'Закономерности и последовательности', 'Заңдылықтар мен тізбектер'), pattern1),
+  'm.money1': topic('math', L('Money: coins and notes', 'Деньги: монеты и купюры', 'Ақша: монеталар мен банкноттар'), money1),
+  'm.clock1': topic('math', L('Time: clock and days of the week', 'Время: часы, дни недели', 'Уақыт: сағат, апта күндері'), clock1),
+  'm.count100': topic('math', L('Counting to 100', 'Счёт до 100', '100-ге дейін санау'), count100),
+  // 2 класс
+  'm.place100': topic('math', L('Numbers to 100: place value', 'Числа до 100, разряды', '100-ге дейінгі сандар, разрядтар'), place100),
+  'm.add2d': topic('math', L('Mental addition and subtraction of two-digit numbers', 'Сложение и вычитание двузначных чисел устно', 'Екі таңбалы сандарды ауызша қосу және азайту'), add2d),
+  'm.col': topic('math', L('Column addition and subtraction', 'Сложение и вычитание столбиком', 'Бағанмен қосу және азайту'), col),
+  'm.mulmean': topic('math', L('What multiplication and division mean', 'Смысл умножения и деления', 'Көбейту мен бөлудің мағынасы'), mulMean),
+  'm.tab23': topic('math', L('Times tables for 2 and 3', 'Таблица умножения на 2 и 3', '2 мен 3-ке көбейту кестесі'), tab23),
+  'm.laws': topic('math', L('Commutative and associative laws', 'Переместительный и сочетательный законы', 'Ауыстырымдылық және терімділік заңдары'), laws),
+  'm.ord2': topic('math', L('Brackets and order of operations', 'Скобки и порядок действий', 'Жақшалар және амалдар реті'), order2),
+  'm.eq1': topic('math', L('Simple equations', 'Простые уравнения', 'Қарапайым теңдеулер'), eq1),
+  'm.units': topic('math', L('Units of length: mm, cm, dm, m', 'Единицы длины: мм, см, дм, м', 'Ұзындық бірліктері: мм, см, дм, м'), units2),
+  'm.time2': topic('math', L('Time: hours, minutes, calendar', 'Время: час, минута, календарь', 'Уақыт: сағат, минут, күнтізбе'), time2),
+  'm.perim': topic('math', L('Perimeter of a polygon', 'Периметр многоугольника', 'Көпбұрыштың периметрі'), perim),
+  'm.rect': topic('math', L('Right angle, rectangle and square', 'Прямой угол, прямоугольник и квадрат', 'Тік бұрыш, тіктөртбұрыш және шаршы'), rightAngle),
+  'm.word2': topic('math', L('Two-step word problems', 'Задачи в два действия', 'Екі амалды есептер'), word2),
+  'm.change': topic('math', L('Money: cost and change', 'Деньги: стоимость покупки и сдача', 'Ақша: сатып алу құны және қайтарым'), change2),
+  // 3 класс
+  'm.remdiv': topic('math', L('Division with a remainder', 'Деление с остатком', 'Қалдықпен бөлу'), remDiv),
+  'm.mulbig': topic('math', L('Multiplication and division beyond the table', 'Внетабличное умножение и деление', 'Кестеден тыс көбейту және бөлу'), mulBig),
+  'm.num1000': topic('math', L('Numbers to 1000', 'Числа до 1000', '1000-ға дейінгі сандар'), num1000),
+  'm.col3': topic('math', L('Written addition and subtraction of three-digit numbers', 'Письменное сложение и вычитание трёхзначных чисел', 'Үш таңбалы сандарды жазбаша қосу және азайту'), col3),
+  'm.colmul': topic('math', L('Column multiplication and division by a one-digit number', 'Умножение и деление на однозначное число столбиком', 'Бір таңбалы санға бағанмен көбейту және бөлу'), colMul),
+  'm.parts': topic('math', L('Parts: half, third, quarter', 'Доли: половина, треть, четверть', 'Үлестер: жарты, үштен бір, төрттен бір'), parts),
+  'm.area3': topic('math', L('Area: cm², dm², m²', 'Площадь: см², дм², м²', 'Аудан: см², дм², м²'), area3),
+  'm.mass': topic('math', L('Mass: grams and kilograms', 'Масса: грамм, килограмм', 'Масса: грамм, килограмм'), mass),
+  'm.time3': topic('math', L('Time: year, month, day', 'Время: год, месяц, сутки', 'Уақыт: жыл, ай, тәулік'), time3),
+  'm.eq3': topic('math', L('Equations with multiplication and division', 'Уравнения с умножением и делением', 'Көбейту және бөлу амалдары бар теңдеулер'), eq3),
+  'm.price': topic('math', L('Price, quantity and cost', 'Задачи на цену, количество и стоимость', 'Баға, саны және құн есептері'), price),
+  'm.circle3': topic('math', L('Circle: radius and diameter', 'Окружность и круг, радиус, диаметр', 'Шеңбер мен дөңгелек, радиус, диаметр'), circle3),
 
   // ----- Английский язык -----
   'e.basics': topic('english', L('Basics: to be, pronouns, nouns', 'Основы: to be, местоимения, существительные', 'Негіздер: to be, есімдіктер, зат есімдер'), enV(englishMaker('e.basics'))),
