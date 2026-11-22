@@ -1,0 +1,47 @@
+{
+  "afterAll": "profile.saved",
+  "set": {
+    "ru": {
+      "profile.radar": "Карта навыков SAT",
+      "profile.skills": "Навыки SAT",
+      "profile.records": "Рекорды SAT",
+      "profile.exams": "Пробные экзамены SAT",
+      "profile.sections": "Прогресс по разделам",
+      "profile.sectionsEmpty": "Пройди первую тренировку, и здесь появятся твои звёзды.",
+      "profile.startPractice": "Начать практику",
+      "profile.started": "начато: {done} из {total}",
+      "profile.topics": "Точность по темам",
+      "profile.topicsHint": "Сначала идут темы, которые даются труднее.",
+      "profile.topicsEmpty": "Реши несколько заданий по математике или английскому, и здесь появится точность по каждой теме.",
+      "profile.showAll": "Показать все"
+    },
+    "en": {
+      "profile.radar": "SAT skill map",
+      "profile.skills": "SAT skills",
+      "profile.records": "SAT records",
+      "profile.exams": "SAT practice tests",
+      "profile.sections": "Progress by section",
+      "profile.sectionsEmpty": "Finish your first practice and your stars will appear here.",
+      "profile.startPractice": "Start practising",
+      "profile.started": "started: {done} of {total}",
+      "profile.topics": "Accuracy by topic",
+      "profile.topicsHint": "The topics you find harder come first.",
+      "profile.topicsEmpty": "Solve a few questions in math or English, and the accuracy for each topic will appear here.",
+      "profile.showAll": "Show all"
+    },
+    "kk": {
+      "profile.radar": "SAT дағдылар картасы",
+      "profile.skills": "SAT дағдылары",
+      "profile.records": "SAT рекордтары",
+      "profile.exams": "SAT сынақ емтихандары",
+      "profile.sections": "Бөлімдер бойынша прогресс",
+      "profile.sectionsEmpty": "Алғашқы жаттығуды аяқта, сонда жұлдыздарың осында пайда болады.",
+      "profile.startPractice": "Жаттығуды бастау",
+      "profile.started": "басталды: {done} / {total}",
+      "profile.topics": "Тақырыптар бойынша дәлдік",
+      "profile.topicsHint": "Алдымен қиынырақ берілетін тақырыптар көрсетіледі.",
+      "profile.topicsEmpty": "Математика немесе ағылшын тілінен бірнеше тапсырма шеш, сонда әр тақырып бойынша дәлдік осында көрінеді.",
+      "profile.showAll": "Барлығын көрсету"
+    }
+  }
+}

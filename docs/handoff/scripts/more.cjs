@@ -1,0 +1,21 @@
+const { chromium } = require('playwright');
+(async () => {
+  const b = await chromium.launch();
+  const p = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+  const errs = [];
+  p.on('pageerror', (e) => errs.push(String(e).slice(0, 200)));
+  await p.addInitScript(() => { localStorage.setItem('prepplay:lang', JSON.stringify('ru')); localStorage.setItem('prepplay:tourDone', 'true'); });
+  await p.goto('http://localhost:3101/');
+  await p.waitForTimeout(1000);
+  await p.click('.more-btn');
+  await p.waitForTimeout(300);
+  await p.screenshot({ path: `${__dirname}/more.png`, clip: { x: 0, y: 0, width: 390, height: 260 } });
+  await p.click('.more-sound');
+  await p.waitForTimeout(300);
+  const snd = await p.evaluate(() => JSON.parse(localStorage.getItem('prepplay:profile') || '{}').sound);
+  await p.click('.more-btn');
+  await p.click('.more-pop a[href="#/premium"]');
+  await p.waitForTimeout(500);
+  console.log('sound', snd, 'url', p.url(), 'scroll', await p.evaluate(() => document.documentElement.scrollWidth), errs);
+  await b.close();
+})();

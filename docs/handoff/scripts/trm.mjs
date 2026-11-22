@@ -1,0 +1,5 @@
+import { verb, part, noun } from '/home/user/School/src/pools/languages/tr-morph.js';
+const V = [{ s: 'gel', aor: 'gelir' }, { s: 'git', soft: 'gid', aor: 'gider' }, { s: 'oku', aor: 'okur' }, { s: 'yap', aor: 'yapar' }, { s: 'ye', yi: true, aor: 'yer' }, { s: 'gör', aor: 'görür' }, { s: 'söyle', aor: 'söyler' }];
+for (const v of V) for (const t of Object.keys(verb).filter((k) => typeof verb[k] === 'function')) console.log(v.s, t, [0, 1, 2, 3, 4, 5].map((p) => verb[t](v, p)).join(' '));
+for (const v of V) console.log(v.s, part.en(v), [0,1,2,3,4].map(p=>part.dik(v,p)).join(' '), [0,1,2,3,4].map(p=>part.ecek(v,p)).join(' '), part.meden(v), part.dikten(v), part.ince(v), part.erken(v), part.erek(v), [0,1,2].map(p=>part.mesine(v,p)).join(' '), part.passive(v), part.caus(v));
+for (const n of [{ w: 'kitap', v: 'kitab' }, { w: 'araba' }, { w: 'ev' }, { w: 'Ankara', proper: true }, { w: 'Paris', proper: true }, { w: 'İstanbul', proper: true }, { w: 'köpek', v: 'köpeğ' }]) console.log(n.w, ['loc', 'abl', 'dat', 'acc', 'gen', 'pl'].map((c) => noun[c](n)).join(' '), [0, 1, 2, 3, 4].map((p) => noun.poss(n, p)).join(' '));

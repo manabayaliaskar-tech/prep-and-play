@@ -1,0 +1,33 @@
+const { chromium } = require('playwright');
+const S = __dirname + '/';
+(async () => {
+  const b = await chromium.launch();
+  const p = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+  const errs = [];
+  p.on('pageerror', (e) => errs.push(String(e.stack || e).slice(0, 300)));
+  await p.goto('http://localhost:3000/');
+  await p.evaluate(() => {
+    const prof = JSON.parse(localStorage.getItem('prepplay:profile') || '{}');
+    localStorage.setItem('prepplay:profile', JSON.stringify({ ...prof, coins: 1250 }));
+    localStorage.setItem('prepplay:lang', JSON.stringify('ru'));
+  });
+  await p.reload();
+  await p.waitForTimeout(800);
+  await p.screenshot({ path: S + 'k-hub.png', clip: { x: 0, y: 0, width: 390, height: 600 } });
+  await p.goto('http://localhost:3000/#/shop');
+  await p.waitForTimeout(900);
+  await p.screenshot({ path: S + 'k-shop.png' });
+  await p.goto('http://localhost:3000/#/season');
+  await p.waitForTimeout(900);
+  await p.screenshot({ path: S + 'k-season.png' });
+  const counts = await p.evaluate(() => ({ coins: document.querySelectorAll('.coin').length, emoji: (document.body.innerText.match(/🪙/g) || []).length }));
+  console.log('season page', counts);
+  await p.evaluate(() => localStorage.setItem('prepplay:theme', JSON.stringify('midnight')));
+  await p.goto('http://localhost:3000/#/shop');
+  await p.reload();
+  await p.waitForTimeout(900);
+  await p.screenshot({ path: S + 'k-shop-dark.png' });
+  const counts2 = await p.evaluate(() => ({ coins: document.querySelectorAll('.coin').length, emoji: (document.body.innerText.match(/🪙/g) || []).length }));
+  console.log('shop page', counts2, 'errors', errs);
+  await b.close();
+})();

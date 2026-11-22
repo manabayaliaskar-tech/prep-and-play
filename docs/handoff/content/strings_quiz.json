@@ -1,0 +1,56 @@
+{
+  "afterAll": "nav.code",
+  "set": {
+    "ru": {
+      "quiz.title": "Квиз «Всё обо всём»",
+      "quiz.desc": "{n} вопросов из разных предметов подряд: математика, география, физика, история, английский и другие. Выбери сложность от 1 до 10.",
+      "quiz.pick": "Сложность квиза",
+      "quiz.level": "Сложность {n}",
+      "quiz.easy": "лёгкий",
+      "quiz.medium": "средний",
+      "quiz.hard": "сложный",
+      "quiz.start": "Начать квиз",
+      "quiz.done": "Квиз завершён",
+      "quiz.perfect": "Идеально — 10 из 10!",
+      "quiz.result": "Верно {c} из {n} на сложности {level}",
+      "quiz.bestHere": "Рекорд на этой сложности",
+      "quiz.harder": "Сложнее",
+      "quiz.again": "Ещё раз",
+      "hub.quizCta": "10 вопросов из разных предметов — сложность от 1 до 10"
+    },
+    "en": {
+      "quiz.title": "Know-It-All Quiz",
+      "quiz.desc": "{n} questions from different subjects in a row: math, geography, physics, history, English and more. Choose a difficulty from 1 to 10.",
+      "quiz.pick": "Quiz difficulty",
+      "quiz.level": "Difficulty {n}",
+      "quiz.easy": "easy",
+      "quiz.medium": "medium",
+      "quiz.hard": "hard",
+      "quiz.start": "Start the quiz",
+      "quiz.done": "Quiz finished",
+      "quiz.perfect": "Perfect — 10 out of 10!",
+      "quiz.result": "{c} of {n} correct at difficulty {level}",
+      "quiz.bestHere": "Best at this difficulty",
+      "quiz.harder": "Harder",
+      "quiz.again": "Again",
+      "hub.quizCta": "10 questions from different subjects — difficulty 1 to 10"
+    },
+    "kk": {
+      "quiz.title": "«Бәрі туралы» квизі",
+      "quiz.desc": "Әртүрлі пәндерден қатарынан {n} сұрақ: математика, география, физика, тарих, ағылшын тілі және басқалар. Күрделілікті 1-ден 10-ға дейін таңда.",
+      "quiz.pick": "Квиз күрделілігі",
+      "quiz.level": "Күрделілік {n}",
+      "quiz.easy": "жеңіл",
+      "quiz.medium": "орташа",
+      "quiz.hard": "қиын",
+      "quiz.start": "Квизді бастау",
+      "quiz.done": "Квиз аяқталды",
+      "quiz.perfect": "Мінсіз — 10-нан 10!",
+      "quiz.result": "{level} күрделілікте {n} сұрақтың {c}-і дұрыс",
+      "quiz.bestHere": "Осы күрделіліктегі рекорд",
+      "quiz.harder": "Қиынырақ",
+      "quiz.again": "Тағы бір рет",
+      "hub.quizCta": "Әртүрлі пәндерден 10 сұрақ — күрделілігі 1-ден 10-ға дейін"
+    }
+  }
+}

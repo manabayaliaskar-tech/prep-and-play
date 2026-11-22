@@ -1,0 +1,80 @@
+m.early | Счёт в пределах 100 | Counting within 100
+m.add | Сложение и вычитание | Addition and subtraction
+m.mul | Умножение и деление | Multiplication and division
+m.order | Порядок действий | Order of operations
+m.neg | Отрицательные числа | Negative numbers
+m.divis | Делимость, НОД и НОК | Divisibility, GCD and LCM
+m.seq | Числовые закономерности | Number patterns
+m.frac | Обыкновенные дроби | Fractions
+m.dec | Десятичные дроби | Decimals
+m.pct | Проценты | Percentages
+m.ratio | Отношения и пропорции | Ratios and proportions
+m.lineq | Линейные уравнения | Linear equations
+m.expr | Выражения и формулы | Expressions and formulas
+m.pow | Степени и корни | Powers and roots
+m.quad | Квадратные уравнения | Quadratic equations
+m.sys | Системы уравнений | Systems of equations
+m.ineq | Неравенства | Inequalities
+m.func | Функции | Functions
+m.prog | Прогрессии | Progressions
+m.log | Логарифмы | Logarithms
+m.trig | Тригонометрия | Trigonometry
+m.comb | Комбинаторика | Combinatorics
+m.prob | Вероятность | Probability
+m.deriv | Производная | Derivative
+m.stat | Среднее и медиана | Mean and median
+m.area | Периметр и площадь | Perimeter and area
+m.pyth | Теорема Пифагора | Pythagorean theorem
+m.angle | Углы | Angles
+m.vol | Объём и площадь поверхности | Volume and surface area
+m.motion | Задачи на движение | Motion problems
+m.work | Задачи на работу | Work problems
+m.mix | Покупки, растворы и смеси | Prices, solutions and mixtures
+m.limit | Пределы | Limits
+m.integral | Интегралы | Integrals
+m.complex | Комплексные числа | Complex numbers
+m.vector | Векторы | Vectors
+m.matrix | Матрицы | Matrices
+p.kin | Кинематика | Kinematics
+p.dyn | Силы, давление, плотность | Forces, pressure, density
+p.energy | Работа, энергия, мощность | Work, energy, power
+p.elec | Электричество | Electricity
+p.heat | Тепловые явления | Heat
+p.wave | Колебания, волны, оптика | Oscillations, waves, optics
+p.theory | Законы и единицы | Laws and units
+p.facts | Единицы, формулы, учёные | Units, formulas, scientists
+c.molar | Молярная масса и массовая доля | Molar mass and mass fraction
+c.mole | Количество вещества и расчёты по уравнениям | Amount of substance and reactions
+c.theory | Вещества и реакции | Substances and reactions
+c.elem | Таблица Менделеева | The periodic table
+c.salts | Формулы и названия веществ | Formulas and names of compounds
+i.num | Системы счисления | Number systems
+i.units | Измерение информации | Measuring information
+i.logic | Логика | Logic
+i.algo | Алгоритмы | Algorithms
+i.theory | Компьютер и сети | Computers and networks
+i.facts | Устройства, файлы, термины | Devices, files, terms
+b.bank | Биология | Biology
+b.animals | Классы животных | Classes of animals
+b.body | Организм человека | The human body
+b.gen | Задачи по генетике | Genetics problems
+b.plants | Растения | Plants
+b.eco | Экология | Ecology
+b.sci | Великие биологи | Great biologists
+b.cell | Клетка и великие биологи | The cell and great biologists
+g.bank | География | Geography
+g.world | Страны и столицы | Countries and capitals
+g.records | Горы, реки, озёра, страны | Mountains, rivers, lakes, countries
+g.kz | География Казахстана | Geography of Kazakhstan
+o.count | Подсчёт и формула включений-исключений | Counting and inclusion-exclusion
+o.digit | Последняя цифра | Last digit
+o.div | Делители | Divisors
+o.pigeon | Принцип Дирихле | Pigeonhole principle
+o.sum | Хитрые суммы | Clever sums
+o.games | Турниры и рукопожатия | Tournaments and handshakes
+o.logic | Логика и рассуждения | Logic and reasoning
+o.geom | Подсчёт в геометрии | Counting in geometry
+o.rem | Остатки | Remainders
+o.fact | Цифры и факториалы | Digits and factorials
+o.paths | Маршруты и правило умножения | Routes and the multiplication rule
+o.eq | Уравнения в целых числах | Equations in integers

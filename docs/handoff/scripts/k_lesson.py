@@ -1,0 +1,16 @@
+K = {
+ 'lesson.title': ['Сначала разберёмся', "Let's learn first", 'Алдымен түсініп алайық'],
+ 'lesson.of': ['{i} из {n}', '{i} of {n}', '{n} ішінен {i}'],
+ 'lesson.skip': ['Я уже знаю - к заданиям', 'I know this - to practice', 'Мен білемін - тапсырмаларға'],
+ 'lesson.example': ['Пример', 'Example', 'Мысал'],
+ 'lesson.check': ['Проверь себя', 'Check yourself', 'Өзіңді тексер'],
+ 'lesson.right': ['Верно!', 'Correct!', 'Дұрыс!'],
+ 'lesson.wrong': ['Не совсем.', 'Not quite.', 'Толық емес.'],
+ 'lesson.anim': ['Посмотреть анимацию', 'Watch the animation', 'Анимацияны көру'],
+ 'lesson.next': ['Дальше', 'Next', 'Әрі қарай'],
+ 'lesson.prev': ['Назад', 'Back', 'Артқа'],
+ 'lesson.start': ['К заданиям', 'Start practice', 'Тапсырмаларға'],
+ 'lesson.theory': ['Теория', 'Theory', 'Теория'],
+ 'lesson.repeat': ['Повторить правило', 'Review the rule', 'Ережені қайталау'],
+ 'lesson.done': ['Понятно', 'Got it', 'Түсінікті'],
+}

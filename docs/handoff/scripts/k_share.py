@@ -1,0 +1,16 @@
+K = {
+    'share.btn': ['Поделиться', 'Share', 'Бөлісу'],
+    'share.title': ['Поделиться результатом', 'Share your result', 'Нәтижемен бөлісу'],
+    'share.headline': ['Мой результат в Prep&Play', 'My result in Prep&Play', 'Менің Prep&Play-дегі нәтижем'],
+    'share.text': ['Мой результат в Prep&Play: {r}', 'My result in Prep&Play: {r}', 'Менің Prep&Play-дегі нәтижем: {r}'],
+    'share.download': ['Скачать картинку', 'Download image', 'Суретті жүктеу'],
+    'share.copy': ['Скопировать ссылку', 'Copy link', 'Сілтемені көшіру'],
+    'share.copied': ['Ссылка скопирована', 'Link copied', 'Сілтеме көшірілді'],
+    'share.fail': ['Не получилось - попробуй ещё раз', 'Something went wrong - try again', 'Болмады - тағы байқап көр'],
+    'share.mock': ['Пробный экзамен', 'Mock exam', 'Сынақ емтиханы'],
+    'share.record': ['Новый рекорд', 'New record', 'Жаңа рекорд'],
+    'share.correct': ['верных ответов', 'correct answers', 'дұрыс жауап'],
+    'share.points': ['очков', 'points', 'ұпай'],
+    'share.stars': ['Все 3 звезды', 'All 3 stars', 'Барлық 3 жұлдыз'],
+    'share.levelNote': ['уровень игрока', 'player level', 'ойыншы деңгейі'],
+}

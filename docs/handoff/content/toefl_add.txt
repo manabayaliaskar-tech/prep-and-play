@@ -1,0 +1,86 @@
+    {
+      id: 'coral',
+      title: 'Partners in the Reef',
+      text:
+        'Coral reefs cover less than one percent of the ocean floor, yet they shelter about a quarter of all known marine species. A reef is built by tiny animals called polyps, which take calcium from seawater and form hard skeletons. Inside the tissues of most reef-building corals live microscopic algae. The algae use sunlight to produce food, much of which they share with the coral, while the coral gives them shelter and nutrients. This partnership explains why reefs grow mainly in shallow, clear water. When the water becomes too warm, the stressed coral expels its algae and turns white, a process known as bleaching. If temperatures return to normal quickly, the coral can recover; if not, it may starve.',
+      qs: [
+        mc('According to the passage, why do most reefs grow in shallow, clear water?', [
+          'The algae inside the coral need sunlight',
+          'Polyps cannot survive at high pressure',
+          'Fish are easier to find near the shore',
+          'Calcium is found only near the surface',
+        ], L(
+          'The algae "use sunlight to produce food" — this partnership "explains why reefs grow mainly in shallow, clear water".',
+          'Водоросли «используют солнечный свет для производства пищи» — поэтому рифы растут в мелкой прозрачной воде.',
+          'Балдырлар «қорек өндіру үшін күн сәулесін пайдаланады» — сондықтан рифтер таяз, мөлдір суда өседі.',
+        )),
+        mc('The word "expels" is closest in meaning to', ['pushes out', 'feeds', 'protects', 'divides'], L(
+          '"Expels" means forces out: the coral gets rid of its algae.',
+          'Expels — «выталкивает, изгоняет»: коралл избавляется от водорослей.',
+          'Expels — «сыртқа итеріп шығарады»: маржан балдырлардан арылады.',
+        )),
+        mc('What can be inferred about bleached coral?', [
+          'It is not necessarily dead',
+          'It can no longer build a skeleton',
+          'It is more colourful than healthy coral',
+          'It always dies within a day',
+        ], L(
+          'The passage says the coral "can recover" if temperatures return to normal quickly, so bleached coral is not necessarily dead.',
+          'В тексте сказано, что коралл «может восстановиться», если температура быстро нормализуется, — значит, он не обязательно погиб.',
+          'Мәтінде температура тез қалпына келсе, маржан «қалпына келе алады» делінген — демек, ол міндетті түрде өлмеген.',
+        )),
+        mc('What does the coral provide to the algae?', [
+          'Shelter and nutrients',
+          'Sunlight and calcium',
+          'Food produced by photosynthesis',
+          'Protection from bleaching',
+        ], L(
+          '"The coral gives them shelter and nutrients."',
+          '«Коралл даёт им укрытие и питательные вещества».',
+          '«Маржан оларға баспана мен қоректік заттар береді».',
+        )),
+      ],
+    },
+    {
+      id: 'press',
+      title: 'The Printing Revolution',
+      text:
+        'Before the middle of the fifteenth century, books in Europe were copied by hand, a process so slow that a single Bible could take a scribe more than a year. Around 1450, Johannes Gutenberg combined several existing technologies — movable metal type, oil-based ink and a press adapted from those used for making wine — into a practical printing system. Within fifty years, printing shops had spread to more than two hundred European cities, and millions of books were in circulation. Because printed copies were identical, scholars in different countries could refer to exactly the same text. Printing also made pamphlets cheap enough for ordinary people, and new ideas could now spread faster than authorities were able to control them.',
+      qs: [
+        mc('According to the passage, Gutenberg\'s main achievement was', [
+          'combining existing technologies into a working system',
+          'inventing ink and paper',
+          'being the first person to copy the Bible',
+          'building the first wine press',
+        ], L(
+          'He "combined several existing technologies … into a practical printing system".',
+          'Он «объединил несколько уже существовавших технологий в практичную систему печати».',
+          'Ол «бұрыннан бар бірнеше технологияны практикалық баспа жүйесіне біріктірді».',
+        )),
+        mc('Why was it important that printed copies were identical?', [
+          'Scholars in different places could use exactly the same text',
+          'Books became heavier and more durable',
+          'Scribes could work faster',
+          'Authorities could check every book',
+        ], L(
+          '"Because printed copies were identical, scholars in different countries could refer to exactly the same text."',
+          '«Поскольку копии были одинаковыми, учёные разных стран могли ссылаться на один и тот же текст».',
+          '«Көшірмелер бірдей болғандықтан, әр елдің ғалымдары дәл бір мәтінге сілтеме жасай алды».',
+        )),
+        mc('The word "circulation" is closest in meaning to', ['use among people', 'storage', 'translation', 'production'], L(
+          '"In circulation" means passing from person to person, being used.',
+          'In circulation — «в обращении», то есть переходят из рук в руки.',
+          'In circulation — «айналымда», яғни қолдан қолға өтеді.',
+        )),
+        mc('What can be inferred about authorities after the invention of printing?', [
+          'They found it harder to control the spread of ideas',
+          'They printed all the pamphlets themselves',
+          'They banned printing in two hundred cities',
+          'They lost interest in books',
+        ], L(
+          'New ideas "could now spread faster than authorities were able to control them".',
+          'Новые идеи «распространялись быстрее, чем власти успевали их контролировать».',
+          'Жаңа идеялар «билік бақылап үлгергеннен тезірек тарады».',
+        )),
+      ],
+    },

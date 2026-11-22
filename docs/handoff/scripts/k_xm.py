@@ -1,0 +1,16 @@
+K = {
+ 'xm.title': ['Готовься к {name} играя', 'Prepare for {name} by playing', '{name} емтиханына ойнап дайындал'],
+ 'xm.continue': ['Продолжить', 'Continue', 'Жалғастыру'],
+ 'xm.islandDone': ['Остров пройден', 'Island cleared', 'Арал өтілді'],
+ 'xm.boss': ['Босс', 'Boss', 'Босс'],
+ 'xm.path': ['Путь к {goal}', 'Road to {goal}', '{goal} жолы'],
+ 'xm.pathDesc': ['Островов: {n} - по одному на предмет, 4 уровня и босс', 'Islands: {n} - one per subject, 4 levels and a boss', 'Аралдар: {n} - әр пәнге бір, 4 деңгей және босс'],
+ 'xm.pathHint': ['Каждый остров - предмет экзамена. Уровни идут от лёгких к сложным, после 4-го ждёт босс.', 'Each island is an exam subject. Levels go from easy to hard, a boss waits after level 4.', 'Әр арал - емтихан пәні. Деңгейлер жеңілден қиынға қарай, 4-деңгейден кейін босс күтеді.'],
+ 'xm.mockDesc': ['Формат {name}: разделы, таймер, балл по шкале', '{name} format: sections, timer, real score scale', '{name} форматы: бөлімдер, таймер, шкала бойынша балл'],
+ 'xm.detDesc': ['Найди ошибку в английском предложении', 'Find the mistake in an English sentence', 'Ағылшын сөйлеміндегі қатені тап'],
+ 'xm.theoryDesc': ['Короткие уроки по всем предметам экзамена', 'Short lessons for every exam subject', 'Емтиханның барлық пәндері бойынша қысқа сабақтар'],
+ 'xm.scoreTitle': ['Твой прогноз {name}', 'Your {name} forecast', 'Сенің {name} болжамың'],
+ 'xm.tools': ['Инструменты подготовки', 'Study tools', 'Дайындық құралдары'],
+ 'xm.toPath': ['К пути', 'Back to the road', 'Жолға'],
+ 'xm.lessons': ['Уроков: {n}', 'Lessons: {n}', 'Сабақтар: {n}'],
+}

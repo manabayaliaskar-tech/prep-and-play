@@ -1,0 +1,77 @@
+e.basics | Основы: to be, местоимения, существительные | Basics: to be, pronouns, nouns
+e.tenses | Времена | Tenses
+e.det | Артикли, количество, сравнение | Articles, quantity, comparison
+e.prep | Предлоги | Prepositions
+e.modal | Модальные глаголы | Modal verbs
+e.struct | Условные, пассив, формы глагола | Conditionals, passive, verb patterns
+e.adv | Продвинутые конструкции | Advanced structures
+e.vocab | Лексика | Vocabulary
+e.phrasal | Фразовые глаголы и идиомы | Phrasal verbs and idioms
+e.wordform | Словообразование | Word formation
+e.words | Слова | Words
+e.gram | Времена в предложениях | Tenses in sentences
+e.irreg | Неправильные глаголы | Irregular verbs
+e.comp | Степени сравнения | Comparison of adjectives
+h.kz | История Казахстана | History of Kazakhstan
+h.world | Всемирная история | World history
+h.ru | История России | History of Russia
+h.uz | История Узбекистана | History of Uzbekistan
+h.kg | История Кыргызстана | History of Kyrgyzstan
+h.tj | История Таджикистана | History of Tajikistan
+h.az | История Азербайджана | History of Azerbaijan
+h.am | История Армении | History of Armenia
+h.by | История Беларуси | History of Belarus
+h.md | История Молдовы | History of Moldova
+s.bank | Обществознание | Social studies
+s.powers | Ветви власти и сферы общества | Branches of power and spheres of society
+s.terms | Термины обществознания | Terms of social studies
+h.kzt | Казахстан: даты и личности | Kazakhstan: dates and people
+h.wt | Всемирная история: даты и личности | World history: dates and people
+h.rut | Россия: даты | Russia: dates
+h.uzt | Узбекистан: даты и личности | Uzbekistan: dates and people
+h.kgt | Кыргызстан: даты и личности | Kyrgyzstan: dates and people
+h.tjt | Таджикистан: даты и личности | Tajikistan: dates and people
+h.azt | Азербайджан: даты и личности | Azerbaijan: dates and people
+h.amt | Армения: даты и личности | Armenia: dates and people
+h.byt | Беларусь: даты и личности | Belarus: dates and people
+h.mdt | Молдова: даты и личности | Moldova: dates and people
+l.ru | Русский язык | Russian language
+l.rugen | Ударения и словарные слова | Stress and spelling
+l.analogy | Аналогии | Analogies
+l.analogy2 | Аналогии слов | Word analogies
+l.complete | Дополнение предложений | Sentence completion
+r.literacy | Грамотность чтения | Reading literacy
+r.ielts | IELTS: чтение | IELTS Reading
+r.toefl | TOEFL: чтение | TOEFL Reading
+li.ielts | IELTS: аудирование | IELTS Listening
+li.toefl | TOEFL: аудирование | TOEFL Listening
+es.bank | Испанский: грамматика и лексика | Spanish grammar and vocabulary
+fr.bank | Французский: грамматика и лексика | French grammar and vocabulary
+zh.bank | Китайский: слова и грамматика | Chinese words and grammar
+es.words | Испанский: слова | Spanish words
+es.verbs | Испанский: спряжение глаголов | Spanish verb conjugation
+fr.words | Французский: слова | French words
+fr.verbs | Французский: спряжение глаголов | French verb conjugation
+zh.words | Китайский: иероглифы и пиньинь | Chinese characters and pinyin
+code.theory | Основы программирования | Programming basics
+code.terms | Понятия программирования | Programming terms
+py.vars | Python: переменные и арифметика | Python: variables and arithmetic
+py.cond | Python: условия | Python: conditions
+py.loop | Python: циклы | Python: loops
+py.arr | Python: списки и массивы | Python: lists and arrays
+py.func | Python: функции | Python: functions
+cpp.vars | C++: переменные и арифметика | C++: variables and arithmetic
+cpp.cond | C++: условия | C++: conditions
+cpp.loop | C++: циклы | C++: loops
+cpp.arr | C++: списки и массивы | C++: lists and arrays
+cpp.func | C++: функции | C++: functions
+js.vars | JavaScript: переменные и арифметика | JavaScript: variables and arithmetic
+js.cond | JavaScript: условия | JavaScript: conditions
+js.loop | JavaScript: циклы | JavaScript: loops
+js.arr | JavaScript: списки и массивы | JavaScript: lists and arrays
+js.func | JavaScript: функции | JavaScript: functions
+java.vars | Java: переменные и арифметика | Java: variables and arithmetic
+java.cond | Java: условия | Java: conditions
+java.loop | Java: циклы | Java: loops
+java.arr | Java: списки и массивы | Java: lists and arrays
+java.func | Java: функции | Java: functions

@@ -1,0 +1,20 @@
+{
+  "afterAll": "cat.soon",
+  "set": {
+    "ru": {
+      "cat.soonAudio": "Эти части экзамена появятся вместе с аудио и записью речи.",
+      "cat.soonNative": "Задания по государственному языку страны готовим вместе с носителями языка и учителями — они появятся позже.",
+      "hub.about": "Экзаменов на сайте: {exams}. Есть математика от счёта до старшей школы, английский от A1 до C2, физика, химия, биология, история и другие предметы, а также олимпиадные задачи. У каждого задания — разбор на русском, казахском и английском."
+    },
+    "en": {
+      "cat.soonAudio": "These parts of the exam will appear together with audio and speech recording.",
+      "cat.soonNative": "Questions on the country’s state language are being prepared with native speakers and teachers and will appear later.",
+      "hub.about": "Exams on the site: {exams}. There is math from counting to senior school, English from A1 to C2, physics, chemistry, biology, history and other subjects, and olympiad problems. Every question has a solution in English, Russian and Kazakh."
+    },
+    "kk": {
+      "cat.soonAudio": "Емтиханның бұл бөліктері аудио және сөйлеуді жазумен бірге пайда болады.",
+      "cat.soonNative": "Елдің мемлекеттік тілі бойынша тапсырмаларды тіл иелерімен және мұғалімдермен бірге дайындап жатырмыз — олар кейінірек пайда болады.",
+      "hub.about": "Сайттағы емтихандар саны: {exams}. Санаудан жоғары сыныптарға дейінгі математика, A1-ден C2-ге дейінгі ағылшын тілі, физика, химия, биология, тарих және басқа пәндер, сондай-ақ олимпиадалық есептер бар. Әр тапсырманың қазақ, орыс және ағылшын тілдеріндегі талдауы бар."
+    }
+  }
+}

@@ -1,0 +1,23 @@
+const { chromium } = require('playwright');
+const S = __dirname + '/';
+(async () => {
+  const b = await chromium.launch();
+  const p = await b.newPage({ viewport: { width: 390, height: 844 } });
+  const errs = [];
+  p.on('pageerror', (e) => errs.push(String(e.stack || e).slice(0, 300)));
+  await p.goto('http://localhost:3000/');
+  await p.evaluate(() => { localStorage.setItem('prepplay:lang', JSON.stringify('ru')); localStorage.removeItem('prepplay:theme'); });
+  await p.reload();
+  await p.waitForTimeout(600);
+  await p.click('.theme-btn');
+  await p.waitForTimeout(400);
+  await p.screenshot({ path: S + 'i-theme-pop.png' });
+  await p.goto('http://localhost:3000/#/');
+  await p.waitForTimeout(500);
+  const learn = await p.$('.learn-row');
+  await learn.scrollIntoViewIfNeeded();
+  await p.waitForTimeout(900);
+  await p.screenshot({ path: S + 'i-learnrow.png' });
+  console.log('errors', errs);
+  await b.close();
+})();

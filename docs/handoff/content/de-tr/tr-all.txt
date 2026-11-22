@@ -1,0 +1,628 @@
+1 Evde süt [yok]. Markete gitmeliyiz.   x var,değil,mi
+1 Bu benim çantam [değil]. Benim çantam kırmızı.   x yok,var,mı
+1 Merhaba, nasılsın? - İyiyim, [teşekkür ederim].   x rica ederim,özür dilerim,görüşürüz
+1 Adın [ne]? - Adım Ali.   x kim,nerede,nasıl
+1 Sen [nerelisin]? - Kazakistanlıyım.   x nasılsın,kimsin,kaç yaşındasın
+1 Ben öğrenci[yim].   x sin,yiz,ler
+1 Sen doktor[sun].   x sın,sin,sün
+1 Biz Türk[üz].   x ız,iz,uz
+1 Kitap masanın [üstünde].   x üstüne,üstünden,üstü
+1 Türkçe biliyor [musun]?   x misin,mısın,müsün
+1 Ankara Türkiye'nin başkenti[dir].   x dır,dur,dür
+1 Kahve mi içersin, çay [mı]?   x mi,mu,mü
+1 Bugün hava çok [soğuk]. Montunu giy.   x sıcak,güzel,güneşli
+1 Benim adım Ali. [Senin] adın ne?   x Sen,Seni,Sana
+1 Sınıfta kaç öğrenci [var]?   x yok,değil,mi
+2 Okula otobüs[le] gidiyorum.   x la,de,den
+2 Arkadaşım[la] sinemaya gittim.   x le,da,dan
+2 Dün hava çok güzel[di].   x dı,du,dü
+2 Benim iki kardeş[im] var.   x in,i,ler
+2 Saat yedi[de] kalkıyorum.   x da,te,ta
+2 Saat dört[te] buluşalım.   x de,ta,da
+2 Saat altı[da] eve döndüm.   x de,ta,te
+2 Ben [çayı] sevmem, kahveyi severim.   x çaya,çayda,çaydan
+2 Bu elbise o elbise[den] daha güzel.   x de,e,i
+2 Yarın sinemaya [gitmek] ister misin?   x gitme,gider,gitti
+2 Ben yüz[meyi] bilmiyorum.   x mek,meye,mekte
+2 Kardeşim benden üç yaş [küçük].   x küçüğü,küçükte,küçüğe
+3 Hasta olduğum [için] okula gitmedim.   x rağmen,gibi,kadar
+3 Çok çalışmasına [rağmen] sınavı geçemedi.   x için,gibi,göre
+3 Haberlere [göre] yarın yağmur yağacak.   x için,rağmen,kadar
+3 Akşama [kadar] bu işi bitirmeliyiz.   x göre,için,rağmen
+3 Sınavı [kazanınca] çok mutlu oldum.   x kazanacak,kazandı,kazanır
+3 Eve gelir[ken] ekmek al.   x ce,de,di
+3 Yağmur yağ[arsa] şemsiyeni al.   x dı,acak,mış
+3 Ben senin [fikirlerine] çok önem veriyorum.   x fikirlerini,fikirlerinde,fikirlerinden
+3 Bu konu [hakkında] ne düşünüyorsun?   x gibi,kadar,ile
+3 Yarın erken kalkmam [lazım].   x lazımda,lazımı,yok mu
+4 Ne kadar çok çalışırsan [o kadar] başarılı olursun.   x bu kadar,şu kadar,ne kadar
+4 Hem Türkçe [hem] İngilizce biliyor.   x ne,ya,da
+4 Ne kahve [ne] çay içerim.   x hem,ya,veya
+4 Ya bugün [ya] da yarın gelecek.   x ne,hem,ki
+4 Sanki her şeyi biliyormuş [gibi] konuşuyor.   x kadar,için,göre
+4 Eve gelir [gelmez] yattı.   x gelmeden,gelince,gelirken
+4 Bu kitap Türkçe[ye] çevrildi; orijinali Almanca.   x den,de,yi
+4 Toplantı yarına [ertelendi].   x erteledi,ertelendirdi,erteletti
+4 O kadar yorgundum [ki] hemen uyudum.   x de,ama,için
+4 Ben gelmeden [önce] gitme.   x sonra,kadar,beri
+4 Türkiye'ye geldi[ğinden] beri Türkçe öğreniyor.   x ği için,ğinde,ğine
+4 Bu sorunu nasıl çözeceğimizi [düşünmemiz] lazım.   x düşünmeliyiz,düşünüyoruz,düşündük
+5 Bu işi zamanında bitirmek [için] çok çalışmamız gerekiyor.   x rağmen,kadar,göre
+5 Söz verdiği [halde] toplantıya gelmedi.   x için,gibi,kadar
+5 Bu karar herkes [tarafından] kabul edildi.   x için,ile,göre
+5 Yağmur yağmasına [rağmen] maç oynandı.   x için,göre,kadar
+5 Konuşmasından onun çok yorgun olduğu [anlaşılıyordu].   x anladı,anlıyor,anlatıyordu
+5 Bu proje bitmek [üzere].   x için,gibi,kadar
+5 Ne olursa [olsun] pes etmeyeceğim.   x olur,oldu,olacak
+5 Kim ne derse [desin], ben kararımı verdim.   x der,dedi,diyor
+5 Ödevini bitir[meden] dışarı çıkamazsın.   x dikten,diği,ecek
+6 Ağaç yaşken [eğilir].   x kırılır,büyür,kurur
+6 Damlaya damlaya göl [olur].   x dolar,akar,biter
+6 Sakla samanı, gelir [zamanı].   x yılı,günü,vakti
+6 Bir elin nesi var, iki elin [sesi] var.   x işi,gücü,eli
+6 Gülü seven [dikenine] katlanır.   x kokusuna,rengine,yaprağına
+6 Ayağını yorganına göre [uzat].   x kısalt,çek,koy
+6 Sınav yaklaşıyor ama o hâlâ [kulağının] üstüne yatıyor.   x gözünün,elinin,başının
+6 Bu haberi duyunca küplere [bindi].   x girdi,çıktı,düştü
+6 Herkese yardım eder, çok eli [açık] bir insandır.   x kapalı,sıkı,dar
+6 Ne kadar uğraştıysa da bir türlü [başaramadı].   x başardı,başarır,başaracak
+6 Haber duyulur [duyulmaz] herkes meydana koştu.   x duyulmadan,duyulunca,duyulurken
+6 Az olsun, [öz] olsun.   x çok,iyi,tam
+6 Sabrın sonu [selamettir].   x mutluluktur,zaferdir,başarıdır
+6 Mum dibine [ışık] vermez.   x ateş,gölge,ses
+6 Dost kara günde [belli olur].   x kaybolur,gelir,ağlar
+6 Görmüş geçirmiş biri olduğu [için] ondan akıl danıştık.   x halde,rağmen,gibi
+1 Bu kitap yeni [mi]?   x mı,mu,mü
+1 Bu kitap ilginç [mi]?   x mı,mu,mü
+1 Bu ev büyük [mü]?   x mi,mı,mu
+1 Bu ev eski [mi]?   x mı,mu,mü
+1 Bu oda küçük [mü]?   x mi,mı,mu
+1 Bu oda temiz [mi]?   x mı,mu,mü
+1 Bu çay sıcak [mı]?   x mi,mu,mü
+1 Bu çay soğuk [mu]?   x mi,mı,mü
+1 Bu araba pahalı [mı]?   x mi,mu,mü
+1 Bu araba yeni [mi]?   x mı,mu,mü
+1 Bu film uzun [mu]?   x mi,mı,mü
+1 Bu film güzel [mi]?   x mı,mu,mü
+1 Bu ders kolay [mı]?   x mi,mu,mü
+1 Bu ders zor [mu]?   x mi,mı,mü
+1 Bu cevap doğru [mu]?   x mi,mı,mü
+1 Bu soru kolay [mı]?   x mi,mu,mü
+1 Bu yol uzun [mu]?   x mi,mı,mü
+1 Bu yol kısa [mı]?   x mi,mu,mü
+1 Bu çanta boş [mu]?   x mi,mı,mü
+1 Bu çanta dolu [mu]?   x mi,mı,mü
+1 Bu şehir güzel [mi]?   x mı,mu,mü
+1 Bu şehir büyük [mü]?   x mi,mı,mu
+1 Bu otel ucuz [mu]?   x mi,mı,mü
+1 Bu otel temiz [mi]?   x mı,mu,mü
+1 Bu sınav zor [mu]?   x mi,mı,mü
+1 Bu kahve sıcak [mı]?   x mi,mu,mü
+1 Bu su soğuk [mu]?   x mi,mı,mü
+1 Bu bilet pahalı [mı]?   x mi,mu,mü
+1 Ben yorgun [muyum]?   x miyim,mıyım,müyüm
+1 Biz yorgun [muyuz]?   x miyiz,mıyız,müyüz
+1 Sen mutlu [musun]?   x misin,mısın,müsün
+1 Siz mutlu [musunuz]?   x misiniz,mısınız,müsünüz
+1 Biz üzgün [müyüz]?   x miyiz,mıyız,muyuz
+1 Ben üzgün [müyüm]?   x miyim,mıyım,muyum
+1 Siz hasta [mısınız]?   x misiniz,musunuz,müsünüz
+1 Sen hasta [mısın]?   x misin,musun,müsün
+1 Ben iyi [miyim]?   x mıyım,muyum,müyüm
+1 Biz iyi [miyiz]?   x mıyız,muyuz,müyüz
+1 Sen evli [misin]?   x mısın,musun,müsün
+1 Siz evli [misiniz]?   x mısınız,musunuz,müsünüz
+1 Biz aç [mıyız]?   x miyiz,muyuz,müyüz
+1 Ben aç [mıyım]?   x miyim,muyum,müyüm
+1 Siz hazır [mısınız]?   x misiniz,musunuz,müsünüz
+1 Sen hazır [mısın]?   x misin,musun,müsün
+1 Ben öğrenci [miyim]?   x mıyım,muyum,müyüm
+1 Biz öğrenci [miyiz]?   x mıyız,muyuz,müyüz
+1 Sen doktor [musun]?   x misin,mısın,müsün
+1 Siz doktor [musunuz]?   x misiniz,mısınız,müsünüz
+1 Biz Türk [müyüz]?   x miyiz,mıyız,muyuz
+1 Ben Türk [müyüm]?   x miyim,mıyım,muyum
+1 Siz kızgın [mısınız]?   x misiniz,musunuz,müsünüz
+1 Sen kızgın [mısın]?   x misin,musun,müsün
+1 Ben memnun [muyum]?   x miyim,mıyım,müyüm
+1 Biz memnun [muyuz]?   x miyiz,mıyız,müyüz
+1 Sen yalnız [mısın]?   x misin,musun,müsün
+1 Siz yalnız [mısınız]?   x misiniz,musunuz,müsünüz
+1 Biz sakin [miyiz]?   x mıyız,muyuz,müyüz
+1 Ben sakin [miyim]?   x mıyım,muyum,müyüm
+1 Her sabah [okula] gidiyorum. (okul)   x okulda,okuldan,okulu
+1 Annem şu anda [okulda]. (okul)   x okula,okuldan,okulu
+1 Yarın [eve] gidiyorum. (ev)   x evde,evden,evi
+1 Annem şu anda [evde]. (ev)   x eve,evden,evi
+1 Bugün [parka] gidiyorum. (park)   x parkta,parktan,parkı
+1 Annem şu anda [parkta]. (park)   x parka,parktan,parkı
+1 Şimdi [markete] gidiyorum. (market)   x markette,marketten,marketi
+1 Annem şu anda [markette]. (market)   x markete,marketten,marketi
+1 Her sabah [sinemaya] gidiyorum. (sinema)   x sinemada,sinemadan,sinemayı
+1 Annem şu anda [sinemada]. (sinema)   x sinemaya,sinemadan,sinemayı
+1 Yarın [hastaneye] gidiyorum. (hastane)   x hastanede,hastaneden,hastaneyi
+1 Annem şu anda [hastanede]. (hastane)   x hastaneye,hastaneden,hastaneyi
+1 Bugün [kütüphaneye] gidiyorum. (kütüphane)   x kütüphanede,kütüphaneden,kütüphaneyi
+1 Annem şu anda [kütüphanede]. (kütüphane)   x kütüphaneye,kütüphaneden,kütüphaneyi
+1 Şimdi [müzeye] gidiyorum. (müze)   x müzede,müzeden,müzeyi
+1 Annem şu anda [müzede]. (müze)   x müzeye,müzeden,müzeyi
+1 Her sabah [bankaya] gidiyorum. (banka)   x bankada,bankadan,bankayı
+1 Annem şu anda [bankada]. (banka)   x bankaya,bankadan,bankayı
+1 Yarın [ofise] gidiyorum. (ofis)   x ofiste,ofisten,ofisi
+1 Annem şu anda [ofiste]. (ofis)   x ofise,ofisten,ofisi
+1 Bugün [otele] gidiyorum. (otel)   x otelde,otelden,oteli
+1 Annem şu anda [otelde]. (otel)   x otele,otelden,oteli
+1 Şimdi [istasyona] gidiyorum. (istasyon)   x istasyonda,istasyondan,istasyonu
+1 Annem şu anda [istasyonda]. (istasyon)   x istasyona,istasyondan,istasyonu
+1 Her sabah [bahçeye] gidiyorum. (bahçe)   x bahçede,bahçeden,bahçeyi
+1 Annem şu anda [bahçede]. (bahçe)   x bahçeye,bahçeden,bahçeyi
+1 Yarın [odaya] gidiyorum. (oda)   x odada,odadan,odayı
+1 Annem şu anda [odada]. (oda)   x odaya,odadan,odayı
+1 Bugün [mutfağa] gidiyorum. (mutfak)   x mutfakta,mutfaktan,mutfağı
+1 Annem şu anda [mutfakta]. (mutfak)   x mutfağa,mutfaktan,mutfağı
+1 Şimdi [sokağa] gidiyorum. (sokak)   x sokakta,sokaktan,sokağı
+1 Annem şu anda [sokakta]. (sokak)   x sokağa,sokaktan,sokağı
+1 Her sabah [köye] gidiyorum. (köy)   x köyde,köyden,köyü
+1 Annem şu anda [köyde]. (köy)   x köye,köyden,köyü
+1 Yarın [plaja] gidiyorum. (plaj)   x plajda,plajdan,plajı
+1 Annem şu anda [plajda]. (plaj)   x plaja,plajdan,plajı
+1 Gelecek ay [Ankara'ya] gidiyoruz. (Ankara)   x Ankara'da,Ankara'dan,Ankara'yı
+1 Kardeşim [Ankara'da] yaşıyor. (Ankara)   x Ankara'ya,Ankara'dan,Ankara'yı
+2 Ali dün [Ankara'dan] ayrıldı. (Ankara)   x Ankara'ya,Ankara'da,Ankara'yı
+1 Gelecek ay [İstanbul'a] gidiyoruz. (İstanbul)   x İstanbul'da,İstanbul'dan,İstanbul'u
+1 Kardeşim [İstanbul'da] yaşıyor. (İstanbul)   x İstanbul'a,İstanbul'dan,İstanbul'u
+2 Ali dün [İstanbul'dan] ayrıldı. (İstanbul)   x İstanbul'a,İstanbul'da,İstanbul'u
+2 Ben [İstanbul'u] çok seviyorum. (İstanbul)   x İstanbul'a,İstanbul'da,İstanbul'dan
+1 Gelecek ay [İzmir'e] gidiyoruz. (İzmir)   x İzmir'de,İzmir'den,İzmir'i
+1 Kardeşim [İzmir'de] yaşıyor. (İzmir)   x İzmir'e,İzmir'den,İzmir'i
+2 Ali dün [İzmir'den] ayrıldı. (İzmir)   x İzmir'e,İzmir'de,İzmir'i
+1 Gelecek ay [Antalya'ya] gidiyoruz. (Antalya)   x Antalya'da,Antalya'dan,Antalya'yı
+1 Kardeşim [Antalya'da] yaşıyor. (Antalya)   x Antalya'ya,Antalya'dan,Antalya'yı
+2 Ali dün [Antalya'dan] ayrıldı. (Antalya)   x Antalya'ya,Antalya'da,Antalya'yı
+2 Ben [Antalya'yı] çok seviyorum. (Antalya)   x Antalya'ya,Antalya'da,Antalya'dan
+1 Gelecek ay [Bursa'ya] gidiyoruz. (Bursa)   x Bursa'da,Bursa'dan,Bursa'yı
+1 Kardeşim [Bursa'da] yaşıyor. (Bursa)   x Bursa'ya,Bursa'dan,Bursa'yı
+2 Ali dün [Bursa'dan] ayrıldı. (Bursa)   x Bursa'ya,Bursa'da,Bursa'yı
+1 Gelecek ay [Konya'ya] gidiyoruz. (Konya)   x Konya'da,Konya'dan,Konya'yı
+1 Kardeşim [Konya'da] yaşıyor. (Konya)   x Konya'ya,Konya'dan,Konya'yı
+2 Ali dün [Konya'dan] ayrıldı. (Konya)   x Konya'ya,Konya'da,Konya'yı
+2 Ben [Konya'yı] çok seviyorum. (Konya)   x Konya'ya,Konya'da,Konya'dan
+1 Gelecek ay [Berlin'e] gidiyoruz. (Berlin)   x Berlin'de,Berlin'den,Berlin'i
+1 Kardeşim [Berlin'de] yaşıyor. (Berlin)   x Berlin'e,Berlin'den,Berlin'i
+2 Ali dün [Berlin'den] ayrıldı. (Berlin)   x Berlin'e,Berlin'de,Berlin'i
+1 Gelecek ay [Paris'e] gidiyoruz. (Paris)   x Paris'te,Paris'ten,Paris'i
+1 Kardeşim [Paris'te] yaşıyor. (Paris)   x Paris'e,Paris'ten,Paris'i
+2 Ali dün [Paris'ten] ayrıldı. (Paris)   x Paris'e,Paris'te,Paris'i
+2 Ben [Paris'i] çok seviyorum. (Paris)   x Paris'e,Paris'te,Paris'ten
+1 Gelecek ay [Londra'ya] gidiyoruz. (Londra)   x Londra'da,Londra'dan,Londra'yı
+1 Kardeşim [Londra'da] yaşıyor. (Londra)   x Londra'ya,Londra'dan,Londra'yı
+2 Ali dün [Londra'dan] ayrıldı. (Londra)   x Londra'ya,Londra'da,Londra'yı
+1 Gelecek ay [Roma'ya] gidiyoruz. (Roma)   x Roma'da,Roma'dan,Roma'yı
+1 Kardeşim [Roma'da] yaşıyor. (Roma)   x Roma'ya,Roma'dan,Roma'yı
+2 Ali dün [Roma'dan] ayrıldı. (Roma)   x Roma'ya,Roma'da,Roma'yı
+2 Ben [Roma'yı] çok seviyorum. (Roma)   x Roma'ya,Roma'da,Roma'dan
+1 Gelecek ay [Almatı'ya] gidiyoruz. (Almatı)   x Almatı'da,Almatı'dan,Almatı'yı
+1 Kardeşim [Almatı'da] yaşıyor. (Almatı)   x Almatı'ya,Almatı'dan,Almatı'yı
+2 Ali dün [Almatı'dan] ayrıldı. (Almatı)   x Almatı'ya,Almatı'da,Almatı'yı
+1 Gelecek ay [Astana'ya] gidiyoruz. (Astana)   x Astana'da,Astana'dan,Astana'yı
+1 Kardeşim [Astana'da] yaşıyor. (Astana)   x Astana'ya,Astana'dan,Astana'yı
+2 Ali dün [Astana'dan] ayrıldı. (Astana)   x Astana'ya,Astana'da,Astana'yı
+2 Ben [Astana'yı] çok seviyorum. (Astana)   x Astana'ya,Astana'da,Astana'dan
+1 Gelecek ay [Bakü'ye] gidiyoruz. (Bakü)   x Bakü'de,Bakü'den,Bakü'yü
+1 Kardeşim [Bakü'de] yaşıyor. (Bakü)   x Bakü'ye,Bakü'den,Bakü'yü
+2 Ali dün [Bakü'den] ayrıldı. (Bakü)   x Bakü'ye,Bakü'de,Bakü'yü
+1 Gelecek ay [Taşkent'e] gidiyoruz. (Taşkent)   x Taşkent'te,Taşkent'ten,Taşkent'i
+1 Kardeşim [Taşkent'te] yaşıyor. (Taşkent)   x Taşkent'e,Taşkent'ten,Taşkent'i
+2 Ali dün [Taşkent'ten] ayrıldı. (Taşkent)   x Taşkent'e,Taşkent'te,Taşkent'i
+2 Ben [Taşkent'i] çok seviyorum. (Taşkent)   x Taşkent'e,Taşkent'te,Taşkent'ten
+1 Gelecek ay [Moskova'ya] gidiyoruz. (Moskova)   x Moskova'da,Moskova'dan,Moskova'yı
+1 Kardeşim [Moskova'da] yaşıyor. (Moskova)   x Moskova'ya,Moskova'dan,Moskova'yı
+2 Ali dün [Moskova'dan] ayrıldı. (Moskova)   x Moskova'ya,Moskova'da,Moskova'yı
+1 Gelecek ay [Tokyo'ya] gidiyoruz. (Tokyo)   x Tokyo'da,Tokyo'dan,Tokyo'yu
+1 Kardeşim [Tokyo'da] yaşıyor. (Tokyo)   x Tokyo'ya,Tokyo'dan,Tokyo'yu
+2 Ali dün [Tokyo'dan] ayrıldı. (Tokyo)   x Tokyo'ya,Tokyo'da,Tokyo'yu
+2 Ben [Tokyo'yu] çok seviyorum. (Tokyo)   x Tokyo'ya,Tokyo'da,Tokyo'dan
+2 Küçük kardeşim [köpekten] korkuyor. (köpek)   x köpeğe,köpekte,köpeği
+2 Küçük kardeşim [yılandan] korkuyor. (yılan)   x yılana,yılanda,yılanı
+2 Küçük kardeşim [karanlıktan] korkuyor. (karanlık)   x karanlığa,karanlıkta,karanlığı
+2 Küçük kardeşim [arıdan] korkuyor. (arı)   x arıya,arıda,arıyı
+2 Küçük kardeşim [fareden] korkuyor. (fare)   x fareye,farede,fareyi
+2 Küçük kardeşim [ayıdan] korkuyor. (ayı)   x ayıya,ayıda,ayıyı
+2 Küçük kardeşim [denizden] korkuyor. (deniz)   x denize,denizde,denizi
+2 Küçük kardeşim [sınavdan] korkuyor. (sınav)   x sınava,sınavda,sınavı
+2 Küçük kardeşim [kediden] korkuyor. (kedi)   x kediye,kedide,kediyi
+2 Küçük kardeşim [örümcekten] korkuyor. (örümcek)   x örümceğe,örümcekte,örümceği
+2 Her gün [okuldan] sonra eve gidiyorum. (okul)   x okula,okulda,okulu
+2 Bugün [işten] sonra eve gidiyorum. (iş)   x işe,işte,işi
+2 Dün [dersten] sonra eve gittim. (ders)   x derse,derste,dersi
+2 Her gün [kurstan] sonra eve gidiyorum. (kurs)   x kursa,kursta,kursu
+2 Bugün [sınavdan] sonra eve gidiyorum. (sınav)   x sınava,sınavda,sınavı
+2 Dün [yemekten] sonra eve gittim. (yemek)   x yemeğe,yemekte,yemeği
+2 Her gün [kahvaltıdan] sonra eve gidiyorum. (kahvaltı)   x kahvaltıya,kahvaltıda,kahvaltıyı
+2 Bugün [toplantıdan] sonra eve gidiyorum. (toplantı)   x toplantıya,toplantıda,toplantıyı
+2 Dün [filmden] sonra eve gittim. (film)   x filme,filmde,filmi
+2 Her gün [maçtan] sonra eve gidiyorum. (maç)   x maça,maçta,maçı
+2 Ben bu [kitabı] çok seviyorum. (kitap)   x kitaba,kitapta,kitaptan
+2 Dün o [arabayı] gördüm. (araba)   x arabaya,arabada,arabadan
+2 Sen bu [filmi] beğendin mi? (film)   x filme,filmde,filmden
+2 Ben bu [şarkıyı] çok seviyorum. (şarkı)   x şarkıya,şarkıda,şarkıdan
+2 Dün o [çantayı] gördüm. (çanta)   x çantaya,çantada,çantadan
+2 Sen bu [kalemi] beğendin mi? (kalem)   x kaleme,kalemde,kalemden
+2 Ben bu [ağacı] çok seviyorum. (ağaç)   x ağaca,ağaçta,ağaçtan
+2 Dün o [köpeği] gördüm. (köpek)   x köpeğe,köpekte,köpekten
+2 Sen bu [rengi] beğendin mi? (renk)   x renge,renkte,renkten
+2 Ben bu [çiçeği] çok seviyorum. (çiçek)   x çiçeğe,çiçekte,çiçekten
+2 Dün o [elbiseyi] gördüm. (elbise)   x elbiseye,elbisede,elbiseden
+2 Sen bu [telefonu] beğendin mi? (telefon)   x telefona,telefonda,telefondan
+2 Ben bu [bilgisayarı] çok seviyorum. (bilgisayar)   x bilgisayara,bilgisayarda,bilgisayardan
+2 Dün o [şehri] gördüm. (şehir)   x şehre,şehirde,şehirden
+2 Sen bu [resmi] beğendin mi? (resim)   x resme,resimde,resimden
+2 Ben bu [oyunu] çok seviyorum. (oyun)   x oyuna,oyunda,oyundan
+1 Masada iki [kitap] var. (kitap)   x kitaplar,kitapları,kitapta
+1 Sınıfta yirmi [kitap] var. (kitap)   x kitaplar,kitapları,kitapta
+1 Bahçede birkaç [elma] var. (elma)   x elmalar,elmaları,elmada
+1 Evde üç [elma] var. (elma)   x elmalar,elmaları,elmada
+1 Kaç [öğrenci] var? (öğrenci)   x öğrenciler,öğrencileri,öğrencide
+1 Burada çok [öğrenci] var. (öğrenci)   x öğrenciler,öğrencileri,öğrencide
+1 Sınıfta yirmi [kedi] var. (kedi)   x kediler,kedileri,kedide
+1 Masada iki [kedi] var. (kedi)   x kediler,kedileri,kedide
+1 Evde üç [kalem] var. (kalem)   x kalemler,kalemleri,kalemde
+1 Bahçede birkaç [kalem] var. (kalem)   x kalemler,kalemleri,kalemde
+1 Burada çok [araba] var. (araba)   x arabalar,arabaları,arabada
+1 Kaç [araba] var? (araba)   x arabalar,arabaları,arabada
+1 Masada iki [çocuk] var. (çocuk)   x çocuklar,çocukları,çocukta
+1 Sınıfta yirmi [çocuk] var. (çocuk)   x çocuklar,çocukları,çocukta
+1 Bahçede birkaç [ağaç] var. (ağaç)   x ağaçlar,ağaçları,ağaçta
+1 Evde üç [ağaç] var. (ağaç)   x ağaçlar,ağaçları,ağaçta
+1 Kaç [oda] var? (oda)   x odalar,odaları,odada
+1 Burada çok [oda] var. (oda)   x odalar,odaları,odada
+1 Sınıfta yirmi [masa] var. (masa)   x masalar,masaları,masada
+1 Masada iki [masa] var. (masa)   x masalar,masaları,masada
+1 Evde üç [sandalye] var. (sandalye)   x sandalyeler,sandalyeleri,sandalyede
+1 Bahçede birkaç [sandalye] var. (sandalye)   x sandalyeler,sandalyeleri,sandalyede
+1 Burada çok [kuş] var. (kuş)   x kuşlar,kuşları,kuşta
+1 Kaç [kuş] var? (kuş)   x kuşlar,kuşları,kuşta
+2 Benim [evim] çok güzel. (ev)   x evin,evi,evimiz
+2 Onun [evi] burada. (ev)   x evim,evin,evimiz
+2 Senin [araban] burada. (araba)   x arabam,arabası,arabamız
+2 Bizim [arabamız] çok güzel. (araba)   x arabam,araban,arabası
+2 Onun [odası] çok güzel. (oda)   x odam,odan,odamız
+2 Sizin [odanız] burada. (oda)   x odam,odan,odası
+2 Bizim [kitabımız] burada. (kitap)   x kitabım,kitabın,kitabı
+2 Benim [kitabım] çok büyük. (kitap)   x kitabın,kitabı,kitabımız
+2 Sizin [kaleminiz] çok güzel. (kalem)   x kalemim,kalemin,kalemi
+2 Senin [kalemin] yeni. (kalem)   x kalemim,kalemi,kalemimiz
+2 Benim [çantam] yeni. (çanta)   x çantan,çantası,çantamız
+2 Onun [çantası] çok büyük. (çanta)   x çantam,çantan,çantamız
+2 Senin [ödevin] çok büyük. (ödev)   x ödevim,ödevi,ödevimiz
+2 Bizim [ödevimiz] yeni. (ödev)   x ödevim,ödevin,ödevi
+2 Onun [köpeği] yeni. (köpek)   x köpeğim,köpeğin,köpeğimiz
+2 Sizin [köpeğiniz] çok büyük. (köpek)   x köpeğim,köpeğin,köpeği
+2 Bizim [bilgisayarımız] çok büyük. (bilgisayar)   x bilgisayarım,bilgisayarın,bilgisayarı
+2 Benim [bilgisayarım] çok güzel. (bilgisayar)   x bilgisayarın,bilgisayarı,bilgisayarımız
+2 Sizin [okulunuz] yeni. (okul)   x okulum,okulun,okulu
+2 Senin [okulun] burada. (okul)   x okulum,okulu,okulumuz
+2 Benim [bahçem] burada. (bahçe)   x bahçen,bahçesi,bahçemiz
+2 Onun [bahçesi] çok güzel. (bahçe)   x bahçem,bahçen,bahçemiz
+2 Senin [telefonun] çok güzel. (telefon)   x telefonum,telefonu,telefonumuz
+2 Bizim [telefonumuz] burada. (telefon)   x telefonum,telefonun,telefonu
+2 Onun [arkadaşı] burada. (arkadaş)   x arkadaşım,arkadaşın,arkadaşımız
+2 Sizin [arkadaşınız] çok güzel. (arkadaş)   x arkadaşım,arkadaşın,arkadaşı
+2 Bizim [öğretmenimiz] çok güzel. (öğretmen)   x öğretmenim,öğretmenin,öğretmeni
+2 Benim [öğretmenim] yeni. (öğretmen)   x öğretmenin,öğretmeni,öğretmenimiz
+2 Ali'nin [evi] çok güzel. (ev)   x ev,evim,evin
+2 Ayşe'nin [arabası] çok güzel. (araba)   x araba,arabam,araban
+2 Öğretmenin [odası] çok güzel. (oda)   x oda,odam,odan
+2 Annemin [kitabı] çok güzel. (kitap)   x kitap,kitabım,kitabın
+2 Babamın [kalemi] çok güzel. (kalem)   x kalem,kalemim,kalemin
+2 Kardeşimin [çantası] çok güzel. (çanta)   x çanta,çantam,çantan
+2 Ali'nin [ödevi] çok güzel. (ödev)   x ödev,ödevim,ödevin
+2 Ayşe'nin [köpeği] çok güzel. (köpek)   x köpek,köpeğim,köpeğin
+2 Öğretmenin [bilgisayarı] çok güzel. (bilgisayar)   x bilgisayar,bilgisayarım,bilgisayarın
+2 Annemin [okulu] çok güzel. (okul)   x okul,okulum,okulun
+2 Babamın [bahçesi] çok güzel. (bahçe)   x bahçe,bahçem,bahçen
+2 Kardeşimin [telefonu] çok güzel. (telefon)   x telefon,telefonum,telefonun
+2 Bunlar benim [evlerim]. (ev)   x evlarım,evim,evler
+2 Bunlar benim [arabalarım]. (araba)   x arabalerim,arabam,arabalar
+2 Bunlar benim [odalarım]. (oda)   x odalerim,odam,odalar
+2 Bunlar benim [kitaplarım]. (kitap)   x kitaplerim,kitabım,kitaplar
+2 Bunlar benim [kalemlerim]. (kalem)   x kalemlarım,kalemim,kalemler
+2 Bunlar benim [çantalarım]. (çanta)   x çantalerim,çantam,çantalar
+2 Bunlar benim [ödevlerim]. (ödev)   x ödevlarım,ödevim,ödevler
+2 Bunlar benim [köpeklerim]. (köpek)   x köpeklarım,köpeğim,köpekler
+2 Bunlar benim [bilgisayarlarım]. (bilgisayar)   x bilgisayarlerim,bilgisayarım,bilgisayarlar
+2 Bunlar benim [okullarım]. (okul)   x okullerim,okulum,okullar
+2 Bence Ankara [İzmir'den] daha güzel. (İzmir)   x İzmir'de,İzmir'e,İzmir'i
+2 Bence Bursa [Konya'dan] daha ilginç. (Konya)   x Konya'da,Konya'ya,Konya'yı
+2 Bence İstanbul [Paris'ten] daha sıcak. (Paris)   x Paris'te,Paris'e,Paris'i
+2 Bence Almatı [Astana'dan] daha büyük. (Astana)   x Astana'da,Astana'ya,Astana'yı
+2 Bence Antalya [Roma'dan] daha eski. (Roma)   x Roma'da,Roma'ya,Roma'yı
+2 Bence Bakü [Taşkent'ten] daha soğuk. (Taşkent)   x Taşkent'te,Taşkent'e,Taşkent'i
+2 Bence Berlin [Londra'dan] daha pahalı. (Londra)   x Londra'da,Londra'ya,Londra'yı
+2 Bence Moskova [Tokyo'dan] daha kalabalık. (Tokyo)   x Tokyo'da,Tokyo'ya,Tokyo'yu
+3 Kahvaltı [yapmadan] önce biraz dinlendim. (yapmak)   x yaptıktan,yapınca,yaparken
+3 Kahvaltı [yaptıktan] sonra biraz dinlendim. (yapmak)   x yapmadan,yapınca,yaparken
+3 Ödevimi [yapmadan] önce arkadaşımı aradım. (yapmak)   x yaptıktan,yapınca,yaparken
+3 Ödevimi [yaptıktan] sonra arkadaşımı aradım. (yapmak)   x yapmadan,yapınca,yaparken
+3 Eve [gelmeden] önce müzik dinledim. (gelmek)   x geldikten,gelince,gelirken
+3 Eve [geldikten] sonra müzik dinledim. (gelmek)   x gelmeden,gelince,gelirken
+3 Yemek [yemeden] önce dışarı çıktım. (yemek)   x yedikten,yiyince,yerken
+3 Yemek [yedikten] sonra dışarı çıktım. (yemek)   x yemeden,yiyince,yerken
+3 Filmi [izlemeden] önce biraz dinlendim. (izlemek)   x izledikten,izleyince,izlerken
+3 Filmi [izledikten] sonra biraz dinlendim. (izlemek)   x izlemeden,izleyince,izlerken
+3 Kitabı [okumadan] önce arkadaşımı aradım. (okumak)   x okuduktan,okuyunca,okurken
+3 Kitabı [okuduktan] sonra arkadaşımı aradım. (okumak)   x okumadan,okuyunca,okurken
+3 Dersi [bitirmeden] önce müzik dinledim. (bitirmek)   x bitirdikten,bitirince,bitirirken
+3 Dersi [bitirdikten] sonra müzik dinledim. (bitirmek)   x bitirmeden,bitirince,bitirirken
+3 İşe [gitmeden] önce dışarı çıktım. (gitmek)   x gittikten,gidince,giderken
+3 İşe [gittikten] sonra dışarı çıktım. (gitmek)   x gitmeden,gidince,giderken
+3 Mektubu [yazmadan] önce biraz dinlendim. (yazmak)   x yazdıktan,yazınca,yazarken
+3 Mektubu [yazdıktan] sonra biraz dinlendim. (yazmak)   x yazmadan,yazınca,yazarken
+3 Telefonu [kapatmadan] önce arkadaşımı aradım. (kapatmak)   x kapattıktan,kapatınca,kapatırken
+3 Telefonu [kapattıktan] sonra arkadaşımı aradım. (kapatmak)   x kapatmadan,kapatınca,kapatırken
+3 Müzik [dinlemeden] önce müzik dinledim. (dinlemek)   x dinledikten,dinleyince,dinlerken
+3 Müzik [dinledikten] sonra müzik dinledim. (dinlemek)   x dinlemeden,dinleyince,dinlerken
+3 Duş [almadan] önce dışarı çıktım. (almak)   x aldıktan,alınca,alırken
+3 Duş [aldıktan] sonra dışarı çıktım. (almak)   x almadan,alınca,alırken
+3 Ellerimi [yıkamadan] önce biraz dinlendim. (yıkamak)   x yıkadıktan,yıkayınca,yıkarken
+3 Ellerimi [yıkadıktan] sonra biraz dinlendim. (yıkamak)   x yıkamadan,yıkayınca,yıkarken
+3 Kapıyı [açmadan] önce arkadaşımı aradım. (açmak)   x açtıktan,açınca,açarken
+3 Kapıyı [açtıktan] sonra arkadaşımı aradım. (açmak)   x açmadan,açınca,açarken
+3 Ben yarın eve [gelirsem], çok iyi olur. (gelmek)   x gelirsen,gelirse,gelirsek
+3 O yarın eve [gelirse], çok iyi olur. (gelmek)   x gelirsem,gelirsen,gelirsek
+3 Sen yarın kitap [okursan], çok iyi olur. (okumak)   x okursam,okursa,okursak
+3 Biz yarın kitap [okursak], çok iyi olur. (okumak)   x okursam,okursan,okursa
+3 O yarın ödev [yaparsa], çok iyi olur. (yapmak)   x yaparsam,yaparsan,yaparsak
+3 Siz yarın ödev [yaparsanız], çok iyi olur. (yapmak)   x yaparsam,yaparsan,yaparsa
+3 Biz yarın okula [gidersek], çok iyi olur. (gitmek)   x gidersem,gidersen,giderse
+3 Ben yarın okula [gidersem], çok iyi olur. (gitmek)   x gidersen,giderse,gidersek
+3 Siz yarın çok [çalışırsanız], çok iyi olur. (çalışmak)   x çalışırsam,çalışırsan,çalışırsa
+3 Sen yarın çok [çalışırsan], çok iyi olur. (çalışmak)   x çalışırsam,çalışırsa,çalışırsak
+3 Ben yarın komşulara [yardım edersem], çok iyi olur. (yardım etmek)   x yardım edersen,yardım ederse,yardım edersek
+3 O yarın komşulara [yardım ederse], çok iyi olur. (yardım etmek)   x yardım edersem,yardım edersen,yardım edersek
+3 Sen yarın doktoru [ararsan], çok iyi olur. (aramak)   x ararsam,ararsa,ararsak
+3 Biz yarın doktoru [ararsak], çok iyi olur. (aramak)   x ararsam,ararsan,ararsa
+3 O yarın işi [bitirirse], çok iyi olur. (bitirmek)   x bitirirsem,bitirirsen,bitirirsek
+3 Siz yarın işi [bitirirseniz], çok iyi olur. (bitirmek)   x bitirirsem,bitirirsen,bitirirse
+3 Biz yarın Türkçe [öğrenirsek], çok iyi olur. (öğrenmek)   x öğrenirsem,öğrenirsen,öğrenirse
+3 Ben yarın Türkçe [öğrenirsem], çok iyi olur. (öğrenmek)   x öğrenirsen,öğrenirse,öğrenirsek
+3 Siz yarın otobüsü [beklerseniz], çok iyi olur. (beklemek)   x beklersem,beklersen,beklerse
+3 Sen yarın otobüsü [beklersen], çok iyi olur. (beklemek)   x beklersem,beklerse,beklersek
+3 Ben yarın hesabı [ödersem], çok iyi olur. (ödemek)   x ödersen,öderse,ödersek
+3 O yarın hesabı [öderse], çok iyi olur. (ödemek)   x ödersem,ödersen,ödersek
+3 Sen yarın erken [kalkarsan], çok iyi olur. (kalkmak)   x kalkarsam,kalkarsa,kalkarsak
+3 Biz yarın erken [kalkarsak], çok iyi olur. (kalkmak)   x kalkarsam,kalkarsan,kalkarsa
+3 O yarın mesaj [gönderirse], çok iyi olur. (göndermek)   x gönderirsem,gönderirsen,gönderirsek
+3 Siz yarın mesaj [gönderirseniz], çok iyi olur. (göndermek)   x gönderirsem,gönderirsen,gönderirse
+3 Biz yarın müzik [dinlersek], çok iyi olur. (dinlemek)   x dinlersem,dinlersen,dinlerse
+3 Ben yarın müzik [dinlersem], çok iyi olur. (dinlemek)   x dinlersen,dinlerse,dinlersek
+4 Bu kitabı [yazan] yazar çok mutlu. (yazmak)   x yazdığı,yazdığım,yazdık
+4 Kapıyı [açan] çocuk çok mutlu. (açmak)   x açtığı,açtığım,açtık
+4 Türkçe [konuşan] öğrenci çok mutlu. (konuşmak)   x konuştuğu,konuştuğum,konuştuk
+4 Burada [çalışan] kadın çok mutlu. (çalışmak)   x çalıştığı,çalıştığım,çalıştık
+4 Bize [yardım eden] adam çok mutlu. (yardım etmek)   x yardım ettiği,yardım ettiğim,yardım ettik
+4 Bahçede [oynayan] çocuklar çok mutlu. (oynamak)   x oynadığı,oynadığım,oynadık
+4 Şarkı [söyleyen] kız çok mutlu. (söylemek)   x söylediği,söylediğim,söyledik
+4 Yarışmayı [kazanan] takım çok mutlu. (kazanmak)   x kazandığı,kazandığım,kazandık
+4 Bu evde [oturan] aile çok mutlu. (oturmak)   x oturduğu,oturduğum,oturduk
+4 Otobüsü [bekleyen] insanlar çok mutlu. (beklemek)   x beklediği,beklediğim,bekledik
+4 Dün [izlediğim] film çok güzeldi. (izlemek - ben)   x izlediğin,izlediği,izlediğimiz
+4 Dün [izlediğimiz] film çok güzeldi. (izlemek - biz)   x izlediğim,izlediğin,izlediği
+4 Geçen yıl [okuduğun] kitap çok ilginçti. (okumak - sen)   x okuduğum,okuduğu,okuduğumuz
+4 Geçen yıl [okuduğunuz] kitap çok ilginçti. (okumak - siz)   x okuduğum,okuduğun,okuduğu
+4 Dün [yediği] yemek çok lezzetliydi. (yemek - o)   x yediğim,yediğin,yediğimiz
+4 Dün [yediğim] yemek çok lezzetliydi. (yemek - ben)   x yediğin,yediği,yediğimiz
+4 Geçen hafta [gördüğümüz] ev çok büyüktü. (görmek - biz)   x gördüğüm,gördüğün,gördüğü
+4 Geçen hafta [gördüğün] ev çok büyüktü. (görmek - sen)   x gördüğüm,gördüğü,gördüğümüz
+4 Dün [dinlediğiniz] şarkı çok güzeldi. (dinlemek - siz)   x dinlediğim,dinlediğin,dinlediği
+4 Dün [dinlediği] şarkı çok güzeldi. (dinlemek - o)   x dinlediğim,dinlediğin,dinlediğimiz
+4 Geçen ay [aldığım] araba çok pahalıydı. (almak - ben)   x aldığın,aldığı,aldığımız
+4 Geçen ay [aldığımız] araba çok pahalıydı. (almak - biz)   x aldığım,aldığın,aldığı
+4 Dün [yazdığın] mektup çok uzundu. (yazmak - sen)   x yazdığım,yazdığı,yazdığımız
+4 Dün [yazdığınız] mektup çok uzundu. (yazmak - siz)   x yazdığım,yazdığın,yazdığı
+4 Yarın [okuyacağım] kitap bu. (okumak - ben)   x okuyacağın,okuyacağı,okuyacağımız
+4 Gelecek hafta [gideceğimiz] şehir çok güzel. (gitmek - biz)   x gideceğim,gideceğin,gideceği
+4 Akşam [izleyeceğin] film komedi. (izlemek - sen)   x izleyeceğim,izleyeceği,izleyeceğimiz
+4 Yarın [ziyaret edeceğiniz] müze çok büyük. (ziyaret etmek - siz)   x ziyaret edeceğim,ziyaret edeceğin,ziyaret edeceği
+4 Bu ev 1990'da [yapıldı]. (yapmak)   x yaptı,yapılacak,yaptırdı
+4 Mektup dün [gönderildi]. (göndermek)   x gönderdi,gönderilecek,göndertti
+4 Bu film 2010'da [çekildi]. (çekmek)   x çekti,çekilecek,çektirdi
+4 Bu köprü 1970'te [yapıldı]. (yapmak)   x yaptı,yapılacak,yaptırdı
+4 Yeni okul geçen yıl [açıldı]. (açmak)   x açtı,açılacak,açtırdı
+4 Bütün biletler dün [satıldı]. (satmak)   x sattı,satılacak,sattırdı
+4 Sınav sonuçları dün [açıklandı]. (açıklamak)   x açıkladı,açıklanacak,açıklattı
+4 Toplantı dün [iptal edildi]. (iptal etmek)   x iptal etti,iptal edilecek,iptal ettirdi
+4 Ödevler dün [kontrol edildi]. (kontrol etmek)   x kontrol etti,kontrol edilecek,kontrol ettirdi
+4 Bu kitap geçen yıl [yazıldı]. (yazmak)   x yazdı,yazılacak,yazdırdı
+5 Annem bana odamı [temizletti]. (temizlemek)   x temizlettim,temizlendi,temizlettik
+5 Öğretmen bize kompozisyon [yazdırdı]. (yazmak)   x yazdırdım,yazıldı,yazdırdık
+5 Patron çalışanlara raporu [okuttu]. (okumak)   x okuttum,okundu,okuttuk
+5 Babam bana arabayı [yıkattı]. (yıkamak)   x yıkattım,yıkandı,yıkattık
+5 Öğretmen öğrencilere şiiri [ezberletti]. (ezberlemek)   x ezberlettim,ezberlendi,ezberlettik
+5 Annem çocuklara odayı [toplattı]. (toplamak)   x toplattım,toplandı,toplattık
+5 Müdür bize mektubu [göndertti]. (göndermek)   x gönderttim,gönderildi,gönderttik
+5 Öğretmen öğrencilere kitabı [okuttu]. (okumak)   x okuttum,okundu,okuttuk
+5 Babam bize bahçeyi [sulattı]. (sulamak)   x sulattım,sulandı,sulattık
+5 Antrenör bize her gün [koşturdu]. (koşmak)   x koşturdum,koşuldu,koşturduk
+5 Ben çok [çalıştığım] için herkes şaşırdı. (çalışmak)   x çalışmama,çalışınca,çalışarak
+5 Ben çok [çalışmama] rağmen sonuç kötüydü. (çalışmak)   x çalıştığım,çalışınca,çalışarak
+6 O çok [çalıştığı] halde kimse fark etmedi. (çalışmak)   x çalışmasına,çalışınca,çalışırken
+5 Sen erken [uyuduğun] için herkes şaşırdı. (uyumak)   x uyumana,uyuyunca,uyuyarak
+5 Sen erken [uyumana] rağmen sonuç kötüydü. (uyumak)   x uyuduğun,uyuyunca,uyuyarak
+6 Biz erken [uyuduğumuz] halde kimse fark etmedi. (uyumak)   x uyumamıza,uyuyunca,uyurken
+5 O çok [yediği] için herkes şaşırdı. (yemek)   x yemesine,yiyince,yiyerek
+5 O çok [yemesine] rağmen sonuç kötüydü. (yemek)   x yediği,yiyince,yiyerek
+6 Siz çok [yediğiniz] halde kimse fark etmedi. (yemek)   x yemenize,yiyince,yerken
+5 Biz hızlı [koştuğumuz] için herkes şaşırdı. (koşmak)   x koşmamıza,koşunca,koşarak
+5 Biz hızlı [koşmamıza] rağmen sonuç kötüydü. (koşmak)   x koştuğumuz,koşunca,koşarak
+6 Ben hızlı [koştuğum] halde kimse fark etmedi. (koşmak)   x koşmama,koşunca,koşarken
+5 Siz çok [okuduğunuz] için herkes şaşırdı. (okumak)   x okumanıza,okuyunca,okuyarak
+5 Siz çok [okumanıza] rağmen sonuç kötüydü. (okumak)   x okuduğunuz,okuyunca,okuyarak
+6 Sen çok [okuduğun] halde kimse fark etmedi. (okumak)   x okumana,okuyunca,okurken
+5 Ben dikkatle [dinlediğim] için herkes şaşırdı. (dinlemek)   x dinlememe,dinleyince,dinleyerek
+5 Ben dikkatle [dinlememe] rağmen sonuç kötüydü. (dinlemek)   x dinlediğim,dinleyince,dinleyerek
+6 O dikkatle [dinlediği] halde kimse fark etmedi. (dinlemek)   x dinlemesine,dinleyince,dinlerken
+5 Sen uzun süre [beklediğin] için herkes şaşırdı. (beklemek)   x beklemene,bekleyince,bekleyerek
+5 Sen uzun süre [beklemene] rağmen sonuç kötüydü. (beklemek)   x beklediğin,bekleyince,bekleyerek
+6 Biz uzun süre [beklediğimiz] halde kimse fark etmedi. (beklemek)   x beklememize,bekleyince,beklerken
+5 O her gün [çalıştığı] için herkes şaşırdı. (çalışmak)   x çalışmasına,çalışınca,çalışarak
+5 O her gün [çalışmasına] rağmen sonuç kötüydü. (çalışmak)   x çalıştığı,çalışınca,çalışarak
+6 Siz her gün [çalıştığınız] halde kimse fark etmedi. (çalışmak)   x çalışmanıza,çalışınca,çalışırken
+5 Biz iyi [anladığımız] için herkes şaşırdı. (anlamak)   x anlamamıza,anlayınca,anlayarak
+5 Biz iyi [anlamamıza] rağmen sonuç kötüydü. (anlamak)   x anladığımız,anlayınca,anlayarak
+6 Ben iyi [anladığım] halde kimse fark etmedi. (anlamak)   x anlamama,anlayınca,anlarken
+5 Siz çok [düşündüğünüz] için herkes şaşırdı. (düşünmek)   x düşünmenize,düşününce,düşünerek
+5 Siz çok [düşünmenize] rağmen sonuç kötüydü. (düşünmek)   x düşündüğünüz,düşününce,düşünerek
+6 Sen çok [düşündüğün] halde kimse fark etmedi. (düşünmek)   x düşünmene,düşününce,düşünürken
+5 Ben dün eve [gelseydim], her şey farklı olurdu. (gelmek)   x gelirsem,geldim,geleceğim
+5 Sen dün çok [çalışsaydın], her şey farklı olurdu. (çalışmak)   x çalışırsan,çalıştın,çalışacaksın
+5 O dün erken [kalksaydı], her şey farklı olurdu. (kalkmak)   x kalkarsa,kalktı,kalkacak
+5 Biz dün doktoru [arasaydık], her şey farklı olurdu. (aramak)   x ararsak,aradık,arayacağız
+5 Siz dün otobüsü [bekleseydiniz], her şey farklı olurdu. (beklemek)   x beklerseniz,beklediniz,bekleyeceksiniz
+5 Ben dün kitap [okusaydım], her şey farklı olurdu. (okumak)   x okursam,okudum,okuyacağım
+5 Sen dün müzik [dinleseydin], her şey farklı olurdu. (dinlemek)   x dinlersen,dinledin,dinleyeceksin
+5 O dün okula [gitseydi], her şey farklı olurdu. (gitmek)   x giderse,gitti,gidecek
+5 Biz dün şarkı [söyleseydik], her şey farklı olurdu. (söylemek)   x söylersek,söyledik,söyleyeceğiz
+5 Siz dün Türkçe [öğrenseydiniz], her şey farklı olurdu. (öğrenmek)   x öğrenirseniz,öğrendiniz,öğreneceksiniz
+5 Ben dün komşulara [yardım etseydim], her şey farklı olurdu. (yardım etmek)   x yardım edersem,yardım ettim,yardım edeceğim
+5 Sen dün hesabı [ödeseydin], her şey farklı olurdu. (ödemek)   x ödersen,ödedin,ödeyeceksin
+3 Ben bugün eve [gelemem], çünkü hiç vakit yok. (gelmek)   x gelebilirim,gelirim,geleceğim
+3 O bugün eve [gelemez], çünkü hiç vakit yok. (gelmek)   x gelebilir,gelir,gelecek
+4 Senin eve [geldiğini] herkes biliyor. (gelmek)   x geldiğimi,geldiğimizi,geldiğinizi
+4 Biz eve [geliyorduk], birden telefon çaldı. (gelmek)   x geliyordum,geliyordun,geliyordu
+5 Ben dün eve [gelecektim], ama plan değişti. (gelmek)   x geldim,gelmiştim,geleceğim
+5 Sizin yarın eve [gelmeniz] gerekiyor. (gelmek)   x gelmem,gelmen,gelmesi
+6 O, sanki eve hiç [gelmemiş] gibi davranıyor. (gelmek)   x gelmedi,gelmeden,gelmesine
+6 Eve [geldikçe] daha çok deneyim kazanıyorum. (gelmek)   x geldikten,gelmeden,gelmeme
+6 Ben yarın eve [gelsem] bile sonuç değişmez. (gelmek)   x gelsen,gelse,gelsek
+6 Biz yarın eve [gelsek] bile sonuç değişmez. (gelmek)   x gelsem,gelsen,gelse
+3 Sen bugün kitap [okuyamazsın], çünkü hiç vakit yok. (okumak)   x okuyabilirsin,okursun,okuyacaksın
+3 Biz bugün kitap [okuyamayız], çünkü hiç vakit yok. (okumak)   x okuyabiliriz,okuruz,okuyacağız
+4 Onun kitap [okuduğunu] herkes biliyor. (okumak)   x okuduğumu,okuduğumuzu,okuduğunuzu
+4 Siz kitap [okuyordunuz], birden telefon çaldı. (okumak)   x okuyordum,okuyordun,okuyordu
+5 Sen dün kitap [okuyacaktın], ama plan değişti. (okumak)   x okudun,okumuştun,okuyacaksın
+5 Benim yarın kitap [okumam] gerekiyor. (okumak)   x okuman,okuması,okumamız
+6 O, sanki kitap hiç [okumamış] gibi davranıyor. (okumak)   x okumadı,okumadan,okumasına
+6 Kitap [okudukça] daha çok deneyim kazanıyorum. (okumak)   x okuduktan,okumadan,okumama
+6 Sen yarın kitap [okusan] bile sonuç değişmez. (okumak)   x okusam,okusa,okusak
+6 Siz yarın kitap [okusanız] bile sonuç değişmez. (okumak)   x okusam,okusan,okusa
+3 O bugün ödev [yapamaz], çünkü hiç vakit yok. (yapmak)   x yapabilir,yapar,yapacak
+3 Siz bugün ödev [yapamazsınız], çünkü hiç vakit yok. (yapmak)   x yapabilirsiniz,yaparsınız,yapacaksınız
+4 Bizim ödev [yaptığımızı] herkes biliyor. (yapmak)   x yaptığımı,yaptığını,yaptığınızı
+4 Ben ödev [yapıyordum], birden telefon çaldı. (yapmak)   x yapıyordun,yapıyordu,yapıyorduk
+5 O dün ödev [yapacaktı], ama plan değişti. (yapmak)   x yaptı,yapmıştı,yapacak
+5 Senin yarın ödev [yapman] gerekiyor. (yapmak)   x yapmam,yapması,yapmamız
+6 O, sanki ödev hiç [yapmamış] gibi davranıyor. (yapmak)   x yapmadı,yapmadan,yapmasına
+6 Ödev [yaptıkça] daha çok deneyim kazanıyorum. (yapmak)   x yaptıktan,yapmadan,yapmama
+6 O yarın ödev [yapsa] bile sonuç değişmez. (yapmak)   x yapsam,yapsan,yapsak
+6 Ben yarın ödev [yapsam] bile sonuç değişmez. (yapmak)   x yapsan,yapsa,yapsak
+3 Biz bugün okula [gidemeyiz], çünkü hiç vakit yok. (gitmek)   x gidebiliriz,gideriz,gideceğiz
+3 Ben bugün okula [gidemem], çünkü hiç vakit yok. (gitmek)   x gidebilirim,giderim,gideceğim
+4 Sizin okula [gittiğinizi] herkes biliyor. (gitmek)   x gittiğimi,gittiğini,gittiğimizi
+4 Sen okula [gidiyordun], birden telefon çaldı. (gitmek)   x gidiyordum,gidiyordu,gidiyorduk
+5 Biz dün okula [gidecektik], ama plan değişti. (gitmek)   x gittik,gitmiştik,gideceğiz
+5 Onun yarın okula [gitmesi] gerekiyor. (gitmek)   x gitmem,gitmen,gitmemiz
+6 O, sanki okula hiç [gitmemiş] gibi davranıyor. (gitmek)   x gitmedi,gitmeden,gitmesine
+6 Okula [gittikçe] daha çok deneyim kazanıyorum. (gitmek)   x gittikten,gitmeden,gitmeme
+6 Biz yarın okula [gitsek] bile sonuç değişmez. (gitmek)   x gitsem,gitsen,gitse
+6 Sen yarın okula [gitsen] bile sonuç değişmez. (gitmek)   x gitsem,gitse,gitsek
+3 Siz bugün çok [çalışamazsınız], çünkü hiç vakit yok. (çalışmak)   x çalışabilirsiniz,çalışırsınız,çalışacaksınız
+3 Sen bugün çok [çalışamazsın], çünkü hiç vakit yok. (çalışmak)   x çalışabilirsin,çalışırsın,çalışacaksın
+4 Benim çok [çalıştığımı] herkes biliyor. (çalışmak)   x çalıştığını,çalıştığımızı,çalıştığınızı
+4 O çok [çalışıyordu], birden telefon çaldı. (çalışmak)   x çalışıyordum,çalışıyordun,çalışıyorduk
+5 Siz dün çok [çalışacaktınız], ama plan değişti. (çalışmak)   x çalıştınız,çalışmıştınız,çalışacaksınız
+5 Bizim yarın çok [çalışmamız] gerekiyor. (çalışmak)   x çalışmam,çalışman,çalışması
+6 O, sanki çok hiç [çalışmamış] gibi davranıyor. (çalışmak)   x çalışmadı,çalışmadan,çalışmasına
+6 Çok [çalıştıkça] daha çok deneyim kazanıyorum. (çalışmak)   x çalıştıktan,çalışmadan,çalışmama
+6 Siz yarın çok [çalışsanız] bile sonuç değişmez. (çalışmak)   x çalışsam,çalışsan,çalışsa
+6 O yarın çok [çalışsa] bile sonuç değişmez. (çalışmak)   x çalışsam,çalışsan,çalışsak
+3 Ben bugün komşulara [yardım edemem], çünkü hiç vakit yok. (yardım etmek)   x yardım edebilirim,yardım ederim,yardım edeceğim
+3 O bugün komşulara [yardım edemez], çünkü hiç vakit yok. (yardım etmek)   x yardım edebilir,yardım eder,yardım edecek
+4 Senin komşulara [yardım ettiğini] herkes biliyor. (yardım etmek)   x yardım ettiğimi,yardım ettiğimizi,yardım ettiğinizi
+4 Biz komşulara [yardım ediyorduk], birden telefon çaldı. (yardım etmek)   x yardım ediyordum,yardım ediyordun,yardım ediyordu
+5 Ben dün komşulara [yardım edecektim], ama plan değişti. (yardım etmek)   x yardım ettim,yardım etmiştim,yardım edeceğim
+5 Sizin yarın komşulara [yardım etmeniz] gerekiyor. (yardım etmek)   x yardım etmem,yardım etmen,yardım etmesi
+6 O, sanki komşulara hiç [yardım etmemiş] gibi davranıyor. (yardım etmek)   x yardım etmedi,yardım etmeden,yardım etmesine
+6 Komşulara [yardım ettikçe] daha çok deneyim kazanıyorum. (yardım etmek)   x yardım ettikten,yardım etmeden,yardım etmeme
+6 Ben yarın komşulara [yardım etsem] bile sonuç değişmez. (yardım etmek)   x yardım etsen,yardım etse,yardım etsek
+6 Biz yarın komşulara [yardım etsek] bile sonuç değişmez. (yardım etmek)   x yardım etsem,yardım etsen,yardım etse
+3 Sen bugün doktoru [arayamazsın], çünkü hiç vakit yok. (aramak)   x arayabilirsin,ararsın,arayacaksın
+3 Biz bugün doktoru [arayamayız], çünkü hiç vakit yok. (aramak)   x arayabiliriz,ararız,arayacağız
+4 Onun doktoru [aradığını] herkes biliyor. (aramak)   x aradığımı,aradığımızı,aradığınızı
+4 Siz doktoru [arıyordunuz], birden telefon çaldı. (aramak)   x arıyordum,arıyordun,arıyordu
+5 Sen dün doktoru [arayacaktın], ama plan değişti. (aramak)   x aradın,aramıştın,arayacaksın
+5 Benim yarın doktoru [aramam] gerekiyor. (aramak)   x araman,araması,aramamız
+6 O, sanki doktoru hiç [aramamış] gibi davranıyor. (aramak)   x aramadı,aramadan,aramasına
+6 Doktoru [aradıkça] daha çok deneyim kazanıyorum. (aramak)   x aradıktan,aramadan,aramama
+6 Sen yarın doktoru [arasan] bile sonuç değişmez. (aramak)   x arasam,arasa,arasak
+6 Siz yarın doktoru [arasanız] bile sonuç değişmez. (aramak)   x arasam,arasan,arasa
+3 O bugün işi [bitiremez], çünkü hiç vakit yok. (bitirmek)   x bitirebilir,bitirir,bitirecek
+3 Siz bugün işi [bitiremezsiniz], çünkü hiç vakit yok. (bitirmek)   x bitirebilirsiniz,bitirirsiniz,bitireceksiniz
+4 Bizim işi [bitirdiğimizi] herkes biliyor. (bitirmek)   x bitirdiğimi,bitirdiğini,bitirdiğinizi
+4 Ben işi [bitiriyordum], birden telefon çaldı. (bitirmek)   x bitiriyordun,bitiriyordu,bitiriyorduk
+5 O dün işi [bitirecekti], ama plan değişti. (bitirmek)   x bitirdi,bitirmişti,bitirecek
+5 Senin yarın işi [bitirmen] gerekiyor. (bitirmek)   x bitirmem,bitirmesi,bitirmemiz
+6 O, sanki işi hiç [bitirmemiş] gibi davranıyor. (bitirmek)   x bitirmedi,bitirmeden,bitirmesine
+6 İşi [bitirdikçe] daha çok deneyim kazanıyorum. (bitirmek)   x bitirdikten,bitirmeden,bitirmeme
+6 O yarın işi [bitirse] bile sonuç değişmez. (bitirmek)   x bitirsem,bitirsen,bitirsek
+6 Ben yarın işi [bitirsem] bile sonuç değişmez. (bitirmek)   x bitirsen,bitirse,bitirsek
+3 Biz bugün Türkçe [öğrenemeyiz], çünkü hiç vakit yok. (öğrenmek)   x öğrenebiliriz,öğreniriz,öğreneceğiz
+3 Ben bugün Türkçe [öğrenemem], çünkü hiç vakit yok. (öğrenmek)   x öğrenebilirim,öğrenirim,öğreneceğim
+4 Sizin Türkçe [öğrendiğinizi] herkes biliyor. (öğrenmek)   x öğrendiğimi,öğrendiğini,öğrendiğimizi
+4 Sen Türkçe [öğreniyordun], birden telefon çaldı. (öğrenmek)   x öğreniyordum,öğreniyordu,öğreniyorduk
+5 Biz dün Türkçe [öğrenecektik], ama plan değişti. (öğrenmek)   x öğrendik,öğrenmiştik,öğreneceğiz
+5 Onun yarın Türkçe [öğrenmesi] gerekiyor. (öğrenmek)   x öğrenmem,öğrenmen,öğrenmemiz
+6 O, sanki Türkçe hiç [öğrenmemiş] gibi davranıyor. (öğrenmek)   x öğrenmedi,öğrenmeden,öğrenmesine
+6 Türkçe [öğrendikçe] daha çok deneyim kazanıyorum. (öğrenmek)   x öğrendikten,öğrenmeden,öğrenmeme
+6 Biz yarın Türkçe [öğrensek] bile sonuç değişmez. (öğrenmek)   x öğrensem,öğrensen,öğrense
+6 Sen yarın Türkçe [öğrensen] bile sonuç değişmez. (öğrenmek)   x öğrensem,öğrense,öğrensek
+3 Siz bugün otobüsü [bekleyemezsiniz], çünkü hiç vakit yok. (beklemek)   x bekleyebilirsiniz,beklersiniz,bekleyeceksiniz
+3 Sen bugün otobüsü [bekleyemezsin], çünkü hiç vakit yok. (beklemek)   x bekleyebilirsin,beklersin,bekleyeceksin
+4 Benim otobüsü [beklediğimi] herkes biliyor. (beklemek)   x beklediğini,beklediğimizi,beklediğinizi
+4 O otobüsü [bekliyordu], birden telefon çaldı. (beklemek)   x bekliyordum,bekliyordun,bekliyorduk
+5 Siz dün otobüsü [bekleyecektiniz], ama plan değişti. (beklemek)   x beklediniz,beklemiştiniz,bekleyeceksiniz
+5 Bizim yarın otobüsü [beklememiz] gerekiyor. (beklemek)   x beklemem,beklemen,beklemesi
+6 O, sanki otobüsü hiç [beklememiş] gibi davranıyor. (beklemek)   x beklemedi,beklemeden,beklemesine
+6 Otobüsü [bekledikçe] daha çok deneyim kazanıyorum. (beklemek)   x bekledikten,beklemeden,beklememe
+6 Siz yarın otobüsü [bekleseniz] bile sonuç değişmez. (beklemek)   x beklesem,beklesen,beklese
+6 O yarın otobüsü [beklese] bile sonuç değişmez. (beklemek)   x beklesem,beklesen,beklesek
+3 Ben bugün hesabı [ödeyemem], çünkü hiç vakit yok. (ödemek)   x ödeyebilirim,öderim,ödeyeceğim
+3 O bugün hesabı [ödeyemez], çünkü hiç vakit yok. (ödemek)   x ödeyebilir,öder,ödeyecek
+4 Senin hesabı [ödediğini] herkes biliyor. (ödemek)   x ödediğimi,ödediğimizi,ödediğinizi
+4 Biz hesabı [ödüyorduk], birden telefon çaldı. (ödemek)   x ödüyordum,ödüyordun,ödüyordu
+5 Ben dün hesabı [ödeyecektim], ama plan değişti. (ödemek)   x ödedim,ödemiştim,ödeyeceğim
+5 Sizin yarın hesabı [ödemeniz] gerekiyor. (ödemek)   x ödemem,ödemen,ödemesi
+6 O, sanki hesabı hiç [ödememiş] gibi davranıyor. (ödemek)   x ödemedi,ödemeden,ödemesine
+6 Hesabı [ödedikçe] daha çok deneyim kazanıyorum. (ödemek)   x ödedikten,ödemeden,ödememe
+6 Ben yarın hesabı [ödesem] bile sonuç değişmez. (ödemek)   x ödesen,ödese,ödesek
+6 Biz yarın hesabı [ödesek] bile sonuç değişmez. (ödemek)   x ödesem,ödesen,ödese
+3 Sen bugün mektup [yazamazsın], çünkü hiç vakit yok. (yazmak)   x yazabilirsin,yazarsın,yazacaksın
+3 Biz bugün mektup [yazamayız], çünkü hiç vakit yok. (yazmak)   x yazabiliriz,yazarız,yazacağız
+4 Onun mektup [yazdığını] herkes biliyor. (yazmak)   x yazdığımı,yazdığımızı,yazdığınızı
+4 Siz mektup [yazıyordunuz], birden telefon çaldı. (yazmak)   x yazıyordum,yazıyordun,yazıyordu
+5 Sen dün mektup [yazacaktın], ama plan değişti. (yazmak)   x yazdın,yazmıştın,yazacaksın
+5 Benim yarın mektup [yazmam] gerekiyor. (yazmak)   x yazman,yazması,yazmamız
+6 O, sanki mektup hiç [yazmamış] gibi davranıyor. (yazmak)   x yazmadı,yazmadan,yazmasına
+6 Mektup [yazdıkça] daha çok deneyim kazanıyorum. (yazmak)   x yazdıktan,yazmadan,yazmama
+6 Sen yarın mektup [yazsan] bile sonuç değişmez. (yazmak)   x yazsam,yazsa,yazsak
+6 Siz yarın mektup [yazsanız] bile sonuç değişmez. (yazmak)   x yazsam,yazsan,yazsa
+3 O bugün film [izleyemez], çünkü hiç vakit yok. (izlemek)   x izleyebilir,izler,izleyecek
+3 Siz bugün film [izleyemezsiniz], çünkü hiç vakit yok. (izlemek)   x izleyebilirsiniz,izlersiniz,izleyeceksiniz
+4 Bizim film [izlediğimizi] herkes biliyor. (izlemek)   x izlediğimi,izlediğini,izlediğinizi
+4 Ben film [izliyordum], birden telefon çaldı. (izlemek)   x izliyordun,izliyordu,izliyorduk
+5 O dün film [izleyecekti], ama plan değişti. (izlemek)   x izledi,izlemişti,izleyecek
+5 Senin yarın film [izlemen] gerekiyor. (izlemek)   x izlemem,izlemesi,izlememiz
+6 O, sanki film hiç [izlememiş] gibi davranıyor. (izlemek)   x izlemedi,izlemeden,izlemesine
+6 Film [izledikçe] daha çok deneyim kazanıyorum. (izlemek)   x izledikten,izlemeden,izlememe
+6 O yarın film [izlese] bile sonuç değişmez. (izlemek)   x izlesem,izlesen,izlesek
+6 Ben yarın film [izlesem] bile sonuç değişmez. (izlemek)   x izlesen,izlese,izlesek
+3 Biz bugün müzik [dinleyemeyiz], çünkü hiç vakit yok. (dinlemek)   x dinleyebiliriz,dinleriz,dinleyeceğiz
+3 Ben bugün müzik [dinleyemem], çünkü hiç vakit yok. (dinlemek)   x dinleyebilirim,dinlerim,dinleyeceğim
+4 Sizin müzik [dinlediğinizi] herkes biliyor. (dinlemek)   x dinlediğimi,dinlediğini,dinlediğimizi
+4 Sen müzik [dinliyordun], birden telefon çaldı. (dinlemek)   x dinliyordum,dinliyordu,dinliyorduk
+5 Biz dün müzik [dinleyecektik], ama plan değişti. (dinlemek)   x dinledik,dinlemiştik,dinleyeceğiz
+5 Onun yarın müzik [dinlemesi] gerekiyor. (dinlemek)   x dinlemem,dinlemen,dinlememiz
+6 O, sanki müzik hiç [dinlememiş] gibi davranıyor. (dinlemek)   x dinlemedi,dinlemeden,dinlemesine
+6 Müzik [dinledikçe] daha çok deneyim kazanıyorum. (dinlemek)   x dinledikten,dinlemeden,dinlememe
+6 Biz yarın müzik [dinlesek] bile sonuç değişmez. (dinlemek)   x dinlesem,dinlesen,dinlese
+6 Sen yarın müzik [dinlesen] bile sonuç değişmez. (dinlemek)   x dinlesem,dinlese,dinlesek

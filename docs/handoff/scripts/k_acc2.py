@@ -1,0 +1,1 @@
+K = {'acc.linkExpired': ['Ссылка из письма устарела или уже использована. Запроси новое письмо и открой ссылку из самого последнего.', 'The email link has expired or was already used. Request a new email and open the link from the latest one.', 'Хаттағы сілтеменің мерзімі өтті немесе ол қолданылды. Жаңа хат сұрап, ең соңғысындағы сілтемені аш.']}

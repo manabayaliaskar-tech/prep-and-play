@@ -1,0 +1,8 @@
+{
+  "afterAll": "nav.olymp",
+  "set": {
+    "ru": { "nav.code": "Код", "pr.codeDesc": "Выбери язык и уровень. Каждое задание — короткая программа: прочитай её и скажи, что она выведет." },
+    "en": { "nav.code": "Code", "pr.codeDesc": "Choose a language and a level. Every question is a short program: read it and say what it prints." },
+    "kk": { "nav.code": "Код", "pr.codeDesc": "Тіл мен деңгейді таңда. Әр тапсырма — қысқа бағдарлама: оны оқып, не шығаратынын айт." }
+  }
+}

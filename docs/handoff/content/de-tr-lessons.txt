@@ -1,0 +1,150 @@
+  'de.bank': {
+    rule: L(
+      "German nouns have three genders (der, die, das) and four cases. The article changes with the case: der Tisch - den Tisch - dem Tisch - des Tisches. The finite verb is always second in a main clause and last in a subordinate clause.",
+      "В немецком три рода (der, die, das) и четыре падежа. Артикль меняется по падежам: der Tisch - den Tisch - dem Tisch - des Tisches. Спрягаемый глагол в главном предложении всегда на втором месте, в придаточном - в конце.",
+      "Неміс тілінде үш тек (der, die, das) және төрт септік бар. Артикль септік бойынша өзгереді: der Tisch - den Tisch - dem Tisch - des Tisches. Жіктелетін етістік басыңқы сөйлемде әрқашан екінші орында, бағыныңқыда - соңында тұрады.",
+    ),
+    points: [
+      L("A1-A2: sein and haben, Akkusativ after most verbs (ich sehe den Hund), Dativ after mit, bei, zu, helfen; Perfekt = haben/sein + Partizip II.", "A1-A2: sein и haben, Akkusativ после большинства глаголов (ich sehe den Hund), Dativ после mit, bei, zu, helfen; Perfekt = haben/sein + Partizip II.", "A1-A2: sein мен haben, етістіктердің көбінен кейін Akkusativ (ich sehe den Hund), mit, bei, zu, helfen-нен кейін Dativ; Perfekt = haben/sein + Partizip II."),
+      L("B1-B2: weil/dass/ob send the verb to the end; wo? - Dativ, wohin? - Akkusativ; adjective endings; relative pronouns; passive werden + Partizip II; Konjunktiv II (hätte, wäre, würde).", "B1-B2: weil/dass/ob отправляют глагол в конец; wo? - Dativ, wohin? - Akkusativ; окончания прилагательных; относительные местоимения; пассив werden + Partizip II; Konjunktiv II (hätte, wäre, würde).", "B1-B2: weil/dass/ob етістікті соңына жібереді; wo? - Dativ, wohin? - Akkusativ; сын есім жалғаулары; қатыстық есімдіктер; ырықсыз етіс werden + Partizip II; Konjunktiv II (hätte, wäre, würde)."),
+      L("C1-C2: Konjunktiv I in reported speech (er sei, er habe), participles as adjectives (das weinende Kind), double infinitive (hätte kommen sollen), fixed phrases and idioms.", "C1-C2: Konjunktiv I в косвенной речи (er sei, er habe), причастия как определения (das weinende Kind), двойной инфинитив (hätte kommen sollen), устойчивые выражения и идиомы.", "C1-C2: төлеу сөздегі Konjunktiv I (er sei, er habe), анықтауыш ретіндегі есімшелер (das weinende Kind), қос инфинитив (hätte kommen sollen), тұрақты тіркестер мен идиомалар."),
+    ],
+    example: {
+      q: same("Ich bleibe zu Hause, weil ich krank ___. (sein)"),
+      steps: [
+        L("weil starts a subordinate clause, so the finite verb goes to the end.", "weil начинает придаточное, значит спрягаемый глагол уходит в конец.", "weil бағыныңқы сөйлемді бастайды, демек жіктелетін етістік соңына шығады."),
+        L("For ich the form of sein is bin: ... weil ich krank bin.", "Для ich форма sein - bin: ... weil ich krank bin.", "ich үшін sein-нің түрі - bin: ... weil ich krank bin."),
+      ],
+    },
+    check: {
+      q: L("Choose: Ich fahre mit ___ Bus.", "Выбери: Ich fahre mit ___ Bus.", "Таңда: Ich fahre mit ___ Bus."),
+      options: [same("den"), same("dem"), same("der")],
+      answer: 1,
+      why: L("mit always takes the dative; der Bus is masculine: mit dem Bus.", "После mit всегда Dativ; der Bus - мужского рода: mit dem Bus.", "mit-тен кейін әрқашан Dativ; der Bus - еркек тегі: mit dem Bus."),
+    },
+  },
+  'de.words': {
+    rule: L(
+      "Learn every German noun together with its article and always write it with a capital letter: der Tisch, die Lampe, das Buch. The gender often does not match Russian or Kazakh logic, so the article is part of the word.",
+      "Учи каждое немецкое существительное вместе с артиклем и пиши его с большой буквы: der Tisch, die Lampe, das Buch. Род часто не совпадает с русским, поэтому артикль - часть слова.",
+      "Неміс тіліндегі әр зат есімді артиклімен бірге жатта және бас әріппен жаз: der Tisch, die Lampe, das Buch. Тегі орыс тіліндегіге сәйкес келе бермейді, сондықтан артикль - сөздің бөлігі.",
+    ),
+    points: [
+      L("Usually feminine: words in -ung, -heit, -keit, -schaft, -ion and most nouns in -e: die Zeitung, die Freiheit, die Lampe.", "Обычно женского рода: слова на -ung, -heit, -keit, -schaft, -ion и большинство на -e: die Zeitung, die Freiheit, die Lampe.", "Әдетте әйел тегі: -ung, -heit, -keit, -schaft, -ion жұрнақты және -e-мен біткен сөздердің көбі: die Zeitung, die Freiheit, die Lampe."),
+      L("Always neuter: diminutives in -chen and -lein (das Mädchen) and infinitives used as nouns (das Essen).", "Всегда среднего рода: уменьшительные на -chen и -lein (das Mädchen) и инфинитивы как существительные (das Essen).", "Әрқашан орта тек: -chen және -lein кішірейткіш сөздер (das Mädchen) және зат есімге айналған тұйық етістіктер (das Essen)."),
+      L("Usually masculine: days, months, seasons and words in -er for people: der Montag, der Winter, der Lehrer.", "Обычно мужского рода: дни, месяцы, времена года и слова на -er о людях: der Montag, der Winter, der Lehrer.", "Әдетте еркек тегі: күндер, айлар, жыл мезгілдері және адамды білдіретін -er сөздері: der Montag, der Winter, der Lehrer."),
+    ],
+    example: {
+      q: same("___ Zeitung"),
+      steps: [
+        L("The ending -ung almost always means a feminine noun.", "Окончание -ung почти всегда означает женский род.", "-ung жұрнағы әрдайым дерлік әйел тегін білдіреді."),
+        L("So: die Zeitung (newspaper).", "Значит: die Zeitung (газета).", "Демек: die Zeitung (газет)."),
+      ],
+    },
+    check: {
+      q: L("Which article does «Mädchen» take?", "Какой артикль у слова «Mädchen»?", "«Mädchen» сөзінің артиклі қандай?"),
+      options: [same("der"), same("die"), same("das")],
+      answer: 2,
+      why: L("Words in -chen are always neuter: das Mädchen (girl).", "Слова на -chen всегда среднего рода: das Mädchen (девочка).", "-chen-мен біткен сөздер әрқашан орта текте: das Mädchen (қыз бала)."),
+    },
+  },
+  'de.verbs': {
+    rule: L(
+      "German verbs take the endings -e, -st, -t, -en, -t, -en in the present. Strong verbs change the vowel for du and er (fahren - du fährst), separable verbs send the prefix to the end (ich stehe früh auf).",
+      "Немецкие глаголы в настоящем времени получают окончания -e, -st, -t, -en, -t, -en. Сильные глаголы меняют гласную у du и er (fahren - du fährst), отделяемые отправляют приставку в конец (ich stehe früh auf).",
+      "Неміс етістіктері осы шақта -e, -st, -t, -en, -t, -en жалғауларын алады. Күшті етістіктер du мен er-де дауыстысын өзгертеді (fahren - du fährst), бөлінетіндер префиксті соңына жібереді (ich stehe früh auf).",
+    ),
+    points: [
+      L("A1-A2: Präsens and modal verbs (ich kann, du musst); Perfekt with haben or sein: ich habe gespielt, ich bin gefahren.", "A1-A2: Präsens и модальные глаголы (ich kann, du musst); Perfekt с haben или sein: ich habe gespielt, ich bin gefahren.", "A1-A2: Präsens және модаль етістіктер (ich kann, du musst); haben не sein-мен Perfekt: ich habe gespielt, ich bin gefahren."),
+      L("B1-B2: Präteritum (ich spielte, ich fuhr), Futur I (ich werde fahren), Plusquamperfekt (ich hatte gespielt), Konjunktiv II (ich würde fahren, ich wäre).", "B1-B2: Präteritum (ich spielte, ich fuhr), Futur I (ich werde fahren), Plusquamperfekt (ich hatte gespielt), Konjunktiv II (ich würde fahren, ich wäre).", "B1-B2: Präteritum (ich spielte, ich fuhr), Futur I (ich werde fahren), Plusquamperfekt (ich hatte gespielt), Konjunktiv II (ich würde fahren, ich wäre)."),
+      L("C1-C2: past Konjunktiv II (ich hätte gespielt, ich wäre gefahren) and Konjunktiv I for reported speech (er komme, er sei).", "C1-C2: Konjunktiv II прошедшего (ich hätte gespielt, ich wäre gefahren) и Konjunktiv I для косвенной речи (er komme, er sei).", "C1-C2: өткен шақтағы Konjunktiv II (ich hätte gespielt, ich wäre gefahren) және төлеу сөзге арналған Konjunktiv I (er komme, er sei)."),
+    ],
+    example: {
+      q: same("du ___ (fahren)"),
+      steps: [
+        L("fahren is a strong verb: a becomes ä for du and er.", "fahren - сильный глагол: у du и er a → ä.", "fahren - күшті етістік: du мен er-де a → ä."),
+        L("du fährst, er fährt, but wir fahren.", "du fährst, er fährt, но wir fahren.", "du fährst, er fährt, бірақ wir fahren."),
+      ],
+    },
+    check: {
+      q: L("Choose: Gestern ___ ich ins Kino gegangen.", "Выбери: Gestern ___ ich ins Kino gegangen.", "Таңда: Gestern ___ ich ins Kino gegangen."),
+      options: [same("habe"), same("bin"), same("hat")],
+      answer: 1,
+      why: L("gehen is a verb of movement, so its Perfekt takes sein: ich bin gegangen.", "gehen - глагол движения, его Perfekt образуется с sein: ich bin gegangen.", "gehen - қозғалыс етістігі, оның Perfekt-і sein-мен жасалады: ich bin gegangen."),
+    },
+  },
+  'tr.bank': {
+    rule: L(
+      "Turkish, like Kazakh, adds suffixes to the end of a word, and every suffix follows vowel harmony: after a, ı, o, u - a back vowel, after e, i, ö, ü - a front one. ev-de (at home), okul-da (at school), kitap-ta (in the book).",
+      "В турецком, как и в казахском, к концу слова добавляются окончания, и каждое подчиняется гармонии гласных: после a, ı, o, u - задний гласный, после e, i, ö, ü - передний. ev-de (дома), okul-da (в школе), kitap-ta (в книге).",
+      "Түрік тілінде де, қазақ тіліндегідей, сөздің соңына жалғаулар жалғанады және әрқайсысы үндестік заңына бағынады: a, ı, o, u-дан кейін - жуан дауысты, e, i, ö, ü-ден кейін - жіңішке. ev-de (үйде), okul-da (мектепте), kitap-ta (кітапта).",
+    ),
+    points: [
+      L("A1-A2: cases -e (to), -de (at), -den (from), -i (definite object), question particle mi/mı/mu/mü, possessives evim, evin, evi; after numbers - singular: iki kitap.", "A1-A2: падежи -e (куда), -de (где), -den (откуда), -i (определённый объект), частица mi/mı/mu/mü, притяжательные evim, evin, evi; после числительных - единственное число: iki kitap.", "A1-A2: септіктер -e (қайда), -de (қай жерде), -den (қайдан), -i (белгілі нысан), mi/mı/mu/mü шылауы, тәуелдік evim, evin, evi; сан есімнен кейін - жекеше: iki kitap (екі кітап)."),
+      L("B1-B2: -meden önce / -dikten sonra, conditional -se, participles -en, -dik, -ecek (okuduğum kitap), passive -il and phrases like hem ... hem, ne ... ne.", "B1-B2: -meden önce / -dikten sonra, условное -se, причастия -en, -dik, -ecek (okuduğum kitap), пассив -il и пары hem ... hem, ne ... ne.", "B1-B2: -meden önce / -dikten sonra, шартты -se, -en, -dik, -ecek есімшелері (okuduğum kitap - оқыған кітабым), ырықсыз етіс -il және hem ... hem, ne ... ne."),
+      L("C1-C2: causative -dir/-t, -dığı için, -masına rağmen, -dığı halde, unreal past -seydi, and proverbs.", "C1-C2: понудительный залог -dir/-t, -dığı için, -masına rağmen, -dığı halde, нереальное прошлое -seydi и пословицы.", "C1-C2: өзгелік етіс -dir/-t, -dığı için, -masına rağmen, -dığı halde, шындыққа жанаспайтын -seydi және мақалдар."),
+    ],
+    example: {
+      q: same("Yarın ___ gidiyorum. (okul)"),
+      steps: [
+        L("Direction («where to?») takes the dative -e/-a.", "Направление («куда?») - дательный падеж -e/-a.", "Бағыт («қайда?») - барыс септік -e/-a (қазақшадағы -ға/-ге)."),
+        L("The last vowel of okul is u, so -a: okula.", "Последняя гласная okul - u, значит -a: okula.", "okul сөзінің соңғы дауыстысы - u, демек -a: okula (мектепке)."),
+      ],
+    },
+    check: {
+      q: L("Choose: Bu çay sıcak ___?", "Выбери: Bu çay sıcak ___?", "Таңда: Bu çay sıcak ___?"),
+      options: [same("mi"), same("mı"), same("mu")],
+      answer: 1,
+      why: L("The last vowel of sıcak is a, so the particle is mı.", "Последняя гласная sıcak - a, поэтому частица mı.", "sıcak сөзінің соңғы дауыстысы - a, сондықтан шылау mı."),
+    },
+  },
+  'tr.words': {
+    rule: L(
+      "Turkish has no articles and no grammatical gender. Many words will look familiar to a Kazakh speaker (göz - көз, el - ел/қол, kar - қар), but always check the meaning: some look alike but differ.",
+      "В турецком нет артиклей и рода. Многие слова похожи на казахские (göz - көз, kar - қар, taş - тас), но значение стоит проверять: бывают «ложные друзья».",
+      "Түрік тілінде артикль де, тек те жоқ. Көп сөз қазақшаға ұқсас (göz - көз, kar - қар, taş - тас), бірақ мағынасын тексер: ұқсас болып көрінгенмен, мағынасы басқа сөздер де бар.",
+    ),
+    points: [
+      L("Locative «in / at»: -da/-de by harmony, -ta/-te after f, s, t, k, ç, ş, h, p: evde, okulda, kitapta, sokakta.", "Местный падеж «в / на»: -da/-de по гармонии, -ta/-te после f, s, t, k, ç, ş, h, p: evde, okulda, kitapta, sokakta.", "Жатыс септік: үндестік бойынша -da/-de, f, s, t, k, ç, ş, h, p-дан кейін -ta/-te: evde, okulda, kitapta, sokakta - қазақшадағы үйде, кітапта сияқты."),
+      L("Plural -lar/-ler: kitaplar, evler (like Kazakh -лар/-лер).", "Множественное -lar/-ler: kitaplar, evler (как в казахском -лар/-лер).", "Көпше -lar/-ler: kitaplar, evler (қазақшадағы -лар/-лер сияқты)."),
+      L("Verbs are given in the infinitive -mak/-mek: okumak (to read), gelmek (to come).", "Глаголы даются в инфинитиве -mak/-mek: okumak (читать), gelmek (приходить).", "Етістіктер -mak/-mek тұйық түрінде беріледі: okumak (оқу), gelmek (келу)."),
+    ],
+    example: {
+      q: same("sokak + -da/-de/-ta/-te = ?"),
+      steps: [
+        L("The last vowel is a, so the suffix has a.", "Последняя гласная a, значит в окончании a.", "Соңғы дауысты a, демек жалғауда a."),
+        L("sokak ends in voiceless k, so d becomes t: sokakta (in the street).", "sokak оканчивается на глухую k, поэтому d → t: sokakta (на улице).", "sokak қатаң k-мен бітеді, сондықтан d → t: sokakta (көшеде)."),
+      ],
+    },
+    check: {
+      q: L("What does «göz» mean?", "Что значит «göz»?", "«göz» нені білдіреді?"),
+      options: [L("ear", "ухо", "құлақ"), L("eye", "глаз", "көз"), L("hand", "рука", "қол")],
+      answer: 1,
+      why: L("göz is «eye» - the same word as Kazakh көз.", "göz - «глаз», то же слово, что казахское көз.", "göz - «көз», қазақ тіліндегі сөзбен бірдей."),
+    },
+  },
+  'tr.verbs': {
+    rule: L(
+      "A Turkish verb is stem + tense suffix + personal ending, all by vowel harmony: gel-iyor-um (I am coming), gel-di-m (I came), gel-ecek-im → geleceğim (I will come). The pattern is very close to Kazakh: кел-ді-м.",
+      "Турецкий глагол = основа + показатель времени + личное окончание, всё по гармонии: gel-iyor-um (я иду), gel-di-m (я пришёл), gel-ecek-im → geleceğim (я приду). Схема очень похожа на казахскую: кел-ді-м.",
+      "Түрік етістігі = түбір + шақ жұрнағы + жіктік жалғау, бәрі үндестік бойынша: gel-iyor-um (келе жатырмын), gel-di-m (келдім), gel-ecek-im → geleceğim (келемін). Құрылымы қазақшаға өте жақын: кел-ді-м.",
+    ),
+    points: [
+      L("A1-A2: present -iyor (geliyorum, gelmiyorum), past -di (geldim, yaptım, gittim), future -ecek (geleceğim, yapacağım).", "A1-A2: настоящее -iyor (geliyorum, gelmiyorum), прошедшее -di (geldim, yaptım, gittim), будущее -ecek (geleceğim, yapacağım).", "A1-A2: нақ осы шақ -iyor (geliyorum, gelmiyorum), өткен шақ -di (geldim, yaptım, gittim), келер шақ -ecek (geleceğim, yapacağım)."),
+      L("B1-B2: aorist -ir/-er (gelirim), -miş (gelmiş), -ebil (gelebilirim), -meli (gelmeliyim), -se (gelsem), -iyordu (geliyordum).", "B1-B2: широкое -ir/-er (gelirim), -miş (gelmiş), -ebil (gelebilirim), -meli (gelmeliyim), -se (gelsem), -iyordu (geliyordum).", "B1-B2: ауыспалы -ir/-er (gelirim), -miş (gelmiş), -ebil (gelebilirim - келе аламын), -meli (gelmeliyim), -se (gelsem - келсем), -iyordu (geliyordum)."),
+      L("C1-C2: -mişti (gelmiştim), -ecekti (gelecektim), -irse (gelirsem); irregular stems: git → gidiyor, et → ediyor, ye → yiyor.", "C1-C2: -mişti (gelmiştim), -ecekti (gelecektim), -irse (gelirsem); особые основы: git → gidiyor, et → ediyor, ye → yiyor.", "C1-C2: -mişti (gelmiştim), -ecekti (gelecektim), -irse (gelirsem); ерекше түбірлер: git → gidiyor, et → ediyor, ye → yiyor."),
+    ],
+    example: {
+      q: same("Dün ben okula ___. (gitmek)"),
+      steps: [
+        L("Dün (yesterday) needs the past -di; git ends in voiceless t, so -ti.", "Dün (вчера) - прошедшее -di; git оканчивается на глухую t, поэтому -ti.", "Dün (кеше) - өткен шақ -di; git қатаң t-мен бітеді, сондықтан -ti."),
+        L("For ben add -m: gittim (I went).", "Для ben добавляем -m: gittim (я пошёл).", "ben үшін -m қосамыз: gittim (бардым)."),
+      ],
+    },
+    check: {
+      q: L("Choose: Biz şimdi kitap ___. (okumak)", "Выбери: Biz şimdi kitap ___. (okumak)", "Таңда: Biz şimdi kitap ___. (okumak)"),
+      options: [same("okuyorum"), same("okuyoruz"), same("okuyorlar")],
+      answer: 1,
+      why: L("biz (we) takes -uz after -iyor: okuyoruz.", "Для biz (мы) после -iyor окончание -uz: okuyoruz.", "biz үшін -iyor-дан кейін -uz жалғауы: okuyoruz (оқып жатырмыз)."),
+    },
+  },

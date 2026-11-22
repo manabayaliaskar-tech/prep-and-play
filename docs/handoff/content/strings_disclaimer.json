@@ -1,0 +1,14 @@
+{
+  "afterAll": "cat.official",
+  "set": {
+    "ru": {
+      "cat.disclaimer": "Все задания авторские и составлены по открытым программам экзаменов. Prep&Play не связан с организаторами экзаменов. SAT, IELTS и TOEFL — товарные знаки их владельцев. Формат экзаменов меняется, поэтому сверяйся с официальным сайтом."
+    },
+    "en": {
+      "cat.disclaimer": "All questions are original and based on the published exam programmes. Prep&Play is not affiliated with the exam organisers. SAT, IELTS and TOEFL are trademarks of their owners. Exam formats change, so check the official website."
+    },
+    "kk": {
+      "cat.disclaimer": "Барлық тапсырмалар авторлық және емтихандардың ашық бағдарламалары бойынша құрастырылған. Prep&Play емтихан ұйымдастырушыларымен байланысты емес. SAT, IELTS және TOEFL — иелерінің тауар белгілері. Емтихан форматы өзгеріп тұрады, сондықтан ресми сайттан тексер."
+    }
+  }
+}

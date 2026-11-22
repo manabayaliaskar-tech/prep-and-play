@@ -1,0 +1,60 @@
+const { chromium } = require('playwright');
+const S = __dirname + '/';
+async function answerLoop(p, max = 40, shotAt = -1, name = 'x') {
+  for (let i = 0; i < max; i++) {
+    if (await p.$('.results, .result-hero, .result-stats')) return i;
+    const choice = await p.$('.choice:not([disabled])');
+    if (choice) await choice.click();
+    else if (await p.$('.spr-input:not([disabled])')) await p.fill('.spr-input', '3');
+    await p.waitForTimeout(80);
+    const btn = await p.$('.btn-check:not([disabled])');
+    if (btn) await btn.click();
+    await p.waitForTimeout(250);
+    if (i === shotAt) await p.screenshot({ path: S + name + '.png' });
+    const btn2 = await p.$('.btn-check:not([disabled])');
+    if (btn2 && (await p.$('.sheet:not([hidden])'))) await btn2.click();
+    await p.waitForTimeout(150);
+  }
+  return max;
+}
+(async () => {
+  const b = await chromium.launch();
+  const p = await b.newPage({ viewport: { width: 420, height: 900 } });
+  const errs = [];
+  p.on('pageerror', (e) => errs.push(String(e.stack || e)));
+  p.on('console', (m) => m.type() === 'error' && errs.push(m.text()));
+  await p.goto('http://localhost:3000/#/adapt/ent');
+  await p.waitForTimeout(500);
+  await p.click('[data-start="mathlit"]');
+  await p.waitForTimeout(400);
+  await p.click('.save-btn');
+  await p.waitForTimeout(200);
+  console.log('saved pressed', await p.getAttribute('.save-btn', 'aria-pressed'));
+  await p.click('.pace-chip');
+  await p.waitForTimeout(600);
+  await p.screenshot({ path: S + 'adapt-q.png' });
+  const n = await answerLoop(p, 40, 1, 'adapt-fb');
+  console.log('adapt answered loops', n);
+  await p.waitForTimeout(500);
+  await p.screenshot({ path: S + 'adapt-res.png', fullPage: true });
+  await p.goto('http://localhost:3000/#/diag/ent');
+  await p.waitForTimeout(400);
+  await p.click('.diag-start');
+  await p.waitForTimeout(300);
+  console.log('diag loops', await answerLoop(p, 60));
+  await p.waitForTimeout(500);
+  await p.screenshot({ path: S + 'diag-res.png', fullPage: true });
+  await p.goto('http://localhost:3000/#/know/ent');
+  await p.waitForTimeout(600);
+  await p.screenshot({ path: S + 'know.png', fullPage: true });
+  await p.click('.know-cell', { force: true });
+  await p.waitForTimeout(300);
+  await p.screenshot({ path: S + 'know-modal.png' });
+  await p.goto('http://localhost:3000/#/saved');
+  await p.waitForTimeout(400);
+  await p.click('[data-open]', { force: true });
+  await p.waitForTimeout(400);
+  await p.screenshot({ path: S + 'saved.png', fullPage: true });
+  console.log('ERRORS', errs);
+  await b.close();
+})();

@@ -1,0 +1,23 @@
+const { chromium } = require('playwright');
+(async () => {
+  const b = await chromium.launch();
+  const p = await b.newPage({ viewport: { width: 1280, height: 860 } });
+  const errs = []; p.on('pageerror', e => errs.push('pageerror: ' + e.message));
+  p.on('dialog', d => d.accept());
+  const SP = process.argv[2];
+  await p.goto('http://localhost:8765/#/level/m1/1'); await p.waitForTimeout(400);
+  const before = await p.textContent('.q-prompt');
+  if (await p.$('.spr-input')) await p.fill('.spr-input', '5'); else await p.click('.choice >> nth=1');
+  await p.click('.session-title [data-lang="kk"]'); await p.waitForTimeout(200);
+  const after = await p.textContent('.q-prompt');
+  console.log('same question:', before === after, '| check enabled:', !(await p.isDisabled('.btn-check')), '| title:', await p.textContent('.session-title span'));
+  await p.click('.btn-check'); await p.waitForTimeout(200);
+  await p.click('.session-title [data-lang="en"]'); await p.waitForTimeout(200);
+  console.log('feedback kept:', !!(await p.$('.sheet:not([hidden])')), await p.textContent('.btn-check'));
+  await p.screenshot({ path: SP + '/pp-lang.png' });
+  await p.goto('http://localhost:8765/#/exam'); await p.waitForTimeout(300); await p.click('.start-btn'); await p.waitForTimeout(300);
+  await p.click('.exam-tools [data-lang="ru"]'); await p.waitForTimeout(200);
+  console.log('exam:', await p.textContent('.exam-title'));
+  console.log('errors', errs);
+  await b.close();
+})();

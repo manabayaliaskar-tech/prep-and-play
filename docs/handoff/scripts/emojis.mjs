@@ -1,0 +1,10 @@
+import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { join } from 'node:path';
+const files = [];
+const walk = (d) => { for (const f of readdirSync(d)) { const p = join(d, f); if (statSync(p).isDirectory()) walk(p); else if (/\.(js|html)$/.test(f)) files.push(p); } };
+walk('/home/user/School/src'); files.push('/home/user/School/index.html');
+const RE = /(?:\p{RI}\p{RI}|[#*0-9]️⃣|(?:\p{Emoji_Presentation}|\p{Extended_Pictographic}️)(?:[\u{1F3FB}-\u{1F3FF}])?(?:‍(?:\p{Extended_Pictographic})️?(?:[\u{1F3FB}-\u{1F3FF}])?)*)/gu;
+const counts = new Map();
+for (const f of files) for (const m of readFileSync(f, 'utf8').matchAll(RE)) counts.set(m[0], (counts.get(m[0]) ?? 0) + 1);
+console.log(counts.size);
+console.log([...counts.keys()].join(' '));

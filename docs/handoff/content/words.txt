@@ -1,0 +1,581 @@
+1|food|apple|яблоко|алма|la manzana
+1|food|bread|хлеб|нан|el pan
+1|food|milk|молоко|сүт|la leche
+1|food|juice|сок|шырын|el zumo
+1|food|egg|яйцо|жұмыртқа|el huevo
+1|food|cheese|сыр|ірімшік|el queso
+1|food|tea|чай|шай|el té
+1|food|coffee|кофе|кофе|el café
+1|food|rice|рис|күріш|el arroz
+1|food|meat|мясо|ет|la carne
+1|food|soup|суп|сорпа|la sopa
+1|food|salt|соль|тұз|la sal
+1|food|cake|торт|торт|la tarta
+1|food|banana|банан|банан|el plátano
+1|food|potato|картофель|картоп|la patata
+1|food|tomato|помидор|қызанақ|el tomate
+1|animal|dog|собака|ит|el perro
+1|animal|cat|кошка|мысық|el gato
+1|animal|horse|лошадь|жылқы|el caballo
+1|animal|cow|корова|сиыр|la vaca
+1|animal|bird|птица|құс|el pájaro
+1|animal|sheep|овца|қой|la oveja
+1|animal|mouse|мышь|тышқан|el ratón
+1|animal|bear|медведь|аю|el oso
+1|animal|wolf|волк|қасқыр|el lobo
+1|animal|lion|лев|арыстан|el león
+1|animal|rabbit|кролик|қоян|el conejo
+1|body|head|голова|бас|la cabeza
+1|body|hand|кисть руки|қол|la mano
+1|body|eye|глаз|көз|el ojo
+1|body|nose|нос|мұрын|la nariz
+1|body|mouth|рот|ауыз|la boca
+1|body|ear|ухо|құлақ|la oreja
+1|body|leg|нога|аяқ|la pierna
+1|body|tooth|зуб|тіс|el diente
+1|people|mother|мама|ана|la madre
+1|people|father|папа|әке|el padre
+1|people|brother|брат|аға-іні|el hermano
+1|people|sister|сестра|апа-сіңлі|la hermana
+1|people|friend|друг|дос|el amigo
+1|people|child|ребёнок|бала|el niño
+1|people|boy|мальчик|ұл бала|el chico
+1|people|girl|девочка|қыз бала|la chica
+1|people|baby|младенец|нәресте|el bebé
+1|people|grandmother|бабушка|әже|la abuela
+1|people|grandfather|дедушка|ата|el abuelo
+1|home|house|дом|үй|la casa
+1|home|room|комната|бөлме|la habitación
+1|home|door|дверь|есік|la puerta
+1|home|window|окно|терезе|la ventana
+1|home|table|стол|үстел|la mesa
+1|home|chair|стул|орындық|la silla
+1|home|bed|кровать|төсек|la cama
+1|home|kitchen|кухня|ас үй|la cocina
+1|home|key|ключ|кілт|la llave
+1|home|lamp|лампа|шам|la lámpara
+1|school|book|книга|кітап|el libro
+1|school|pen|ручка|қалам|el bolígrafo
+1|school|pencil|карандаш|қарындаш|el lápiz
+1|school|lesson|урок|сабақ|la lección
+1|school|backpack|рюкзак|рюкзак|la mochila
+1|school|notebook|тетрадь|дәптер|el cuaderno
+1|color|red|красный|қызыл|rojo
+1|color|blue|синий|көк|azul
+1|color|green|зелёный|жасыл|verde
+1|color|yellow|жёлтый|сары|amarillo
+1|color|white|белый|ақ|blanco
+1|color|black|чёрный|қара|negro
+1|nature|sun|солнце|күн|el sol
+1|nature|moon|луна|ай|la luna
+1|nature|sky|небо|аспан|el cielo
+1|nature|tree|дерево|ағаш|el árbol
+1|nature|flower|цветок|гүл|la flor
+1|nature|rain|дождь|жаңбыр|la lluvia
+1|nature|snow|снег|қар|la nieve
+1|nature|river|река|өзен|el río
+1|nature|sea|море|теңіз|el mar
+1|nature|mountain|гора|тау|la montaña
+1|time|day|день|күн|el día
+1|time|night|ночь|түн|la noche
+1|time|morning|утро|таң|la mañana
+1|time|week|неделя|апта|la semana
+1|time|year|год|жыл|el año
+1|time|today|сегодня|бүгін|hoy
+1|time|tomorrow|завтра|ертең|mañana
+1|place|city|город|қала|la ciudad
+1|place|street|улица|көше|la calle
+1|place|shop|магазин|дүкен|la tienda
+1|place|park|парк|саябақ|el parque
+1|place|hospital|больница|аурухана|el hospital
+1|place|school|школа|мектеп|la escuela
+1|clothes|shirt|рубашка|жейде|la camisa
+1|clothes|shoes|обувь|аяқ киім|los zapatos
+1|clothes|hat|шляпа|қалпақ|el sombrero
+1|clothes|dress|платье|көйлек|el vestido
+1|transport|car|машина|автокөлік|el coche
+1|transport|bus|автобус|автобус|el autobús
+1|transport|train|поезд|пойыз|el tren
+1|transport|plane|самолёт|ұшақ|el avión
+1|transport|bike|велосипед|велосипед|la bicicleta
+1|verb|eat|есть|жеу|comer
+1|verb|drink|пить|ішу|beber
+1|verb|sleep|спать|ұйықтау|dormir
+1|verb|go|идти|бару|ir
+1|verb|read|читать|оқу|leer
+1|verb|write|писать|жазу|escribir
+1|verb|see|видеть|көру|ver
+1|verb|speak|говорить|сөйлеу|hablar
+1|verb|play|играть|ойнау|jugar
+1|verb|live|жить|тұру|vivir
+1|verb|love|любить|жақсы көру|amar
+1|verb|open|открывать|ашу|abrir
+1|verb|buy|покупать|сатып алу|comprar
+1|verb|run|бегать|жүгіру|correr
+1|verb|swim|плавать|жүзу|nadar
+1|verb|sing|петь|ән айту|cantar
+1|adj|big|большой|үлкен|grande
+1|adj|small|маленький|кішкентай|pequeño
+1|adj|good|хороший|жақсы|bueno
+1|adj|bad|плохой|жаман|malo
+1|adj|new|новый|жаңа|nuevo
+1|adj|old|старый|ескі|viejo
+1|adj|hot|горячий|ыстық|caliente
+1|adj|cold|холодный|суық|frío
+1|feeling|happy|счастливый|бақытты|feliz
+1|feeling|sad|грустный|мұңды|triste
+1|adj|beautiful|красивый|әдемі|bonito
+2|food|vegetable|овощ|көкөніс|la verdura
+2|food|fruit|фрукт|жеміс|la fruta
+2|food|butter|сливочное масло|сары май|la mantequilla
+2|food|onion|лук|пияз|la cebolla
+2|food|carrot|морковь|сәбіз|la zanahoria
+2|food|grapes|виноград|жүзім|las uvas
+2|food|honey|мёд|бал|la miel
+2|food|salad|салат|салат|la ensalada
+2|food|breakfast|завтрак|таңғы ас|el desayuno
+2|food|dinner|ужин|кешкі ас|la cena
+2|food|lunch|обед|түскі ас|el almuerzo
+2|animal|camel|верблюд|түйе|el camello
+2|animal|snake|змея|жылан|la serpiente
+2|animal|fox|лиса|түлкі|el zorro
+2|animal|monkey|обезьяна|маймыл|el mono
+2|animal|elephant|слон|піл|el elefante
+2|animal|goat|коза|ешкі|la cabra
+2|animal|duck|утка|үйрек|el pato
+2|animal|frog|лягушка|бақа|la rana
+2|animal|bee|пчела|ара|la abeja
+2|body|heart|сердце|жүрек|el corazón
+2|body|shoulder|плечо|иық|el hombro
+2|body|finger|палец|саусақ|el dedo
+2|body|knee|колено|тізе|la rodilla
+2|body|neck|шея|мойын|el cuello
+2|body|back|спина|арқа|la espalda
+2|body|stomach|живот|іш|el estómago
+2|body|face|лицо|бет|la cara
+2|people|husband|муж|күйеу|el marido
+2|people|wife|жена|әйелі|la esposa
+2|people|neighbour|сосед|көрші|el vecino
+2|people|guest|гость|қонақ|el invitado
+2|people|son|сын|ұл|el hijo
+2|people|daughter|дочь|қыз|la hija
+2|home|garden|сад|бақ|el jardín
+2|home|wall|стена|қабырға|la pared
+2|home|floor|пол|еден|el suelo
+2|home|roof|крыша|шатыр|el tejado
+2|home|mirror|зеркало|айна|el espejo
+2|home|cup|чашка|кесе|la taza
+2|home|plate|тарелка|тәрелке|el plato
+2|home|spoon|ложка|қасық|la cuchara
+2|home|knife|нож|пышақ|el cuchillo
+2|home|fridge|холодильник|тоңазытқыш|la nevera
+2|home|pillow|подушка|жастық|la almohada
+2|school|exam|экзамен|емтихан|el examen
+2|school|ruler|линейка|сызғыш|la regla
+2|school|dictionary|словарь|сөздік|el diccionario
+2|school|library|библиотека|кітапхана|la biblioteca
+2|school|blackboard|доска|тақта|la pizarra
+2|school|pupil|ученик|оқушы|el alumno
+2|place|airport|аэропорт|әуежай|el aeropuerto
+2|place|station|вокзал|вокзал|la estación
+2|place|museum|музей|мұражай|el museo
+2|place|cinema|кинотеатр|кинотеатр|el cine
+2|place|bank|банк|банк|el banco
+2|place|bridge|мост|көпір|el puente
+2|place|square|площадь|алаң|la plaza
+2|place|village|деревня|ауыл|el pueblo
+2|place|market|рынок|базар|el mercado
+2|nature|forest|лес|орман|el bosque
+2|nature|lake|озеро|көл|el lago
+2|nature|island|остров|арал|la isla
+2|nature|wind|ветер|жел|el viento
+2|nature|cloud|облако|бұлт|la nube
+2|nature|star|звезда|жұлдыз|la estrella
+2|nature|desert|пустыня|шөл|el desierto
+2|nature|field|поле|алқап|el campo
+2|nature|stone|камень|тас|la piedra
+2|nature|grass|трава|шөп|la hierba
+2|clothes|jacket|куртка|күртеше|la chaqueta
+2|clothes|trousers|брюки|шалбар|los pantalones
+2|clothes|skirt|юбка|белдемше|la falda
+2|clothes|socks|носки|шұлық|los calcetines
+2|clothes|gloves|перчатки|қолғап|los guantes
+2|clothes|scarf|шарф|мойын орамал|la bufanda
+2|clothes|belt|ремень|белдік|el cinturón
+2|clothes|glasses|очки|көзілдірік|las gafas
+2|time|month|месяц|ай|el mes
+2|time|hour|час|сағат|la hora
+2|time|minute|минута|минут|el minuto
+2|time|evening|вечер|кеш|la tarde
+2|time|yesterday|вчера|кеше|ayer
+2|time|spring|весна|көктем|la primavera
+2|time|summer|лето|жаз|el verano
+2|time|autumn|осень|күз|el otoño
+2|time|winter|зима|қыс|el invierno
+2|job|teacher|учитель|мұғалім|el profesor
+2|job|doctor|врач|дәрігер|el médico
+2|job|driver|водитель|жүргізуші|el conductor
+2|job|cook|повар|аспаз|el cocinero
+2|job|farmer|фермер|фермер|el granjero
+2|job|police officer|полицейский|полицей|el policía
+2|job|singer|певец|әнші|el cantante
+2|job|pilot|пилот|ұшқыш|el piloto
+2|hobby|football|футбол|футбол|el fútbol
+2|hobby|music|музыка|музыка|la música
+2|hobby|game|игра|ойын|el juego
+2|hobby|film|фильм|фильм|la película
+2|hobby|song|песня|ән|la canción
+2|hobby|photo|фотография|сурет|la foto
+2|hobby|holidays|каникулы|демалыс|las vacaciones
+2|transport|ship|корабль|кеме|el barco
+2|transport|ticket|билет|билет|el billete
+2|transport|road|дорога|жол|el camino
+2|transport|map|карта|карта|el mapa
+2|verb|help|помогать|көмектесу|ayudar
+2|verb|wait|ждать|күту|esperar
+2|verb|find|находить|табу|encontrar
+2|verb|give|давать|беру|dar
+2|verb|take|брать|алу|tomar
+2|verb|know|знать|білу|saber
+2|verb|think|думать|ойлау|pensar
+2|verb|work|работать|жұмыс істеу|trabajar
+2|verb|learn|учить|үйрену|aprender
+2|verb|travel|путешествовать|саяхаттау|viajar
+2|verb|tidy up|убирать|жинау|limpiar
+2|verb|call|звонить|қоңырау шалу|llamar
+2|verb|forget|забывать|ұмыту|olvidar
+2|adj|tall|высокий|биік|alto
+2|adj|short|короткий|қысқа|corto
+2|adj|long|длинный|ұзын|largo
+2|adj|cheap|дешёвый|арзан|barato
+2|adj|expensive|дорогой|қымбат|caro
+2|adj|easy|лёгкий|оңай|fácil
+2|adj|difficult|трудный|қиын|difícil
+2|adj|fast|быстрый|жылдам|rápido
+2|adj|slow|медленный|баяу|lento
+2|adj|clean|чистый|таза|limpio
+2|adj|dirty|грязный|лас|sucio
+2|feeling|hungry|голодный|аш|hambriento
+2|feeling|tired|уставший|шаршаған|cansado
+2|feeling|angry|сердитый|ашулы|enfadado
+2|feeling|afraid|испуганный|қорыққан|asustado
+3|health|medicine|лекарство|дәрі|la medicina
+3|health|illness|болезнь|ауру|la enfermedad
+3|health|pain|боль|ауырсыну|el dolor
+3|health|fever|температура|қызу|la fiebre
+3|health|cough|кашель|жөтел|la tos
+3|health|pharmacy|аптека|дәріхана|la farmacia
+3|health|patient|пациент|науқас|el paciente
+3|health|health|здоровье|денсаулық|la salud
+3|health|injury|травма|жарақат|la herida
+3|work|job|работа|жұмыс|el trabajo
+3|work|salary|зарплата|жалақы|el sueldo
+3|work|office|офис|кеңсе|la oficina
+3|work|boss|начальник|бастық|el jefe
+3|work|meeting|встреча|кездесу|la reunión
+3|work|company|компания|компания|la empresa
+3|work|customer|клиент|клиент|el cliente
+3|work|interview|собеседование|сұхбат|la entrevista
+3|work|money|деньги|ақша|el dinero
+3|work|price|цена|баға|el precio
+3|travel|passport|паспорт|төлқұжат|el pasaporte
+3|travel|luggage|багаж|жүк|el equipaje
+3|travel|journey|поездка|сапар|el viaje
+3|travel|hotel|гостиница|қонақ үй|el hotel
+3|travel|tourist|турист|турист|el turista
+3|travel|border|граница|шекара|la frontera
+3|travel|guide|гид|гид|el guía
+3|travel|flight|рейс|рейс|el vuelo
+3|tech|computer|компьютер|компьютер|el ordenador
+3|tech|phone|телефон|телефон|el teléfono
+3|tech|screen|экран|экран|la pantalla
+3|tech|message|сообщение|хабарлама|el mensaje
+3|tech|password|пароль|құпиясөз|la contraseña
+3|tech|website|сайт|сайт|la página web
+3|tech|keyboard|клавиатура|пернетақта|el teclado
+3|tech|battery|батарея|батарея|la batería
+3|nature|weather|погода|ауа райы|el tiempo
+3|nature|storm|буря|дауыл|la tormenta
+3|nature|earth|земля|жер|la tierra
+3|nature|ocean|океан|мұхит|el océano
+3|nature|valley|долина|аңғар|el valle
+3|nature|coast|побережье|жағалау|la costa
+3|nature|plant|растение|өсімдік|la planta
+3|nature|leaf|лист|жапырақ|la hoja
+3|nature|ice|лёд|мұз|el hielo
+3|society|country|страна|ел|el país
+3|society|government|правительство|үкімет|el gobierno
+3|society|law|закон|заң|la ley
+3|society|history|история|тарих|la historia
+3|society|language|язык|тіл|el idioma
+3|society|news|новости|жаңалықтар|las noticias
+3|society|culture|культура|мәдениет|la cultura
+3|society|tradition|традиция|дәстүр|la tradición
+3|society|war|война|соғыс|la guerra
+3|society|peace|мир|бейбітшілік|la paz
+3|mind|idea|идея|идея|la idea
+3|mind|dream|мечта|арман|el sueño
+3|mind|question|вопрос|сұрақ|la pregunta
+3|mind|answer|ответ|жауап|la respuesta
+3|mind|mistake|ошибка|қате|el error
+3|mind|reason|причина|себеп|la razón
+3|mind|problem|проблема|мәселе|el problema
+3|mind|choice|выбор|таңдау|la elección
+3|mind|advice|совет|кеңес|el consejo
+3|mind|memory|память|ес|la memoria
+3|feeling|proud|гордый|мақтаншақ|orgulloso
+3|feeling|nervous|нервный|қобалжыған|nervioso
+3|feeling|bored|скучающий|жалыққан|aburrido
+3|feeling|surprised|удивлённый|таңғалған|sorprendido
+3|feeling|worried|обеспокоенный|алаңдаған|preocupado
+3|feeling|lonely|одинокий|жалғыз|solo
+3|feeling|calm|спокойный|сабырлы|tranquilo
+3|verb|begin|начинать|бастау|empezar
+3|verb|finish|заканчивать|аяқтау|terminar
+3|verb|explain|объяснять|түсіндіру|explicar
+3|verb|understand|понимать|түсіну|entender
+3|verb|remember|помнить|есте сақтау|recordar
+3|verb|decide|решать|шешу|decidir
+3|verb|choose|выбирать|таңдау жасау|escoger
+3|verb|change|менять|өзгерту|cambiar
+3|verb|send|отправлять|жіберу|enviar
+3|verb|receive|получать|қабылдау|recibir
+3|verb|sell|продавать|сату|vender
+3|verb|pay|платить|төлеу|pagar
+3|verb|build|строить|салу|construir
+3|verb|grow|расти|өсу|crecer
+3|verb|win|побеждать|жеңу|ganar
+3|verb|lose|терять|жоғалту|perder
+3|verb|believe|верить|сену|creer
+3|verb|smile|улыбаться|күлімсіреу|sonreír
+3|verb|try|пытаться|тырысу|intentar
+3|verb|carry|нести|көтеру|llevar
+3|adj|important|важный|маңызды|importante
+3|adj|dangerous|опасный|қауіпті|peligroso
+3|adj|safe|безопасный|қауіпсіз|seguro
+3|adj|strong|сильный|күшті|fuerte
+3|adj|weak|слабый|әлсіз|débil
+3|adj|rich|богатый|бай|rico
+3|adj|poor|бедный|кедей|pobre
+3|adj|quiet|тихий|тыныш|silencioso
+3|adj|loud|громкий|қатты|ruidoso
+3|adj|empty|пустой|бос|vacío
+3|adj|full|полный|толы|lleno
+3|adj|wet|мокрый|дымқыл|mojado
+3|adj|dry|сухой|құрғақ|seco
+3|adj|famous|знаменитый|әйгілі|famoso
+3|adj|modern|современный|заманауи|moderno
+3|adj|ancient|древний|ежелгі|antiguo
+3|adj|healthy|здоровый|сау|sano
+3|adj|polite|вежливый|сыпайы|educado
+4|work|career|карьера|мансап|la carrera
+4|work|profit|прибыль|пайда|el beneficio
+4|work|tax|налог|салық|el impuesto
+4|work|loan|кредит|несие|el préstamo
+4|work|contract|договор|келісімшарт|el contrato
+4|work|employee|сотрудник|қызметкер|el empleado
+4|work|market economy|рыночная экономика|нарықтық экономика|la economía de mercado
+4|work|budget|бюджет|бюджет|el presupuesto
+4|work|deadline|крайний срок|соңғы мерзім|el plazo
+4|work|skill|навык|дағды|la habilidad
+4|society|election|выборы|сайлау|las elecciones
+4|society|citizen|гражданин|азамат|el ciudadano
+4|society|right|право|құқық|el derecho
+4|society|duty|обязанность|міндет|el deber
+4|society|crime|преступление|қылмыс|el delito
+4|society|court|суд|сот|el tribunal
+4|society|poverty|бедность|кедейлік|la pobreza
+4|society|population|население|халық саны|la población
+4|society|freedom|свобода|бостандық|la libertad
+4|society|equality|равенство|теңдік|la igualdad
+4|science|experiment|эксперимент|тәжірибе|el experimento
+4|science|research|исследование|зерттеу|la investigación
+4|science|discovery|открытие|жаңалық ашу|el descubrimiento
+4|science|evidence|доказательство|дәлел|la prueba
+4|science|theory|теория|теория|la teoría
+4|science|energy|энергия|энергия|la energía
+4|science|planet|планета|ғаламшар|el planeta
+4|science|climate|климат|климат|el clima
+4|science|pollution|загрязнение|ластану|la contaminación
+4|science|species|вид (биологический)|түр|la especie
+4|tech|device|устройство|құрылғы|el dispositivo
+4|tech|software|программное обеспечение|бағдарламалық жасақтама|el software
+4|tech|network|сеть|желі|la red
+4|tech|data|данные|деректер|los datos
+4|tech|robot|робот|робот|el robot
+4|tech|invention|изобретение|өнертабыс|el invento
+4|mind|opinion|мнение|пікір|la opinión
+4|mind|goal|цель|мақсат|el objetivo
+4|mind|success|успех|табыс|el éxito
+4|mind|failure|неудача|сәтсіздік|el fracaso
+4|mind|knowledge|знание|білім|el conocimiento
+4|mind|wisdom|мудрость|даналық|la sabiduría
+4|mind|attention|внимание|назар|la atención
+4|mind|habit|привычка|әдет|el hábito
+4|mind|decision|решение|шешім|la decisión
+4|mind|patience|терпение|шыдамдылық|la paciencia
+4|feeling|anxious|тревожный|мазасыз|ansioso
+4|feeling|grateful|благодарный|риза|agradecido
+4|feeling|jealous|ревнивый|қызғаншақ|celoso
+4|feeling|confident|уверенный в себе|өзіне сенімді|seguro de sí
+4|feeling|disappointed|разочарованный|көңілі қалған|decepcionado
+4|feeling|embarrassed|смущённый|ұялған|avergonzado
+4|feeling|excited|взволнованный|толқыған|emocionado
+4|verb|achieve|достигать|қол жеткізу|lograr
+4|verb|avoid|избегать|аулақ болу|evitar
+4|verb|compare|сравнивать|салыстыру|comparar
+4|verb|describe|описывать|сипаттау|describir
+4|verb|develop|развивать|дамыту|desarrollar
+4|verb|improve|улучшать|жақсарту|mejorar
+4|verb|increase|увеличивать|арттыру|aumentar
+4|verb|reduce|сокращать|азайту|reducir
+4|verb|prevent|предотвращать|алдын алу|prevenir
+4|verb|protect|защищать|қорғау|proteger
+4|verb|suggest|предлагать|ұсыну|sugerir
+4|verb|require|требовать|талап ету|exigir
+4|verb|solve|решать (задачу)|шығару|resolver
+4|verb|predict|предсказывать|болжау|predecir
+4|verb|respect|уважать|құрметтеу|respetar
+4|verb|borrow|брать взаймы|қарызға алу|pedir prestado
+4|verb|deserve|заслуживать|лайық болу|merecer
+4|verb|admit|признавать|мойындау|admitir
+4|verb|argue|спорить|дауласу|discutir
+4|verb|warn|предупреждать|ескерту|advertir
+4|adj|reliable|надёжный|сенімді|fiable
+4|adj|necessary|необходимый|қажетті|necesario
+4|adj|possible|возможный|мүмкін|posible
+4|adj|serious|серьёзный|байсалды|serio
+4|adj|available|доступный|қолжетімді|disponible
+4|adj|common|распространённый|кең таралған|común
+4|adj|rare|редкий|сирек|raro
+4|adj|huge|огромный|орасан зор|enorme
+4|adj|tiny|крошечный|кішкене ғана|diminuto
+4|adj|accurate|точный|дәл|preciso
+4|adj|honest|честный|адал|honesto
+4|adj|brave|смелый|батыл|valiente
+4|adj|lazy|ленивый|жалқау|perezoso
+4|adj|generous|щедрый|жомарт|generoso
+4|adj|curious|любопытный|әуесқой|curioso
+4|adj|tolerant|терпимый|төзімді|tolerante
+5|society|authority|власть|билік|la autoridad
+5|society|policy|политика (курс)|саясат|la política
+5|society|reform|реформа|реформа|la reforma
+5|society|treaty|договор (международный)|шарт|el tratado
+5|society|wealth|богатство|байлық|la riqueza
+5|society|unemployment|безработица|жұмыссыздық|el desempleo
+5|society|inequality|неравенство|теңсіздік|la desigualdad
+5|society|heritage|наследие|мұра|el patrimonio
+5|society|immigration|иммиграция|иммиграция|la inmigración
+5|society|welfare|благосостояние|әл-ауқат|el bienestar
+5|science|hypothesis|гипотеза|болжам|la hipótesis
+5|science|consequence|последствие|салдар|la consecuencia
+5|science|phenomenon|явление|құбылыс|el fenómeno
+5|science|resource|ресурс|ресурс|el recurso
+5|science|environment|окружающая среда|қоршаған орта|el medio ambiente
+5|science|survey|опрос|сауалнама|la encuesta
+5|science|sample|образец|үлгі|la muestra
+5|science|method|метод|әдіс|el método
+5|mind|awareness|осознание|хабардарлық|la conciencia
+5|mind|assumption|предположение|жорамал|la suposición
+5|mind|bias|предвзятость|біржақтылық|el sesgo
+5|mind|insight|понимание сути|түйсік|la perspicacia
+5|mind|perspective|точка зрения|көзқарас|la perspectiva
+5|mind|approach|подход|тәсіл|el enfoque
+5|mind|challenge|вызов|сын-қатер|el desafío
+5|mind|issue|вопрос (проблема)|түйткіл|la cuestión
+5|mind|outcome|результат|нәтиже|el resultado
+5|mind|effort|усилие|күш-жігер|el esfuerzo
+5|mind|benefit|польза|игілік|la ventaja
+5|mind|threat|угроза|қатер|la amenaza
+5|feeling|reluctant|неохотный|құлықсыз|reacio
+5|feeling|furious|разъярённый|қаһарлы|furioso
+5|feeling|delighted|восхищённый|қуанышты|encantado
+5|feeling|exhausted|измученный|қалжыраған|agotado
+5|feeling|ashamed|пристыженный|ұятқа қалған|avergonzado de sí
+5|verb|acknowledge|открыто признавать|мойындап айту|reconocer
+5|verb|assess|оценивать|бағалау|evaluar
+5|verb|claim|утверждать|мәлімдеу|afirmar
+5|verb|confirm|подтверждать|растау|confirmar
+5|verb|contribute|вносить вклад|үлес қосу|contribuir
+5|verb|emphasize|подчёркивать|атап өту|subrayar
+5|verb|establish|учреждать|құру|establecer
+5|verb|ensure|обеспечивать|қамтамасыз ету|asegurar
+5|verb|identify|определять|анықтау|identificar
+5|verb|imply|подразумевать|меңзеу|implicar
+5|verb|maintain|поддерживать|сақтау|mantener
+5|verb|obtain|получать (добывать)|иелену|obtener
+5|verb|overcome|преодолевать|еңсеру|superar
+5|verb|persuade|убеждать|көндіру|persuadir
+5|verb|reject|отвергать|қабылдамау|rechazar
+5|verb|rely|полагаться|арқа сүйеу|depender
+5|verb|seek|искать (стремиться)|ізденіс жасау|buscar
+5|verb|undergo|подвергаться|бастан кешу|someterse
+5|adj|significant|значительный|елеулі|significativo
+5|adj|essential|существенный|аса маңызды|esencial
+5|adj|obvious|очевидный|айқын|obvio
+5|adj|relevant|относящийся к делу|өзекті|pertinente
+5|adj|sufficient|достаточный|жеткілікті|suficiente
+5|adj|complex|сложный|күрделі|complejo
+5|adj|efficient|эффективный|тиімді|eficiente
+5|adj|flexible|гибкий|икемді|flexible
+5|adj|reasonable|разумный|орынды|razonable
+5|adj|controversial|спорный|даулы|polémico
+5|adj|temporary|временный|уақытша|temporal
+5|adj|permanent|постоянный|тұрақты|permanente
+5|adj|vague|расплывчатый|бұлыңғыр|vago
+5|adj|subtle|тонкий (едва заметный)|нәзік|sutil
+5|adj|reckless|безрассудный|ойланбай істейтін|imprudente
+6|mind|paradox|парадокс|парадокс|la paradoja
+6|mind|nuance|нюанс|реңк|el matiz
+6|mind|dilemma|дилемма|дилемма|el dilema
+6|mind|premise|предпосылка|алғышарт|la premisa
+6|mind|fallacy|ложное суждение|жаңсақ пайым|la falacia
+6|mind|scrutiny|тщательная проверка|мұқият тексеру|el escrutinio
+6|mind|consensus|консенсус|ортақ келісім|el consenso
+6|mind|integrity|честность (принципиальность)|адалдық|la integridad
+6|mind|ambiguity|двусмысленность|екіұштылық|la ambigüedad
+6|mind|hindsight|взгляд в прошлое|кейінгі ой|la retrospectiva
+6|society|legislation|законодательство|заңнама|la legislación
+6|society|sovereignty|суверенитет|егемендік|la soberanía
+6|society|bureaucracy|бюрократия|бюрократия|la burocracia
+6|society|prosperity|процветание|өркендеу|la prosperidad
+6|society|turmoil|смятение|аласапыран|la agitación
+6|society|legacy|наследство|мирас|el legado
+6|science|catalyst|катализатор|катализатор|el catalizador
+6|science|scarcity|дефицит|тапшылық|la escasez
+6|science|erosion|эрозия|эрозия|la erosión
+6|science|drought|засуха|құрғақшылық|la sequía
+6|verb|alleviate|облегчать|жеңілдету|aliviar
+6|verb|ascertain|выяснять|анықтап алу|averiguar
+6|verb|circumvent|обходить|айналып өту|eludir
+6|verb|deteriorate|ухудшаться|нашарлау|deteriorarse
+6|verb|exacerbate|усугублять|ушықтыру|agravar
+6|verb|undermine|подрывать|әлсірету|socavar
+6|verb|scrutinize|тщательно изучать|егжей-тегжейлі зерттеу|examinar
+6|verb|reconcile|примирять|татуластыру|reconciliar
+6|verb|relinquish|отказываться|бас тарту|renunciar
+6|verb|substantiate|обосновывать|негіздеу|fundamentar
+6|verb|foster|поощрять (развивать)|баулу|fomentar
+6|verb|hinder|мешать|кедергі келтіру|obstaculizar
+6|verb|endorse|одобрять|мақұлдау|respaldar
+6|verb|mitigate|смягчать|бәсеңдету|mitigar
+6|adj|meticulous|дотошный|ұқыпты|meticuloso
+6|adj|ubiquitous|вездесущий|барлық жерде кездесетін|omnipresente
+6|adj|pragmatic|прагматичный|прагматикалық|pragmático
+6|adj|resilient|стойкий|төзімді болып қалатын|resiliente
+6|adj|inevitable|неизбежный|сөзсіз|inevitable
+6|adj|tentative|предварительный|алдын ала|provisional
+6|adj|eloquent|красноречивый|шешен|elocuente
+6|adj|obsolete|устаревший|ескірген|obsoleto
+6|adj|arbitrary|произвольный|еркін таңдалған|arbitrario
+6|adj|plausible|правдоподобный|шындыққа ұқсас|verosímil
+6|adj|coherent|последовательный|үйлесімді|coherente
+6|adj|candid|откровенный|ашық-жарқын|franco
+6|adj|diligent|усердный|ынталы|diligente
+6|adj|elusive|неуловимый|ұстатпайтын|esquivo
+6|adj|profound|глубокий|терең|profundo
+6|adj|unprecedented|беспрецедентный|бұрын болмаған|sin precedentes
+6|feeling|indifferent|равнодушный|немқұрайлы|indiferente
+6|feeling|apprehensive|опасающийся|күдіктенген|aprensivo
+6|feeling|elated|ликующий|шаттанған|eufórico
+6|feeling|wistful|тоскующий|сағынышты|nostálgico

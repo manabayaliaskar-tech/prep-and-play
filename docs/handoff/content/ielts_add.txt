@@ -1,0 +1,66 @@
+    {
+      id: 'silkroad',
+      title: 'Roads of Silk and Ideas',
+      text:
+        'The Silk Road was not a single road but a network of routes that linked China with the Mediterranean for more than a thousand years. Caravans of camels carried silk, porcelain and spices westward, while glass, silver and horses travelled east. Cities such as Otrar, Taraz and Samarkand grew rich by offering travellers water, food and safe places to rest. Historians stress, however, that goods were only part of the story. Along the same routes moved religions, languages, technologies such as paper-making, and even diseases. From the fifteenth century, as Europeans learned to reach Asia by sea, the overland trade gradually declined. Today the name has been revived for modern transport projects, but these depend on railways and highways rather than caravans.',
+      qs: [
+        tf('The Silk Road consisted of several connected routes.', 0, L(
+          'True: it "was not a single road but a network of routes".',
+          'True: это «не одна дорога, а сеть путей».',
+          'True: бұл «бір жол емес, жолдар желісі» болған.',
+        )),
+        tf('Horses were transported from the east to the west.', 1, L(
+          'False: the text says horses "travelled east", not west.',
+          'False: в тексте сказано, что лошади шли «на восток», а не на запад.',
+          'False: мәтінде жылқылар батысқа емес, «шығысқа» жеткізілгені айтылған.',
+        )),
+        tf('Otrar was the largest city on the Silk Road.', 2, L(
+          'Not Given: Otrar is named among rich cities, but nothing is said about which was the largest.',
+          'Not Given: Отрар назван среди богатых городов, но о том, какой город был самым большим, ничего не сказано.',
+          'Not Given: Отырар бай қалалардың бірі ретінде аталған, бірақ ең үлкен қала туралы ештеңе айтылмаған.',
+        )),
+        mc('Why did overland trade decline from the fifteenth century?', [
+          'Europeans found sea routes to Asia.',
+          'The caravan cities ran out of water.',
+          'Silk stopped being fashionable.',
+          'Railways replaced the caravans.',
+        ], L(
+          'The text links the decline to Europeans learning "to reach Asia by sea". Railways belong to modern projects.',
+          'Упадок связан с тем, что европейцы научились «добираться до Азии морем». Железные дороги — это уже современные проекты.',
+          'Құлдырау еуропалықтардың «Азияға теңіз арқылы жетуді» үйренуімен байланысты. Темір жолдар — қазіргі жобалар.',
+        )),
+      ],
+    },
+    {
+      id: 'sleep',
+      title: 'Why We Sleep on It',
+      text:
+        'People have long been told to "sleep on" a difficult decision, and modern research suggests the advice is sound. During deep sleep the brain replays the events of the day, strengthening some memories and weakening others. In one well-known experiment, volunteers learned a list of word pairs in the evening. Those who then slept recalled noticeably more pairs the next morning than those who stayed awake for the same number of hours. Sleep also seems to help people notice hidden patterns: in another study, participants who slept were more likely to discover a shortcut in a number puzzle. Researchers caution that a short nap is not a substitute for a full night, and that students who stay up late before an exam may remember less, not more.',
+      qs: [
+        tf('According to research, sleeping before a decision can be helpful.', 0, L(
+          'True: research "suggests the advice is sound".',
+          'True: исследования «подтверждают, что совет разумен».',
+          'True: зерттеулер «кеңестің дұрыс екенін» көрсетеді.',
+        )),
+        tf('In the word-pair experiment, the volunteers who stayed awake remembered more.', 1, L(
+          'False: those who slept "recalled noticeably more pairs".',
+          'False: больше пар вспомнили те, кто спал.',
+          'False: көбірек жұпты ұйықтағандар есіне түсірді.',
+        )),
+        tf('The number-puzzle study was carried out with university students only.', 2, L(
+          'Not Given: the text calls them "participants" and does not say who they were.',
+          'Not Given: в тексте сказано «участники», но не сказано, кто они.',
+          'Not Given: мәтінде тек «қатысушылар» делінген, олардың кім екені айтылмаған.',
+        )),
+        mc('What warning do researchers give?', [
+          'A short nap cannot replace a full night of sleep.',
+          'Sleeping too long damages memory.',
+          'Puzzles should not be solved at night.',
+          'Word lists are the best way to study.',
+        ], L(
+          'Researchers "caution that a short nap is not a substitute for a full night".',
+          'Учёные предупреждают, что «короткий дневной сон не заменит полноценную ночь».',
+          'Ғалымдар «қысқа ұйқы толық түнгі ұйқыны алмастырмайды» деп ескертеді.',
+        )),
+      ],
+    },

@@ -1,0 +1,31 @@
+words | craft | Слова в контексте | Words in Context
+structure | craft | Структура и цель текста | Text Structure and Purpose
+cross | craft | Связь двух текстов | Cross-Text Connections
+central | info | Главная идея и детали | Central Ideas and Details
+evidence | info | Доказательства из текста | Command of Evidence: Textual
+quant | info | Доказательства из данных | Command of Evidence: Quantitative
+inference | info | Логические выводы | Inferences
+boundaries | conventions | Границы предложений и пунктуация | Boundaries
+fss | conventions | Форма и согласование | Form, Structure, and Sense
+transitions | expression | Связующие слова | Transitions
+synthesis | expression | Работа с заметками | Rhetorical Synthesis
+lin-eq | algebra | Линейные уравнения | Linear equations in one variable
+lin-func | algebra | Линейные функции | Linear functions
+lin-model | algebra | Линейные модели в задачах | Linear models in context
+systems | algebra | Системы уравнений | Systems of linear equations
+inequalities | algebra | Линейные неравенства | Linear inequalities
+quadratics | advanced | Квадратные уравнения | Quadratic equations
+equivalent | advanced | Равносильные выражения | Equivalent expressions
+exponential | advanced | Показательные функции | Exponential functions
+functions | advanced | Функции и их значения | Function notation
+nonlinear | advanced | Нелинейные функции и системы | Nonlinear functions and systems
+ratios | data | Отношения, скорости, единицы | Ratios, rates, and units
+percent | data | Проценты | Percentages
+stats | data | Среднее, медиана, разброс | One-variable data
+probability | data | Вероятность | Probability
+models | data | Модели по данным | Two-variable data and models
+area-volume | geometry | Площадь и объём | Area and volume
+angles | geometry | Прямые, углы, треугольники | Lines, angles, and triangles
+right-tri | geometry | Прямоугольные треугольники и тригонометрия | Right triangles and trigonometry
+circles | geometry | Окружности | Circles
+similar | geometry | Подобные фигуры | Similar figures

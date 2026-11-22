@@ -1,0 +1,40 @@
+const { chromium } = require('playwright');
+const S = __dirname + '/';
+(async () => {
+  const b = await chromium.launch();
+  const p = await b.newPage({ viewport: { width: 390, height: 844 } });
+  const errs = [];
+  p.on('pageerror', (e) => errs.push(String(e.stack || e).slice(0, 300)));
+  await p.goto('http://localhost:3000/');
+  await p.evaluate(() => localStorage.setItem('prepplay:lang', JSON.stringify('ru')));
+  await p.goto('http://localhost:3000/#/explain/parabola');
+  await p.waitForTimeout(700);
+  await p.screenshot({ path: S + 'h-parabola.png' });
+  await p.goto('http://localhost:3000/#/explain/balance');
+  await p.waitForTimeout(500);
+  await p.click('[data-b="0"]');
+  await p.waitForTimeout(600);
+  await p.screenshot({ path: S + 'h-balance.png' });
+  await p.goto('http://localhost:3000/#/c/ielts/listening');
+  await p.waitForTimeout(400);
+  await p.click('.start-train');
+  await p.waitForTimeout(600);
+  await p.screenshot({ path: S + 'h-listen.png' });
+  await p.evaluate(() => localStorage.setItem('prepplay:theme', JSON.stringify('neon')));
+  await p.goto('http://localhost:3000/#/');
+  await p.reload();
+  await p.waitForTimeout(900);
+  await p.screenshot({ path: S + 'h-neon-hub.png' });
+  await p.goto('http://localhost:3000/#/know/ent');
+  await p.waitForTimeout(900);
+  await p.screenshot({ path: S + 'h-neon-know.png' });
+  for (const th of ['aurora', 'sakura', 'forest', 'sand', 'mono', 'midnight', 'lava']) {
+    await p.evaluate((x) => localStorage.setItem('prepplay:theme', JSON.stringify(x)), th);
+    await p.goto('http://localhost:3000/#/c/ent');
+    await p.reload();
+    await p.waitForTimeout(700);
+    await p.screenshot({ path: S + `th-${th}.png` });
+  }
+  console.log('errors', errs);
+  await b.close();
+})();

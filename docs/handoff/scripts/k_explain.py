@@ -1,0 +1,15 @@
+K = {
+ 'explain.title': ('Анимации тем','Topic animations','Тақырып анимациялары'),
+ 'explain.desc': ('Сложные темы, которые можно потрогать: крути ползунки, запускай анимацию и смотри, что меняется. Потом сразу потренируйся.','Tricky topics you can play with: move the sliders, start the animation and watch what changes. Then practise straight away.','Ұстап көруге болатын күрделі тақырыптар: жүгірткіні жылжыт, анимацияны қос және не өзгеретінін бақыла. Содан кейін бірден жаттық.'),
+ 'explain.train': ('Потренировать: {name}','Practise: {name}','Жаттығу: {name}'),
+ 'explain.next': ('Следующая анимация','Next animation','Келесі анимация'),
+ 'explain.back': ('К анимации','Back to the animation','Анимацияға'),
+ 'explain.slope': ('наклон','slope','көлбеулік'),
+ 'explain.h': ('ч','h','сағ'),
+ 'explain.gap': ('между ними','gap','арақашықтық'),
+ 'hub.explainDesc': ('10 тем, которые можно потрогать','10 topics you can play with','Ұстап көруге болатын 10 тақырып'),
+ 'hub.listen': ('Аудирование','Listening','Тыңдалым'),
+ 'hub.listenDesc': ('IELTS и TOEFL на слух','IELTS and TOEFL by ear','IELTS пен TOEFL тыңдап'),
+ 'hub.savedDesc': ('Закладки и заметки','Bookmarks and notes','Бетбелгілер мен жазбалар'),
+ 'hub.savedN': ('Сохранено заданий: {n}','{n} saved questions','Сақталған тапсырма: {n}'),
+}
