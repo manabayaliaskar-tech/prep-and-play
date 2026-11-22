@@ -1,6 +1,8 @@
 // Каталог: список экзаменов, страница курса (экзамен или набор уровней), раздел «Ежедневная практика».
 
 import { getEnVariant, setEnVariant } from '../core/en-variant.js';
+import { COUNTRIES, COUNTRY_ORDER, CURRENCY_COUNTRY, countryOf, flagSvg } from '../catalog/countries.js';
+import { userCurrency } from '../core/goal.js';
 import { learnRowHtml, levelChips } from './hub.js';
 import { mockCardHtml } from './mock.js';
 import { courseById, courseHref, coursesIn, groupById, levelLabel, trackHref, trackRecord } from '../catalog/index.js';
@@ -112,6 +114,21 @@ function examList(list) {
   return `<div class="exam-list">${cards}</div>`;
 }
 
+/** Экзамены по странам: своя страна первой, дальше СНГ и популярные направления. */
+function examsByCountry() {
+  const exams = coursesIn('exams');
+  const mine = CURRENCY_COUNTRY[userCurrency()];
+  const order = [...new Set([mine, ...COUNTRY_ORDER].filter(Boolean))];
+  const groups = order.map((c) => [c, exams.filter((e) => countryOf(e.id) === c)]).filter(([, list]) => list.length);
+  const rest = exams.filter((e) => !countryOf(e.id));
+  return (
+    groups
+      .map(([c, list]) => `<section class="country-block ${list.length >= 3 ? 'is-wide' : ''}"><h2 class="section-title country-title">${flagSvg(c, 'flag-sm')}${esc(tx(COUNTRIES[c]))} <small>${list.length}</small></h2>${examList(list)}</section>`)
+      .join('')
+      .replace(/^/, '<div class="country-grid">') + '</div>' + (rest.length ? examList(rest) : '')
+  );
+}
+
 export function examsScreen(app) {
   const render = () => {
     const group = groupById('exams');
@@ -121,10 +138,7 @@ export function examsScreen(app) {
           <h1>${group.icon} ${esc(tx(group.name))}</h1>
           <p class="muted">${t('cat.examsDesc')}</p>
         </div>
-        <h2 class="section-title">${t('cat.intl')}</h2>
-        ${examList(coursesIn('exams', 'intl'))}
-        <h2 class="section-title">${t('cat.cis')}</h2>
-        ${examList(coursesIn('exams', 'cis'))}
+        ${examsByCountry()}
         <p class="muted tiny catalog-note">${t('cat.disclaimer')}</p>
       </section>`;
   };

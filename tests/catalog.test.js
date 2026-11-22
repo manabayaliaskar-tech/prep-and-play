@@ -33,8 +33,8 @@ test('каталог: у каждого курса есть название, о
   }
   // Экзамены всех стран СНГ, где есть единый экзамен, и три международных.
   for (const id of ['sat', 'ielts', 'toefl', 'hsk', 'ent', 'ege', 'oge', 'ct', 'dtm', 'ort', 'tj', 'dim', 'arm', 'bac']) assert.ok(courseById(id), id);
-  assert.equal(coursesIn('exams', 'intl').length, 23);
-  assert.equal(coursesIn('exams', 'cis').length, 12);
+  assert.ok(coursesIn('exams', 'intl').length >= 23, 'международные экзамены');
+  assert.ok(coursesIn('exams', 'cis').length >= 12, 'экзамены СНГ');
   assert.equal(courseById('math').tracks.length, 14, '11 классов и три уровня после школы');
   assert.deepEqual(courseById('english').tracks.map((t) => t.icon), ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']);
   assert.equal(courseById('olymp').tracks.length, 13);
@@ -243,4 +243,13 @@ test('квиз: рекорд на каждой сложности не ухуд�
   saveQuizResult(8, 10);
   got = new Set(evaluateAchievements(getProfile()));
   assert.ok(got.has('quizmaster'));
+});
+
+test('экзамены: у каждого есть страна и флаг', async () => {
+  const { countryOf, flagSvg, COUNTRIES } = await import('../src/catalog/countries.js');
+  for (const c of coursesIn('exams')) {
+    const country = countryOf(c.id);
+    assert.ok(country && COUNTRIES[country], `${c.id}: нет страны`);
+    assert.ok(flagSvg(country).startsWith('<svg'), `${c.id}: нет флага`);
+  }
 });

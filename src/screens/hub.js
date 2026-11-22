@@ -2,6 +2,7 @@
 // экзамены, олимпиадная математика, ежедневная практика.
 
 import { EXPLAINERS } from '../content/explainers.js';
+import { countryOf, flagSvg } from '../catalog/countries.js';
 import { dueMistakes, getMistakes } from '../core/review.js';
 import { restRulesToday, rulesTileCount } from '../core/rules.js';
 import { storage } from '../core/storage.js';
@@ -54,6 +55,9 @@ export function ring(value, max) {
 
 /** Значок курса: код страны или экзамена в цветном кружке либо эмодзи. */
 export function courseBadge(course, cls = '') {
+  // Экзамены - с флагом страны во весь значок и коротким кодом поверх.
+  const country = course.group === 'exams' ? countryOf(course.id) : null;
+  if (country) return `<span class="code-badge flag-badge ${course.code.length > 4 ? 'is-long' : ''} ${cls}" style="--c:${course.color}" aria-hidden="true">${flagSvg(country)}<b class="flag-code">${course.code}</b></span>`;
   const isText = /^[A-Za-z+#]+$/.test(course.code);
   return `<span class="code-badge ${isText ? 'is-text' : ''} ${course.code.length > 3 ? 'is-long' : ''} ${cls}" style="--c:${course.color}" aria-hidden="true">${course.code}</span>`;
 }
