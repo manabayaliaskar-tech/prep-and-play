@@ -34,7 +34,7 @@ test('немецкий и турецкий банк: по 70+ заданий н�
       assert.equal(new Set([ok, ...wrong]).size, 4, `${name}: повтор вариантов - ${q}`);
       for (const l of LANGS) {
         assert.ok(text(ex, l).length > 20, `${name}: разбор ${l} - ${q}`);
-        assert.ok(!/[—–]|undefined|NaN/.test(text(ex, l)), `${name}: ${text(ex, l)}`);
+        assert.ok(!/[\u2014\u2013]|undefined|NaN/.test(text(ex, l)), `${name}: ${text(ex, l)}`);
       }
     }
   }
@@ -52,7 +52,7 @@ test('немецкий и турецкий: генераторы дают кор
         ids.add(q.id);
         if (s % 6) continue;
         const blob = JSON.stringify([q.prompt, q.choices, q.ex, q.passage ?? '']);
-        assert.ok(!/NaN|undefined|null|[—–]/.test(blob), `${id} L${level}: ${blob.slice(0, 200)}`);
+        assert.ok(!/NaN|undefined|null|[\u2014\u2013]/.test(blob), `${id} L${level}: ${blob.slice(0, 200)}`);
         assert.equal(q.choices.length, 4, id);
         assert.equal(q.skill, id);
         for (const l of LANGS) {

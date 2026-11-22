@@ -32,7 +32,7 @@ test('японский и корейский: задания корректны,
         for (const l of LANGS) {
           assert.equal(new Set(q.choices.map((c) => text(c, l))).size, 4, `${label}: повтор (${l}) ${q.choices.map((c) => text(c, l)).join(' | ')}`);
           assert.ok(text(q.prompt, l).length > 3 && text(q.ex, l).length > 5, `${label}: текст ${l}`);
-          assert.ok(!/[—–]/.test(text(q.ex, l) + text(q.prompt, l)), `${label}: длинное тире`);
+          assert.ok(!/[\u2014\u2013]/.test(text(q.ex, l) + text(q.prompt, l)), `${label}: длинное тире`);
         }
       }
     }
@@ -66,7 +66,7 @@ test('словари: нужное число слов, кандзи и пред
     for (const w of list) {
       assert.ok(!seen.has(w[key]), `${name}: повтор ${w[key]}`);
       seen.add(w[key]);
-      for (const l of LANGS) assert.ok(w[l] && !/[—–]/.test(w[l]), `${name} ${w[key]}: перевод ${l}`);
+      for (const l of LANGS) assert.ok(w[l] && !/[\u2014\u2013]/.test(w[l]), `${name} ${w[key]}: перевод ${l}`);
     }
   }
   for (const rows of [JA_GRAMMAR, KO_GRAMMAR]) {
@@ -74,7 +74,7 @@ test('словари: нужное число слов, кандзи и пред
       assert.equal(sentence.match(/_{3,}/g)?.length, 1, sentence);
       assert.equal(new Set([correct, ...wrong]).size, 4, sentence);
       assert.equal(ex.split('|').length, 3, sentence);
-      assert.ok(!/[—–]/.test(ex), sentence);
+      assert.ok(!/[\u2014\u2013]/.test(ex), sentence);
     }
   }
   assert.ok(KANA.length >= 100);
